@@ -17,17 +17,17 @@ You will need to open two separate terminal windows to launch both the physics e
 Open a terminal and run this command. It sets the required paths so Gazebo can locate the custom 3D AUV models before launching the world.
 
 ```bash
-export GZ_SIM_RESOURCE_PATH=/home/radhi/my_robot_model/models:/home/radhi/bluerov2_gz/models:/home/radhi/bluerov2_gz/worlds:$GZ_SIM_RESOURCE_PATH
-export GZ_SIM_SYSTEM_PLUGIN_PATH=/home/radhi/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH
-gz sim -v 4 -r /home/radhi/bluerov2_gz/worlds/bluerov2_underwater.world
+export GZ_SIM_RESOURCE_PATH=/home/radhi/auv_ws/simulation/my_robot_model/models:/home/radhi/auv_ws/simulation/bluerov2_gz/models:/home/radhi/auv_ws/simulation/bluerov2_gz/worlds:$GZ_SIM_RESOURCE_PATH
+export GZ_SIM_SYSTEM_PLUGIN_PATH=/home/radhi/auv_ws/firmware/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH
+gz sim -v 4 -r /home/radhi/auv_ws/simulation/bluerov2_gz/worlds/bluerov2_underwater.world
 ```
 
 ### 2. Launch the ArduSub Flight Controller
 Open a second terminal and run this command to start the SITL firmware and open the MAVProxy console:
 
 ```bash
-cd ~/ardupilot/ArduSub
-python3 ~/ardupilot/Tools/autotest/sim_vehicle.py -v ArduSub -f gazebo-bluerov2 --model JSON --console
+cd ~/auv_ws/firmware/ardupilot/ArduSub
+python3 ~/auv_ws/firmware/ardupilot/Tools/autotest/sim_vehicle.py -v ArduSub -f gazebo-bluerov2 --model JSON --console
 ```
 
 ## Basic Control Commands
@@ -191,10 +191,10 @@ and plugins. Without this, Gazebo will launch but show an empty world with no AU
 Add these lines to your ~/.bashrc to make them permanent:
 
 ```bash
-echo 'export GZ_SIM_SYSTEM_PLUGIN_PATH=$HOME/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH' >> ~/.bashrc
-echo 'export GZ_SIM_RESOURCE_PATH=$HOME/ardupilot_gazebo/models:$HOME/ardupilot_gazebo/worlds:$GZ_SIM_RESOURCE_PATH' >> ~/.bashrc
-echo 'export GZ_SIM_RESOURCE_PATH=$HOME/AUV-Development/bluerov2_gz/models:$HOME/AUV-Development/bluerov2_gz/worlds:$GZ_SIM_RESOURCE_PATH' >> ~/.bashrc
-echo 'export GZ_SIM_RESOURCE_PATH=$HOME/AUV-Development/my_robot_model/models:$GZ_SIM_RESOURCE_PATH' >> ~/.bashrc
+echo 'export GZ_SIM_SYSTEM_PLUGIN_PATH=$HOME/auv_ws/firmware/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH' >> ~/.bashrc
+echo 'export GZ_SIM_RESOURCE_PATH=$HOME/auv_ws/firmware/ardupilot_gazebo/models:$HOME/auv_ws/firmware/ardupilot_gazebo/worlds:$GZ_SIM_RESOURCE_PATH' >> ~/.bashrc
+echo 'export GZ_SIM_RESOURCE_PATH=$HOME/auv_ws/simulation/bluerov2_gz/models:$HOME/auv_ws/simulation/bluerov2_gz/worlds:$GZ_SIM_RESOURCE_PATH' >> ~/.bashrc
+echo 'export GZ_SIM_RESOURCE_PATH=$HOME/auv_ws/simulation/my_robot_model/models:$GZ_SIM_RESOURCE_PATH' >> ~/.bashrc
 source ~/.bashrc
 ```
 
