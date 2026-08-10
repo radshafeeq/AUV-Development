@@ -466,6 +466,12 @@ approximation for a similarly-sized AUV:
 
 To manually monitor the simulation or fly using a gamepad (Xbox/PlayStation controller), you can use the **Blue Robotics Cockpit** desktop application.
 
+> **Note for Ubuntu 24.04 Users:** AppImages require a FUSE library that is no longer installed by default. Before running Cockpit for the first time, you must run:
+> ```bash
+> sudo apt update
+> sudo apt install libfuse2t64
+> ```
+
 1.  **Start the simulation:**
     Run both `start_gazebo.sh` and `start_ardusub.sh` in separate terminals.
 2.  **Run Cockpit:**
