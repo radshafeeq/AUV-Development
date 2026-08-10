@@ -475,9 +475,8 @@ To manually monitor the simulation or fly using a gamepad (Xbox/PlayStation cont
 1.  **Start the simulation:**
     Run both `start_gazebo.sh` and `start_ardusub.sh` in separate terminals.
 2.  **Run Cockpit:**
-    The standalone desktop application is located in `~/auv_ws/tools`.
+    You can launch Cockpit using the provided script in this repository:
     ```bash
-    cd ~/auv_ws/tools
-    ./Cockpit-linux-x86_64.AppImage
+    ./start_cockpit.sh
     ```
 3.  Cockpit will automatically detect the MAVLink stream on `localhost:14550`. You can map your controller in the UI and test the AUV physics before autonomous AI testing.
