@@ -1,38 +1,51 @@
-# Custom AUV Development - Gazebo Harmonic + ArduSub + Webots
+# Custom 5-DOF AUV Simulation
+This repository contains the simulation files for a custom 6-motor, 5-DOF Autonomous Underwater Vehicle (AUV). This project is being developed as part of an undergraduate Mechatronics Engineering thesis at Hasanuddin University.
 
-> **Undergraduate Thesis Project** — Hasanuddin University  
-> A custom 5-DOF, 6-thruster Autonomous Underwater Vehicle (AUV) simulation  
-> built on top of the BlueROV2 Gazebo framework, integrated with ArduSub firmware.
+The simulation integrates a custom 3D AUV frame design with Gazebo Harmonic (for physics and 3D rendering) and ArduSub SITL (for the flight controller and vehicle dynamics).
+
+## Architecture Overview
+The simulation is split into two main components that communicate over a local network:
+
+**Gazebo Sim:** Handles the 3D graphics, water physics, buoyancy, and collisions using the custom 3D .obj models.
+
+**ArduSub SITL (Software In The Loop):** Acts as the "brain" of the robot. It runs the ArduSub firmware, calculates motor thrusts based on the 6-motor geometry, and provides a MAVLink interface via MAVProxy.
+
+## How to Run the Simulation
+You will need to open two separate terminal windows to launch both the physics environment and the flight controller.
+
+### 1. Launch the 3D Physics Environment (Gazebo)
+Open a terminal and run this command. It sets the required paths so Gazebo can locate the custom 3D AUV models before launching the world.
+
+```bash
+export GZ_SIM_RESOURCE_PATH=/home/radhi/my_robot_model/models:/home/radhi/bluerov2_gz/models:/home/radhi/bluerov2_gz/worlds:$GZ_SIM_RESOURCE_PATH
+export GZ_SIM_SYSTEM_PLUGIN_PATH=/home/radhi/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH
+gz sim -v 4 -r /home/radhi/bluerov2_gz/worlds/bluerov2_underwater.world
+```
+
+### 2. Launch the ArduSub Flight Controller
+Open a second terminal and run this command to start the SITL firmware and open the MAVProxy console:
+
+```bash
+cd ~/ardupilot/ArduSub
+python3 ~/ardupilot/Tools/autotest/sim_vehicle.py -v ArduSub -f gazebo-bluerov2 --model JSON --console
+```
+
+## Basic Control Commands
+Once the ArduSub terminal is running, you will see a `MANUAL>` prompt. You can use the following MAVLink commands to control the AUV:
+
+- **Arm the thrusters:** `arm throttle`
+- **Change flight mode:** `mode alt_hold` (Depth hold mode)
+- **Apply vertical thrust (heave):** `rc 3 1600` (1500 is neutral/stop, 1600 is up, 1400 is down)
+- **Stop thrust:** `rc 3 1500`
+- **Disarm the AUV:** `disarm`
 
 ---
 
-## Table of Contents
-1. [Project Overview](#project-overview)
-2. [System Requirements](#system-requirements)
-3. [Step 1 - Install Ubuntu 24.04](#step-1---install-ubuntu-2404)
-4. [Step 2 - Install ROS 2 Jazzy](#step-2---install-ros-2-jazzy)
-5. [Step 3 - Install Gazebo Harmonic](#step-3---install-gazebo-harmonic)
-6. [Step 4 - Install ArduPilot and ArduSub](#step-4---install-ardupilot-and-ardusub)
-7. [Step 5 - Install ardupilot_gazebo Plugin](#step-5---install-ardupilot_gazebo-plugin)
-8. [Step 6 - Clone This Repository](#step-6---clone-this-repository)
-9. [Step 7 - Set Up Environment Paths](#step-7---set-up-environment-paths)
-10. [Step 8 - Add the Custom AUV Model to Gazebo](#step-8---add-the-custom-auv-model-to-gazebo)
-11. [Running the Simulation](#running-the-simulation)
-12. [Thruster Control Commands](#thruster-control-commands)
-13. [Repository Structure](#repository-structure)
-14. [References](#references)
-
 ---
 
-## Project Overview
+# Fresh Install Guide — Setting Up on a New Device
 
-This repository contains:
-- **Custom AUV Gazebo model** (`my_custom_auv`) - a 6-thruster AUV with custom OBJ hull mesh, physically tuned for underwater simulation
-- **BlueROV2 Gazebo framework** (`bluerov2_gz`) - the base simulation package providing buoyancy, hydrodynamics, and thruster plugins
-- **Webots simulation** (`My_AUV_Simulation`) - an alternative simulation environment with ArduPilot vehicle controller
-- **Thruster control scripts** - shell scripts for sending direct thrust commands via Gazebo topics
-
----
+This section explains how to install all the required software from scratch on a new Ubuntu machine and reproduce this simulation environment.
 
 ## System Requirements
 
@@ -175,24 +188,7 @@ cd AUV-Development
 This is the most important step. Gazebo needs to know WHERE to find the models, worlds,
 and plugins. Without this, Gazebo will launch but show an empty world with no AUV.
 
-Run these commands before launching the simulation:
-
-```bash
-# Tell Gazebo where the ardupilot_gazebo plugin is
-export GZ_SIM_SYSTEM_PLUGIN_PATH=$HOME/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH
-
-# Tell Gazebo where ardupilot_gazebo models and worlds are
-export GZ_SIM_RESOURCE_PATH=$HOME/ardupilot_gazebo/models:$HOME/ardupilot_gazebo/worlds:$GZ_SIM_RESOURCE_PATH
-
-# Tell Gazebo where bluerov2_gz models and worlds are
-export GZ_SIM_RESOURCE_PATH=$HOME/AUV-Development/bluerov2_gz/models:$HOME/AUV-Development/bluerov2_gz/worlds:$GZ_SIM_RESOURCE_PATH
-
-# Tell Gazebo where the custom AUV model is
-export GZ_SIM_RESOURCE_PATH=$HOME/AUV-Development/my_robot_model/models:$GZ_SIM_RESOURCE_PATH
-```
-
-**Tip:** To make these permanent (run automatically every time you open a terminal),
-add them to your ~/.bashrc file:
+Add these lines to your ~/.bashrc to make them permanent:
 
 ```bash
 echo 'export GZ_SIM_SYSTEM_PLUGIN_PATH=$HOME/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH' >> ~/.bashrc
@@ -206,75 +202,14 @@ source ~/.bashrc
 
 ## Step 8 - Add the Custom AUV Model to Gazebo
 
-Copy the custom AUV model to Gazebo's local model directory so it appears in the model browser:
+Copy the custom AUV model to Gazebo's local model directory:
 
 ```bash
 mkdir -p ~/.gz/sim/models
 cp -r ~/AUV-Development/my_robot_model/models/my_custom_auv ~/.gz/sim/models/
 ```
 
----
-
-## Running the Simulation
-
-You need TWO separate terminals running at the same time.
-
-### Terminal 1 - Launch Gazebo
-
-```bash
-gz sim -v 3 -r bluerov2_underwater.world
-```
-
-Available world files:
-
-| World File | Description |
-|---|---|
-| `bluerov2_underwater.world` | BlueROV2 base configuration (underwater) |
-| `bluerov2_heavy_underwater.world` | BlueROV2 Heavy configuration (underwater) |
-| `bluerov2_ping.world` | BlueROV2 with Ping sonar |
-
-### Terminal 2 - Launch ArduSub SITL
-
-Open a new terminal and run:
-
-```bash
-cd ~/ardupilot
-Tools/autotest/sim_vehicle.py -L RATBeach -v ArduSub -f vectored \
-  --model=JSON --out=udp:0.0.0.0:14550 --console
-```
-
-> Replace `-f vectored` with `-f vectored_6dof` for the Heavy configuration.
-> Add `-w` flag if switching between frames to reset ArduSub parameters.
-
-### Terminal 3 - Send Commands via MAVProxy (Optional)
-
-Once ArduSub is running, control the AUV:
-
-```bash
-arm throttle          # Arm the vehicle
-mode alt_hold         # Switch to altitude hold mode
-rc 3 1450             # Descend
-rc 3 1500             # Stop vertical movement
-rc 5 1550             # Move forward
-disarm                # Disarm
-```
-
----
-
-## Thruster Control Commands
-
-Send direct thrust commands to Gazebo topics (bypasses ArduSub):
-
-```bash
-cd ~/AUV-Development/bluerov2_gz
-
-scripts/forward.sh my_custom_auv    # Move forward
-scripts/cw.sh my_custom_auv         # Rotate clockwise
-scripts/ccw.sh my_custom_auv        # Rotate counter-clockwise
-scripts/up.sh my_custom_auv         # Move up
-scripts/down.sh my_custom_auv       # Move down
-scripts/stop.sh my_custom_auv       # Stop all thrusters
-```
+After completing all steps, go back to the **How to Run the Simulation** section at the top of this README to launch the simulation.
 
 ---
 
