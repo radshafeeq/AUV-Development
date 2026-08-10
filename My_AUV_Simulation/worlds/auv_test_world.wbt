@@ -1,0 +1,422 @@
+#VRML_SIM R2023b utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+
+WorldInfo {
+  basicTimeStep 2
+  FPS 50
+}
+Viewpoint {
+  orientation -0.5648528781335371 -0.06372525333442143 0.8227273656271092 3.326703286131023
+  position 0.20258458228685325 0.12136418142598318 1.4114913007669068
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  translation 0 0 0.05
+  floorSize 40 40
+  wallHeight 10
+}
+TexturedBackgroundLight {
+}
+Robot {
+  translation 0 0 0.17
+  children [
+    InertialUnit {
+    }
+    Gyro {
+    }
+    Accelerometer {
+    }
+    Camera {
+      translation 0.16 0.01 0
+      fieldOfView 1.085
+      width 1920
+      height 1080
+      near 0.05
+    }
+    DEF T3_WRAPPER Solid {
+      translation -0.223 -0.142781 1.13038e-06
+      rotation -0.3826808373743256 -0.9238806073837722 2.583988901897099e-06 3.14159
+      children [
+        DEF THRUSTER_3 Propeller {
+          device DEF thruster_3 RotationalMotor {
+            name "thruster_3"
+            acceleration 60
+            maxVelocity 1000
+            maxTorque 0.5
+          }
+          fastHelix Solid {
+            children [
+              Transform {
+                scale 0.01 0.01 0.01
+                children [
+                  Shape {
+                    appearance PBRAppearance {
+                    }
+                    geometry Mesh {
+                      url [
+                        "CW_Propeller.obj"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+          slowHelix Solid {
+            rotation 1 0 0 1.6858324548353343
+            children [
+              Transform {
+                scale 0.01 0.01 0.01
+                children [
+                  Shape {
+                    appearance PBRAppearance {
+                    }
+                    geometry Mesh {
+                      url [
+                        "CW_Propeller.obj"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+      name "solid(5)"
+      boundingObject Box {
+        size 0.1 0.1 0.1
+      }
+      physics Physics {
+      }
+    }
+    DEF T4_WRAPPER Solid {
+      translation -0.223 0.167219 3.39627e-07
+      rotation 0.38268581224717485 -0.9238785467278856 8.309025923436298e-07 3.14159
+      children [
+        DEF THRUSTER_4 Propeller {
+          device DEF thruster_4 RotationalMotor {
+            name "thruster_4"
+            acceleration 60
+            maxVelocity 1000
+            maxTorque 0.5
+          }
+          fastHelix Solid {
+            children [
+              Transform {
+                scale 0.01 0.01 0.01
+                children [
+                  Shape {
+                    appearance PBRAppearance {
+                    }
+                    geometry Mesh {
+                      url [
+                        "CW_Propeller.obj"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+          slowHelix Solid {
+            rotation 1 0 0 1.6858324548353343
+            children [
+              Transform {
+                scale 0.01 0.01 0.01
+                children [
+                  Shape {
+                    appearance PBRAppearance {
+                    }
+                    geometry Mesh {
+                      url [
+                        "CW_Propeller.obj"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+      name "solid(4)"
+      boundingObject Box {
+        size 0.1 0.1 0.1
+      }
+      physics Physics {
+      }
+    }
+    DEF T6_WRAPPER Solid {
+      translation -0.0030012 0.13 -1.01962e-08
+      rotation -2.3464099999870814e-06 0.9999999999944944 -2.3464099999870814e-06 -1.5707953071795862
+      children [
+        DEF THRUSTER_6 Propeller {
+          device DEF thruster_6 RotationalMotor {
+            name "thruster_6"
+            acceleration 60
+            maxVelocity 1000
+            maxTorque 0.5
+          }
+          fastHelix Solid {
+            children [
+              Transform {
+                scale 0.01 0.01 0.01
+                children [
+                  Shape {
+                    appearance PBRAppearance {
+                    }
+                    geometry Mesh {
+                      url [
+                        "CW_Propeller.obj"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+          slowHelix Solid {
+            rotation 1 0 0 1.6858324548353343
+            children [
+              Transform {
+                scale 0.01 0.01 0.01
+                children [
+                  Shape {
+                    appearance PBRAppearance {
+                    }
+                    geometry Mesh {
+                      url [
+                        "CW_Propeller.obj"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+      name "solid(3)"
+      boundingObject Box {
+        size 0.1 0.1 0.1
+      }
+      physics Physics {
+      }
+    }
+    DEF T5_WRAPPER Solid {
+      translation -0.003 -0.11 -1.01962e-08
+      rotation -2.3464099999870814e-06 0.9999999999944944 -2.3464099999870814e-06 -1.5707953071795862
+      children [
+        DEF THRUSTER_5 Propeller {
+          device DEF thruster_5 RotationalMotor {
+            name "thruster_5"
+            acceleration 60
+            maxVelocity 1000
+            maxTorque 0.5
+          }
+          fastHelix Solid {
+            children [
+              Transform {
+                scale 0.01 0.01 0.01
+                children [
+                  Shape {
+                    appearance PBRAppearance {
+                    }
+                    geometry Mesh {
+                      url [
+                        "CCW_Propeller.obj"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+          slowHelix Solid {
+            rotation 1 0 0 1.6858324548353343
+            children [
+              Transform {
+                scale 0.01 0.01 0.01
+                children [
+                  Shape {
+                    appearance PBRAppearance {
+                    }
+                    geometry Mesh {
+                      url [
+                        "CCW_Propeller.obj"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+      name "solid(2)"
+      boundingObject Box {
+        size 0.1 0.1 0.1
+      }
+      physics Physics {
+      }
+    }
+    DEF T2_WRAPPER Solid {
+      translation 0.223994 0.165333 0
+      rotation 0 0 1 -0.785395307179586
+      children [
+        DEF THRUSTER_2 Propeller {
+          device DEF thruster_2 RotationalMotor {
+            name "thruster_2"
+            acceleration 60
+            maxVelocity 1000
+            maxTorque 0.5
+          }
+          fastHelix Solid {
+            children [
+              Transform {
+                scale 0.01 0.01 0.01
+                children [
+                  Shape {
+                    appearance PBRAppearance {
+                    }
+                    geometry Mesh {
+                      url [
+                        "CCW_Propeller.obj"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+          slowHelix Solid {
+            rotation 1 0 0 5.1357681409903355
+            children [
+              Transform {
+                scale 0.01 0.01 0.01
+                children [
+                  Shape {
+                    appearance PBRAppearance {
+                    }
+                    geometry Mesh {
+                      url [
+                        "CCW_Propeller.obj"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+      name "solid(1)"
+      boundingObject Box {
+        size 0.1 0.1 0.1
+      }
+      physics Physics {
+      }
+    }
+    DEF T1_WRAPPER Solid {
+      translation 0.223994 -0.145793 0
+      rotation 0 0 1 0.785398
+      children [
+        DEF THRUSTER_1 Propeller {
+          device DEF thruster_1 RotationalMotor {
+            name "thruster_1"
+            acceleration 60
+            maxVelocity 1000
+            maxTorque 0.5
+          }
+          fastHelix Solid {
+            children [
+              Transform {
+                scale 0.01 0.01 0.01
+                children [
+                  Shape {
+                    appearance PBRAppearance {
+                    }
+                    geometry Mesh {
+                      url [
+                        "CCW_Propeller.obj"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+          slowHelix Solid {
+            rotation 1 0 0 5.1357681409903355
+            children [
+              Transform {
+                scale 0.01 0.01 0.01
+                children [
+                  Shape {
+                    appearance PBRAppearance {
+                    }
+                    geometry Mesh {
+                      url [
+                        "CCW_Propeller.obj"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+      boundingObject Box {
+        size 0.1 0.1 0.1
+      }
+      physics Physics {
+      }
+    }
+    DEF THE_HULL Transform {
+      translation 7.9633e-06 0.00999999 0
+      rotation 0 0 1 1.57
+      scale 0.01 0.01 0.01
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 1 0 0
+          }
+          geometry Mesh {
+            url [
+              "The_Hull.obj"
+            ]
+          }
+          castShadows FALSE
+        }
+      ]
+    }
+    DEF gps GPS {
+      accuracy 0.001
+      resolution 0.001
+      speedResolution 0.1
+    }
+    Shape {
+      geometry Mesh {
+      }
+    }
+  ]
+  boundingObject Box {
+    size 0.58 0.45 0.12
+  }
+  physics Physics {
+    density 1
+    mass 5
+  }
+  controller "<extern>"
+  controllerArgs [
+    ""
+  ]
+}
