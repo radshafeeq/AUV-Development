@@ -260,3 +260,203 @@ AUV-Development/
 - MAVProxy Documentation: https://ardupilot.org/mavproxy/docs/getting_started/download_and_installation.html
 - ROS 2 Jazzy Installation: https://docs.ros.org/en/jazzy/Installation.html
 - BlueROV2 Gazebo base package: https://github.com/clydemcqueen/bluerov2_gz
+
+---
+
+---
+
+# Adapting the BlueROV2 Simulation for a Custom AUV
+
+This simulation was **not built from scratch**. It is based on an existing open-source
+BlueROV2 Gazebo simulation package found on the internet, which was then adapted to use
+a custom 3D hull model with modified physical properties to match the real-world AUV built
+for this thesis.
+
+## Origin of the Base Simulation
+
+The base simulation package used is **bluerov2_gz** by Clyde McQueen:
+- Source: https://github.com/clydemcqueen/bluerov2_gz
+- It provides: underwater world files, buoyancy plugin, hydrodynamics plugin, thruster plugin, and the BlueROV2 Gazebo model
+
+### Install the Original bluerov2_gz
+
+```bash
+# Create a ROS 2 colcon workspace (if you don't have one)
+mkdir -p ~/colcon_ws/src
+cd ~/colcon_ws/src
+
+# Clone the original BlueROV2 simulation
+git clone https://github.com/clydemcqueen/bluerov2_gz.git
+
+# Build it
+cd ~/colcon_ws
+colcon build
+source install/setup.bash
+```
+
+To run the **original unmodified** BlueROV2 simulation:
+```bash
+gz sim -v 3 -r bluerov2_underwater.world
+```
+
+---
+
+## How the Custom AUV Model Was Created
+
+Instead of using the default BlueROV2 3D model, a custom model folder was created at:
+
+```
+~/my_robot_model/models/my_custom_auv/
+├── model.config        <- Model name and metadata
+├── model.sdf           <- All physics, visual, and plugin definitions
+└── meshes/
+    └── The_Hull.obj    <- Custom 3D hull designed for this thesis
+```
+
+The `model.sdf` file is the core file that was edited. Open it with:
+
+```bash
+nano ~/my_robot_model/models/my_custom_auv/model.sdf
+```
+
+---
+
+## What Was Changed in model.sdf
+
+### 1. Visual Mesh — Replaced with Custom Hull
+
+The original BlueROV2 `.dae` mesh was replaced with the custom `.obj` hull:
+
+```xml
+<visual name="base_link_visual">
+  <pose>0 0 0 0 0 1.57</pose>
+  <geometry>
+    <mesh>
+      <uri>model://my_custom_auv/meshes/The_Hull.obj</uri>
+      <scale>0.01 0.01 0.01</scale>   <!-- OBJ was designed in cm, scaled to meters -->
+    </mesh>
+  </geometry>
+</visual>
+```
+
+> The scale of 0.01 is required because the OBJ file was designed in centimetres,
+> but Gazebo interprets all units as metres.
+
+### 2. Collision Box — Simplified for Physics Stability
+
+Instead of using the complex OBJ mesh for collision (which causes physics instability),
+a simple box approximating the hull's bounding box was used:
+
+```xml
+<collision name="base_link_collision">
+  <geometry>
+    <box>
+      <size>0.45 0.25 0.13</size>   <!-- Length x Width x Height in metres -->
+    </box>
+  </geometry>
+</collision>
+```
+
+### 3. Mass and Inertia — Set to Match Real AUV
+
+```xml
+<inertial>
+  <pose>0 0 -0.05 0 0 0</pose>     <!-- Center of mass slightly below center -->
+  <mass>14.2</mass>                 <!-- Total mass in kg -->
+  <inertia>
+    <ixx>0.13</ixx>
+    <iyy>0.13</iyy>
+    <izz>0.13</izz>
+  </inertia>
+</inertial>
+```
+
+### 4. Buoyancy — Tuned for Neutral Buoyancy
+
+The buoyancy volume was adjusted until the AUV achieved near-neutral buoyancy
+(hovering without sinking or floating):
+
+```xml
+<plugin filename="gz-sim-buoyancy-system" name="gz::sim::systems::Buoyancy">
+  <uniform_fluid_density>998</uniform_fluid_density>   <!-- Water density kg/m3 -->
+  <link_name>base_link</link_name>
+  <volume>0.011</volume>                               <!-- Displaced volume in m3 -->
+  <center_of_volume>0 0 0.1</center_of_volume>         <!-- Slightly above CoM for stability -->
+</plugin>
+```
+
+### 5. Thruster Positions — Repositioned for Custom Frame Geometry
+
+The 6 thrusters were repositioned to match the custom AUV frame. Thrusters 1-4 are
+the horizontal thrusters (for surge and yaw), and thrusters 5-6 are the vertical
+thrusters (for heave):
+
+```xml
+<!-- Thruster 1 - Front Right Horizontal -->
+<link name="thruster1">
+  <pose>0.23 -0.147 0.0 -1.571 1.571 -0.785</pose>
+</link>
+
+<!-- Thruster 2 - Front Left Horizontal -->
+<link name="thruster2">
+  <pose>0.23 0.147 0.0 -1.571 1.571 -2.356</pose>
+</link>
+
+<!-- Thruster 3 - Rear Right Horizontal -->
+<link name="thruster3">
+  <pose>-0.23 -0.147 0.0 -1.571 1.571 0.785</pose>
+</link>
+
+<!-- Thruster 4 - Rear Left Horizontal -->
+<link name="thruster4">
+  <pose>-0.23 0.147 0.0 -1.571 1.571 2.356</pose>
+</link>
+
+<!-- Thruster 5 - Left Vertical -->
+<link name="thruster5">
+  <pose>0.0 -0.119 0.007 0 0 0</pose>
+</link>
+
+<!-- Thruster 6 - Right Vertical -->
+<link name="thruster6">
+  <pose>0.0 0.119 0.007 0 0 0</pose>
+</link>
+```
+
+> Pose format is: `X Y Z Roll Pitch Yaw` (all in metres and radians)
+
+### 6. Hydrodynamic Drag Coefficients
+
+Drag coefficients were kept from the original BlueROV2 model as a reasonable
+approximation for a similarly-sized AUV:
+
+```xml
+<xUabsU>-33.732</xUabsU>   <!-- Surge drag -->
+<yVabsV>-54.16</yVabsV>    <!-- Sway drag -->
+<zWabsW>-73.225</zWabsW>   <!-- Heave drag -->
+```
+
+---
+
+## Summary of Adaptation Workflow
+
+```
+1. Clone bluerov2_gz (original BlueROV2 simulation)
+         |
+2. Create new model folder: my_robot_model/models/my_custom_auv/
+         |
+3. Edit model.sdf:
+   - Replace visual mesh  --> custom The_Hull.obj
+   - Adjust scale         --> 0.01 (cm to meters)
+   - Set mass             --> 14.2 kg
+   - Tune buoyancy volume --> 0.011 m3
+   - Reposition thrusters --> match physical frame measurements
+   - Simplify collision   --> box primitive for stability
+         |
+4. Set GZ_SIM_RESOURCE_PATH to include my_robot_model/models
+         |
+5. Reference model as "my_custom_auv" in the world file
+         |
+6. Launch and test simulation
+```
+
