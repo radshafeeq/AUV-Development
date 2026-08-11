@@ -66,7 +66,7 @@
         name="gz::sim::systems::Hydrodynamics">
       <link_name>base_link</link_name>
       <water_density>998.0</water_density>
-      <volume>0.0</volume>
+      <volume>0.014228</volume>
       <center_of_buoyancy>0 0 0.0</center_of_buoyancy>
       <xDotU>0</xDotU>
       <yDotV>0</yDotV>
@@ -303,7 +303,7 @@
         name="gz::sim::systems::Thruster">
       <namespace>my_custom_auv</namespace>
       <joint_name>thruster3_joint</joint_name>
-      <thrust_coefficient>-0.02</thrust_coefficient>
+      <thrust_coefficient>0.02</thrust_coefficient>
       <fluid_density>998.0</fluid_density>
       <propeller_diameter>0.1</propeller_diameter>
       <velocity_control>true</velocity_control>
@@ -315,7 +315,7 @@
         name="gz::sim::systems::Thruster">
       <namespace>my_custom_auv</namespace>
       <joint_name>thruster4_joint</joint_name>
-      <thrust_coefficient>-0.02</thrust_coefficient>
+      <thrust_coefficient>0.02</thrust_coefficient>
       <fluid_density>998.0</fluid_density>
       <propeller_diameter>0.1</propeller_diameter>
       <velocity_control>true</velocity_control>
@@ -339,7 +339,7 @@
         name="gz::sim::systems::Thruster">
       <namespace>my_custom_auv</namespace>
       <joint_name>thruster6_joint</joint_name>
-      <thrust_coefficient>-0.02</thrust_coefficient>
+      <thrust_coefficient>0.02</thrust_coefficient>
       <fluid_density>998.0</fluid_density>
       <propeller_diameter>0.1</propeller_diameter>
       <velocity_control>true</velocity_control>
@@ -349,6 +349,7 @@
     <plugin name="ArduPilotPlugin" filename="libArduPilotPlugin.so">
       <fdm_addr>127.0.0.1</fdm_addr>
       <fdm_port_in>9002</fdm_port_in>
+      <use_tcp>1</use_tcp>
       <connectionTimeoutMaxCount>5</connectionTimeoutMaxCount>
       <lock_step>1</lock_step>
 
@@ -415,14 +416,6 @@
 
     </plugin>
 
-    <plugin
-        filename="gz-sim-buoyancy-system"
-        name="gz::sim::systems::Buoyancy">
-      <uniform_fluid_density>998</uniform_fluid_density>
-      <link_name>base_link</link_name>
-      <volume>0.011</volume>
-      <center_of_volume>0 0 0.1</center_of_volume>
-    </plugin>
 
   </model>
 </sdf>
