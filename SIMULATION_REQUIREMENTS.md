@@ -453,8 +453,8 @@ When spawned, the custom AUV model was immediately sinking to the bottom of the 
 
 ## 5. Thruster Kinematics & Sinking on Arm
 When the vehicle was armed and throttle was applied, the AUV would violently flip and dive into the floor.
-* **Root Cause:** In the `model.sdf`, the Clockwise (CW) propellers were assigned a negative thrust coefficient (`-0.02`), while Counter-Clockwise (CCW) propellers were positive (`0.02`). 
-* **Fix:** The ArduSub flight controller's internal motor mixer already handles the math for CW vs CCW propeller directions. Therefore, sending a "forward" PWM signal to Gazebo must *always* result in a positive thrust vector. We replaced all `-0.02` values in `model.sdf` with `0.02`, ensuring that all vertical thrusters push water in the same direction when ascending.
+* **Root Cause:** In the `model.sdf`, the vertical Clockwise (CW) propeller (Thruster 6) was assigned a negative thrust coefficient (`-0.02`), while the vertical Counter-Clockwise (CCW) propeller (Thruster 5) was positive (`0.02`). 
+* **Fix:** The ArduSub flight controller's internal motor mixer already handles the math for CW vs CCW propeller directions. Therefore, sending a "forward" PWM signal to Gazebo must *always* result in a positive thrust vector for thrusters sharing the same orientation. We replaced the `-0.02` value for Thruster 6 with `0.02`, ensuring that both vertical thrusters push water in the same direction when ascending. (Note: Horizontal thrusters 3 and 4 remain at `-0.02` because their physical mount angles are inverted).
 
 ## 6. Cockpit Joystick Configuration
 Even when perfectly buoyant, the AUV would immediately dive the moment the joystick was enabled.
