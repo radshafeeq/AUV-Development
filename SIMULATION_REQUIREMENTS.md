@@ -203,6 +203,50 @@ pip install pymavlink
 
 ---
 
+## 8. BlueRobotics Cockpit
+
+**Version:** 1.18.2 (AppImage)  
+**Source:** https://github.com/bluerobotics/cockpit  
+**Purpose:** Web-based Ground Control Station with a graphical interface for piloting, video streaming, and parameter configuration.
+
+### Installation & Execution:
+
+```bash
+# 1. Install required library for AppImages on Ubuntu 24.04
+sudo apt update && sudo apt install libfuse2
+
+# 2. Download the Cockpit AppImage
+cd ~
+wget https://github.com/bluerobotics/cockpit/releases/download/v1.18.2/Cockpit-1.18.2.AppImage
+chmod +x Cockpit-1.18.2.AppImage
+
+# 3. Run Cockpit
+./Cockpit-1.18.2.AppImage
+```
+
+---
+
+## 9. mavlink2rest
+
+**Version:** 1.2.2  
+**Source:** https://github.com/mavlink/mavlink2rest  
+**Purpose:** Acts as a bridge between ArduSub's raw UDP MAVLink output (port 14550) and Cockpit's required REST/WebSocket API (port 6040).
+
+### Installation & Execution:
+
+```bash
+# 1. Download the pre-compiled binary
+cd ~
+wget https://github.com/mavlink/mavlink2rest/releases/download/1.2.2/mavlink2rest-x86_64-unknown-linux-musl
+mv mavlink2rest-x86_64-unknown-linux-musl mavlink2rest
+chmod +x mavlink2rest
+
+# 2. Run the bridge
+./mavlink2rest -s 0.0.0.0:6040
+```
+
+---
+
 ## Simulation Source & Adaptation
 
 ### Where the Simulation Was Found
