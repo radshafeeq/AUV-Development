@@ -1,0 +1,16 @@
+# Mechatronics & Underwater Target YOLOv8 Dataset Config
+path: ./dataset # root dataset directory
+train: images/train
+val: images/val
+
+# Target Class Names
+names:
+  0: bldc_motor
+  1: pixhawk
+  2: esc
+  3: battery
+  4: charger
+  5: cable
+  6: soldering_iron
+  7: underwater_buoy
+  8: underwater_gate

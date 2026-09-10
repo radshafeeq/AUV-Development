@@ -41,6 +41,53 @@ Once the ArduSub terminal is running, you will see a `MANUAL>` prompt. You can u
 
 ---
 
+# Real-Time AI Camera Detection & Target Tracking
+
+This repository includes a high-performance **Real-Time AI Computer Vision & Autonomous Tracking Node** designed for topside GPU acceleration (NVIDIA RTX GPUs) connected to the AUV via BlueOS / Ethernet tether.
+
+## Overview & Architecture
+- **Camera Feed**: Low-latency H.264 RTSP stream (`rtsp://192.168.2.2:8554/video_udp_stream_0`) or UDP 5600 from BlueOS 1.4.5 on Raspberry Pi 4B.
+- **Zero-Latency Video Receiver**: Built with GStreamer (`rtspsrc latency=0`) to eliminate network video delay, perfectly synchronized with Cockpit WebRTC.
+- **AI Inference Engine**: Ultralytics PyTorch accelerated on CUDA GPU. Supports both **zero-shot open-vocabulary YOLO-World** (`yolov8s-world.pt`) and **custom fine-tuned models** (`best.pt`).
+- **Target Tracking & Guidance**: Calculates normalized relative error (`Tracking Error: X, Y`) from frame center and transmits MAVLink `MANUAL_CONTROL` steering commands to ArduSub.
+
+---
+
+## How to Run the AI Topside Camera Tracker
+
+### Quick Start (Terminal Command)
+Open a terminal on your topside computer and run:
+
+```bash
+cd ~/Documents/AUV_GitHub_Upload
+python3 auv_yolo_tracking.py
+```
+
+- Press **`q`** in the display window to exit cleanly.
+- The window display is resizable (`1280x720` default) with live overlay of target bounding boxes, center tracking vectors, and normalized offset calculations.
+
+---
+
+## Custom Target Fine-Tuning Workflow (Pixhawk, ESC, Motors, Stationery)
+
+To fine-tune YOLO specifically on your exact hardware components (Pixhawk 2.4.8, ESCs, BLDC motors, cables, or office tools):
+
+### Step 1: Snap Training Photos from Live Camera
+```bash
+cd ~/Documents/AUV_GitHub_Upload
+python3 capture_training_images.py
+```
+- Press **`SPACEBAR`** to snap photos directly from the live camera feed into `dataset_images/`.
+- Press **`q`** when finished (15–20 photos recommended).
+
+### Step 2: Auto-Annotate & Train on GPU
+```bash
+python3 auto_annotate_and_train.py
+```
+- Automatically annotates images using open-vocabulary detection.
+- Generates `mechatronics_dataset.yaml` and fine-tunes `yolov8s` on your NVIDIA GPU in under 60 seconds.
+- Saves custom weights to `runs/detect/mechatronics_model/weights/best.pt` and updates `auv_yolo_tracking.py` to use your custom trained model.
+
 ---
 
 # Fresh Install Guide — Setting Up on a New Device
@@ -219,8 +266,14 @@ After completing all steps, go back to the **How to Run the Simulation** section
 AUV-Development/
 ├── README.md                              <- This file
 ├── SIMULATION_REQUIREMENTS.md             <- Detailed simulation documentation
+├── auv_yolo_tracking.py                   <- Real-time YOLOv8 / YOLO-World tracking & MAVLink guidance node
+├── capture_training_images.py             <- Live camera dataset image collector script
+├── auto_annotate_and_train.py             <- Automated auto-labeler & PyTorch GPU trainer
+├── mechatronics_dataset.yaml              <- Dataset config for mechatronics hardware targets
+├── yolov8s-world.pt                       <- Zero-shot open-vocabulary YOLO-World model weights
 ├── start_gazebo.sh                        <- Quick Gazebo launch script
 ├── start_ardusub.sh                       <- Quick ArduSub launch script
+├── start_cockpit.sh                       <- Quick Cockpit GCS launch script
 │
 ├── my_robot_model/                        <- Custom AUV Gazebo model
 │   └── models/my_custom_auv/
