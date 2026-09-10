@@ -1,0 +1,19 @@
+# Python & PyTorch artifacts
+__pycache__/
+*.pyc
+*.pt
+*.engine
+*.onnx
+runs/
+
+# Large dataset images (keep scripts and yaml)
+combined_dataset/train/
+combined_dataset/valid/
+office_dataset/train/
+office_dataset/valid/
+dataset/images/
+dataset/labels/
+
+# System and editor files
+.DS_Store
+*.log

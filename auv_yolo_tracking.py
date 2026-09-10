@@ -27,12 +27,50 @@ MAVLINK_ENDPOINT = "udpin:0.0.0.0:14550"
 # Target Detection Settings
 USE_YOLO_WORLD = True       # Zero-shot open-vocabulary detection without training
 YOLO_WORLD_CLASSES = [
-    "pixhawk", "flight controller", "electronic module",
-    "keyboard", "mouse", "stapler", "scissors", "pen", "pencil",
-    "cup", "calculator", "notebook", "tape", "ruler", "cell phone"
+    # --- Mechatronics & Robotics Lab ---
+    "bldc motor", "stepper motor", "servo motor", "pixhawk", "flight controller",
+    "esc", "electronic module", "circuit board", "pcb", "soldering iron",
+    "multimeter", "oscilloscope", "power supply", "battery", "li-po battery",
+    "cables", "wires", "breadboard", "microcontroller", "arduino", "raspberry pi",
+    "3d printer", "caliper", "screwdriver", "pliers", "wrench", "underwater buoy",
+    "underwater gate", "propeller", "rov frame", "lab bench", "fume hood", "safety goggles",
+
+    # --- Office & Workplace ---
+    "laptop", "computer monitor", "desktop computer", "keyboard", "mouse",
+    "office chair", "office desk", "stapler", "hole punch", "binder", "paperwork",
+    "printer", "calculator", "mug", "coffee cup", "water bottle", "whiteboard",
+    "trash can", "fire extinguisher", "exit sign", "fire hydrant",
+
+    # --- Study Room & Classroom ---
+    "person", "textbook", "notebook", "pen", "pencil", "marker", "highlighter",
+    "ruler", "eraser", "scissors", "backpack", "reading lamp", "desk clock",
+    "headphones", "earbuds", "tablet", "smartphone", "glasses", "projector",
+    "podium", "classroom chair", "classroom desk", "wall clock", "globe",
+
+    # --- Indoor Campus Facilities & Corridors ---
+    "bookshelf", "study cubicle", "library chair", "book return bin", "vending machine",
+    "water dispenser", "coffee machine", "cafeteria table", "food tray", "bulletin board",
+    "notice board", "water fountain", "drinking fountain", "lockers", "student locker",
+    "fire hose cabinet", "fire alarm button", "emergency exit door", "hand sanitizer dispenser",
+    "turnstile", "id card scanner", "staircase", "elevator door", "auditorium seat",
+
+    # --- Campus Outdoor & Grounds ---
+    "bench", "bicycle", "motorcycle", "scooter", "car", "bus",
+    "recycling bin", "signboard", "banner", "flag", "tree", "potted plant",
+    "stairs", "elevator", "umbrella", "thermos", "lunchbox",
+
+    # --- Home & Living Spaces ---
+    "sofa", "couch", "cushion", "coffee table", "television", "remote control",
+    "bed", "pillow", "blanket", "wardrobe", "curtains", "mirror", "carpet",
+    "tissue box", "power strip", "extension cord", "charger", "refrigerator",
+    "microwave", "kettle", "toaster", "sink", "faucet", "plate", "bowl",
+    "towel", "shoes", "slippers", "jacket", "keys",
+
+    # --- Room Architecture & Fixtures ---
+    "window", "door", "air conditioner", "ceiling light", "ceiling fan", "speaker"
 ]
 
-CUSTOM_WEIGHTS = "runs/detect/mechatronics_model/weights/best.pt"
+CUSTOM_WEIGHTS = "runs/detect/yolo26_combined_model/weights/best.pt" if os.path.exists("runs/detect/yolo26_combined_model/weights/best.pt") else ("runs/detect/combined_model/weights/best.pt" if os.path.exists("runs/detect/combined_model/weights/best.pt") else "runs/detect/office_model/weights/best.pt")
 MODEL_NAME = "yolov8s-world.pt" if USE_YOLO_WORLD else (CUSTOM_WEIGHTS if os.path.exists(CUSTOM_WEIGHTS) else "yolov8n.pt")
 CONF_THRESHOLD = 0.15       # Confidence threshold for open-vocabulary detection
 
@@ -162,26 +200,48 @@ class RTSPFrameGrabber:
             self.proc.terminate()
 
 class FallbackWebcamGrabber:
-    """Fallback webcam reader if network stream is absent."""
+    """Threaded smooth webcam grabber to eliminate frame buffering stutter and screen glitching."""
     def __init__(self, index=0):
-        self.cap = cv2.VideoCapture(index)
+        self.cap = cv2.VideoCapture(index, cv2.CAP_V4L2 if os.name == 'posix' else cv2.CAP_ANY)
         self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+        self.lock = threading.Lock()
+        self.frame = None
+        self.status = False
+        self.stopped = False
+
+        if self.cap.isOpened():
+            self.status = True
+            self.thread = threading.Thread(target=self.update, daemon=True)
+            self.thread.start()
 
     def isOpened(self):
-        return self.cap.isOpened()
+        return self.status and self.cap.isOpened()
+
+    def update(self):
+        while not self.stopped and self.cap.isOpened():
+            ret, frame = self.cap.read()
+            if ret and frame is not None:
+                with self.lock:
+                    self.frame = frame
+                    self.status = True
+            else:
+                time.sleep(0.005)
 
     def read(self):
-        return self.cap.read()
+        with self.lock:
+            return self.status, (self.frame.copy() if self.frame is not None else None)
 
     def release(self):
-        self.cap.release()
+        self.stopped = True
+        if hasattr(self, 'cap'):
+            self.cap.release()
 
 # ==========================================
 # MAIN TRACKING PIPELINE
 # ==========================================
 def main():
     print("=" * 60)
-    print("   AUV YOLOv8 TARGET TRACKING (BLUEOS RPi CAM FEED)   ")
+    print("   AUV YOLO26 TARGET TRACKING (BLUEOS RPi CAM FEED)   ")
     print("=" * 60)
 
     # 1. Initialize CUDA GPU Device
@@ -228,7 +288,8 @@ def main():
         print("[Video Error] Failed to open any video stream. Please check tether & BlueOS connection.")
         return
 
-    WINDOW_NAME = "AUV Topside AI Camera (YOLOv8 + RTX 4070)"
+    engine_name = "YOLO-World (Open Vocabulary)" if USE_YOLO_WORLD else ("YOLO26 Combined" if "yolo26" in MODEL_NAME else "YOLOv8")
+    WINDOW_NAME = f"AUV Topside AI Camera ({engine_name} + RTX 4070)"
     cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
     cv2.resizeWindow(WINDOW_NAME, 1280, 720)
 
@@ -244,8 +305,8 @@ def main():
         h, w, _ = frame.shape
         center_x, center_y = w // 2, h // 2
 
-        # Run YOLOv8 Inference on GPU
-        results = model.predict(frame, conf=CONF_THRESHOLD, device=device, verbose=False)[0]
+        # Run YOLO Inference on GPU with fixed resolution (eliminates memory reallocation glitching)
+        results = model.predict(frame, conf=CONF_THRESHOLD, imgsz=640, device=device, verbose=False)[0]
 
         best_target = None
         max_area = 0
@@ -299,6 +360,9 @@ def main():
                 )
         else:
             cv2.putText(frame, "SEARCHING FOR TARGET...", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 165, 255), 2)
+
+        # Display Engine Badge Overlay
+        cv2.putText(frame, f"Engine: {engine_name}", (20, h - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
         # Display Live Annotated Video Window
         cv2.imshow(WINDOW_NAME, frame)

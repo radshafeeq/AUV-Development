@@ -11,24 +11,79 @@ The simulation is split into two main components that communicate over a local n
 **ArduSub SITL (Software In The Loop):** Acts as the "brain" of the robot. It runs the ArduSub firmware, calculates motor thrusts based on the 6-motor geometry, and provides a MAVLink interface via MAVProxy.
 
 ## How to Run the Simulation
-You will need to open two separate terminal windows to launch both the physics environment and the flight controller.
 
-### 1. Launch the 3D Physics Environment (Gazebo)
-Open a terminal and run this command. It sets the required paths so Gazebo can locate the custom 3D AUV models before launching the world.
+You can launch either your **Custom 5-DOF AUV (6 Thrusters)** or the **BlueROV2 Heavy (8 Thrusters / 6-DOF)** simulation environment.
+
+### Option A: Custom 5-DOF AUV Simulation - "Poseidon AUV" (6 Thrusters)
+1. **Launch Gazebo Physics World**:
+   ```bash
+   ./start_gazebo.sh
+   ```
+2. **Launch ArduSub SITL Flight Controller**:
+   ```bash
+   ./start_ardusub.sh
+   ```
+3. **Launch Blue Robotics Cockpit GCS**:
+   ```bash
+   ./start_cockpit.sh
+   ```
+
+---
+
+### Option B: BlueROV2 Heavy Simulation (8 Thrusters / 6-DOF)
+1. **Launch Gazebo Physics World**:
+   ```bash
+   ./start_bluerov2_heavy_gazebo.sh
+   ```
+2. **Launch ArduSub SITL Flight Controller**:
+   ```bash
+   ./start_bluerov2_heavy_ardusub.sh
+   ```
+3. **Launch Blue Robotics Cockpit GCS**:
+   ```bash
+   ./start_cockpit.sh
+   ```
+
+---
+
+## 🎯 Real-Time YOLO26 & Open-Vocabulary AI Target Tracking
+
+This repository includes a zero-latency real-time AI computer vision & closed-loop visual servoing tracking node accelerated on **NVIDIA RTX GPUs** (CUDA).
+
+### 🚀 How to Run the Detection Camera & Target Tracking:
+To launch the real-time AI vision camera node with live overlay, bounding boxes, tracking vectors, and automatic MAVLink control:
 
 ```bash
-export GZ_SIM_RESOURCE_PATH=/home/radhi/auv_ws/simulation/my_robot_model/models:/home/radhi/auv_ws/simulation/bluerov2_gz/models:/home/radhi/auv_ws/simulation/bluerov2_gz/worlds:$GZ_SIM_RESOURCE_PATH
-export GZ_SIM_SYSTEM_PLUGIN_PATH=/home/radhi/auv_ws/firmware/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH
-gz sim -v 4 -r /home/radhi/auv_ws/simulation/bluerov2_gz/worlds/bluerov2_underwater.world
+python3 auv_yolo_tracking.py
 ```
 
-### 2. Launch the ArduSub Flight Controller
-Open a second terminal and run this command to start the SITL firmware and open the MAVProxy console:
+### ⚙️ Switching Between Detection Modes in `auv_yolo_tracking.py`:
+
+Open `auv_yolo_tracking.py` and set `USE_YOLO_WORLD`:
+
+1. **YOLO26 Custom Model (Fine-Tuned 11-Class Model)**:
+   ```python
+   USE_YOLO_WORLD = False  # Loads runs/detect/yolo26_combined_model/weights/best.pt
+   ```
+   - **Trained Classes**: `bldc_motor`, `pixhawk`, `esc`, `battery`, `charger`, `cable`, `soldering_iron`, `underwater_buoy`, `underwater_gate`, `exit sign`, `fire hydrant`
+
+2. **YOLO-World (Open-Vocabulary Zero-Shot Detection)**:
+   ```python
+   USE_YOLO_WORLD = True   # Zero-shot recognition for ANY text prompt
+   YOLO_WORLD_CLASSES = ["person", "laptop", "bldc motor", "window", "air conditioner", "water bottle"]
+   ```
+   - Instantly detects 120+ lab, office, campus, and room objects without dataset training!
+
+---
+
+### 🏋️‍♂️ How to Train YOLO26 Model on Combined Dataset:
+To fine-tune YOLO26 on the combined Mechatronics + Office dataset on your GPU:
 
 ```bash
-cd ~/auv_ws/firmware/ardupilot/ArduSub
-python3 ~/auv_ws/firmware/ardupilot/Tools/autotest/sim_vehicle.py -v ArduSub -f gazebo-bluerov2 --model JSON --console
+python3 train_yolo26.py 25
 ```
+
+---
 
 ## Basic Control Commands
 Once the ArduSub terminal is running, you will see a `MANUAL>` prompt. You can use the following MAVLink commands to control the AUV:
@@ -271,8 +326,10 @@ AUV-Development/
 ├── auto_annotate_and_train.py             <- Automated auto-labeler & PyTorch GPU trainer
 ├── mechatronics_dataset.yaml              <- Dataset config for mechatronics hardware targets
 ├── yolov8s-world.pt                       <- Zero-shot open-vocabulary YOLO-World model weights
-├── start_gazebo.sh                        <- Quick Gazebo launch script
-├── start_ardusub.sh                       <- Quick ArduSub launch script
+├── start_gazebo.sh                        <- Quick Gazebo launch script (Custom 5-DOF AUV)
+├── start_ardusub.sh                       <- Quick ArduSub launch script (Custom 5-DOF AUV)
+├── start_bluerov2_heavy_gazebo.sh        <- Quick Gazebo launch script (BlueROV2 Heavy 8-Thruster)
+├── start_bluerov2_heavy_ardusub.sh       <- Quick ArduSub launch script (BlueROV2 Heavy 8-Thruster)
 ├── start_cockpit.sh                       <- Quick Cockpit GCS launch script
 │
 ├── my_robot_model/                        <- Custom AUV Gazebo model

@@ -1,0 +1,17 @@
+path: /home/radhi/Documents/AUV_GitHub_Upload/combined_dataset
+train: train/images
+val: valid/images
+
+nc: 11
+names:
+  0: 'bldc_motor'
+  1: 'pixhawk'
+  2: 'esc'
+  3: 'battery'
+  4: 'charger'
+  5: 'cable'
+  6: 'soldering_iron'
+  7: 'underwater_buoy'
+  8: 'underwater_gate'
+  9: 'exit sign'
+  10: 'fire hydrant'

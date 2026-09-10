@@ -1,0 +1,14 @@
+path: /home/radhi/Documents/AUV_GitHub_Upload/office_dataset
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 2
+names: ['exit sign', 'fire hydrant']
+
+roboflow:
+  workspace: iti-wqxi8
+  project: office-yt3rl
+  version: 2
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/iti-wqxi8/office-yt3rl/dataset/2
