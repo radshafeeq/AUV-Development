@@ -27,46 +27,38 @@ MAVLINK_ENDPOINT = "udpin:0.0.0.0:14550"
 # Target Detection Settings
 USE_YOLO_WORLD = True       # Zero-shot open-vocabulary detection without training
 YOLO_WORLD_CLASSES = [
-    # --- Mechatronics & Robotics Lab ---
+    # --- 1. Swimming Pool Competition & Test Tank Targets ---
+    "white pvc navigation gate", "yellow pvc pipe gate", "red spherical buoy",
+    "yellow cylindrical buoy", "green buoy", "black torpedo target mat",
+    "submerged marker dropping bin", "bucket target", "underwater dock structure",
+    "black pool lane line", "pool bottom drain grate", "pool ladder",
+    "swimming pool wall", "blue pool tile floor", "scuba diver", "swimmer",
+
+    # --- 2. Regular Open Water & Ocean Targets ---
+    "underwater pipeline", "submerged metal frame", "underwater pipe flange",
+    "submerged valve handle", "black rov tether cable", "underwater connector",
+    "ship hull plating", "sunken vessel structure", "anchor chain",
+    "underwater buoy", "underwater gate", "propeller", "rov frame",
+    "fish", "coral reef", "sea floor sand", "underwater rock",
+
+    # --- 3. Mechatronics & Robotics Lab ---
     "bldc motor", "stepper motor", "servo motor", "pixhawk", "flight controller",
     "esc", "electronic module", "circuit board", "pcb", "soldering iron",
     "multimeter", "oscilloscope", "power supply", "battery", "li-po battery",
     "cables", "wires", "breadboard", "microcontroller", "arduino", "raspberry pi",
-    "3d printer", "caliper", "screwdriver", "pliers", "wrench", "underwater buoy",
-    "underwater gate", "propeller", "rov frame", "lab bench", "fume hood", "safety goggles",
+    "3d printer", "caliper", "screwdriver", "pliers", "wrench", "lab bench", "fume hood",
 
-    # --- Office & Workplace ---
+    # --- 4. Office & Campus Workspace ---
     "laptop", "computer monitor", "desktop computer", "keyboard", "mouse",
-    "office chair", "office desk", "stapler", "hole punch", "binder", "paperwork",
-    "printer", "calculator", "mug", "coffee cup", "water bottle", "whiteboard",
-    "trash can", "fire extinguisher", "exit sign", "fire hydrant",
+    "office chair", "office desk", "stapler", "printer", "calculator",
+    "water bottle", "whiteboard", "trash can", "fire extinguisher", "exit sign", "fire hydrant",
 
-    # --- Study Room & Classroom ---
-    "person", "textbook", "notebook", "pen", "pencil", "marker", "highlighter",
-    "ruler", "eraser", "scissors", "backpack", "reading lamp", "desk clock",
-    "headphones", "earbuds", "tablet", "smartphone", "glasses", "projector",
-    "podium", "classroom chair", "classroom desk", "wall clock", "globe",
+    # --- 5. Study Room, Classroom & Home ---
+    "person", "textbook", "notebook", "pen", "pencil", "backpack", "reading lamp",
+    "headphones", "tablet", "smartphone", "glasses", "projector", "podium",
+    "classroom chair", "classroom desk", "wall clock", "sofa", "television", "charger",
 
-    # --- Indoor Campus Facilities & Corridors ---
-    "bookshelf", "study cubicle", "library chair", "book return bin", "vending machine",
-    "water dispenser", "coffee machine", "cafeteria table", "food tray", "bulletin board",
-    "notice board", "water fountain", "drinking fountain", "lockers", "student locker",
-    "fire hose cabinet", "fire alarm button", "emergency exit door", "hand sanitizer dispenser",
-    "turnstile", "id card scanner", "staircase", "elevator door", "auditorium seat",
-
-    # --- Campus Outdoor & Grounds ---
-    "bench", "bicycle", "motorcycle", "scooter", "car", "bus",
-    "recycling bin", "signboard", "banner", "flag", "tree", "potted plant",
-    "stairs", "elevator", "umbrella", "thermos", "lunchbox",
-
-    # --- Home & Living Spaces ---
-    "sofa", "couch", "cushion", "coffee table", "television", "remote control",
-    "bed", "pillow", "blanket", "wardrobe", "curtains", "mirror", "carpet",
-    "tissue box", "power strip", "extension cord", "charger", "refrigerator",
-    "microwave", "kettle", "toaster", "sink", "faucet", "plate", "bowl",
-    "towel", "shoes", "slippers", "jacket", "keys",
-
-    # --- Room Architecture & Fixtures ---
+    # --- 6. Room Architecture & Fixtures ---
     "window", "door", "air conditioner", "ceiling light", "ceiling fan", "speaker"
 ]
 
