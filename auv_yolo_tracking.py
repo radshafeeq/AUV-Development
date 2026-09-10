@@ -34,12 +34,14 @@ YOLO_WORLD_CLASSES = [
     "black pool lane line", "pool bottom drain grate", "pool ladder",
     "swimming pool wall", "blue pool tile floor", "scuba diver", "swimmer",
 
-    # --- 2. Regular Open Water & Ocean Targets ---
-    "underwater pipeline", "submerged metal frame", "underwater pipe flange",
-    "submerged valve handle", "black rov tether cable", "underwater connector",
-    "ship hull plating", "sunken vessel structure", "anchor chain",
-    "underwater buoy", "underwater gate", "propeller", "rov frame",
-    "fish", "coral reef", "sea floor sand", "underwater rock",
+    # --- 2. Freshwater Open Water Targets (Rivers, Lakes & Reservoirs) ---
+    "submerged tree branch", "submerged log", "driftwood", "underwater weeds",
+    "submerged vegetation", "muddy lake floor", "riverbed stones", "discarded tire",
+    "submerged plastic trash", "sunken bottle", "fishing net", "submerged rope",
+    "bridge pier", "bridge pillar", "dam wall", "intake grate", "water pipe inlet",
+    "floating dock float", "wooden dock piling", "river embankment wall",
+    "yellow boundary buoy", "freshwater fish", "river turtle", "freshwater algae",
+    "black rov tether cable", "underwater buoy", "underwater gate", "rov frame",
 
     # --- 3. Mechatronics & Robotics Lab ---
     "bldc motor", "stepper motor", "servo motor", "pixhawk", "flight controller",
