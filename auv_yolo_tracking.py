@@ -17,6 +17,7 @@ import numpy as np
 import torch
 from ultralytics import YOLO
 from pymavlink import mavutil
+from kalman_filter import TargetKalmanFilter
 
 # ==========================================
 # CONFIGURATION
@@ -282,12 +283,15 @@ def main():
         print("[Video Error] Failed to open any video stream. Please check tether & BlueOS connection.")
         return
 
+    # 5. Initialize Target Kalman Filter
+    kf = TargetKalmanFilter(dt=0.033)
+
     engine_name = "YOLO-World (Open Vocabulary)" if USE_YOLO_WORLD else ("YOLO26 Combined" if "yolo26" in MODEL_NAME else "YOLOv8")
-    WINDOW_NAME = f"AUV Topside AI Camera ({engine_name} + RTX 4070)"
+    WINDOW_NAME = f"AUV Topside AI Camera ({engine_name} + Kalman Filter + RTX 4070)"
     cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
     cv2.resizeWindow(WINDOW_NAME, 1280, 720)
 
-    print("[System] Tracking active! Press 'q' in the display window to exit.")
+    print("[System] Smooth Kalman-filtered tracking active! Press 'q' in the display window to exit.")
 
     while True:
         ret, frame = grabber.read()
@@ -299,7 +303,10 @@ def main():
         h, w, _ = frame.shape
         center_x, center_y = w // 2, h // 2
 
-        # Run YOLO Inference on GPU with fixed resolution (eliminates memory reallocation glitching)
+        # 1. Run Kalman Filter Predict Step
+        kf.predict()
+
+        # 2. Run YOLO Inference on GPU
         results = model.predict(frame, conf=CONF_THRESHOLD, imgsz=640, device=device, verbose=False)[0]
 
         best_target = None
@@ -314,23 +321,41 @@ def main():
             x1, y1, x2, y2 = map(int, box.xyxy[0])
             conf = float(box.conf[0])
             cls_id = int(box.cls[0])
-            label = f"{model.names[cls_id]} {conf:.2f}"
+            label_text = f"{model.names[cls_id]} {conf:.2f}"
 
             area = (x2 - x1) * (y2 - y1)
             if area > max_area:
                 max_area = area
-                best_target = ( (x1 + x2) // 2, (y1 + y2) // 2, x1, y1, x2, y2, label )
+                best_target = ((x1 + x2) // 2, (y1 + y2) // 2, x1, y1, x2, y2, label_text)
 
-        # Execute Visual Tracking
+        target_active = False
         if best_target is not None:
-            obj_x, obj_y, x1, y1, x2, y2, label = best_target
+            raw_x, raw_y, x1, y1, x2, y2, label_text = best_target
+            # Correct Kalman Filter State with New Detection
+            filtered_x, filtered_y = kf.update(raw_x, raw_y)
+            obj_x, obj_y = int(filtered_x), int(filtered_y)
+            target_active = True
 
-            # Draw Bounding Box & Target Vector
+            # Draw Raw Detection Box & Kalman Filtered Target Center
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
-            cv2.circle(frame, (obj_x, obj_y), 5, (0, 0, 255), -1)
+            cv2.circle(frame, (raw_x, raw_y), 4, (0, 255, 255), -1) # Raw detection dot
+            cv2.circle(frame, (obj_x, obj_y), 6, (0, 255, 0), -1)   # Smoothed KF dot
             cv2.line(frame, (center_x, center_y), (obj_x, obj_y), (255, 255, 0), 2)
-            cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+            cv2.putText(frame, f"{label_text} [KF]", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+        else:
+            # Handle Missing Frames / Occlusion using Kalman Prediction
+            pred_x, pred_y = kf.handle_missing_frame()
+            if pred_x is not None:
+                obj_x, obj_y = int(pred_x), int(pred_y)
+                target_active = True
+                # Draw Predicted Target Center & Vector (Cyan)
+                cv2.circle(frame, (obj_x, obj_y), 6, (255, 255, 0), -1)
+                cv2.line(frame, (center_x, center_y), (obj_x, obj_y), (255, 255, 0), 2)
+                cv2.putText(frame, f"KF PREDICTING ({kf.missed_frames}f lost)", (obj_x - 50, obj_y - 15), 
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
 
+        # Execute Visual Steering Control
+        if target_active and obj_x is not None and obj_y is not None:
             # Calculate Center Offset Errors (-1.0 to +1.0 normalized)
             error_x = (obj_x - center_x) / (w / 2)
             error_y = (obj_y - center_y) / (h / 2)
@@ -339,24 +364,25 @@ def main():
             yaw_cmd = int(error_x * 400 * KP_YAW)     # [-400, +400]
             heave_cmd = int(-error_y * 400 * KP_HEAVE) # [-400, +400]
 
-            cv2.putText(frame, f"Tracking Error: X={error_x:+.2f}, Y={error_y:+.2f}", 
-                        (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+            vx, vy = kf.get_velocity()
+            cv2.putText(frame, f"Tracking Error: X={error_x:+.2f}, Y={error_y:+.2f} | Vel: ({vx:+.1f}, {vy:+.1f})", 
+                        (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
 
             # Send MAVLink MANUAL_CONTROL command to ArduSub
             if mav is not None:
                 mav.mav.manual_control_send(
                     mav.target_system,
-                    FORWARD_SPEED,  # x: pitch/forward (e.g. 200)
+                    FORWARD_SPEED,  # x: pitch/forward
                     0,              # y: roll/lateral
-                    500 + heave_cmd,# z: thrust/heave (0-1000)
+                    500 + heave_cmd,# z: thrust/heave
                     yaw_cmd,        # r: yaw turn
                     0               # buttons
                 )
         else:
             cv2.putText(frame, "SEARCHING FOR TARGET...", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 165, 255), 2)
 
-        # Display Engine Badge Overlay
-        cv2.putText(frame, f"Engine: {engine_name}", (20, h - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+        # Display Engine & Filter Badge Overlay
+        cv2.putText(frame, f"Engine: {engine_name} + Kalman Filter", (20, h - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
         # Display Live Annotated Video Window
         cv2.imshow(WINDOW_NAME, frame)
