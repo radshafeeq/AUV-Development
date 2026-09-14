@@ -1,5 +1,5 @@
 #!/bin/bash
-# BlueROV2 Heavy (8-Thruster / 4-DOF) ArduSub SITL Launch Script
+# BlueROV2 Heavy (8-Thruster / 6-DOF) ArduSub SITL Launch Script
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 cd ~/auv_ws/firmware/ardupilot/ArduSub
