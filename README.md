@@ -76,6 +76,25 @@ Open `auv_yolo_tracking.py` and set `USE_YOLO_WORLD`:
 
 ---
 
+### 📈 4D Kalman Filter State Estimation & Trajectory Prediction
+
+The AI tracking pipeline incorporates a 4-state Constant-Velocity **Kalman Filter** ([`kalman_filter.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/kalman_filter.py)) to optimize AUV motion control:
+
+#### 🧠 What the Kalman Filter Does for the AUV:
+1. **Thruster Smoothing & Noise Elimination**:
+   - Raw vision bounding boxes jitter due to frame noise. The Kalman Filter smooths target coordinates $(x, y)$ before feeding errors to the $K_p$ controller, preventing thrusters from jerking violently.
+2. **Water Occlusion & Missing Frame Recovery**:
+   - In turbid river/lake water, bubbles, or light glare, YOLO may lose detection for a few frames. The Kalman Filter **predicts where the target is moving** for up to 15 frames (~0.5s), allowing the AUV to keep tracking seamlessly.
+3. **Velocity Estimation**:
+   - Estimates real-time target velocity $(v_x, v_y)$ for predictive steering.
+
+#### 📐 State Space Model:
+- **State Vector**: $\mathbf{x}_k = [x, y, v_x, v_y]^T$ *(Position + Velocity)*
+- **Measurement**: $\mathbf{z}_k = [z_x, z_y]^T$ *(Raw YOLO center)*
+- **Module**: Implemented using OpenCV & NumPy in [`kalman_filter.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/kalman_filter.py) and integrated into [`auv_yolo_tracking.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/auv_yolo_tracking.py).
+
+---
+
 ### 🏋️‍♂️ How to Train YOLO26 Model on Combined Dataset:
 To fine-tune YOLO26 on the combined Mechatronics + Office dataset on your GPU:
 
