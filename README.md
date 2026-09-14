@@ -1,5 +1,5 @@
 # Custom 4-DOF AUV Simulation
-This repository contains the simulation files for a custom 6-motor, 5-DOF Autonomous Underwater Vehicle (AUV). This project is being developed as part of an undergraduate Mechatronics Engineering thesis at Hasanuddin University.
+This repository contains the simulation files for a custom 6-motor, 4-DOF Autonomous Underwater Vehicle (AUV). This project is being developed as part of an undergraduate Mechatronics Engineering thesis at Hasanuddin University.
 
 The simulation integrates a custom 3D AUV frame design with Gazebo Harmonic (for physics and 3D rendering) and ArduSub SITL (for the flight controller and vehicle dynamics).
 
