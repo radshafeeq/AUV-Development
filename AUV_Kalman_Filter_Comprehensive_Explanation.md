@@ -69,7 +69,7 @@ A rigid body submerged in water has six degrees of freedom (DOF). Using the SNAM
 | 6 — Yaw | Rotation about $z_b$ | $r$ | $\psi$ | $N$ |
 
 > [!IMPORTANT]
-> Our custom AUV has **4 controllable DOF** (surge, heave, pitch, yaw) with 6 thrusters. Roll ($\phi$) is passively stabilised by placing the centre of buoyancy above the centre of gravity, which creates a natural restoring moment, and sway is not independently controlled — lateral motion is achieved through coordinated yaw and surge.
+> Our custom AUV has **4 controllable DOF** (surge, sway, heave, yaw) with 6 thrusters. Roll ($\phi$) and pitch ($\theta$) are passively stabilised — roll is self-righting because the centre of buoyancy is above the centre of gravity, and pitch is stabilised by the restoring moment from the buoyancy-gravity couple. Neither roll nor pitch is independently actuated by the thrusters.
 
 ### 2.3 Kinematic Vectors
 
@@ -153,7 +153,7 @@ From our `model.sdf`, the quadratic drag coefficients are:
 | $Z_{w|w|}$ | $-73.225$ | Heave drag — resistance to vertical motion (highest due to largest projected area) |
 
 > [!TIP]
-> **Why sway drag > surge drag**: The AUV hull is elongated along the surge axis. Moving sideways presents a much larger frontal area to the water, creating greater resistance. This asymmetry is critical for understanding why the AUV turns (yaws) rather than translates sideways when the controller applies a correction.
+> **Why sway drag > surge drag**: The AUV hull is elongated along the surge axis. Moving sideways presents a much larger frontal area to the water, creating greater resistance. This asymmetry means that sway motion requires more thruster effort per unit velocity than surge, which the controller must account for when commanding lateral translations.
 
 #### $\mathbf{g}(\boldsymbol{\eta})$ — Gravitational and Buoyancy Restoring Forces
 
@@ -165,7 +165,7 @@ where:
 - $\overline{BG}_z$ is the vertical distance between the centre of buoyancy (CB) and the centre of gravity (CG)
 
 > [!IMPORTANT]
-> In our AUV, the CB is placed **above** the CG ($\overline{BG}_z = 0.15\,\text{m}$). This creates a passive **righting moment**: if the AUV rolls, the buoyancy-gravity couple automatically restores it to level. This is why roll is uncontrolled (4-DOF) — the hull geometry provides inherent roll stability, similar to a ship's metacentric height design.
+> In our AUV, the CB is placed **above** the CG ($\overline{BG}_z = 0.15\,\text{m}$). This creates a passive **righting moment**: if the AUV rolls or pitches, the buoyancy-gravity couple automatically restores it to level. This is why both roll and pitch are uncontrolled (4-DOF: surge, sway, heave, yaw) — the hull geometry provides inherent roll and pitch stability, similar to a ship's metacentric height design.
 
 #### $\boldsymbol{\tau}$ — Thruster Forces and Moments
 
@@ -177,7 +177,7 @@ where $\mathbf{T}_{config}$ is the **thruster configuration matrix** (6×6) that
 
 For our AUV:
 - **Thrusters 1–4** (horizontal, angled at ±45°): produce surge, sway, and yaw
-- **Thrusters 5–6** (vertical): produce heave and pitch
+- **Thrusters 5–6** (vertical): produce heave
 
 ---
 
