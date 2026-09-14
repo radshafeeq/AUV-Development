@@ -340,6 +340,8 @@ After completing all steps, go back to the **How to Run the Simulation** section
 AUV-Development/
 ├── README.md                              <- This file
 ├── SIMULATION_REQUIREMENTS.md             <- Detailed simulation documentation
+├── AUV_Kalman_Filter_Comprehensive_Explanation.md <- Comprehensive kinematic/dynamic & Kalman filter guide
+├── kalman_filter.py                       <- 1D/2D Kalman Filter & Extended Kalman Filter (EKF) module
 ├── auv_yolo_tracking.py                   <- Real-time YOLOv8 / YOLO-World tracking & MAVLink guidance node
 ├── capture_training_images.py             <- Live camera dataset image collector script
 ├── auto_annotate_and_train.py             <- Automated auto-labeler & PyTorch GPU trainer
