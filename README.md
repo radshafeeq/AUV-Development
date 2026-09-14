@@ -12,9 +12,9 @@ The simulation is split into two main components that communicate over a local n
 
 ## How to Run the Simulation
 
-You can launch either your **Custom 5-DOF AUV (6 Thrusters)** or the **BlueROV2 Heavy (8 Thrusters / 6-DOF)** simulation environment.
+You can launch either your **Custom 4-DOF AUV (6 Thrusters)** or the **BlueROV2 Heavy (8 Thrusters / 4-DOF)** simulation environment.
 
-### Option A: Custom 5-DOF AUV Simulation - "Poseidon AUV" (6 Thrusters)
+### Option A: Custom 4-DOF AUV Simulation - "Poseidon AUV" (6 Thrusters)
 1. **Launch Gazebo Physics World**:
    ```bash
    ./start_gazebo.sh
@@ -30,7 +30,7 @@ You can launch either your **Custom 5-DOF AUV (6 Thrusters)** or the **BlueROV2 
 
 ---
 
-### Option B: BlueROV2 Heavy Simulation (8 Thrusters / 6-DOF)
+### Option B: BlueROV2 Heavy Simulation (8 Thrusters / 4-DOF)
 1. **Launch Gazebo Physics World**:
    ```bash
    ./start_bluerov2_heavy_gazebo.sh
@@ -345,8 +345,8 @@ AUV-Development/
 ├── auto_annotate_and_train.py             <- Automated auto-labeler & PyTorch GPU trainer
 ├── mechatronics_dataset.yaml              <- Dataset config for mechatronics hardware targets
 ├── yolov8s-world.pt                       <- Zero-shot open-vocabulary YOLO-World model weights
-├── start_gazebo.sh                        <- Quick Gazebo launch script (Custom 5-DOF AUV)
-├── start_ardusub.sh                       <- Quick ArduSub launch script (Custom 5-DOF AUV)
+├── start_gazebo.sh                        <- Quick Gazebo launch script (Custom 4-DOF AUV)
+├── start_ardusub.sh                       <- Quick ArduSub launch script (Custom 4-DOF AUV)
 ├── start_bluerov2_heavy_gazebo.sh        <- Quick Gazebo launch script (BlueROV2 Heavy 8-Thruster)
 ├── start_bluerov2_heavy_ardusub.sh       <- Quick ArduSub launch script (BlueROV2 Heavy 8-Thruster)
 ├── start_cockpit.sh                       <- Quick Cockpit GCS launch script

@@ -1,5 +1,5 @@
 #!/bin/bash
-# BlueROV2 Heavy (8-Thruster / 6-DOF) Gazebo Launch Script
+# BlueROV2 Heavy (8-Thruster / 4-DOF) Gazebo Launch Script
 
 # Environment paths for Gazebo Harmonic plugins and models
 export GZ_SIM_RESOURCE_PATH=/home/radhi/auv_ws/simulation/my_robot_model/models:/home/radhi/auv_ws/simulation/bluerov2_gz/models:/home/radhi/auv_ws/simulation/bluerov2_gz/worlds:$GZ_SIM_RESOURCE_PATH

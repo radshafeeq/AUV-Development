@@ -2,7 +2,7 @@
 
 > **Author**: Radhi Shafeeq  
 > **Context**: Undergraduate Mechatronics Engineering Thesis — Hasanuddin University  
-> **System**: Custom 5-DOF AUV with YOLO-based Visual Servoing & Kalman State Estimation
+> **System**: Custom 4-DOF AUV with YOLO-based Visual Servoing & Kalman State Estimation
 
 ---
 
@@ -69,7 +69,7 @@ A rigid body submerged in water has six degrees of freedom (DOF). Using the SNAM
 | 6 — Yaw | Rotation about $z_b$ | $r$ | $\psi$ | $N$ |
 
 > [!IMPORTANT]
-> Our custom AUV has **5 controllable DOF** (surge, sway, heave, pitch, yaw) with 6 thrusters. Roll ($\phi$) is passively stabilised by placing the centre of buoyancy above the centre of gravity, which creates a natural restoring moment.
+> Our custom AUV has **4 controllable DOF** (surge, heave, pitch, yaw) with 6 thrusters. Roll ($\phi$) is passively stabilised by placing the centre of buoyancy above the centre of gravity, which creates a natural restoring moment, and sway is not independently controlled — lateral motion is achieved through coordinated yaw and surge.
 
 ### 2.3 Kinematic Vectors
 
@@ -165,7 +165,7 @@ where:
 - $\overline{BG}_z$ is the vertical distance between the centre of buoyancy (CB) and the centre of gravity (CG)
 
 > [!IMPORTANT]
-> In our AUV, the CB is placed **above** the CG ($\overline{BG}_z = 0.15\,\text{m}$). This creates a passive **righting moment**: if the AUV rolls, the buoyancy-gravity couple automatically restores it to level. This is why roll is uncontrolled (5-DOF) — the hull geometry provides inherent roll stability, similar to a ship's metacentric height design.
+> In our AUV, the CB is placed **above** the CG ($\overline{BG}_z = 0.15\,\text{m}$). This creates a passive **righting moment**: if the AUV rolls, the buoyancy-gravity couple automatically restores it to level. This is why roll is uncontrolled (4-DOF) — the hull geometry provides inherent roll stability, similar to a ship's metacentric height design.
 
 #### $\boldsymbol{\tau}$ — Thruster Forces and Moments
 

@@ -1,7 +1,7 @@
 # AUV Simulation Requirements & Installation Guide
 
 This document records all software requirements, sources, and installation
-instructions for the custom 5-DOF, 6-motor AUV simulation environment.
+instructions for the custom 4-DOF, 6-motor AUV simulation environment.
 
 **Developed by:** Radhi Shafeeq  
 **University:** Hasanuddin University (Mechatronics Engineering)  
@@ -261,7 +261,7 @@ the following open-source repository:
 >   with simple boxes/cylinders for physics stability).
 > - Scale differences between 3D design software (CAD) and the Gazebo
 >   simulation engine coordinate system.
-> - Thruster position fine-tuning to achieve stable 5-DOF motion in the
+> - Thruster position fine-tuning to achieve stable 4-DOF motion in the
 >   physics engine.
 > - Buoyancy and hydrodynamics parameter tuning for realistic underwater
 >   behaviour.
