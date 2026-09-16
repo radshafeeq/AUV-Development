@@ -2,7 +2,7 @@
 
 > **Author**: Radhi Shafeeq  
 > **Context**: Undergraduate Mechatronics Engineering Thesis — Hasanuddin University  
-> **System**: Custom 4-DOF AUV with YOLO-based Visual Servoing & Kalman State Estimation
+> **System**: BlueROV2 Heavy (6-DOF) and BlueROV2 Standard (4-DOF) with YOLO-based Visual Servoing & Kalman State Estimation
 
 ---
 
@@ -69,24 +69,8 @@ A rigid body submerged in water has six degrees of freedom (DOF). Using the SNAM
 | 6 — Yaw | Rotation about $z_b$ | $r$ | $\psi$ | $N$ |
 
 > [!IMPORTANT]
-> Our custom AUV has **4 controllable DOF** (surge, sway, heave, yaw) with 6 thrusters. Roll ($\phi$) and pitch ($\theta$) are passively stabilised — roll is self-righting because the centre of buoyancy is above the centre of gravity, and pitch is stabilised by the restoring moment from the buoyancy-gravity couple. Neither roll nor pitch is independently actuated by the thrusters.
-
-#### Platform Comparison: ArduSub Frame Types & Controllable DOF
-
-Our custom AUV frame and thruster positions are based on the **BlueROV2 Standard** design. The firmware is the same ArduSub autopilot (developed by ArduPilot & Blue Robotics), and the onboard operating system is **BlueOS** (Blue Robotics). The table below compares the three platforms used in this project's simulation environment:
-
-| Platform | Thrusters | ArduSub Frame | Firmware Controllable Axes | Practical Operational DOF | Passive Axes |
-|----------|-----------|---------------|----------------------------|--------------------------|--------------|
-| **Custom "Poseidon" AUV** | 6 (4 horizontal, 2 vertical) | `vectored` | R / Y / Z / F / L | **4-DOF**: Surge, Sway, Heave, Yaw | Roll, Pitch |
-| **BlueROV2 Standard** | 6 (4 horizontal, 2 vertical) | `vectored` | R / Y / Z / F / L | **4-DOF**: Surge, Sway, Heave, Yaw | Roll, Pitch |
-| **BlueROV2 Heavy** | 8 (4 horizontal, 4 vertical) | `vectored_6dof` | R / P / Y / Z / F / L | **6-DOF**: Surge, Sway, Heave, Roll, Pitch, Yaw | None |
-
-where the axes are: R = Roll, P = Pitch, Y = Yaw, Z = Depth (Heave), F = Forward (Surge), L = Lateral (Sway).
-
-> [!NOTE]
-> **Firmware vs. Practical DOF**: The ArduSub `vectored` frame lists Roll (R) as a controllable axis because the two vertical thrusters are laterally offset and *can* produce a small roll moment through differential thrust. However, in practice under **Stabilize** and **Depth Hold** flight modes — the modes used for visual-servoing tracking — ArduSub's internal PID controller actively auto-levels the vehicle using IMU feedback. Roll and pitch inputs require a special `roll_pitch_toggle` joystick function that is not mapped by default in Cockpit. Furthermore, the roll authority from only two vertical thrusters is limited. In the Gazebo SITL simulation, neither the BlueROV2 Standard nor the custom AUV exhibit independent roll or pitch control. For these reasons, both are classified as **4-DOF operational** platforms.
->
-> The BlueROV2 Heavy's four vertical thrusters (positioned at the four corners of the frame) provide sufficient differential thrust for **active roll and pitch control**, making it a true 6-DOF platform even in stabilised flight modes.
+> **BlueROV2 Heavy** has **6 controllable DOF** (surge, sway, heave, roll, pitch, yaw) with 8 thrusters (`vectored_6dof`). 
+> **BlueROV2 Standard** operates as a decoupled **4-DOF** system (surge, sway, heave, yaw) with 6 thrusters (`vectored`), where roll ($\phi$) and pitch ($\theta$) are passively stabilized by positive metacentric height ($GM_T > 0$).
 
 ### 2.3 Kinematic Vectors
 
@@ -139,16 +123,16 @@ $$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A$$
 
 | Component | Description |
 |-----------|-------------|
-| $\mathbf{M}_{RB}$ | **Rigid-body inertia matrix** (6×6). Depends on the AUV's mass $m = 14.2\,\text{kg}$ and moments of inertia $I_{xx}, I_{yy}, I_{zz}$. Diagonal elements represent resistance to linear and angular acceleration. |
-| $\mathbf{M}_A$ | **Added mass matrix** (6×6). When the AUV accelerates, it must also accelerate a volume of surrounding water. This "virtual mass" effect is significant underwater — typically 20–60% of the rigid-body mass for a streamlined hull. |
+| $\mathbf{M}_{RB}$ | **Rigid-body inertia matrix** (6×6). Depends on the AUV's mass $m = 13.5\,\text{kg}$ and rigid moments of inertia $I_{xx}=0.16, I_{yy}=0.21, I_{zz}=0.245$. Diagonal elements represent resistance to linear and angular acceleration. |
+| $\mathbf{M}_A$ | **Added mass matrix** (6×6). Represents virtual mass of entrained fluid. For BlueROV2: $X_{\dot{u}}=-6.36$, $Y_{\dot{v}}=-7.12$, $Z_{\dot{w}}=-18.68$, $K_{\dot{p}}=-0.015$, $M_{\dot{q}}=-0.080$, $N_{\dot{r}}=-0.245$. |
 
-For our AUV ($m = 14.2\,\text{kg}$, $I_{xx} = I_{yy} = I_{zz} = 0.13\,\text{kg·m}^2$):
+For the BlueROV2 ($m = 13.5\,\text{kg}$, $I_{xx} = 0.16$, $I_{yy} = 0.21$, $I_{zz} = 0.245$):
 
-$$\mathbf{M}_{RB} = \begin{bmatrix} 14.2 & 0 & 0 & 0 & 0 & 0 \\ 0 & 14.2 & 0 & 0 & 0 & 0 \\ 0 & 0 & 14.2 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0.13 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0.13 & 0 \\ 0 & 0 & 0 & 0 & 0 & 0.13 \end{bmatrix}$$
+$$\mathbf{M}_{RB} = \begin{bmatrix} 13.5 & 0 & 0 & 0 & 0 & 0 \\ 0 & 13.5 & 0 & 0 & 0 & 0 \\ 0 & 0 & 13.5 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0.16 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0.21 & 0 \\ 0 & 0 & 0 & 0 & 0 & 0.245 \end{bmatrix}$$
 
 #### $\mathbf{C}(\boldsymbol{\nu})\boldsymbol{\nu}$ — Coriolis and Centripetal Forces
 
-When the AUV rotates while also translating, Coriolis and centripetal forces appear. These are **velocity-dependent coupling terms** — for example, yawing while surging creates an apparent sideways (sway) force. $\mathbf{C}$ is a function of $\boldsymbol{\nu}$ and is skew-symmetric.
+When the AUV rotates while translating, Coriolis and centripetal forces appear. These velocity-dependent coupling terms produce complex non-linear behaviors. Most notably, the **Munk Moment** $(X_{\dot{u}} - Y_{\dot{v}})u_r v_r$ generates a destabilizing yaw torque (+0.76 kg gain for BlueROV2) when the vehicle experiences combined surge and sway, attempting to turn the vehicle broadside to the flow. $\mathbf{C}$ is a function of $\boldsymbol{\nu}$ and is skew-symmetric.
 
 #### $\mathbf{D}(\boldsymbol{\nu})\boldsymbol{\nu}$ — Hydrodynamic Damping (Drag)
 
@@ -161,52 +145,43 @@ $$\mathbf{D}(\boldsymbol{\nu}) = \mathbf{D}_l + \mathbf{D}_q(\boldsymbol{\nu})$$
 | **Linear drag** $\mathbf{D}_l$ | $\mathbf{D}_l \boldsymbol{\nu}$ | Proportional to velocity. Dominates at low speeds (skin friction). |
 | **Quadratic drag** $\mathbf{D}_q$ | $\mathbf{D}_q(\boldsymbol{\nu})\boldsymbol{\nu}$ | Proportional to $|\nu|\nu$. Dominates at moderate-to-high speeds (pressure drag). |
 
-From our `model.sdf`, the quadratic drag coefficients are:
+From the hydrodynamic study, the linear and quadratic drag coefficients are:
 
 | Coefficient | Value | Physical Meaning |
 |-------------|-------|------------------|
-| $X_{u|u|}$ | $-33.732$ | Surge drag — resistance to forward/backward motion |
-| $Y_{v|v|}$ | $-54.16$ | Sway drag — resistance to lateral motion (higher due to larger cross-section) |
-| $Z_{w|w|}$ | $-73.225$ | Heave drag — resistance to vertical motion (highest due to largest projected area) |
+| $X_{u|u|}$ | $-18.18$ | Surge quadratic drag — resistance to forward/backward motion |
+| $Y_{v|v|}$ | $-21.66$ | Sway quadratic drag — resistance to lateral motion |
+| $Z_{w|w|}$ | $-36.99$ | Heave quadratic drag — resistance to vertical motion (largest projected area) |
+| $N_{r|r|}$ | $-1.55$ | Yaw quadratic drag — resistance to rotation |
+
+(Linear skin friction values are $X_u = -4.03$, $Y_v = -6.22$, $Z_w = -5.18$, $N_r = -0.50$).
 
 > [!TIP]
-> **Why sway drag > surge drag**: The AUV hull is elongated along the surge axis. Moving sideways presents a much larger frontal area to the water, creating greater resistance. This asymmetry means that sway motion requires more thruster effort per unit velocity than surge, which the controller must account for when commanding lateral translations.
+> **Why sway drag > surge drag**: The AUV hull is elongated along the surge axis. Moving sideways presents a much larger frontal area to the water, creating greater resistance. This asymmetry is critical for understanding why the AUV turns (yaws) rather than translates sideways when the controller applies a correction.
 
 #### $\mathbf{g}(\boldsymbol{\eta})$ — Gravitational and Buoyancy Restoring Forces
 
 $$\mathbf{g}(\boldsymbol{\eta}) = \begin{bmatrix} (W - B)\sin\theta \\ -(W - B)\cos\theta\sin\phi \\ -(W - B)\cos\theta\cos\phi \\ -\overline{BG}_z B \cos\theta\sin\phi \\ -\overline{BG}_z B \sin\theta \\ 0 \end{bmatrix}$$
 
 where:
-- $W = mg = 14.2 \times 9.81 = 139.3\,\text{N}$ is the weight force
-- $B = \rho_{water} \cdot V_{displaced} \cdot g = 998 \times 0.011 \times 9.81 = 107.7\,\text{N}$ is the buoyancy force
-- $\overline{BG}_z$ is the vertical distance between the centre of buoyancy (CB) and the centre of gravity (CG)
+- $W = mg = 13.5 \times 9.81 = 132.44\,\text{N}$ is the weight force
+- $B = \rho_{water} \cdot \nabla \cdot g = 134.74\,\text{N}$ is the hydrostatic buoyant force
+- $GM_T = z_g - z_b$ is the vertical metacentric height between CB and CG
 
 > [!IMPORTANT]
-> In our AUV (and the BlueROV2 Standard), the CB is placed **above** the CG ($\overline{BG}_z = 0.15\,\text{m}$). This creates a passive **righting moment**: if the AUV rolls or pitches, the buoyancy-gravity couple automatically restores it to level. For 4-DOF platforms (custom AUV and BlueROV2 Standard), this passive stability is the *only* mechanism maintaining roll and pitch — the thrusters do not actively correct attitude. For the BlueROV2 Heavy (6-DOF), the restoring moment supplements the active attitude control provided by its four vertical thrusters, giving it double-layered stability.
+> In the BlueROV2, the heavy components (ballast/battery) are mounted low while syntactic foam is mounted high, establishing a positive metacentric height ($GM_T = 0.020\,\text{m}$). This acts as a physical torsional spring ($k_\phi = z_g W$). In the **BlueROV2 Standard (4-DOF)**, this buoyancy-gravity couple passively rightens the vehicle ($\phi \to 0, \theta \to 0$), leaving roll and pitch unactuated.
 
 #### $\boldsymbol{\tau}$ — Thruster Forces and Moments
 
-The control input vector produced by the thrusters:
+The control input vector produced by the 6 thrusters:
 
 $$\boldsymbol{\tau} = \begin{bmatrix} X_{thrust} \\ Y_{thrust} \\ Z_{thrust} \\ K_{thrust} \\ M_{thrust} \\ N_{thrust} \end{bmatrix} = \mathbf{T}_{config} \cdot \mathbf{f}$$
 
-where $\mathbf{T}_{config}$ is the **thruster configuration matrix** that maps individual thruster forces $\mathbf{f}$ to body-frame forces and moments based on each thruster's position and orientation. The matrix dimensions depend on the number of thrusters.
+where $\mathbf{T}_{config}$ is the **thruster configuration matrix** mapping individual thruster forces $\mathbf{f}$ to body-frame forces/moments based on each thruster's physical geometry.
 
-**Custom AUV / BlueROV2 Standard (6 thrusters, `vectored` frame):**
-
-$\mathbf{T}_{config}$ is 6×6, mapping $\mathbf{f} = [f_1, f_2, f_3, f_4, f_5, f_6]^T$:
-- **Thrusters 1–4** (horizontal, angled at ±45°): produce surge, sway, and yaw
-- **Thrusters 5–6** (vertical, laterally offset at $y = \pm 0.109\,\text{m}$): produce heave
-- Roll/pitch moments from thrusters 5–6 are minimal and not actively commanded
-
-**BlueROV2 Heavy (8 thrusters, `vectored_6dof` frame):**
-
-$\mathbf{T}_{config}$ is 6×8, mapping $\mathbf{f} = [f_1, \ldots, f_8]^T$:
-- **Thrusters 1–4** (horizontal, angled at ±45°): produce surge, sway, and yaw
-- **Thrusters 5–8** (vertical, positioned at four corners): produce heave, roll, and pitch through differential thrust
-
-> [!NOTE]
-> The ArduSub firmware uses the `add_motor_raw_6dof()` function to define each motor's contribution factors (`roll_fac`, `pitch_fac`, `yaw_fac`, `throttle_fac`, `forward_fac`, `lateral_fac`) in the `AP_Motors6DOF.cpp` library. The `MOT_FV_CPLNG_K` parameter (default 1.0) provides forward/vertical-to-pitch hydrodynamic decoupling for vectored frames.
+For the BlueROV2 platforms:
+- **BlueROV2 Heavy (8 thrusters)**: $\mathbf{T}_{6 \times 8}$ pseudo-inverse matrix handles full 6-DOF actuation (4 horizontal vectored + 4 vertical corner thrusters).
+- **BlueROV2 Standard (6 thrusters)**: $\mathbf{T}_{4 \times 6}$ pseudo-inverse matrix handles decoupled 4-DOF actuation (Surge, Sway, Heave, Yaw).
 
 ---
 
@@ -540,47 +515,15 @@ graph TB
 | **AUV Trajectory** | Jerky zigzag path with overshoot | Smooth, direct approach to target |
 | **During Occlusion** | AUV stops; drifts; loses target | AUV continues on predicted trajectory for up to 0.5 s |
 
-### 9.3 Effect on Each Dynamic Term
+### 9.3 Effect on Each Dynamic Term in the Decoupled 4-DOF State-Space Model
 
-The Kalman Filter indirectly improves every term in the dynamic equation:
+The Kalman Filter operates in pixel space, but its smoothing effect directly improves the stability of the BlueROV2 Standard's decoupled 4-DOF plant:
 
-**Inertial term $\mathbf{M}\dot{\boldsymbol{\nu}}$**: Smooth control signals mean smooth acceleration demands. Without the filter, $\dot{\boldsymbol{\nu}}$ oscillates wildly, requiring large instantaneous forces from the thrusters. The added mass effect amplifies this — accelerating turbulent water around the hull wastes energy.
+**Surge, Sway, and Heave (Translational Dynamics)**: 
+Smooth KF error signals prevent rapid thruster oscillations, which is critical because hydrodynamic quadratic drag $\mathbf{D}_q(\boldsymbol{\nu})$ heavily penalizes erratic velocity changes. A sudden spike in sway velocity $v_r$ incurs massive resistance ($Y_{v|v|} = -21.66$), wasting energy. Smooth commands allow efficient cruising. Furthermore, jerky heave commands can disturb the passive pitch equilibrium, causing the vehicle to wobble around its metacentric restoring spring ($k_\theta$). The KF ensures smooth heave transitions, keeping $\theta \approx 0$.
 
-**Coriolis term $\mathbf{C}(\boldsymbol{\nu})\boldsymbol{\nu}$**: Erratic yaw-surge coupling is minimised. When the yaw command is smooth, the cross-coupling terms remain small and predictable.
-
-**Damping term $\mathbf{D}(\boldsymbol{\nu})\boldsymbol{\nu}$**: Quadratic drag means that oscillating velocities waste disproportionate energy. If the AUV alternates between $+v$ and $-v$, the drag energy is $2D|v|v$, but a smooth constant velocity $v/2$ only costs $D|v/2|(v/2) = D v^2/4$ — **four times less drag energy** for the same average displacement.
-
-**Restoring term $\mathbf{g}(\boldsymbol{\eta})$**: Jerky heave commands disturb the AUV's pitch equilibrium. A sudden downward thrust tilts the AUV nose-down (pitch), triggering the restoring moment to oscillate. Smooth heave commands keep the AUV level.
-
-### 9.4 Kalman Filter Applicability Across ROV/AUV Platforms
-
-The Kalman Filter's benefit varies depending on how many DOF the platform actively controls:
-
-#### Custom AUV / BlueROV2 Standard (4-DOF: Surge, Sway, Heave, Yaw)
-
-The KF smooths the **yaw** and **heave** commands derived from YOLO visual servoing. Since roll and pitch are passively stabilised (no active thruster control), the KF's smoothing effect on heave is particularly critical:
-
-- **Without KF**: Jerky heave commands from noisy detections create sudden vertical accelerations. These accelerations disturb the pitch equilibrium, and the *only* mechanism to restore pitch is the passive buoyancy-gravity couple ($\mathbf{g}(\boldsymbol{\eta})$), which responds slowly and can oscillate.
-- **With KF**: Smooth heave commands minimise pitch disturbances. The AUV maintains a level attitude because the restoring moment is never significantly excited.
-
-For these 4-DOF platforms, the KF is **essential** for attitude stability — it is the *only* protection against pitch/roll disturbances, since there are no thrusters to actively correct them.
-
-#### BlueROV2 Heavy (6-DOF: Surge, Sway, Heave, Roll, Pitch, Yaw)
-
-The KF smooths **all six** control axes. The Heavy configuration has active roll and pitch control via its four vertical thrusters, so the ArduSub PID controller can actively correct attitude disturbances. However, the KF still provides major benefits:
-
-- **Without KF**: Jerky commands excite attitude disturbances that the PID must constantly correct, consuming additional thruster energy and creating secondary oscillations.
-- **With KF**: Smooth commands prevent attitude disturbances from occurring in the first place, allowing the PID to focus on maintaining precision rather than fighting noise-induced oscillations.
-
-For the 6-DOF platform, the KF provides a **performance and efficiency** improvement — the Heavy can survive without it (the PIDs will compensate), but with the KF, the system operates more smoothly, uses less energy, and provides better tracking accuracy.
-
-| Aspect | 4-DOF (Custom / Standard) | 6-DOF (Heavy) |
-|--------|---------------------------|---------------|
-| **KF role for attitude** | Critical — only protection against pitch/roll disturbance | Beneficial — prevents disturbances the PID would otherwise fight |
-| **Heave smoothing** | Essential — prevents pitch oscillation | Helpful — reduces PID workload |
-| **Yaw smoothing** | Essential — prevents Coriolis cross-coupling | Helpful — reduces yaw-surge coupling |
-| **Occlusion handling** | Identical — constant-velocity dead reckoning for both | Identical |
-| **Energy savings** | Large — quadratic drag reduction from smooth motion | Large — same mechanism, plus reduced attitude correction thrust |
+**Yaw (Rotational Dynamics) & The Munk Moment**: 
+Perhaps most importantly, erratic yaw/sway commands caused by raw pixel jitter trigger the destabilizing **Munk Moment** $(X_{\dot{u}} - Y_{\dot{v}})u_r v_r$. Because the BlueROV2 has a highly asymmetric added mass profile (transverse added mass $Y_{\dot{v}}$ exceeds surge added mass $X_{\dot{u}}$), combined surge and sway creates a positive, destabilizing yaw torque (+0.76 kg gain). If the vehicle aggressively zig-zags to chase pixel noise, this Munk Moment constantly fights the yaw controller. The KF eliminates pixel jitter, minimizing unnecessary sway $v_r$, which actively suppresses the destabilizing Munk Moment and keeps the AUV tracking straight.
 
 ---
 
@@ -824,10 +767,6 @@ The command **jumped from −2 to −12** in one frame — a 6× change. With th
 $$\underbrace{\mathbf{M}\dot{\boldsymbol{\nu}}}_{\substack{\text{Smooth } \dot{\nu} \\ \text{from smooth } \tau}} + \underbrace{\mathbf{C}(\boldsymbol{\nu})\boldsymbol{\nu}}_{\substack{\text{Reduced coupling} \\ \text{from steady } \nu}} + \underbrace{\mathbf{D}(\boldsymbol{\nu})\boldsymbol{\nu}}_{\substack{\text{Lower drag energy} \\ \text{from non-oscillating } \nu}} + \underbrace{\mathbf{g}(\boldsymbol{\eta})}_{\substack{\text{Stable attitude} \\ \text{from gentle heave}}} = \underbrace{\boldsymbol{\tau}}_{\substack{\text{Kalman-filtered} \\ \text{control output}}}$$
 
 The Kalman Filter does not modify the dynamics equations themselves. Instead, it produces a **higher-quality control input $\boldsymbol{\tau}$** by filtering the vision-derived error signal. This better input produces smoother velocities $\boldsymbol{\nu}$, which in turn reduce every parasitic term in the equation of motion — inertial transients, Coriolis coupling, quadratic drag losses, and attitude disturbances.
-
-### Multi-Platform Applicability
-
-The Kalman Filter implementation (`kalman_filter.py`) is platform-agnostic — it operates in pixel space and works identically across all three platforms in this project (Custom AUV, BlueROV2 Standard, BlueROV2 Heavy). The difference lies in *how critical* the KF is to each platform's stability: for 4-DOF platforms (Custom AUV / BlueROV2 Standard), the KF is **essential** because there are no thrusters to correct pitch/roll disturbances caused by noisy control commands; for the 6-DOF BlueROV2 Heavy, the KF is **beneficial** because it reduces the workload on the active attitude PIDs.
 
 ---
 
