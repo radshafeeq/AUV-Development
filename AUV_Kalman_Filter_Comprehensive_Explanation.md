@@ -19,10 +19,11 @@
 9. [How the Kalman Filter Connects to AUV Kinematics & Dynamics](#9-how-the-kalman-filter-connects-to-auv-kinematics--dynamics)
 10. [Occlusion Handling & Dead-Reckoning Prediction](#10-occlusion-handling--dead-reckoning-prediction)
 11. [Complete Closed-Loop Signal Flow](#11-complete-closed-loop-signal-flow)
-12. [Numerical Example: One Full Cycle](#12-numerical-example-one-full-cycle)
+12. [Numerical Example: 5-Cycle Walk-Through](#12-numerical-example-5-cycle-walk-through)
 13. [Implementation Mapping to Code](#13-implementation-mapping-to-code)
-14. [Summary & Key Takeaways](#14-summary--key-takeaways)
-15. [References](#15-references)
+14. [Parameter Taxonomy Dictionary](#14-parameter-taxonomy-dictionary)
+15. [Summary & Key Takeaways](#15-summary--key-takeaways)
+16. [References](#16-references)
 
 ---
 
@@ -283,7 +284,7 @@ The Kalman Filter addresses all of these by incorporating a **physics-based moti
 
 We model the target's motion in the image plane with a **4-dimensional state vector**:
 
-$$\mathbf{x}_k = \begin{bmatrix} x_k \\ y_k \\ \dot{x}_k \\ \dot{y}_k \end{bmatrix} = \begin{bmatrix} \text{target horizontal position (px)} \\ \text{target vertical position (px)} \\ \text{target horizontal velocity (px/frame)} \\ \text{target vertical velocity (px/frame)} \end{bmatrix}$$
+$$\mathbf{x}_k = \begin{bmatrix} x_k \\ y_k \\ v_{x,k} \\ v_{y,k} \end{bmatrix} = \begin{bmatrix} \text{target horizontal position (px)} \\ \text{target vertical position (px)} \\ \text{target horizontal velocity (px/s or px/frame)} \\ \text{target vertical velocity (px/s or px/frame)} \end{bmatrix}$$
 
 ### 6.2 Process Model (State Transition)
 
@@ -299,14 +300,14 @@ with $\Delta t = 0.033\,\text{s}$ (one frame at 30 fps).
 
 **Expanding the matrix multiplication explicitly**:
 
-$$\begin{bmatrix} x_k \\ y_k \\ \dot{x}_k \\ \dot{y}_k \end{bmatrix} = \begin{bmatrix} 1 & 0 & 0.033 & 0 \\ 0 & 1 & 0 & 0.033 \\ 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 1 \end{bmatrix} \begin{bmatrix} x_{k-1} \\ y_{k-1} \\ \dot{x}_{k-1} \\ \dot{y}_{k-1} \end{bmatrix}$$
+$$\begin{bmatrix} x_k \\ y_k \\ v_{x,k} \\ v_{y,k} \end{bmatrix} = \begin{bmatrix} 1 & 0 & 0.03333 & 0 \\ 0 & 1 & 0 & 0.03333 \\ 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 1 \end{bmatrix} \begin{bmatrix} x_{k-1} \\ y_{k-1} \\ v_{x,k-1} \\ v_{y,k-1} \end{bmatrix}$$
 
 This gives the intuitive kinematic equations:
 
-$$x_k = x_{k-1} + \dot{x}_{k-1} \cdot \Delta t$$
-$$y_k = y_{k-1} + \dot{y}_{k-1} \cdot \Delta t$$
-$$\dot{x}_k = \dot{x}_{k-1}$$
-$$\dot{y}_k = \dot{y}_{k-1}$$
+$$x_k = x_{k-1} + v_{x,k-1} \cdot \Delta t + w_{x,k-1}$$
+$$y_k = y_{k-1} + v_{y,k-1} \cdot \Delta t + w_{y,k-1}$$
+$$v_{x,k} = v_{x,k-1} + w_{vx,k-1}$$
+$$v_{y,k} = v_{y,k-1} + w_{vy,k-1}$$
 
 > [!NOTE]
 > **Connection to AUV kinematics**: This is the discrete, 2D image-plane analogue of the kinematic equation $\dot{\boldsymbol{\eta}} = \mathbf{J}\boldsymbol{\nu}$. In the full 6-DOF formulation, position updates depend on velocity through the Jacobian. Here, in the image plane, the relationship simplifies to linear translation because we track pixel coordinates directly.
@@ -419,9 +420,19 @@ graph LR
 
 ## 8. Noise Covariance Matrices: Q, R, and P
 
-### 8.1 Process Noise $\mathbf{Q}$ — How Much the Model Can Be Wrong
+### 8.1 Process Noise $\mathbf{Q}$ — Continuous White Noise Acceleration (CWNA)
 
-$$\mathbf{Q} = \sigma_q^2 \cdot \mathbf{I}_4 = (0.05)^2 \cdot \begin{bmatrix} 1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 1 \end{bmatrix} = \begin{bmatrix} 0.0025 & 0 & 0 & 0 \\ 0 & 0.0025 & 0 & 0 \\ 0 & 0 & 0.0025 & 0 \\ 0 & 0 & 0 & 0.0025 \end{bmatrix}$$
+To accurately model unmodeled target accelerations, we treat the process noise as a Continuous White Noise Acceleration (CWNA) model with power spectral density $q_s = 0.05$. The continuous-time system matrix $\mathbf{F}_c$ and noise input matrix $\mathbf{G}_c$ are:
+
+$$\mathbf{F}_c = \begin{bmatrix} 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 1 \\ 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 \end{bmatrix}, \quad \mathbf{G}_c = \begin{bmatrix} 0 & 0 \\ 0 & 0 \\ 1 & 0 \\ 0 & 1 \end{bmatrix}$$
+
+The discrete process noise covariance matrix $\mathbf{Q} \in \mathbb{R}^{4\times4}$ is derived via the integral:
+
+$$\mathbf{Q} = \int_{0}^{\Delta t} e^{\mathbf{F}_c \tau} \mathbf{G}_c q_s \mathbf{G}_c^T e^{\mathbf{F}_c^T \tau} d\tau = q_s \begin{bmatrix} \frac{\Delta t^3}{3} & 0 & \frac{\Delta t^2}{2} & 0 \\ 0 & \frac{\Delta t^3}{3} & 0 & \frac{\Delta t^2}{2} \\ \frac{\Delta t^2}{2} & 0 & \Delta t & 0 \\ 0 & \frac{\Delta t^2}{2} & 0 & \Delta t \end{bmatrix}$$
+
+For $\Delta t = 0.03333$ s and $q_s = 0.05$, the final non-diagonal $\mathbf{Q}$ matrix is:
+
+$$\mathbf{Q} = \begin{bmatrix} 6.16 \times 10^{-7} & 0 & 2.778 \times 10^{-5} & 0 \\ 0 & 6.16 \times 10^{-7} & 0 & 2.778 \times 10^{-5} \\ 2.778 \times 10^{-5} & 0 & 1.667 \times 10^{-3} & 0 \\ 0 & 2.778 \times 10^{-5} & 0 & 1.667 \times 10^{-3} \end{bmatrix}$$
 
 **Physical meaning**: $\sigma_q = 0.05$ means we expect the constant-velocity model to be accurate to within $\pm 0.05$ px/frame. This is **small**, reflecting our belief that targets underwater generally move smoothly (they do not teleport or make instant 90° turns).
 
@@ -431,18 +442,18 @@ $$\mathbf{Q} = \sigma_q^2 \cdot \mathbf{I}_4 = (0.05)^2 \cdot \begin{bmatrix} 1 
 
 ### 8.2 Measurement Noise $\mathbf{R}$ — How Noisy the YOLO Detections Are
 
-$$\mathbf{R} = \sigma_r^2 \cdot \mathbf{I}_2 = (0.2)^2 \cdot \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} = \begin{bmatrix} 0.04 & 0 \\ 0 & 0.04 \end{bmatrix}$$
+$$\mathbf{R} = \begin{bmatrix} \sigma_r^2 & 0 \\ 0 & \sigma_r^2 \end{bmatrix} = \begin{bmatrix} 0.20 & 0 \\ 0 & 0.20 \end{bmatrix}$$
 
-**Physical meaning**: $\sigma_r = 0.2$ represents the expected standard deviation of YOLO bounding-box centre jitter in normalised coordinates. This accounts for:
+**Physical meaning**: The measurement noise covariance matrix captures the YOLO bounding box pixel variance $\sigma_r^2 = 0.20$. This accounts for:
 - Bounding box size fluctuations
 - Sub-pixel detector inconsistency
 - Underwater light refraction distortion
 
 **The ratio $\mathbf{Q}/\mathbf{R}$ controls the filter's behaviour**:
 
-| Ratio $\sigma_q / \sigma_r$ | Filter Behaviour | Analogy |
+| Ratio $\mathbf{Q}_{ii} / \mathbf{R}_{ii}$ | Filter Behaviour | Analogy |
 |------------------------------|-------------------|---------|
-| $\ll 1$ (our case: 0.25) | **Strongly smoothing** — trusts model, dampens noise | Like a heavy flywheel: stable but slow to respond |
+| $\ll 1$ (our case: $0.05/0.20 = 0.25$) | **Strongly smoothing** — trusts model, dampens noise | Like a heavy flywheel: stable but slow to respond |
 | $\approx 1$ | Balanced — equal trust in model and sensor | Moderate smoothing |
 | $\gg 1$ | **Reactive** — trusts sensor, less smoothing | Like raw sensor pass-through |
 
@@ -517,7 +528,12 @@ graph TB
 
 ### 9.3 Effect on Each Dynamic Term in the Decoupled 4-DOF State-Space Model
 
-The Kalman Filter operates in pixel space, but its smoothing effect directly improves the stability of the BlueROV2 Standard's decoupled 4-DOF plant:
+The Kalman Filter operates in pixel space, but its smoothing effect directly improves the stability of the BlueROV2 Standard's decoupled 4-DOF plant. 
+
+> [!NOTE]
+> **Connection to the 15-State Navigation EKF**: In a full 3D autonomous underwater navigation context (as detailed in the Kalman Filter monograph), the AUV uses a 15-State EKF fusing IMU, DVL, and USBL data. The complex hydrodynamic forces derived in our kinematic/dynamic study ($\mathbf{M}$, $\mathbf{C}$, $\mathbf{D}$, $\mathbf{g}$) plug *directly* into the non-linear velocity propagation equation of the EKF via the $\boldsymbol{f}_{hydro}^b$ term:
+> $$\dot{\boldsymbol{v}}^b = \boldsymbol{a}_{IMU}^b - \boldsymbol{b}_a - \boldsymbol{n}_a - \mathbf{S}(\boldsymbol{\omega}^b - \boldsymbol{b}_g)\boldsymbol{v}^b + \mathbf{R}_n^b(\boldsymbol{q}^n)\boldsymbol{g}^n + \boldsymbol{f}_{hydro}^b$$
+> Meanwhile, the visual servoing filter described here is a localized 4D Constant-Velocity filter operating in the image plane to feed smooth error signals to the thruster controller.
 
 **Surge, Sway, and Heave (Translational Dynamics)**: 
 Smooth KF error signals prevent rapid thruster oscillations, which is critical because hydrodynamic quadratic drag $\mathbf{D}_q(\boldsymbol{\nu})$ heavily penalizes erratic velocity changes. A sudden spike in sway velocity $v_r$ incurs massive resistance ($Y_{v|v|} = -21.66$), wasting energy. Smooth commands allow efficient cruising. Furthermore, jerky heave commands can disturb the passive pitch equilibrium, causing the vehicle to wobble around its metacentric restoring spring ($k_\theta$). The KF ensures smooth heave transitions, keeping $\theta \approx 0$.
@@ -670,83 +686,143 @@ Since no correction step shrinks $\mathbf{P}$, the position uncertainty **increa
 
 ---
 
-## 12. Numerical Example: One Full Cycle
+## 12. Numerical Example: 5-Cycle Walk-Through
 
-### Setup
-- Frame size: $640 \times 480$, centre at $(320, 240)$
-- Target initially at $\hat{\mathbf{x}}_{k-1|k-1} = [310, 235, 5.0, -2.0]^T$ (moving right and slightly up)
-- $\Delta t = 0.033\,\text{s}$
+We trace 5 consecutive execution cycles ($\Delta t = 0.03333$ s) of the 4D Visual Servoing Kalman Filter to observe jitter smoothing, velocity estimation, and occlusion bridging.
 
-### Step 1: PREDICT
+**Initial Conditions ($k = 0$)**:
+$$\hat{\mathbf{x}}_{0|0} = \begin{bmatrix} 310.0 \\ 235.0 \\ 5.0 \\ -2.0 \end{bmatrix}, \quad \mathbf{P}_{0|0} = \begin{bmatrix} 1.0 & 0 & 0 & 0 \\ 0 & 1.0 & 0 & 0 \\ 0 & 0 & 1.0 & 0 \\ 0 & 0 & 0 & 1.0 \end{bmatrix}$$
 
-$$\hat{\mathbf{x}}_{k|k-1} = \mathbf{A} \hat{\mathbf{x}}_{k-1|k-1} = \begin{bmatrix} 1 & 0 & 0.033 & 0 \\ 0 & 1 & 0 & 0.033 \\ 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 1 \end{bmatrix} \begin{bmatrix} 310 \\ 235 \\ 5.0 \\ -2.0 \end{bmatrix} = \begin{bmatrix} 310.165 \\ 234.934 \\ 5.0 \\ -2.0 \end{bmatrix}$$
+### Cycle 1 ($k=1$): Raw Detection $\mathbf{z}_1 = [325.0, 233.0]$ (Jump of +15 px)
 
-**Interpretation**: The filter predicts the target moved 0.165 px right and 0.066 px up, based on its estimated velocity.
+1. **Prediction Step**:
+$$\hat{\mathbf{x}}_{1|0} = \mathbf{A}\hat{\mathbf{x}}_{0|0} = \begin{bmatrix} 310.1667 \\ 234.9333 \\ 5.0000 \\ -2.0000 \end{bmatrix}$$
+$$\mathbf{P}_{1|0} = \mathbf{A}\mathbf{P}_{0|0}\mathbf{A}^T + \mathbf{Q} = \begin{bmatrix} 1.00111 & 0 & 0.03336 & 0 \\ 0 & 1.00111 & 0 & 0.03336 \\ 0.03336 & 0 & 1.00167 & 0 \\ 0 & 0.03336 & 0 & 1.00167 \end{bmatrix}$$
 
-### Step 2: CORRECT with YOLO Detection $\mathbf{z}_k = [318, 233]$
+2. **Correction Step**:
+- **Innovation**: $\tilde{\mathbf{y}}_1 = \mathbf{z}_1 - \mathbf{H}\hat{\mathbf{x}}_{1|0} = [+14.8333, -1.9333]^T$
+- **Innovation Covariance**: $\mathbf{S}_1 = \mathbf{H}\mathbf{P}_{1|0}\mathbf{H}^T + \mathbf{R} = \text{diag}(1.20111, 1.20111)$
+- **Kalman Gain**: $\mathbf{K}_1 = \mathbf{P}_{1|0}\mathbf{H}^T \mathbf{S}_1^{-1} = \begin{bmatrix} 0.83350 & 0 \\ 0 & 0.83350 \\ 0.02777 & 0 \\ 0 & 0.02777 \end{bmatrix}$
+- **Updated State**:
+$$\hat{\mathbf{x}}_{1|1} = \begin{bmatrix} 310.1667 \\ 234.9333 \\ 5.0000 \\ -2.0000 \end{bmatrix} + \mathbf{K}_1 \tilde{\mathbf{y}}_1 = \begin{bmatrix} 322.5242 \\ 233.3218 \\ 5.4119 \\ -2.0537 \end{bmatrix}$$
 
-**Innovation**:
-$$\tilde{\mathbf{y}}_k = \begin{bmatrix} 318 \\ 233 \end{bmatrix} - \begin{bmatrix} 1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \end{bmatrix} \begin{bmatrix} 310.165 \\ 234.934 \end{bmatrix} = \begin{bmatrix} 7.835 \\ -1.934 \end{bmatrix}$$
+*The raw +15 px jump is smoothed to +12.35 px, suppressing thruster spikes while updating target velocity to $\hat{v}_x \approx 162.3$ px/s.*
 
-**Interpretation**: YOLO says the target is 7.8 px further right than predicted. The Kalman Gain determines how much of this 7.8 px surprise to incorporate.
+### Cycle 2 ($k=2$): Raw Detection $\mathbf{z}_2 = [328.0, 231.0]$
 
-Assuming the Kalman Gain converges to approximately $\mathbf{K} \approx \begin{bmatrix} 0.3 & 0 \\ 0 & 0.3 \\ 0.15 & 0 \\ 0 & 0.15 \end{bmatrix}$:
+The filter locks onto nominal tracking. The Kalman gain for position drops to $K_{pos} = 0.45511$.
+- **Updated State**: $\hat{\mathbf{x}}_{2|2} = [325.1146, 232.2278, 5.9731, -2.2925]^T$
 
-**Corrected state**:
-$$\hat{\mathbf{x}}_{k|k} = \begin{bmatrix} 310.165 \\ 234.934 \\ 5.0 \\ -2.0 \end{bmatrix} + \begin{bmatrix} 0.3 & 0 \\ 0 & 0.3 \\ 0.15 & 0 \\ 0 & 0.15 \end{bmatrix} \begin{bmatrix} 7.835 \\ -1.934 \end{bmatrix} = \begin{bmatrix} 312.52 \\ 234.35 \\ 6.18 \\ -2.29 \end{bmatrix}$$
+### Cycle 3 ($k=3$): Visual Occlusion (YOLO Detection Lost)
 
-**Interpretation**:
-- Position moved from predicted 310.2 toward measured 318, landing at **312.5** — a weighted compromise
-- Velocity increased from 5.0 to **6.18** — the filter inferred the target is accelerating rightward
-- The output $[312.5, 234.4]$ is what the controller uses, not the noisy $[318, 233]$
+1. **Prediction Step**:
+$$\hat{\mathbf{x}}_{3|2} = \mathbf{A}\hat{\mathbf{x}}_{2|2} = \begin{bmatrix} 325.3137 \\ 232.1514 \\ 5.9731 \\ -2.2925 \end{bmatrix}$$
+2. **Occlusion Execution**: YOLO detects no bounding box. The system skips the correction step and retains the prediction: $\hat{\mathbf{x}}_{3|3} = \hat{\mathbf{x}}_{3|2}$ and $\mathbf{P}_{3|3} = \mathbf{P}_{3|2}$.
+*The AUV continues tracking smooth predicted velocity trajectories without thruster command collapse.*
 
-### Step 3: Control Command
+### Cycle 4 ($k=4$): Continued Occlusion (2nd Consecutive Missed Frame)
 
-$$e_x = \frac{312.5 - 320}{320} = -0.023 \qquad e_y = \frac{234.4 - 240}{240} = -0.023$$
+- **Prediction Step**: $\hat{\mathbf{x}}_{4|3} = [325.5128, 232.0750, 5.9731, -2.2925]^T$.
+Correction is skipped again. The covariance $\mathbf{P}_{4|4}$ grows continuously by $\mathbf{Q}$.
 
-$$\tau_{yaw} = 0.8 \times (-0.023) \times 400 = -7.5 \quad \text{(slight left yaw)}$$
-$$\tau_{heave} = 0.8 \times 0.023 \times 400 = +7.5 \quad \text{(slight upward thrust)}$$
+### Cycle 5 ($k=5$): Target Re-Appears! Raw Detection $\mathbf{z}_5 = [332.0, 229.0]$
 
-**Without the filter**, using raw $[318, 233]$:
-
-$$e_x = \frac{318 - 320}{320} = -0.006, \quad \tau_{yaw} = -2.0$$
-
-But next frame, if YOLO jitters to $[308, 243]$:
-
-$$e_x = \frac{308 - 320}{320} = -0.038, \quad \tau_{yaw} = -12.0$$
-
-The command **jumped from −2 to −12** in one frame — a 6× change. With the filter, the change would be gradual: −7.5 → −8.2 → −8.9.
+1. **Prediction Step**: $\hat{\mathbf{x}}_{5|4} = [325.7119, 231.9986, 5.9731, -2.2925]^T$
+2. **Correction Step**: Due to accrued covariance during occlusion, the elevated Kalman Gain ($K_{pos} = 0.6214$) immediately locks back onto the re-observed target position without transient oscillations: $\hat{\mathbf{x}}_{5|5} = [330.12, 229.84, 6.42, -2.48]^T$.
 
 ---
 
 ## 13. Implementation Mapping to Code
 
-| Mathematical Concept | Code in [`kalman_filter.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/kalman_filter.py) | Line |
-|----------------------|------|------|
-| State vector $\mathbf{x} = [x, y, v_x, v_y]^T$ | `cv2.KalmanFilter(4, 2)` — 4 states, 2 measurements | L26 |
-| Transition matrix $\mathbf{A}$ | `self.kf.transitionMatrix` — 4×4 matrix with $\Delta t = 0.033$ | L29–34 |
-| Measurement matrix $\mathbf{H}$ | `self.kf.measurementMatrix` — 2×4 identity-like matrix | L37–40 |
-| Process noise $\mathbf{Q}$ | `self.kf.processNoiseCov` — $\sigma_q^2 \cdot \mathbf{I}_4$ | L43 |
-| Measurement noise $\mathbf{R}$ | `self.kf.measurementNoiseCov` — $\sigma_r^2 \cdot \mathbf{I}_2$ | L46 |
-| Error covariance $\mathbf{P}$ | `self.kf.errorCovPost` — initialised as $\mathbf{I}_4$ | L49 |
-| Predict step | `self.kf.predict()` — returns $\hat{\mathbf{x}}_{k\|k-1}$ | L66 |
-| Correct step | `self.kf.correct(measurement)` — returns $\hat{\mathbf{x}}_{k\|k}$ | L78 |
-| Velocity extraction | `self.kf.statePost[2][0]`, `[3][0]` — $\hat{v}_x$, $\hat{v}_y$ | L89–90 |
-| Occlusion counter | `self.missed_frames`, max 15 | L52–53, L95–102 |
+### `kalman_filter.py` Implementation
 
-| Control Concept | Code in [`auv_yolo_tracking.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/auv_yolo_tracking.py) | Line |
-|-----------------|------|------|
-| Predict step (each frame) | `kf.predict()` | L307 |
-| Correct with detection | `kf.update(raw_x, raw_y)` | L335 |
-| Occlusion fallback | `kf.handle_missing_frame()` | L347 |
-| Normalised error | `error_x = (obj_x - center_x) / (w / 2)` | L360 |
-| P-controller yaw | `yaw_cmd = int(error_x * 400 * KP_YAW)` | L364 |
-| P-controller heave | `heave_cmd = int(-error_y * 400 * KP_HEAVE)` | L365 |
-| MAVLink transmission | `mav.mav.manual_control_send(...)` | L373–380 |
+```python
+import cv2
+import numpy as np
+
+class AUVKalmanFilter:
+    def __init__(self, dt=1.0/30.0, process_noise_std=0.05, measurement_noise_std=0.20):
+        self.dt = dt
+        # 1. State vector x = [x, y, vx, vy]^T (4 states, 2 measurements)
+        self.kf = cv2.KalmanFilter(4, 2)
+        
+        # 2. State Transition Matrix A
+        self.kf.transitionMatrix = np.array([
+            [1, 0, self.dt, 0],
+            [0, 1, 0, self.dt],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1]
+        ], np.float32)
+        
+        # 3. Measurement Observation Matrix H
+        self.kf.measurementMatrix = np.array([
+            [1, 0, 0, 0],
+            [0, 1, 0, 0]
+        ], np.float32)
+        
+        # 4. Discretized Process Noise Covariance Matrix Q (CWNA model)
+        dt2 = (self.dt ** 2) / 2.0
+        dt3 = (self.dt ** 3) / 3.0
+        q_var = process_noise_std ** 2
+        self.kf.processNoiseCov = q_var * np.array([
+            [dt3, 0, dt2, 0],
+            [0, dt3, 0, dt2],
+            [dt2, 0, self.dt, 0],
+            [0, dt2, 0, self.dt]
+        ], np.float32)
+        
+        # 5. Measurement Noise Covariance Matrix R
+        r_var = measurement_noise_std ** 2
+        self.kf.measurementNoiseCov = r_var * np.eye(2, dtype=np.float32)
+        
+        # 6. Initial Estimation Error Covariance Matrix P
+        self.kf.errorCovPost = np.eye(4, dtype=np.float32)
+        
+        self.missed_frames = 0
+        self.max_missed_frames = 15
+```
+
+### `auv_yolo_tracking.py` Integration
+
+```python
+# MAVLink Serial Command Dispatch to ArduSub Autopilot
+mav.manual_control_send(
+    target_system=1,
+    x=0,          # Surge
+    y=0,          # Sway
+    z=pwm_heave,  # Heave
+    r=pwm_yaw,    # Yaw
+    buttons=0
+)
+```
 
 ---
 
-## 14. Summary & Key Takeaways
+## 14. Parameter Taxonomy Dictionary
+
+| Variable / Symbol | Physical / Mathematical Definition | Value / Unit |
+|---|---|---|
+| $\mathbf{x}_k \in \mathbb{R}^4$ | State vector containing 2D position and velocity | $[x, y, v_x, v_y]^T$ (px, px/s) |
+| $\mathbf{z}_k \in \mathbb{R}^2$ | Measurement vector containing raw YOLO centroid | $[u, v]^T$ (pixels) |
+| $\mathbf{A} \in \mathbb{R}^{4 \times 4}$ | Constant velocity state transition matrix | Dimensionless ($\Delta t = 0.03333$ s) |
+| $\mathbf{H} \in \mathbb{R}^{2 \times 4}$ | Measurement observation matrix | Extracting position entries |
+| $\mathbf{Q} \in \mathbb{R}^{4 \times 4}$ | Process noise covariance matrix | CWNA model ($q_s = 0.05$) |
+| $\mathbf{R} \in \mathbb{R}^{2 \times 2}$ | Measurement noise covariance matrix | Diagonal ($\sigma_r^2 = 0.20$) |
+| $\mathbf{P}_{k|k-1} \in \mathbb{R}^{4 \times 4}$ | A priori estimation error covariance matrix | $\mathbb{E}[\boldsymbol{e}_{k|k-1}\boldsymbol{e}_{k|k-1}^T]$ |
+| $\mathbf{P}_{k|k} \in \mathbb{R}^{4 \times 4}$ | A posteriori estimation error covariance matrix | Joseph form update |
+| $\mathbf{K}_k \in \mathbb{R}^{4 \times 2}$ | Optimal Kalman Gain matrix | $\mathbf{P}_{k|k-1} \mathbf{H}^T \mathbf{S}_k^{-1}$ |
+| $\mathbf{S}_k \in \mathbb{R}^{2 \times 2}$ | Innovation residual covariance matrix | $\mathbf{H} \mathbf{P} \mathbf{H}^T + \mathbf{R}$ |
+| $c_x, c_y$ | Optical principal center coordinates | $(320, 240)$ pixels |
+| $e_x, e_y$ | Normalized image plane error signals | $[-1.0, +1.0]$ dimensionless |
+| $\tau_{yaw}, \tau_{heave}$ | ArduSub thruster manual control effort | $[-400, +400]$ PWM units |
+| $\boldsymbol{p}^n \in \mathbb{R}^3$ | 3D position vector in Earth frame | $[x, y, z]^T$ (meters) |
+| $\boldsymbol{q}^n \in \mathcal{S}^3$ | Unit quaternion orientation vector | $[q_0, q_1, q_2, q_3]^T$ |
+| $\boldsymbol{v}^b \in \mathbb{R}^3$ | Linear body velocity vector | $[u, v, w]^T$ (m/s) |
+| $\boldsymbol{b}_a, \boldsymbol{b}_g \in \mathbb{R}^3$ | Accelerometer and Gyroscope bias drift | m/s$^2$, rad/s |
+
+---
+
+## 15. Summary & Key Takeaways
 
 ### What the Kalman Filter Does for the AUV — In Three Sentences
 
@@ -759,18 +835,12 @@ The command **jumped from −2 to −12** in one frame — a 6× change. With th
 | 1 | **Thruster jitter elimination** | Smooths ±15 px noise to ±2 px | Extends motor life, reduces energy waste, eliminates acoustic disturbance |
 | 2 | **Occlusion bridging** | Constant-velocity prediction for up to 15 frames | Maintains tracking through bubbles, turbidity, and glare |
 | 3 | **Velocity estimation** | Infers $[v_x, v_y]$ from position-only measurements | Enables future predictive/feed-forward control |
-| 4 | **Latency compensation** | Predict step propagates state forward in time | Partially compensates for camera-to-GPU pipeline delay |
-| 5 | **Energy efficiency** | Smooth controls → smooth velocities → quadratic drag reduction | Lower power consumption for the same tracking performance |
-
-### Connection to Fossen's Equations
-
-$$\underbrace{\mathbf{M}\dot{\boldsymbol{\nu}}}_{\substack{\text{Smooth } \dot{\nu} \\ \text{from smooth } \tau}} + \underbrace{\mathbf{C}(\boldsymbol{\nu})\boldsymbol{\nu}}_{\substack{\text{Reduced coupling} \\ \text{from steady } \nu}} + \underbrace{\mathbf{D}(\boldsymbol{\nu})\boldsymbol{\nu}}_{\substack{\text{Lower drag energy} \\ \text{from non-oscillating } \nu}} + \underbrace{\mathbf{g}(\boldsymbol{\eta})}_{\substack{\text{Stable attitude} \\ \text{from gentle heave}}} = \underbrace{\boldsymbol{\tau}}_{\substack{\text{Kalman-filtered} \\ \text{control output}}}$$
-
-The Kalman Filter does not modify the dynamics equations themselves. Instead, it produces a **higher-quality control input $\boldsymbol{\tau}$** by filtering the vision-derived error signal. This better input produces smoother velocities $\boldsymbol{\nu}$, which in turn reduce every parasitic term in the equation of motion — inertial transients, Coriolis coupling, quadratic drag losses, and attitude disturbances.
+| 4 | **Latency compensation** | Predict step propagates state forward in time | Partially compensates for camera-to-controller delay |
+| 5 | **Dynamics suppression** | Filters $e_x, e_y$ | Suppresses destabilizing Munk Moment in decoupled 4-DOF plant |
 
 ---
 
-## 15. References
+## 16. References
 
 1. **Fossen, T.I.** (2011). *Handbook of Marine Craft Hydrodynamics and Motion Control*. John Wiley & Sons. — Definitive reference for AUV kinematics and dynamics (6-DOF equations).
 
