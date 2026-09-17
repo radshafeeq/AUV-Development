@@ -6,4 +6,7 @@ export GZ_SIM_SYSTEM_PLUGIN_PATH=/home/radhi/auv_ws/firmware/ardupilot_gazebo/bu
 killall -9 ruby gz 2>/dev/null || true
 pkill -9 -f "gz sim" 2>/dev/null || true
 
+# Open a new terminal to display the AUV velocity in real-time
+gnome-terminal --title="AUV Velocity Measurement" -- bash -c "echo 'Waiting for Gazebo...'; sleep 3; gz topic -e -t /model/bluerov2/odometry; exec bash" &
+
 gz sim -v 4 -r /home/radhi/auv_ws/simulation/bluerov2_gz/worlds/bluerov2_underwater.world
