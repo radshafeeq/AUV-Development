@@ -149,13 +149,14 @@ Once the ArduSub terminal is running, you will see a `MANUAL>` prompt. You can u
 
 # Real-Time AI Camera Detection & Target Tracking
 
-This repository includes a high-performance **Real-Time AI Computer Vision & Autonomous Tracking Node** designed for topside GPU acceleration (NVIDIA RTX GPUs) connected to the AUV via BlueOS / Ethernet tether.
+This repository includes a high-performance **Real-Time AI Computer Vision & Autonomous Tracking Node** powered by **YOLO26 World** open-vocabulary zero-shot detection and a **4D Constant-Velocity Kalman Filter**, designed for topside GPU acceleration (NVIDIA RTX 4070 Laptop GPU) connected to the AUV via BlueOS / Ethernet tether.
 
 ## Overview & Architecture
-- **Camera Feed**: Low-latency H.264 RTSP stream (`rtsp://192.168.2.2:8554/video_udp_stream_0`) or UDP 5600 from BlueOS 1.4.5 on Raspberry Pi 4B.
-- **Zero-Latency Video Receiver**: Built with GStreamer (`rtspsrc latency=0`) to eliminate network video delay, perfectly synchronized with Cockpit WebRTC.
-- **AI Inference Engine**: Ultralytics PyTorch accelerated on CUDA GPU. Supports both **zero-shot open-vocabulary YOLO-World** (`yolov8s-world.pt`) and **custom fine-tuned models** (`best.pt`).
-- **Target Tracking & Guidance**: Calculates normalized relative error (`Tracking Error: X, Y`) from frame center and transmits MAVLink `MANUAL_CONTROL` steering commands to ArduSub.
+- **Camera Feed**: Zero-latency UDP 5600 RTP H.264 stream or RTSP stream (`rtsp://192.168.2.2:8554/video_udp_stream_0`) from BlueOS 1.4.5 on Raspberry Pi 4B.
+- **Zero-Latency Video Receiver**: Built with GStreamer pipeline to eliminate network video delay, running synchronously at 30 FPS.
+- **AI Inference Engine**: Ultralytics **YOLO26 World** (`weights/yolo26_world.pt`) running on NVIDIA RTX 4070 GPU (CUDA). Employs open-vocabulary text embeddings for instant zero-shot recognition of mechatronics hardware (Pixhawk, BLDC motors, ESCs, batteries, cables), desktop gadgets (smartphones, mice, keyboards, laptops), and underwater targets (buoys, gates, pipes).
+- **Target Tracking & State Estimation**: **4D Constant-Velocity Kalman Filter** ($[x, y, v_x, v_y]^T$) with measurement noise covariance tuned for pixel-scale bounding box jitter reduction, smooth trajectory projection, and dead-reckoning during temporary target occlusions.
+- **Visual Servo Guidance**: Calculates normalized tracking errors ($e_x, e_y \in [-1, +1]$) from frame center and transmits PyMAVLink `MANUAL_CONTROL` yaw and heave commands to ArduSub.
 
 ---
 
@@ -166,33 +167,30 @@ Open a terminal on your topside computer and run:
 
 ```bash
 cd ~/Documents/AUV_GitHub_Upload
-python3 auv_yolo_tracking.py
+/home/radhi/venv-ardupilot/bin/python3 auv_yolo_tracking.py
 ```
 
-- Press **`q`** in the display window to exit cleanly.
-- The window display is resizable (`1280x720` default) with live overlay of target bounding boxes, center tracking vectors, and normalized offset calculations.
+### Hotkey Controls in Live Display Window
+| Key | Action | Description |
+|---|---|---|
+| **`r`** | Rotate 90° CW | Cycles camera orientation (0° -> 90° CW -> 180° -> 270° CW) |
+| **`f`** | Flip 180° | Toggles 180° upside-down flip |
+| **`+` / `=`** | Confidence Up | Increases detection confidence threshold (+0.02) |
+| **`-` / `_`** | Confidence Down | Decreases detection confidence threshold (-0.02) |
+| **`q`** | Exit | Closes camera stream and shuts down cleanly |
 
 ---
 
-## Custom Target Fine-Tuning Workflow (Pixhawk, ESC, Motors, Stationery)
+## Future Underwater Target Fine-Tuning Workflow
 
-To fine-tune YOLO specifically on your exact hardware components (Pixhawk 2.4.8, ESCs, BLDC motors, cables, or office tools):
+To fine-tune YOLO26 specifically on custom underwater targets (competition buoys, gates, markers):
 
-### Step 1: Snap Training Photos from Live Camera
 ```bash
 cd ~/Documents/AUV_GitHub_Upload
-python3 capture_training_images.py
+/home/radhi/venv-ardupilot/bin/python3 train_yolo26.py 25
 ```
-- Press **`SPACEBAR`** to snap photos directly from the live camera feed into `dataset_images/`.
-- Press **`q`** when finished (15–20 photos recommended).
-
-### Step 2: Auto-Annotate & Train on GPU
-```bash
-python3 auto_annotate_and_train.py
-```
-- Automatically annotates images using open-vocabulary detection.
-- Generates `mechatronics_dataset.yaml` and fine-tunes `yolov8s` on your NVIDIA GPU in under 60 seconds.
-- Saves custom weights to `runs/detect/mechatronics_model/weights/best.pt` and updates `auv_yolo_tracking.py` to use your custom trained model.
+- Trains YOLO26 on custom underwater annotated datasets.
+- Saves custom weights to `runs/detect/yolo26_combined_model/weights/best.pt`.
 
 ---
 
@@ -374,11 +372,11 @@ AUV-Development/
 ├── SIMULATION_REQUIREMENTS.md             <- Detailed simulation documentation
 ├── AUV_Kalman_Filter_Comprehensive_Explanation.md <- Comprehensive kinematic/dynamic & Kalman filter guide
 ├── kalman_filter.py                       <- 1D/2D Kalman Filter & Extended Kalman Filter (EKF) module
-├── auv_yolo_tracking.py                   <- Real-time YOLOv8 / YOLO-World tracking & MAVLink guidance node
-├── capture_training_images.py             <- Live camera dataset image collector script
-├── auto_annotate_and_train.py             <- Automated auto-labeler & PyTorch GPU trainer
-├── mechatronics_dataset.yaml              <- Dataset config for mechatronics hardware targets
-├── yolov8s-world.pt                       <- Zero-shot open-vocabulary YOLO-World model weights
+├── auv_yolo_tracking.py                   <- Real-time YOLO26 World tracking & MAVLink guidance node
+├── train_yolo26.py                        <- YOLO26 custom training pipeline
+├── weights/
+│   ├── yolo26_world.pt                    <- Zero-shot open-vocabulary YOLO26 World model weights
+│   └── yolo26n.pt                         <- Base YOLO26 neural network weights
 ├── start_gazebo.sh                        <- Quick Gazebo launch script (Custom 4-DOF AUV)
 ├── start_ardusub.sh                       <- Quick ArduSub launch script (Custom 4-DOF AUV)
 ├── start_bluerov2_heavy_gazebo.sh        <- Quick Gazebo launch script (BlueROV2 Heavy 8-Thruster)

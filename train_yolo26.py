@@ -29,7 +29,7 @@ def train(epochs=25, batch=16):
         print(f"[Error] Combined dataset YAML not found at '{DATASET_YAML}'")
         return
 
-    model_src = WEIGHTS_PATH if os.path.exists(WEIGHTS_PATH) else "yolov8s.pt"
+    model_src = WEIGHTS_PATH
     print(f"[YOLO26] Loading base model weights from '{model_src}'...")
     model = YOLO(model_src)
 

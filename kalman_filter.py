@@ -19,7 +19,7 @@ class TargetKalmanFilter:
     Measurement Z = [z_x, z_y]^T
     """
 
-    def __init__(self, dt=0.033, process_noise_std=0.05, measurement_noise_std=0.2):
+    def __init__(self, dt=0.033, process_noise_pos=0.1, process_noise_vel=5.0, measurement_noise_std=3.0):
         self.dt = dt
 
         # Initialize OpenCV Kalman Filter (4 state variables: x, y, vx, vy; 2 measurement variables: z_x, z_y)
@@ -39,14 +39,19 @@ class TargetKalmanFilter:
             [0, 1, 0, 0]
         ], dtype=np.float32)
 
-        # Process Noise Covariance Q (Uncertainty in constant-velocity model)
-        self.kf.processNoiseCov = np.eye(4, dtype=np.float32) * (process_noise_std ** 2)
+        # Process Noise Covariance Q (Position & Velocity uncertainty)
+        self.kf.processNoiseCov = np.diag([
+            process_noise_pos ** 2,
+            process_noise_pos ** 2,
+            process_noise_vel ** 2,
+            process_noise_vel ** 2
+        ]).astype(np.float32)
 
         # Measurement Noise Covariance R (YOLO detection bounding box noise)
         self.kf.measurementNoiseCov = np.eye(2, dtype=np.float32) * (measurement_noise_std ** 2)
 
         # Posteriori Error Covariance P
-        self.kf.errorCovPost = np.eye(4, dtype=np.float32)
+        self.kf.errorCovPost = np.eye(4, dtype=np.float32) * 10.0
 
         self.initialized = False
         self.missed_frames = 0
@@ -55,7 +60,7 @@ class TargetKalmanFilter:
     def init(self, x, y):
         """Reset and initialize Kalman filter state with initial position (x, y)."""
         self.kf.statePost = np.array([[x], [y], [0.0], [0.0]], dtype=np.float32)
-        self.kf.errorCovPost = np.eye(4, dtype=np.float32)
+        self.kf.errorCovPost = np.eye(4, dtype=np.float32) * 10.0
         self.initialized = True
         self.missed_frames = 0
 

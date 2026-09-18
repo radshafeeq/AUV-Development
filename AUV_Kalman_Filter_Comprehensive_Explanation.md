@@ -854,4 +854,4 @@ mav.manual_control_send(
 
 6. **OpenCV Documentation**. `cv2.KalmanFilter` class reference. https://docs.opencv.org/
 
-7. **Ultralytics Documentation**. YOLOv8 & YOLO-World. https://docs.ultralytics.com/
+7. **Ultralytics Documentation**. YOLO26 & YOLO-World Open-Vocabulary Architecture. https://docs.ultralytics.com/
