@@ -13,12 +13,55 @@ import sys
 import time
 import threading
 import subprocess
+import json
+import urllib.request
 import cv2
 import numpy as np
 import torch
 from ultralytics import YOLOWorld
 from pymavlink import mavutil
 from kalman_filter import TargetKalmanFilter
+
+def ensure_blueos_logitech_stream():
+    """Ensure Logitech C922 stream on UDP port 5601 is active in BlueOS."""
+    try:
+        req = urllib.request.Request("http://192.168.2.2:6020/streams")
+        with urllib.request.urlopen(req, timeout=1.0) as resp:
+            streams = json.loads(resp.read().decode())
+            for s in streams:
+                if "5601" in str(s):
+                    return True
+        payload = {
+            "name": "Logitech C922 Stream",
+            "source": "/dev/video1",
+            "stream_information": {
+                "endpoints": ["udp://192.168.2.115:5601"],
+                "configuration": {
+                    "type": "video",
+                    "encode": "MJPG",
+                    "width": 1280,
+                    "height": 720,
+                    "frame_interval": {"numerator": 1, "denominator": 30}
+                },
+                "extended_configuration": {
+                    "thermal": False,
+                    "disable_mavlink": False,
+                    "disable_zenoh": False,
+                    "disable_thumbnails": False,
+                    "disable_lazy": False,
+                    "disable_recording": False
+                }
+            }
+        }
+        post_req = urllib.request.Request(
+            "http://192.168.2.2:6020/streams",
+            data=json.dumps(payload).encode(),
+            headers={"Content-Type": "application/json"}
+        )
+        with urllib.request.urlopen(post_req, timeout=2.0) as post_resp:
+            return post_resp.status in [200, 201]
+    except Exception:
+        return False
 
 # ==========================================
 # CONFIGURATION
@@ -62,23 +105,36 @@ KP_HEAVE = 0.8   # Submerge/Ascend gain
 FORWARD_SPEED = 200 # Constant forward thrust PWM (1500=Neutral, 1700=Forward)
 
 class GStreamerFrameGrabber:
-    """Zero-latency GStreamer pipeline receiver for BlueOS RTP H.264 stream (Matches Cockpit performance)."""
-    def __init__(self, port=5600, width=1280, height=720):
+    """Zero-latency GStreamer pipeline receiver for BlueOS RTP stream (supports H264 and JPEG/MJPG)."""
+    def __init__(self, port=5601, width=1280, height=720, encoding="JPEG"):
         self.width = width
         self.height = height
         self.frame_size = width * height * 3
+        self.port = port
+        self.encoding = encoding
         self.lock = threading.Lock()
         self.frame = None
         self.status = False
         self.stopped = False
 
+        if encoding.upper() == "JPEG":
+            depay_dec = [
+                "caps=application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)JPEG",
+                "!", "rtpjpegdepay",
+                "!", "jpegdec"
+            ]
+        else:
+            depay_dec = [
+                "caps=application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264",
+                "!", "rtph264depay",
+                "!", "h264parse",
+                "!", "avdec_h264"
+            ]
+
         gst_cmd = [
             "gst-launch-1.0", "-q",
             "udpsrc", f"port={port}",
-            "caps=application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264",
-            "!", "rtph264depay",
-            "!", "h264parse",
-            "!", "avdec_h264",
+            *depay_dec,
             "!", "videoconvert",
             "!", "videoscale",
             "!", f"video/x-raw, format=BGR, width={width}, height={height}",
@@ -308,37 +364,53 @@ def main():
         print(f"[MAVLink Warning] Could not connect to MAVLink ({e}). Running in Video-Only mode.")
         mav = None
 
-    # 4. Open BlueOS Camera Stream (Primary: UDP port 5600 zero-latency RTP H.264)
-    print("[Video] Initializing GStreamer RTP H.264 stream receiver on UDP port 5600...")
-    grabber = GStreamerFrameGrabber(port=5600, width=640, height=480)
+    # 4. Camera Setup & BlueOS Stream Initialization
+    # Ensure Logitech C922 stream on port 5601 is configured in BlueOS
+    print("[BlueOS] Checking & ensuring Logitech C922 stream on UDP 5601...")
+    ensure_blueos_logitech_stream()
 
-    # Confirm frame reception within 2 seconds
-    t_start = time.time()
-    stream_ok = False
-    while time.time() - t_start < 2.0:
-        ret, test_frame = grabber.read()
-        if ret and test_frame is not None:
-            stream_ok = True
-            print(f"[Video] UDP 5600 stream connected! Resolution: {test_frame.shape[1]}x{test_frame.shape[0]}")
-            break
-        time.sleep(0.1)
+    CAMERAS = [
+        {
+            "name": "Logitech C922 USB Webcam",
+            "port": 5601,
+            "encoding": "JPEG",
+            "width": 1280,
+            "height": 720
+        },
+        {
+            "name": "RPi CSI Camera Module",
+            "port": 5600,
+            "encoding": "H264",
+            "width": 640,
+            "height": 480
+        }
+    ]
+    current_cam_idx = 0  # Default to Logitech C922
 
-    if not stream_ok:
-        print("[Video Warning] UDP port 5600 not streaming. Trying BlueOS RTSP stream...")
-        grabber.release()
-        rtsp_url = "rtsp://192.168.2.2:8554/video_udp_stream_0"
-        grabber = RTSPFrameGrabber(rtsp_url)
+    def init_camera_grabber(idx):
+        cam = CAMERAS[idx]
+        print(f"[Video] Connecting to {cam['name']} on UDP port {cam['port']} ({cam['encoding']})...")
+        g = GStreamerFrameGrabber(port=cam["port"], width=cam["width"], height=cam["height"], encoding=cam["encoding"])
         t_start = time.time()
         while time.time() - t_start < 2.0:
-            ret, test_frame = grabber.read()
+            ret, test_frame = g.read()
             if ret and test_frame is not None:
-                stream_ok = True
-                print(f"[Video] RTSP stream connected! Resolution: {test_frame.shape[1]}x{test_frame.shape[0]}")
-                break
+                print(f"[Video] {cam['name']} connected! Resolution: {test_frame.shape[1]}x{test_frame.shape[0]}")
+                return g
             time.sleep(0.1)
+        print(f"[Video Warning] {cam['name']} port {cam['port']} not streaming.")
+        return g
 
-    if not stream_ok:
-        print("[Video Warning] Network streams offline. Falling back to local webcam index 0...")
+    grabber = init_camera_grabber(current_cam_idx)
+    if not grabber.isOpened():
+        # Try alternate camera
+        current_cam_idx = 1 - current_cam_idx
+        print(f"[Video] Trying alternate camera: {CAMERAS[current_cam_idx]['name']}...")
+        grabber.release()
+        grabber = init_camera_grabber(current_cam_idx)
+
+    if not grabber.isOpened():
+        print("[Video Warning] BlueOS network streams offline. Trying local fallback webcam 0...")
         grabber.release()
         grabber = FallbackWebcamGrabber(0)
 
@@ -355,6 +427,7 @@ def main():
 
     print("=" * 60)
     print("   HOTKEY CONTROLS:   ")
+    print("   [c] - Switch Camera (Logitech C922 <--> RPi CSI Cam)")
     print("   [r] - Rotate camera 90 deg clockwise (0/90/180/270 deg)")
     print("   [f] - Flip/Rotate video 180 deg")
     print("   [+] - Increase Confidence Threshold (+0.02)")
@@ -473,10 +546,11 @@ def main():
                         cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 165, 255), 2)
 
         # Top Model Badge & Info HUD
+        cam_badge = f"Cam: {CAMERAS[current_cam_idx]['name']} [{CAMERAS[current_cam_idx]['port']}]"
         rot_badge = f"[{ROTATION_NAMES[rotation_mode]}]"
-        cv2.putText(frame, f"Engine: YOLO26 World (Open Vocabulary) + Kalman Filter {rot_badge}", 
+        cv2.putText(frame, f"{cam_badge} | YOLO26 World + Kalman Filter {rot_badge}", 
                     (20, h - 35), cv2.FONT_HERSHEY_SIMPLEX, 0.48, (255, 255, 255), 1)
-        cv2.putText(frame, f"Conf: {conf_thresh:.2f} | Keys: [r] Rotate 90 | [f] Flip 180 | [+/-] Conf | [q] Exit", 
+        cv2.putText(frame, f"Conf: {conf_thresh:.2f} | Keys: [c] Cam | [r] Rotate | [f] Flip | [+/-] Conf | [q] Exit", 
                     (20, h - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 255, 0), 1)
 
         # Display Live Annotated Video Window
@@ -485,6 +559,12 @@ def main():
         key = cv2.waitKey(1) & 0xFF
         if key == ord('q'):
             break
+        elif key == ord('c'):
+            current_cam_idx = (current_cam_idx + 1) % len(CAMERAS)
+            print(f"[System] Switching video stream to: {CAMERAS[current_cam_idx]['name']}...")
+            grabber.release()
+            grabber = init_camera_grabber(current_cam_idx)
+            kf = TargetKalmanFilter(dt=0.033) # Reset KF on camera switch
         elif key == ord('r'):
             rotation_mode = (rotation_mode + 1) % 4
             kf = TargetKalmanFilter(dt=0.033) # Reset KF on orientation change

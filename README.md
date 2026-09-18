@@ -152,8 +152,11 @@ Once the ArduSub terminal is running, you will see a `MANUAL>` prompt. You can u
 This repository includes a high-performance **Real-Time AI Computer Vision & Autonomous Tracking Node** powered by **YOLO26 World** open-vocabulary zero-shot detection and a **4D Constant-Velocity Kalman Filter**, designed for topside GPU acceleration (NVIDIA RTX 4070 Laptop GPU) connected to the AUV via BlueOS / Ethernet tether.
 
 ## Overview & Architecture
-- **Camera Feed**: Zero-latency UDP 5600 RTP H.264 stream or RTSP stream (`rtsp://192.168.2.2:8554/video_udp_stream_0`) from BlueOS 1.4.5 on Raspberry Pi 4B.
-- **Zero-Latency Video Receiver**: Built with GStreamer pipeline to eliminate network video delay, running synchronously at 30 FPS.
+- **Dual Camera Feeds via BlueOS 1.4.5 on Raspberry Pi 4B**:
+  - **Camera 1 (Primary)**: **Logitech C922 USB Webcam** streaming 720p HD (`1280x720` @ 30 FPS) via zero-latency RTP JPEG on UDP port **`5601`**.
+  - **Camera 2 (Secondary)**: **Raspberry Pi CSI Camera Module** (`mmal service 16.1`) streaming `640x480` @ 30 FPS via zero-latency RTP H.264 on UDP port **`5600`**.
+  - Switch between cameras in real-time by pressing **`[c]`**.
+- **Zero-Latency Video Receiver**: Built with GStreamer pipeline (`rtpjpegdepay` and `rtph264depay`) running synchronously at 30 FPS with zero network buffer lag.
 - **AI Inference Engine**: Ultralytics **YOLO26 World** (`weights/yolo26_world.pt`) running on NVIDIA RTX 4070 GPU (CUDA). Employs open-vocabulary text embeddings for instant zero-shot recognition of mechatronics hardware (Pixhawk, BLDC motors, ESCs, batteries, cables), desktop gadgets (smartphones, mice, keyboards, laptops), and underwater targets (buoys, gates, pipes).
 - **Target Tracking & State Estimation**: **4D Constant-Velocity Kalman Filter** ($[x, y, v_x, v_y]^T$) with measurement noise covariance tuned for pixel-scale bounding box jitter reduction, smooth trajectory projection, and dead-reckoning during temporary target occlusions.
 - **Visual Servo Guidance**: Calculates normalized tracking errors ($e_x, e_y \in [-1, +1]$) from frame center and transmits PyMAVLink `MANUAL_CONTROL` yaw and heave commands to ArduSub.
@@ -173,11 +176,12 @@ cd ~/Documents/AUV_GitHub_Upload
 ### Hotkey Controls in Live Display Window
 | Key | Action | Description |
 |---|---|---|
-| **`r`** | Rotate 90° CW | Cycles camera orientation (0° -> 90° CW -> 180° -> 270° CW) |
-| **`f`** | Flip 180° | Toggles 180° upside-down flip |
-| **`+` / `=`** | Confidence Up | Increases detection confidence threshold (+0.02) |
-| **`-` / `_`** | Confidence Down | Decreases detection confidence threshold (-0.02) |
-| **`q`** | Exit | Closes camera stream and shuts down cleanly |
+| **`c`** | **Switch Camera** | Toggles between **Logitech C922 (Port 5601)** and **RPi CSI Cam (Port 5600)** |
+| **`r`** | **Rotate 90° CW** | Cycles camera orientation (0° -> 90° CW -> 180° -> 270° CW) |
+| **`f`** | **Flip 180°** | Toggles 180° upside-down flip |
+| **`+` / `=`** | **Confidence Up** | Increases detection confidence threshold (+0.02) |
+| **`-` / `_`** | **Confidence Down** | Decreases detection confidence threshold (-0.02) |
+| **`q`** | **Exit** | Closes camera stream and shuts down cleanly |
 
 ---
 
