@@ -365,7 +365,7 @@ The following packages will be required for the autonomous detection pipeline:
 
 | Package        | Purpose                          | Install Command             |
 |----------------|----------------------------------|-----------------------------|
-| ultralytics    | YOLOv8 object detection         | pip install ultralytics     |
+| ultralytics    | YOLO26 object detection         | pip install ultralytics     |
 | opencv-python  | Computer vision / camera stream | pip install opencv-python   |
 | pymavlink      | MAVLink command interface       | Already installed (above)   |
 
