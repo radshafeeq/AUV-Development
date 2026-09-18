@@ -12,6 +12,9 @@ pkill -9 -f "gz sim" 2>/dev/null || true
 echo "Starting Gazebo Harmonic (BlueROV2 Heavy - 8 Thrusters)..."
 
 # Open a new terminal to display the AUV velocity in real-time
-gnome-terminal --title="AUV Velocity Measurement" -- bash -c "echo 'Waiting for Gazebo...'; sleep 3; gz topic -e -t /model/bluerov2_heavy/odometry; exec bash" &
+gnome-terminal --title="AUV Velocity Measurement" -- bash -c "echo 'Waiting for Gazebo...'; sleep 3; python3 /home/radhi/Documents/AUV_GitHub_Upload/display_velocity.py --topic /model/bluerov2_heavy/odometry; exec bash" &
+
+# Automatically set smooth camera zoom & view sensitivity (0.1 = 10x smoother)
+(sleep 4 && gz service -s /gui/camera/view_control/sensitivity --reqtype gz.msgs.Double --reptype gz.msgs.Boolean --timeout 2000 --req 'data: 0.1' >/dev/null 2>&1) &
 
 gz sim -v 4 -r /home/radhi/auv_ws/simulation/bluerov2_gz/worlds/bluerov2_heavy_underwater.world

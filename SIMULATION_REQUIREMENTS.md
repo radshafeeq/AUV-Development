@@ -463,3 +463,36 @@ Even when perfectly buoyant, the AUV would immediately dive the moment the joyst
   1. Opened the Cockpit **Joystick** menu.
   2. Clicked the **Restore Defaults** icon to inject the standard BlueROV2 thumbstick mappings.
   3. Ran the **CALIBRATE** wizard to ensure the sticks rested precisely at `500` (neutral).
+
+## 7. Real-Time 6-DOF Velocity & Odometry Dashboard (Ground Truth)
+To satisfy the academic thesis requirement for ground truth velocity comparison against Kalman Filter state estimation without interfering with the hydrodynamic physics of the AUV:
+
+* **Gazebo System Plugin (`gz::sim::systems::OdometryPublisher`)**:
+  - Extracts ground truth pose and velocity directly from the Gazebo Harmonic physics engine at 50 Hz.
+  - **Physics Impact**: Zero. No mass, inertia, buoyancy, or collision boxes were altered.
+  - **Configuration**: Integrated into `model.sdf` and `model.sdf.in` for both BlueROV2 Heavy and BlueROV2 Standard models across `auv_ws` and `AUV_GitHub_Upload`:
+    ```xml
+    <plugin
+        filename="gz-sim-odometry-publisher-system"
+        name="gz::sim::systems::OdometryPublisher">
+      <odom_frame>world</odom_frame>
+      <robot_base_frame>base_link</robot_base_frame>
+      <odom_publish_frequency>50</odom_publish_frequency>
+      <odom_topic>/model/bluerov2_heavy/odometry</odom_topic>
+      <dimensions>3</dimensions>
+    </plugin>
+    ```
+
+* **Human-Readable Terminal Dashboard (`display_velocity.py`)**:
+  - **Problem**: The raw Gazebo topic output streams at 50 Hz with 16-decimal-place protobuf strings, which scrolls uncontrollably and is unreadable by human pilots.
+  - **Solution**: Developed `display_velocity.py` to intercept and format the odometry feed:
+    - Updates in-place at 10 Hz (no terminal scrolling).
+    - Displays body-fixed linear velocities (Surge $u$, Sway $v$, Heave $w$) and total speed $||V||$ in both $\text{m/s}$ and $\text{cm/s}$.
+    - Displays angular rates (Roll rate $p$, Pitch rate $q$, Yaw rate $r$) in $\text{deg/s}$.
+    - Computes submerged depth in meters and Euler orientation (Roll, Pitch, Heading in degrees) from quaternions.
+    - Visual bi-directional indicator gauges `[   <===|===>   ]`.
+  - **Execution**: Integrated into `start_bluerov2_heavy_gazebo.sh` and `start_gazebo.sh` or executed via:
+    ```bash
+    python3 display_velocity.py --topic /model/bluerov2_heavy/odometry
+    ```
+

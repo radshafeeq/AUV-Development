@@ -46,6 +46,38 @@ You can launch either your **Custom 4-DOF AUV (6 Thrusters)** or the **BlueROV2 
 
 ---
 
+## 📊 Real-Time 6-DOF Velocity & State Dashboard (Ground Truth)
+
+To fulfill academic thesis requirements for comparing state estimations (Kalman Filter) against exact physics simulator measurements, a real-time **Odometry & Velocity Dashboard** (`display_velocity.py`) is integrated directly into the Gazebo simulation.
+
+### ⚙️ How It Works:
+1. **Gazebo System Plugin (`OdometryPublisher`)**:
+   - The Gazebo model files (`model.sdf` and `model.sdf.in` for both BlueROV2 standard and BlueROV2 Heavy) include the `gz::sim::systems::OdometryPublisher` plugin.
+   - It silently samples the true vehicle state at **50 Hz** from the Gazebo physics engine without altering any rigid-body mass, inertia, or hydrodynamic drag properties.
+   - Ground truth data is published to `/model/bluerov2_heavy/odometry` (or `/model/bluerov2/odometry`).
+
+2. **Human-Readable HUD (`display_velocity.py`)**:
+   - The raw Gazebo protobuf stream outputs 50 messages per second with 16 decimal places, which causes severe visual fatigue and cannot be monitored during manual piloting.
+   - `display_velocity.py` intercepts this stream, formats the data, and renders an in-place terminal dashboard refreshed smoothly at **10 Hz**.
+   - Features include:
+     - **Body-Fixed Linear Velocity**: Surge ($u$), Sway ($v$), and Heave ($w$) in both $\text{m/s}$ and $\text{cm/s}$, plus Total Speed ($||V|| = \sqrt{u^2 + v^2 + w^2}$).
+     - **Body-Fixed Angular Rates**: Roll rate ($p$), Pitch rate ($q$), and Yaw rate ($r$) in $\text{deg/s}$.
+     - **World Pose & Attitude**: Real-time submerged depth in meters and Euler angles (Roll, Pitch, Heading in degrees) converted from quaternions.
+     - **Visual Direction Gauges**: Centered bidirectional indicator bars `[   <===|===>   ]`.
+
+### 🚀 Launching the Dashboard:
+The dashboard is automatically launched by `start_bluerov2_heavy_gazebo.sh` and `start_gazebo.sh`. To launch or restart it independently:
+
+```bash
+# For BlueROV2 Heavy (8 thrusters):
+python3 display_velocity.py --topic /model/bluerov2_heavy/odometry
+
+# For Custom / BlueROV2 Standard (6 thrusters):
+python3 display_velocity.py --topic /model/bluerov2/odometry
+```
+
+---
+
 ## 🎯 Real-Time YOLO26 & Open-Vocabulary AI Target Tracking
 
 This repository includes a zero-latency real-time AI computer vision & closed-loop visual servoing tracking node accelerated on **NVIDIA RTX GPUs** (CUDA).
