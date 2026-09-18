@@ -25,49 +25,14 @@ from kalman_filter import TargetKalmanFilter
 # MAVLink Endpoint: Topside UDP listener port (14550) or BlueOS IP
 MAVLINK_ENDPOINT = "udpin:0.0.0.0:14550"
 
-# Target Detection Settings
-USE_YOLO_WORLD = True       # Zero-shot open-vocabulary detection without training
-YOLO_WORLD_CLASSES = [
-    # --- 1. Swimming Pool Competition & Test Tank Targets ---
-    "white pvc navigation gate", "yellow pvc pipe gate", "red spherical buoy",
-    "yellow cylindrical buoy", "green buoy", "black torpedo target mat",
-    "submerged marker dropping bin", "bucket target", "underwater dock structure",
-    "black pool lane line", "pool bottom drain grate", "pool ladder",
-    "swimming pool wall", "blue pool tile floor", "scuba diver", "swimmer",
+# Target Detection Settings: Default to user's newest trained YOLO26 model
+YOLO26_WEIGHTS = "runs/detect/yolo26_combined_model/weights/best.pt"
+COCO_WEIGHTS = "yolov8m.pt"
 
-    # --- 2. Freshwater Open Water Targets (Rivers, Lakes & Reservoirs) ---
-    "submerged tree branch", "submerged log", "driftwood", "underwater weeds",
-    "submerged vegetation", "muddy lake floor", "riverbed stones", "discarded tire",
-    "submerged plastic trash", "sunken bottle", "fishing net", "submerged rope",
-    "bridge pier", "bridge pillar", "dam wall", "intake grate", "water pipe inlet",
-    "floating dock float", "wooden dock piling", "river embankment wall",
-    "yellow boundary buoy", "freshwater fish", "river turtle", "freshwater algae",
-    "black rov tether cable", "underwater buoy", "underwater gate", "rov frame",
-
-    # --- 3. Mechatronics & Robotics Lab ---
-    "bldc motor", "stepper motor", "servo motor", "pixhawk", "flight controller",
-    "esc", "electronic module", "circuit board", "pcb", "soldering iron",
-    "multimeter", "oscilloscope", "power supply", "battery", "li-po battery",
-    "cables", "wires", "breadboard", "microcontroller", "arduino", "raspberry pi",
-    "3d printer", "caliper", "screwdriver", "pliers", "wrench", "lab bench", "fume hood",
-
-    # --- 4. Office & Campus Workspace ---
-    "laptop", "computer monitor", "desktop computer", "keyboard", "mouse",
-    "office chair", "office desk", "stapler", "printer", "calculator",
-    "water bottle", "whiteboard", "trash can", "fire extinguisher", "exit sign", "fire hydrant",
-
-    # --- 5. Study Room, Classroom & Home ---
-    "person", "textbook", "notebook", "pen", "pencil", "backpack", "reading lamp",
-    "headphones", "tablet", "smartphone", "glasses", "projector", "podium",
-    "classroom chair", "classroom desk", "wall clock", "sofa", "television", "charger",
-
-    # --- 6. Room Architecture & Fixtures ---
-    "window", "door", "air conditioner", "ceiling light", "ceiling fan", "speaker"
-]
-
-CUSTOM_WEIGHTS = "runs/detect/yolo26_combined_model/weights/best.pt" if os.path.exists("runs/detect/yolo26_combined_model/weights/best.pt") else ("runs/detect/combined_model/weights/best.pt" if os.path.exists("runs/detect/combined_model/weights/best.pt") else "runs/detect/office_model/weights/best.pt")
-MODEL_NAME = "yolov8s-world.pt" if USE_YOLO_WORLD else (CUSTOM_WEIGHTS if os.path.exists(CUSTOM_WEIGHTS) else "yolov8n.pt")
-CONF_THRESHOLD = 0.15       # Confidence threshold for open-vocabulary detection
+# Default to YOLO26 custom model
+USE_YOLO_WORLD = False
+MODEL_NAME = YOLO26_WEIGHTS if os.path.exists(YOLO26_WEIGHTS) else COCO_WEIGHTS
+CONF_THRESHOLD = 0.25       # Optimal confidence threshold for trained weights
 
 # Control Gains (Proportional Controller for Tracking)
 KP_YAW = 0.8     # Turning gain
@@ -245,22 +210,30 @@ def main():
     if torch.cuda.is_available():
         print(f"[AI Engine] GPU: {torch.cuda.get_device_name(0)}")
 
-    # 2. Load YOLO Model (YOLO-World Open Vocabulary or standard YOLO)
-    print(f"[AI Engine] Loading model '{MODEL_NAME}'...")
-    if USE_YOLO_WORLD:
-        from ultralytics import YOLOWorld
-        model = YOLOWorld(MODEL_NAME)
-        model.set_classes(YOLO_WORLD_CLASSES)
-        print(f"[YOLO-World] Target classes set: {YOLO_WORLD_CLASSES}")
-    else:
-        model = YOLO(MODEL_NAME)
-    model.to(device)
+    # 2. Load Models: Primary YOLO26 (Mechatronics/AUV) & COCO (Office/Everyday)
+    print(f"[AI Engine] Loading primary YOLO26 model from '{YOLO26_WEIGHTS}'...")
+    model_yolo26 = YOLO(YOLO26_WEIGHTS if os.path.exists(YOLO26_WEIGHTS) else "yolov8n.pt")
+    model_yolo26.to(device)
+
+    print(f"[AI Engine] Loading secondary COCO model from '{COCO_WEIGHTS}'...")
+    model_coco = YOLO(COCO_WEIGHTS if os.path.exists(COCO_WEIGHTS) else "yolov8s.pt")
+    model_coco.to(device)
+
+    models = [model_yolo26, model_coco]
+    model_names = [
+        "YOLO26 Custom (Pixhawk/ESC/Motor/Battery/Buoy/Gate)",
+        "YOLOv8 Medium COCO (Phone/Mouse/Keyboard/Laptop/Person)"
+    ]
+    current_model_idx = 0
+    model = models[current_model_idx]
+    conf_thresh = CONF_THRESHOLD
+    flip_frame = False
 
     # 3. Connect to MAVLink (ArduSub via BlueOS)
     print(f"[MAVLink] Connecting to vehicle at {MAVLINK_ENDPOINT}...")
     try:
         mav = mavutil.mavlink_connection(MAVLINK_ENDPOINT)
-        mav.wait_heartbeat(timeout=5)
+        mav.wait_heartbeat(timeout=2)
         print(f"[MAVLink] Connected to ArduSub! (System ID: {mav.target_system})")
     except Exception as e:
         print(f"[MAVLink Warning] Could not connect to MAVLink ({e}). Running in Video-Only mode.")
@@ -307,12 +280,18 @@ def main():
     # 5. Initialize Target Kalman Filter
     kf = TargetKalmanFilter(dt=0.033)
 
-    engine_name = "YOLO-World (Open Vocabulary)" if USE_YOLO_WORLD else ("YOLO26 Combined" if "yolo26" in MODEL_NAME else "YOLOv8")
-    WINDOW_NAME = f"AUV Topside AI Camera ({engine_name} + Kalman Filter + RTX 4070)"
+    WINDOW_NAME = "AUV Topside AI Camera (YOLO26 + Kalman Filter + RTX 4070)"
     cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
     cv2.resizeWindow(WINDOW_NAME, 1280, 720)
 
-    print("[System] Smooth Kalman-filtered tracking active! Press 'q' in the display window to exit.")
+    print("=" * 60)
+    print("   HOTKEY CONTROLS:   ")
+    print("   [m] - Switch Model (YOLO26 Custom <--> COCO Office/Gadgets)")
+    print("   [f] - Flip/Rotate video 180 deg")
+    print("   [+] - Increase Confidence Threshold (+0.05)")
+    print("   [-] - Decrease Confidence Threshold (-0.05)")
+    print("   [q] - Exit cleanly")
+    print("=" * 60)
 
     while True:
         ret, frame = grabber.read()
@@ -321,6 +300,9 @@ def main():
             time.sleep(0.05)
             continue
 
+        if flip_frame:
+            frame = cv2.flip(frame, -1)
+
         h, w, _ = frame.shape
         center_x, center_y = w // 2, h // 2
 
@@ -328,7 +310,8 @@ def main():
         kf.predict()
 
         # 2. Run YOLO Inference on GPU
-        results = model.predict(frame, conf=CONF_THRESHOLD, imgsz=640, device=device, verbose=False)[0]
+        model = models[current_model_idx]
+        results = model.predict(frame, conf=conf_thresh, imgsz=640, device=device, verbose=False)[0]
 
         best_target = None
         max_area = 0
@@ -337,12 +320,16 @@ def main():
         cv2.line(frame, (center_x - 15, center_y), (center_x + 15, center_y), (0, 255, 0), 2)
         cv2.line(frame, (center_x, center_y - 15), (center_x, center_y + 15), (0, 255, 0), 2)
 
-        # Parse Detections
+        # Parse & Draw ALL Detections
         for box in results.boxes:
             x1, y1, x2, y2 = map(int, box.xyxy[0])
             conf = float(box.conf[0])
             cls_id = int(box.cls[0])
-            label_text = f"{model.names[cls_id]} {conf:.2f}"
+            label_text = f"{model.names[cls_id]} {conf*100:.0f}%"
+
+            # Draw secondary detection box (thin cyan)
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 200, 0), 1)
+            cv2.putText(frame, label_text, (x1, y1 - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 200, 0), 1)
 
             area = (x2 - x1) * (y2 - y1)
             if area > max_area:
@@ -357,12 +344,13 @@ def main():
             obj_x, obj_y = int(filtered_x), int(filtered_y)
             target_active = True
 
-            # Draw Raw Detection Box & Kalman Filtered Target Center
+            # Draw Primary Tracked Target: Box (Red), Raw Center (Yellow), Filtered Center (Green)
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
             cv2.circle(frame, (raw_x, raw_y), 4, (0, 255, 255), -1) # Raw detection dot
             cv2.circle(frame, (obj_x, obj_y), 6, (0, 255, 0), -1)   # Smoothed KF dot
             cv2.line(frame, (center_x, center_y), (obj_x, obj_y), (255, 255, 0), 2)
-            cv2.putText(frame, f"{label_text} [KF]", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+            cv2.putText(frame, f"{label_text} [KF TRACK]", (x1, max(20, y1 - 10)), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
         else:
             # Handle Missing Frames / Occlusion using Kalman Prediction
             pred_x, pred_y = kf.handle_missing_frame()
@@ -372,7 +360,7 @@ def main():
                 # Draw Predicted Target Center & Vector (Cyan)
                 cv2.circle(frame, (obj_x, obj_y), 6, (255, 255, 0), -1)
                 cv2.line(frame, (center_x, center_y), (obj_x, obj_y), (255, 255, 0), 2)
-                cv2.putText(frame, f"KF PREDICTING ({kf.missed_frames}f lost)", (obj_x - 50, obj_y - 15), 
+                cv2.putText(frame, f"KF PREDICTING ({kf.missed_frames}f lost)", (max(10, obj_x - 60), max(20, obj_y - 15)), 
                             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
 
         # Execute Visual Steering Control
@@ -386,8 +374,8 @@ def main():
             heave_cmd = int(-error_y * 400 * KP_HEAVE) # [-400, +400]
 
             vx, vy = kf.get_velocity()
-            cv2.putText(frame, f"Tracking Error: X={error_x:+.2f}, Y={error_y:+.2f} | Vel: ({vx:+.1f}, {vy:+.1f})", 
-                        (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
+            cv2.putText(frame, f"Target Offset: X={error_x:+.2f}, Y={error_y:+.2f} | KF Vel: ({vx:+.1f}, {vy:+.1f}) px/s", 
+                        (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 255, 255), 2)
 
             # Send MAVLink MANUAL_CONTROL command to ArduSub
             if mav is not None:
@@ -400,16 +388,37 @@ def main():
                     0               # buttons
                 )
         else:
-            cv2.putText(frame, "SEARCHING FOR TARGET...", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 165, 255), 2)
+            cv2.putText(frame, "SEARCHING FOR TARGET (KF READY)...", (20, 30), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 165, 255), 2)
 
-        # Display Engine & Filter Badge Overlay
-        cv2.putText(frame, f"Engine: {engine_name} + Kalman Filter", (20, h - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+        # Top Model Badge & Info HUD
+        active_model_title = model_names[current_model_idx]
+        flip_badge = "[FLIPPED 180]" if flip_frame else "[NORMAL]"
+        cv2.putText(frame, f"Model: {active_model_title} {flip_badge}", 
+                    (20, h - 35), cv2.FONT_HERSHEY_SIMPLEX, 0.48, (255, 255, 255), 1)
+        cv2.putText(frame, f"Conf: {conf_thresh:.2f} | Keys: [m] Switch Model | [f] Flip | [+/-] Conf | [q] Exit", 
+                    (20, h - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 255, 0), 1)
 
         # Display Live Annotated Video Window
         cv2.imshow(WINDOW_NAME, frame)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord('q'):
             break
+        elif key == ord('m'):
+            current_model_idx = (current_model_idx + 1) % len(models)
+            kf = TargetKalmanFilter(dt=0.033) # Reset KF state on model switch
+            print(f"[System] Switched active model to: {model_names[current_model_idx]}")
+        elif key == ord('f'):
+            flip_frame = not flip_frame
+            kf = TargetKalmanFilter(dt=0.033) # Reset KF on flip
+            print(f"[System] Image 180 deg flip: {'ON' if flip_frame else 'OFF'}")
+        elif key in [ord('+'), ord('=')]:
+            conf_thresh = min(0.95, conf_thresh + 0.05)
+            print(f"[System] Confidence threshold increased to: {conf_thresh:.2f}")
+        elif key in [ord('-'), ord('_')]:
+            conf_thresh = max(0.05, conf_thresh - 0.05)
+            print(f"[System] Confidence threshold decreased to: {conf_thresh:.2f}")
 
     grabber.release()
     cv2.destroyAllWindows()
