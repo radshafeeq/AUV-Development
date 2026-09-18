@@ -266,21 +266,42 @@ def main():
         print(f"[MAVLink Warning] Could not connect to MAVLink ({e}). Running in Video-Only mode.")
         mav = None
 
-    # 4. Open BlueOS 1.4.5 RTSP Camera Stream
-    rtsp_url = "rtsp://192.168.2.2:8554/video_udp_stream_0"
-    print(f"[Video] Connecting to BlueOS 1.4.5 RTSP Stream: {rtsp_url}...")
-    grabber = RTSPFrameGrabber(rtsp_url)
-    
-    if not grabber.isOpened():
-        print("[Video Warning] BlueOS RTSP stream not found. Trying GStreamer UDP port 5600...")
-        grabber = GStreamerFrameGrabber(port=5600, width=640, height=480)
+    # 4. Open BlueOS Camera Stream (Primary: UDP port 5600 zero-latency RTP H.264)
+    print("[Video] Initializing GStreamer RTP H.264 stream receiver on UDP port 5600...")
+    grabber = GStreamerFrameGrabber(port=5600, width=640, height=480)
 
-    if not grabber.isOpened():
-        print("[Video Warning] BlueOS network stream not found. Falling back to local camera index 0...")
+    # Confirm frame reception within 2 seconds
+    t_start = time.time()
+    stream_ok = False
+    while time.time() - t_start < 2.0:
+        ret, test_frame = grabber.read()
+        if ret and test_frame is not None:
+            stream_ok = True
+            print(f"[Video] UDP 5600 stream connected! Resolution: {test_frame.shape[1]}x{test_frame.shape[0]}")
+            break
+        time.sleep(0.1)
+
+    if not stream_ok:
+        print("[Video Warning] UDP port 5600 not streaming. Trying BlueOS RTSP stream...")
+        grabber.release()
+        rtsp_url = "rtsp://192.168.2.2:8554/video_udp_stream_0"
+        grabber = RTSPFrameGrabber(rtsp_url)
+        t_start = time.time()
+        while time.time() - t_start < 2.0:
+            ret, test_frame = grabber.read()
+            if ret and test_frame is not None:
+                stream_ok = True
+                print(f"[Video] RTSP stream connected! Resolution: {test_frame.shape[1]}x{test_frame.shape[0]}")
+                break
+            time.sleep(0.1)
+
+    if not stream_ok:
+        print("[Video Warning] Network streams offline. Falling back to local webcam index 0...")
+        grabber.release()
         grabber = FallbackWebcamGrabber(0)
 
     if not grabber.isOpened():
-        print("[Video Error] Failed to open any video stream. Please check tether & BlueOS connection.")
+        print("[Video Error] Failed to open any video stream. Please check tether & camera connection.")
         return
 
     # 5. Initialize Target Kalman Filter
