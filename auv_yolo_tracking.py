@@ -365,27 +365,23 @@ def main():
         mav = None
 
     # 4. Camera Setup & BlueOS Stream Initialization
-    # Ensure Logitech C922 stream on port 5601 is configured in BlueOS
-    print("[BlueOS] Checking & ensuring Logitech C922 stream on UDP 5601...")
-    ensure_blueos_logitech_stream()
-
     CAMERAS = [
-        {
-            "name": "Logitech C922 USB Webcam",
-            "port": 5601,
-            "encoding": "JPEG",
-            "width": 1280,
-            "height": 720
-        },
         {
             "name": "RPi CSI Camera Module",
             "port": 5600,
             "encoding": "H264",
             "width": 640,
             "height": 480
+        },
+        {
+            "name": "Logitech C922 USB Webcam",
+            "port": 5601,
+            "encoding": "JPEG",
+            "width": 1280,
+            "height": 720
         }
     ]
-    current_cam_idx = 0  # Default to Logitech C922
+    current_cam_idx = 0  # Default to RPi CSI Camera
 
     def init_camera_grabber(idx):
         cam = CAMERAS[idx]
@@ -562,6 +558,8 @@ def main():
         elif key == ord('c'):
             current_cam_idx = (current_cam_idx + 1) % len(CAMERAS)
             print(f"[System] Switching video stream to: {CAMERAS[current_cam_idx]['name']}...")
+            if CAMERAS[current_cam_idx]["port"] == 5601:
+                ensure_blueos_logitech_stream()
             grabber.release()
             grabber = init_camera_grabber(current_cam_idx)
             kf = AUVKalmanFilter(dt=1.0 / 30.0)  # Reset KF on camera switch
