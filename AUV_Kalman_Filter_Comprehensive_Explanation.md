@@ -333,6 +333,67 @@ $$\mathbf{v}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{R}) \qquad \text{(measuremen
 
 Both are assumed to be **zero-mean Gaussian** and **mutually uncorrelated**.
 
+### 6.5 8D State-Space Model Extension: Position + Bounding Box Scale & Surge Distance Estimation
+
+While the 4D formulation ($[x, y, v_x, v_y]^T$) optimally tracks and stabilizes 2D image centroid coordinates for yaw and heave steering, an AUV in a 3D fluid environment must also regulate its **forward surge motion ($u$)** to approach, inspect, or maintain a constant standoff distance from subsea structures without colliding.
+
+Under monocular vision (a single forward-looking camera without active stereo or DVL), physical target distance $Z_c$ (depth along the camera optical axis) cannot be measured directly. However, based on the **pinhole perspective projection camera model**:
+
+$$w = f_x \frac{W_{real}}{Z_c}, \qquad h = f_y \frac{H_{real}}{Z_c}$$
+
+where $f_x, f_y$ are focal lengths in pixels, and $W_{real}, H_{real}$ are the physical dimensions of the target. Taking the time derivative:
+
+$$\dot{w} = -f_x W_{real} \frac{\dot{Z}_c}{Z_c^2} = -w \frac{\dot{Z}_c}{Z_c}, \qquad \dot{h} = -h \frac{\dot{Z}_c}{Z_c}$$
+
+The rate of expansion of the 2D bounding box is directly proportional to the relative surge approach velocity $\dot{Z}_c = -u_{rel}$. By extending the state vector from 4D to **8D**, the filter jointly estimates both position and scale dynamics:
+
+#### 6.5.1 The 8D State Vector
+$$\mathbf{x}_k = \begin{bmatrix} x_k \\ y_k \\ w_k \\ h_k \\ v_{x,k} \\ v_{y,k} \\ v_{w,k} \\ v_{h,k} \end{bmatrix} \in \mathbb{R}^8$$
+
+where $w_k, h_k$ are the target bounding box width and height in pixels, and $v_{w,k} = \dot{w}_k$, $v_{h,k} = \dot{h}_k$ are their continuous rates of expansion (in pixels per second).
+
+#### 6.5.2 8D State Transition Matrix $\mathbf{A}_{8\times 8}$
+Assuming constant velocity in all 4 coordinates over the discrete sampling period $\Delta t$:
+
+$$\mathbf{A}_{8\times 8} = \begin{bmatrix} \mathbf{I}_{4\times 4} & \Delta t \cdot \mathbf{I}_{4\times 4} \\ \mathbf{0}_{4\times 4} & \mathbf{I}_{4\times 4} \end{bmatrix} = \begin{bmatrix} 
+1 & 0 & 0 & 0 & \Delta t & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 & \Delta t & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 & \Delta t & 0 \\
+0 & 0 & 0 & 1 & 0 & 0 & 0 & \Delta t \\
+0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 
+\end{bmatrix}$$
+
+#### 6.5.3 8D Measurement Observation Matrix $\mathbf{H}_{4\times 8}$
+YOLO26 World outputs the 4 bounding box coordinates $[x_1, y_1, x_2, y_2]$, which convert directly to centroid and dimensions: $x = (x_1+x_2)/2$, $y = (y_1+y_2)/2$, $w = x_2 - x_1$, $h = y_2 - y_1$. The measurement vector $\mathbf{z}_k = [x_m, y_m, w_m, h_m]^T$ observes the first 4 states:
+
+$$\mathbf{H}_{4\times 8} = \begin{bmatrix} \mathbf{I}_{4\times 4} & \mathbf{0}_{4\times 4} \end{bmatrix}$$
+
+#### 6.5.4 8D Discretized Process Noise Covariance $\mathbf{Q}_{8\times 8}$
+Applying the CWNA formulation across all 4 coordinates with acceleration spectral density $q_s = 0.05$:
+
+$$\mathbf{Q}_{8\times 8} = q_s \begin{bmatrix} \frac{\Delta t^3}{3} \mathbf{I}_{4\times 4} & \frac{\Delta t^2}{2} \mathbf{I}_{4\times 4} \\ \frac{\Delta t^2}{2} \mathbf{I}_{4\times 4} & \Delta t \mathbf{I}_{4\times 4} \end{bmatrix}$$
+
+#### 6.5.5 8D Measurement Noise Covariance $\mathbf{R}_{4\times 4}$
+Because edge detection along the outer boundary of an object underwater has higher variance due to backscatter and refractive shimmer than the geometric centroid, we set higher variance on $w, h$:
+
+$$\mathbf{R}_{4\times 4} = \text{diag}\left(\sigma_{xy}^2, \sigma_{xy}^2, \sigma_{wh}^2, \sigma_{wh}^2\right) = \text{diag}\left(0.20, 0.20, 0.50, 0.50\right)$$
+
+#### 6.5.6 Forward Surge Standoff Regulation Mechanics
+The 8D filter directly outputs the estimated **projected area** and **area growth rate**:
+
+$$\mathcal{A}(k) = \hat{w}_k \cdot \hat{h}_k \quad [\text{px}^2]$$
+
+$$\frac{d\mathcal{A}}{dt} = \hat{v}_{w,k} \cdot \hat{h}_k + \hat{w}_k \cdot \hat{v}_{h,k} \quad [\text{px}^2/\text{s}]$$
+
+- When $\frac{d\mathcal{A}}{dt} > +300\,\text{px}^2/\text{s}$: Target is **rapidly approaching** (or AUV is surging forward too quickly) $\rightarrow$ Surge thrust $u$ is reduced/reversed.
+- When $\frac{d\mathcal{A}}{dt} < -300\,\text{px}^2/\text{s}$: Target is **retreating** $\rightarrow$ Forward surge thrust $u$ is engaged to maintain proximity.
+- When $|\frac{d\mathcal{A}}{dt}| \le 300\,\text{px}^2/\text{s}$ and $\mathcal{A} \approx \mathcal{A}_{\text{setpoint}}$: Standoff distance is held steady.
+
+This closes the loop on **surge ($u$)**, transforming the visual servoing system into a complete **3-axis visual autopilot** (Surge $u$, Heave $w$, and Yaw $r$).
+
 ---
 
 ## 7. The Two-Step Recursive Cycle: Predict → Correct
@@ -741,57 +802,96 @@ import cv2
 import numpy as np
 
 class AUVKalmanFilter:
-    def __init__(self, dt=1.0/30.0, process_noise_std=0.05, measurement_noise_std=0.20):
+    def __init__(self, dt=1.0/30.0, qs=0.05, r_var=0.20, mode="8D"):
         self.dt = dt
-        # 1. State vector x = [x, y, vx, vy]^T (4 states, 2 measurements)
-        self.kf = cv2.KalmanFilter(4, 2)
+        self.qs = qs
+        self.r_var = r_var
+        self.mode = mode
         
-        # 2. State Transition Matrix A
-        self.kf.transitionMatrix = np.array([
-            [1, 0, self.dt, 0],
-            [0, 1, 0, self.dt],
-            [0, 0, 1, 0],
-            [0, 0, 0, 1]
-        ], np.float32)
-        
-        # 3. Measurement Observation Matrix H
-        self.kf.measurementMatrix = np.array([
-            [1, 0, 0, 0],
-            [0, 1, 0, 0]
-        ], np.float32)
-        
-        # 4. Discretized Process Noise Covariance Matrix Q (CWNA model)
         dt2 = (self.dt ** 2) / 2.0
         dt3 = (self.dt ** 3) / 3.0
-        q_var = process_noise_std ** 2
-        self.kf.processNoiseCov = q_var * np.array([
-            [dt3, 0, dt2, 0],
-            [0, dt3, 0, dt2],
-            [dt2, 0, self.dt, 0],
-            [0, dt2, 0, self.dt]
-        ], np.float32)
-        
-        # 5. Measurement Noise Covariance Matrix R
-        r_var = measurement_noise_std ** 2
-        self.kf.measurementNoiseCov = r_var * np.eye(2, dtype=np.float32)
-        
-        # 6. Initial Estimation Error Covariance Matrix P
-        self.kf.errorCovPost = np.eye(4, dtype=np.float32)
-        
-        self.missed_frames = 0
-        self.max_missed_frames = 15
+
+        if mode == "4D":
+            # 4D Mode: [x, y, vx, vy]^T with 2 measurements [x, y]
+            self.kf = cv2.KalmanFilter(4, 2)
+            self.kf.transitionMatrix = np.array([
+                [1, 0, self.dt, 0],
+                [0, 1, 0, self.dt],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1]
+            ], np.float32)
+            self.kf.measurementMatrix = np.array([[1, 0, 0, 0], [0, 1, 0, 0]], np.float32)
+            self.kf.processNoiseCov = self.qs * np.array([
+                [dt3, 0, dt2, 0],
+                [0, dt3, 0, dt2],
+                [dt2, 0, self.dt, 0],
+                [0, dt2, 0, self.dt]
+            ], np.float32)
+            self.kf.measurementNoiseCov = self.r_var * np.eye(2, dtype=np.float32)
+            self.kf.errorCovPost = np.eye(4, dtype=np.float32)
+            self.kf.errorCovPre = np.eye(4, dtype=np.float32)
+        else:
+            # 8D Mode: [x, y, w, h, vx, vy, vw, vh]^T with 4 measurements [x, y, w, h]
+            self.kf = cv2.KalmanFilter(8, 4)
+            A = np.eye(8, dtype=np.float32)
+            A[0:4, 4:8] = np.eye(4, dtype=np.float32) * self.dt
+            self.kf.transitionMatrix = A
+            
+            H = np.zeros((4, 8), dtype=np.float32)
+            H[0:4, 0:4] = np.eye(4, dtype=np.float32)
+            self.kf.measurementMatrix = H
+            
+            Q = np.zeros((8, 8), dtype=np.float32)
+            Q[0:4, 0:4] = np.eye(4, dtype=np.float32) * (self.qs * dt3)
+            Q[0:4, 4:8] = np.eye(4, dtype=np.float32) * (self.qs * dt2)
+            Q[4:8, 0:4] = np.eye(4, dtype=np.float32) * (self.qs * dt2)
+            Q[4:8, 4:8] = np.eye(4, dtype=np.float32) * (self.qs * self.dt)
+            self.kf.processNoiseCov = Q
+            
+            r_size = self.r_var * 2.5
+            self.kf.measurementNoiseCov = np.diag([self.r_var, self.r_var, r_size, r_size]).astype(np.float32)
+            self.kf.errorCovPost = np.eye(8, dtype=np.float32)
+            self.kf.errorCovPre = np.eye(8, dtype=np.float32)
+
+    def update_bbox(self, x1, y1, x2, y2):
+        """Update 8D state directly from bounding box corners."""
+        w = max(1.0, float(x2 - x1))
+        h = max(1.0, float(y2 - y1))
+        cx = float(x1 + x2) / 2.0
+        cy = float(y1 + y2) / 2.0
+        return self.update(cx, cy, w, h)
+
+    def get_scale_rates(self):
+        """Analytical area and expansion rate for forward surge distance holding."""
+        w, h = float(self.kf.statePost[2][0]), float(self.kf.statePost[3][0])
+        vw, vh = float(self.kf.statePost[6][0]), float(self.kf.statePost[7][0])
+        return max(1.0, w * h), (vw * h + w * vh)
 ```
 
 ### `auv_yolo_tracking.py` Integration
 
 ```python
+# Real-Time Underwater CLAHE Dynamic Enhancer
+def apply_clahe(frame_bgr):
+    lab = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2LAB)
+    l, a, b = cv2.split(lab)
+    cl = cv2.createCLAHE(clipLimit=2.5, tileGridSize=(8, 8)).apply(l)
+    return cv2.cvtColor(cv2.merge((cl, a, b)), cv2.COLOR_LAB2BGR)
+
+# High-Resolution Inference (imgsz=1024) on RTX 4070 GPU
+results = model.predict(frame, conf=0.12, imgsz=1024, device=device, agnostic_nms=True)[0]
+
+# 8D Kalman State Update & Scale Extraction
+filtered_x, filtered_y = kf.update_bbox(x1, y1, x2, y2)
+target_area, scale_rate = kf.get_scale_rates()
+
 # MAVLink Serial Command Dispatch to ArduSub Autopilot
 mav.manual_control_send(
     target_system=1,
-    x=0,          # Surge
-    y=0,          # Sway
-    z=pwm_heave,  # Heave
-    r=pwm_yaw,    # Yaw
+    x=FORWARD_SPEED, # Surge (regulated by scale expansion rate)
+    y=0,             # Sway
+    z=500 + heave_cmd,# Heave (regulated by vertical pixel offset)
+    r=yaw_cmd,       # Yaw (regulated by horizontal pixel offset)
     buttons=0
 )
 ```
@@ -802,16 +902,17 @@ mav.manual_control_send(
 
 | Variable / Symbol | Physical / Mathematical Definition | Value / Unit |
 |---|---|---|
-| $\mathbf{x}_k \in \mathbb{R}^4$ | State vector containing 2D position and velocity | $[x, y, v_x, v_y]^T$ (px, px/s) |
-| $\mathbf{z}_k \in \mathbb{R}^2$ | Measurement vector containing raw YOLO centroid | $[u, v]^T$ (pixels) |
-| $\mathbf{A} \in \mathbb{R}^{4 \times 4}$ | Constant velocity state transition matrix | Dimensionless ($\Delta t = 0.03333$ s) |
-| $\mathbf{H} \in \mathbb{R}^{2 \times 4}$ | Measurement observation matrix | Extracting position entries |
-| $\mathbf{Q} \in \mathbb{R}^{4 \times 4}$ | Process noise covariance matrix | CWNA model ($q_s = 0.05$) |
-| $\mathbf{R} \in \mathbb{R}^{2 \times 2}$ | Measurement noise covariance matrix | Diagonal ($\sigma_r^2 = 0.20$) |
-| $\mathbf{P}_{k|k-1} \in \mathbb{R}^{4 \times 4}$ | A priori estimation error covariance matrix | $\mathbb{E}[\boldsymbol{e}_{k|k-1}\boldsymbol{e}_{k|k-1}^T]$ |
-| $\mathbf{P}_{k|k} \in \mathbb{R}^{4 \times 4}$ | A posteriori estimation error covariance matrix | Joseph form update |
-| $\mathbf{K}_k \in \mathbb{R}^{4 \times 2}$ | Optimal Kalman Gain matrix | $\mathbf{P}_{k|k-1} \mathbf{H}^T \mathbf{S}_k^{-1}$ |
-| $\mathbf{S}_k \in \mathbb{R}^{2 \times 2}$ | Innovation residual covariance matrix | $\mathbf{H} \mathbf{P} \mathbf{H}^T + \mathbf{R}$ |
+| $\mathbf{x}_k \in \mathbb{R}^4$ / $\mathbb{R}^8$ | State vector (4D: $[x, y, v_x, v_y]^T$, 8D: $[x, y, w, h, v_x, v_y, v_w, v_h]^T$) | px, px/s |
+| $\mathbf{z}_k \in \mathbb{R}^2$ / $\mathbb{R}^4$ | Measurement vector (centroid only or bbox $[x, y, w, h]^T$) | pixels |
+| $\mathbf{A} \in \mathbb{R}^{4 \times 4}$ / $\mathbb{R}^{8 \times 8}$ | Constant velocity state transition matrix | Dimensionless ($\Delta t = 0.03333$ s) |
+| $\mathbf{H} \in \mathbb{R}^{2 \times 4}$ / $\mathbb{R}^{4 \times 8}$ | Measurement observation matrix | Extracting position and dimension entries |
+| $\mathbf{Q} \in \mathbb{R}^{4 \times 4}$ / $\mathbb{R}^{8 \times 8}$ | Process noise covariance matrix | CWNA discrete formulation ($q_s = 0.05$) |
+| $\mathbf{R} \in \mathbb{R}^{2 \times 2}$ / $\mathbb{R}^{4 \times 4}$ | Measurement noise covariance matrix | $\text{diag}[0.20, 0.20]$ (4D) or $\text{diag}[0.20, 0.20, 0.50, 0.50]$ (8D) |
+| $\mathcal{A}(k), \dot{\mathcal{A}}(k)$ | Projected bounding box area and expansion rate | $\text{px}^2$, $\text{px}^2/\text{s}$ (monocular surge range-rate) |
+| $\mathbf{P}_{k|k-1}$ | A priori estimation error covariance matrix | $\mathbb{E}[\boldsymbol{e}_{k|k-1}\boldsymbol{e}_{k|k-1}^T]$ |
+| $\mathbf{P}_{k|k}$ | A posteriori estimation error covariance matrix | Joseph form update |
+| $\mathbf{K}_k$ | Optimal Kalman Gain matrix | $\mathbf{P}_{k|k-1} \mathbf{H}^T \mathbf{S}_k^{-1}$ |
+| $\mathbf{S}_k$ | Innovation residual covariance matrix | $\mathbf{H} \mathbf{P} \mathbf{H}^T + \mathbf{R}$ |
 | $c_x, c_y$ | Optical principal center coordinates | $(320, 240)$ pixels |
 | $e_x, e_y$ | Normalized image plane error signals | $[-1.0, +1.0]$ dimensionless |
 | $\tau_{yaw}, \tau_{heave}$ | ArduSub thruster manual control effort | $[-400, +400]$ PWM units |

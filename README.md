@@ -108,22 +108,25 @@ Open `auv_yolo_tracking.py` and set `USE_YOLO_WORLD`:
 
 ---
 
-### 📈 4D Kalman Filter State Estimation & Trajectory Prediction
+### 📈 8D Position + Scale Kalman Filter State Estimation & Trajectory Prediction
 
-The AI tracking pipeline incorporates a 4-state Constant-Velocity **Kalman Filter** ([`kalman_filter.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/kalman_filter.py)) to optimize AUV motion control:
+The AI tracking pipeline incorporates a Continuous White Noise Acceleration (CWNA) discrete **8D Kalman Filter** ([`kalman_filter.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/kalman_filter.py)) to optimize AUV motion control across horizontal steering, vertical heave, and forward surge:
 
 #### 🧠 What the Kalman Filter Does for the AUV:
 1. **Thruster Smoothing & Noise Elimination**:
-   - Raw vision bounding boxes jitter due to frame noise. The Kalman Filter smooths target coordinates $(x, y)$ before feeding errors to the $K_p$ controller, preventing thrusters from jerking violently.
-2. **Water Occlusion & Missing Frame Recovery**:
-   - In turbid river/lake water, bubbles, or light glare, YOLO may lose detection for a few frames. The Kalman Filter **predicts where the target is moving** for up to 15 frames (~0.5s), allowing the AUV to keep tracking seamlessly.
-3. **Velocity Estimation**:
-   - Estimates real-time target velocity $(v_x, v_y)$ for predictive steering.
+   - Raw vision bounding boxes jitter due to pixel noise and water shimmer. The Kalman Filter smooths target centroid $(x, y)$ and bounding box dimensions $(w, h)$, eliminating erratic thruster oscillations.
+2. **Water Occlusion & Missing Frame Recovery (Dead-Reckoning)**:
+   - In turbid water, bubble wash, or light glare, YOLO may temporarily lose detection. The Kalman Filter **predicts the target's trajectory and scale** for up to 15 frames (~0.5s), allowing continuous visual tracking.
+3. **Velocity & Surge Approach Rate Estimation**:
+   - Estimates real-time target velocity $(v_x, v_y)$ for predictive steering and bounding box expansion rates $(v_w, v_h)$.
+   - Computes analytical projected area growth rate $\frac{d\mathcal{A}}{dt} = v_w h + w v_h$, providing monocular range-rate feedback for forward surge distance holding.
 
 #### 📐 State Space Model:
-- **State Vector**: $\mathbf{x}_k = [x, y, v_x, v_y]^T$ *(Position + Velocity)*
-- **Measurement**: $\mathbf{z}_k = [z_x, z_y]^T$ *(Raw YOLO center)*
-- **Module**: Implemented using OpenCV & NumPy in [`kalman_filter.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/kalman_filter.py) and integrated into [`auv_yolo_tracking.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/auv_yolo_tracking.py).
+- **8D State Vector**: $\mathbf{x}_k = [x, y, w, h, v_x, v_y, v_w, v_h]^T$ *(Position + Dimensions + Velocities)*
+- **Measurement Vector**: $\mathbf{z}_k = [x_m, y_m, w_m, h_m]^T$ *(Raw YOLO bounding box)*
+- **CWNA Process Noise Covariance**: $\mathbf{Q}_{8\times 8}$ derived from continuous power spectral density $q_s = 0.05$.
+- **Measurement Noise Covariance**: $\mathbf{R}_{4\times 4} = \text{diag}[0.20, 0.20, 0.50, 0.50]$ (higher tolerance on outer edge shimmer).
+- **Module**: Implemented in [`kalman_filter.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/kalman_filter.py) with dual 4D/8D support and integrated into [`auv_yolo_tracking.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/auv_yolo_tracking.py).
 
 ---
 
@@ -149,17 +152,24 @@ Once the ArduSub terminal is running, you will see a `MANUAL>` prompt. You can u
 
 # Real-Time AI Camera Detection & Target Tracking
 
-This repository includes a high-performance **Real-Time AI Computer Vision & Autonomous Tracking Node** powered by **YOLO26 World** open-vocabulary zero-shot detection and a **4D Constant-Velocity Kalman Filter**, designed for topside GPU acceleration (NVIDIA RTX 4070 Laptop GPU) connected to the AUV via BlueOS / Ethernet tether.
+This repository includes a high-performance **Real-Time AI Computer Vision & Autonomous Tracking Node** powered by **YOLO26 World** open-vocabulary zero-shot detection and an **8D Position + Scale Kalman Filter**, designed for topside GPU acceleration (NVIDIA RTX 4070 Laptop GPU) connected to the AUV via BlueOS / Ethernet tether (`192.168.2.2`).
 
 ## Overview & Architecture
 - **Dual Camera Feeds via BlueOS 1.4.5 on Raspberry Pi 4B**:
-  - **Camera 1 (Primary)**: **Logitech C922 USB Webcam** streaming 720p HD (`1280x720` @ 30 FPS) via zero-latency RTP JPEG on UDP port **`5601`**.
-  - **Camera 2 (Secondary)**: **Raspberry Pi CSI Camera Module** (`mmal service 16.1`) streaming `640x480` @ 30 FPS via zero-latency RTP H.264 on UDP port **`5600`**.
+  - **Camera 1 (Primary)**: **Raspberry Pi CSI Camera Module** (`mmal service 16.1`) streaming `640x480` @ 30 FPS via zero-latency RTP H.264 on UDP port **`5600`**.
+  - **Camera 2 (Secondary / Bench Test)**: **Logitech C922 USB Webcam** streaming 720p HD (`1280x720` @ 30 FPS) via zero-latency RTP JPEG on UDP port **`5601`**.
   - Switch between cameras in real-time by pressing **`[c]`**.
-- **Zero-Latency Video Receiver**: Built with GStreamer pipeline (`rtpjpegdepay` and `rtph264depay`) running synchronously at 30 FPS with zero network buffer lag.
-- **AI Inference Engine**: Ultralytics **YOLO26 World** (`weights/yolo26_world.pt`) running on NVIDIA RTX 4070 GPU (CUDA). Employs open-vocabulary text embeddings for instant zero-shot recognition of mechatronics hardware (Pixhawk, BLDC motors, ESCs, batteries, cables), desktop gadgets (smartphones, mice, keyboards, laptops), and underwater targets (buoys, gates, pipes).
-- **Target Tracking & State Estimation**: **4D Constant-Velocity Kalman Filter** ($[x, y, v_x, v_y]^T$) with measurement noise covariance tuned for pixel-scale bounding box jitter reduction, smooth trajectory projection, and dead-reckoning during temporary target occlusions.
-- **Visual Servo Guidance**: Calculates normalized tracking errors ($e_x, e_y \in [-1, +1]$) from frame center and transmits PyMAVLink `MANUAL_CONTROL` yaw and heave commands to ArduSub.
+- **Real-Time CLAHE Dynamic Contrast Enhancer**:
+  - Contrast Limited Adaptive Histogram Equalization applied dynamically to the $L$-channel in LAB color space (`apply_clahe`).
+  - Penetrates turbid, dark, and backscatter-heavy underwater scenes; toggled instantly in real-time via hotkey **`[e]`**.
+- **High-Resolution AI Inference Engine**:
+  - Ultralytics **YOLO26 World** (`weights/yolo26_world.pt`) running at **`imgsz=1024`** on NVIDIA RTX 4070 GPU (CUDA).
+  - Configured with a 70+ class open-vocabulary dictionary spanning bench electronics, mechatronics lab tools, AUV hardware, and subsea inspection targets.
+- **8D Target Tracking & State Estimation**:
+  - Continuous-Velocity 8D Kalman Filter ($[x, y, w, h, v_x, v_y, v_w, v_h]^T$) with CWNA covariance modeling.
+  - Generates smoothed bounding boxes and optical expansion rates ($\dot{\mathcal{A}}$) for forward surge standoff regulation.
+- **Closed-Loop Visual Servoing**:
+  - Computes normalized centering error $(e_x, e_y)$ and dispatches PyMAVLink `MANUAL_CONTROL` commands to ArduSub at 30 Hz.
 
 ---
 
@@ -176,7 +186,8 @@ cd ~/Documents/AUV_GitHub_Upload
 ### Hotkey Controls in Live Display Window
 | Key | Action | Description |
 |---|---|---|
-| **`c`** | **Switch Camera** | Toggles between **Logitech C922 (Port 5601)** and **RPi CSI Cam (Port 5600)** |
+| **`c`** | **Switch Camera** | Toggles between **RPi CSI Cam (Port 5600)** and **Logitech C922 (Port 5601)** |
+| **`e`** | **Toggle CLAHE** | Enables/disables real-time underwater adaptive contrast enhancement |
 | **`r`** | **Rotate 90° CW** | Cycles camera orientation (0° -> 90° CW -> 180° -> 270° CW) |
 | **`f`** | **Flip 180°** | Toggles 180° upside-down flip |
 | **`+` / `=`** | **Confidence Up** | Increases detection confidence threshold (+0.02) |
