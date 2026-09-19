@@ -10,6 +10,13 @@ The simulation is split into two main components that communicate over a local n
 
 **ArduSub SITL (Software In The Loop):** Acts as the "brain" of the robot. It runs the ArduSub firmware, calculates motor thrusts based on the 6-motor geometry, and provides a MAVLink interface via MAVProxy.
 
+## 📚 Master Academic Reference Monographs (Thesis Documentation)
+This repository includes two publication-grade, unabridged theoretical monographs grounded in the master research library:
+- **Monograph 1 — Visual Servoing & State Estimation**: [`AUV_Kalman_Filter_Comprehensive_Explanation.md`](AUV_Kalman_Filter_Comprehensive_Explanation.md)  
+  *Exhaustive theoretical derivation of discrete Kalman filtering (DKF, EKF, UKF, EIF, RHKF), CWNA process noise covariance discretization ($\mathbf{Q}$), 8D position + scale tracking, 5-step numerical walk-through, and MAVLink visual servoing closed-loop control.*
+- **Monograph 2 — Kinematic and Dynamic Modeling**: [`AUV_Kinematics_and_Dynamics_Comprehensive_Derivation.md`](AUV_Kinematics_and_Dynamics_Comprehensive_Derivation.md)  
+  *Exhaustive first-principles derivation of 6-DOF kinematics ($SO(3)$ rotation matrix $\mathbf{R}_b^n$, $\mathbf{T}_\Theta$ matrix inversion, quaternions), Fossen's 6-DOF kinetics plant model (mass, Coriolis, damping, hydrostatics, 8-thruster allocation), variable-by-variable 4-DOF reduction, and the first-principles proof of the destabilizing hydrodynamic Munk Moment.*
+
 ## How to Run the Simulation
 
 You can launch either your **Custom 4-DOF AUV (6 Thrusters)** or the **BlueROV2 Heavy (8 Thrusters / 6-DOF)** simulation environment.
