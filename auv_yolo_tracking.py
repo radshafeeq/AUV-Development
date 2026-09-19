@@ -20,7 +20,7 @@ import numpy as np
 import torch
 from ultralytics import YOLOWorld
 from pymavlink import mavutil
-from kalman_filter import TargetKalmanFilter
+from kalman_filter import AUVKalmanFilter, TargetKalmanFilter
 
 def ensure_blueos_logitech_stream():
     """Ensure Logitech C922 stream on UDP port 5601 is active in BlueOS."""
@@ -418,8 +418,8 @@ def main():
         print("[Video Error] Failed to open any video stream. Please check tether & camera connection.")
         return
 
-    # 5. Initialize Target Kalman Filter
-    kf = TargetKalmanFilter(dt=0.033)
+    # 5. Initialize AUV Kalman Filter (4D Constant-Velocity CWNA Model)
+    kf = AUVKalmanFilter(dt=1.0 / 30.0)
 
     WINDOW_NAME = "AUV Topside AI Camera (YOLO26 World + Kalman Filter + RTX 4070)"
     cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
@@ -564,14 +564,14 @@ def main():
             print(f"[System] Switching video stream to: {CAMERAS[current_cam_idx]['name']}...")
             grabber.release()
             grabber = init_camera_grabber(current_cam_idx)
-            kf = TargetKalmanFilter(dt=0.033) # Reset KF on camera switch
+            kf = AUVKalmanFilter(dt=1.0 / 30.0)  # Reset KF on camera switch
         elif key == ord('r'):
             rotation_mode = (rotation_mode + 1) % 4
-            kf = TargetKalmanFilter(dt=0.033) # Reset KF on orientation change
+            kf = AUVKalmanFilter(dt=1.0 / 30.0)  # Reset KF on orientation change
             print(f"[System] Video rotation changed to: {ROTATION_NAMES[rotation_mode]}")
         elif key == ord('f'):
             rotation_mode = 2 if rotation_mode == 0 else 0
-            kf = TargetKalmanFilter(dt=0.033) # Reset KF on flip
+            kf = AUVKalmanFilter(dt=1.0 / 30.0)  # Reset KF on flip
             print(f"[System] Video orientation toggled to: {ROTATION_NAMES[rotation_mode]}")
         elif key in [ord('+'), ord('=')]:
             conf_thresh = min(0.95, conf_thresh + 0.02)

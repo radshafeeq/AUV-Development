@@ -203,6 +203,50 @@ pip install pymavlink
 
 ---
 
+## 8. BlueRobotics Cockpit
+
+**Version:** 1.18.2 (AppImage)  
+**Source:** https://github.com/bluerobotics/cockpit  
+**Purpose:** Web-based Ground Control Station with a graphical interface for piloting, video streaming, and parameter configuration.
+
+### Installation & Execution:
+
+```bash
+# 1. Install required library for AppImages on Ubuntu 24.04
+sudo apt update && sudo apt install libfuse2
+
+# 2. Download the Cockpit AppImage
+cd ~
+wget https://github.com/bluerobotics/cockpit/releases/download/v1.18.2/Cockpit-1.18.2.AppImage
+chmod +x Cockpit-1.18.2.AppImage
+
+# 3. Run Cockpit
+./Cockpit-1.18.2.AppImage
+```
+
+---
+
+## 9. mavlink2rest
+
+**Version:** 1.2.2  
+**Source:** https://github.com/mavlink/mavlink2rest  
+**Purpose:** Acts as a bridge between ArduSub's raw UDP MAVLink output (port 14550) and Cockpit's required REST/WebSocket API (port 6040).
+
+### Installation & Execution:
+
+```bash
+# 1. Download the pre-compiled binary
+cd ~
+wget https://github.com/mavlink/mavlink2rest/releases/download/1.2.2/mavlink2rest-x86_64-unknown-linux-musl
+mv mavlink2rest-x86_64-unknown-linux-musl mavlink2rest
+chmod +x mavlink2rest
+
+# 2. Run the bridge
+./mavlink2rest -s 0.0.0.0:6040
+```
+
+---
+
 ## Simulation Source & Adaptation
 
 ### Where the Simulation Was Found
@@ -373,3 +417,82 @@ The following packages will be required for the autonomous detection pipeline:
 
 *Last updated: 2026-08-08*  
 *Generated with Gemini Antigravity AI Coding Assistant*
+
+
+# AUV Simulation Setup & Troubleshooting Guide
+
+This document serves as a comprehensive record of the setup steps, physics tuning, and software configurations we applied to successfully connect the Gazebo AUV simulation with ArduSub SITL and the BlueRobotics Cockpit ground control station.
+
+## 1. Running Cockpit (AppImage Dependencies)
+BlueRobotics Cockpit is distributed as an `.AppImage` file. On newer Linux distributions (like Ubuntu 22.04+), the `fuse2` library is deprecated by default but is required to run AppImages. 
+* **Fix:** Installed `libfuse2` to allow Cockpit to execute.
+  ```bash
+  sudo apt update && sudo apt install libfuse2
+  ```
+
+## 2. Bridging ArduSub SITL and Cockpit
+By default, the ArduSub SITL (Software In The Loop) outputs MAVLink data via raw UDP on port `14550`. However, the Cockpit application expects to communicate with a companion computer via a REST API/WebSocket on port `6040`.
+* **Fix:** We installed **`mavlink2rest`**, a tool that bridges raw MAVLink UDP traffic to a REST API.
+* **Execution:** Run the bridge alongside the simulation:
+  ```bash
+  ./mavlink2rest -s 0.0.0.0:6040
+  ```
+
+## 3. Fixing the Gazebo "Blank Screen" (Zombie Processes)
+When closing the simulation using `Ctrl+C`, the background Gazebo (`gz sim`) server processes would occasionally fail to terminate. Relaunching the simulation would result in a blank, unresponsive white screen because the old server was hogging the ports.
+* **Fix:** We injected cleanup commands into `start_gazebo.sh` to forcefully kill any lingering Gazebo or Ruby processes before launching a new instance:
+  ```bash
+  killall -9 ruby gz 2>/dev/null
+  pkill -9 -f "gz sim" 2>/dev/null
+  ```
+
+## 4. Hydrodynamic Tuning (Achieving Neutral Buoyancy)
+When spawned, the custom AUV model was immediately sinking to the bottom of the ocean. 
+* **Fix:** We calculated the exact mass of the vehicle and tuned the `<volume>` parameter in the Gazebo `model.sdf` file. 
+* By setting the volume to `0.014228` (with a water density of `998.0` kg/m³), the buoyant force exactly matched the gravitational force, resulting in perfect neutral buoyancy.
+
+## 5. Thruster Kinematics & Sinking on Arm
+When the vehicle was armed and throttle was applied, the AUV would violently flip and dive into the floor.
+* **Root Cause:** In the `model.sdf`, the vertical Clockwise (CW) propeller (Thruster 6) was assigned a negative thrust coefficient (`-0.02`), while the vertical Counter-Clockwise (CCW) propeller (Thruster 5) was positive (`0.02`). 
+* **Fix:** The ArduSub flight controller's internal motor mixer already handles the math for CW vs CCW propeller directions. Therefore, sending a "forward" PWM signal to Gazebo must *always* result in a positive thrust vector for thrusters sharing the same orientation. We replaced the `-0.02` value for Thruster 6 with `0.02`, ensuring that both vertical thrusters push water in the same direction when ascending. (Note: Horizontal thrusters 3 and 4 remain at `-0.02` because their physical mount angles are inverted).
+
+## 6. Cockpit Joystick Configuration
+Even when perfectly buoyant, the AUV would immediately dive the moment the joystick was enabled.
+* **Root Cause:** The 8BitDo gamepad had unassigned mappings. In MAVLink, the Z-axis (Throttle) uses a `0 to 1000` scale, where `500` is neutral hover. Unmapped or trigger-mapped axes default to `0` when resting, which ArduSub interprets as a "Full Dive" command.
+* **Fix:** 
+  1. Opened the Cockpit **Joystick** menu.
+  2. Clicked the **Restore Defaults** icon to inject the standard BlueROV2 thumbstick mappings.
+  3. Ran the **CALIBRATE** wizard to ensure the sticks rested precisely at `500` (neutral).
+
+## 7. Real-Time 6-DOF Velocity & Odometry Dashboard (Ground Truth)
+To satisfy the academic thesis requirement for ground truth velocity comparison against Kalman Filter state estimation without interfering with the hydrodynamic physics of the AUV:
+
+* **Gazebo System Plugin (`gz::sim::systems::OdometryPublisher`)**:
+  - Extracts ground truth pose and velocity directly from the Gazebo Harmonic physics engine at 50 Hz.
+  - **Physics Impact**: Zero. No mass, inertia, buoyancy, or collision boxes were altered.
+  - **Configuration**: Integrated into `model.sdf` and `model.sdf.in` for both BlueROV2 Heavy and BlueROV2 Standard models across `auv_ws` and `AUV_GitHub_Upload`:
+    ```xml
+    <plugin
+        filename="gz-sim-odometry-publisher-system"
+        name="gz::sim::systems::OdometryPublisher">
+      <odom_frame>world</odom_frame>
+      <robot_base_frame>base_link</robot_base_frame>
+      <odom_publish_frequency>50</odom_publish_frequency>
+      <odom_topic>/model/bluerov2_heavy/odometry</odom_topic>
+      <dimensions>3</dimensions>
+    </plugin>
+    ```
+
+* **Human-Readable Terminal Dashboard (`display_velocity.py`)**:
+  - **Problem**: The raw Gazebo topic output streams at 50 Hz with 16-decimal-place protobuf strings, which scrolls uncontrollably and is unreadable by human pilots.
+  - **Solution**: Developed `display_velocity.py` to intercept and format the odometry feed:
+    - Updates in-place at 10 Hz (no terminal scrolling).
+    - Displays body-fixed linear velocities (Surge $u$, Sway $v$, Heave $w$) and total speed $||V||$ in both $\text{m/s}$ and $\text{cm/s}$.
+    - Displays angular rates (Roll rate $p$, Pitch rate $q$, Yaw rate $r$) in $\text{deg/s}$.
+    - Computes submerged depth in meters and Euler orientation (Roll, Pitch, Heading in degrees) from quaternions.
+    - Visual bi-directional indicator gauges `[   <===|===>   ]`.
+  - **Execution**: Integrated into `start_bluerov2_heavy_gazebo.sh` and `start_gazebo.sh` or executed via:
+    ```bash
+    python3 display_velocity.py --topic /model/bluerov2_heavy/odometry
+    ```
+
