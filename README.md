@@ -298,23 +298,37 @@ On a dry desk, ArduSub will block arming because the external Bar30 / MS5837 und
 > [!TIP]
 > This dry HIL bench test confirms your entire vision-to-control pipeline—from camera photon capture through neural inference, Kalman filtering, MAVLink packet transmission, and Pixhawk PWM motor mixing—before immersing any hardware into water!
 
-### 5. Direct Laptop USB Bench Camera Evaluation (`test_detection_camera.py`)
+### 5. Direct Laptop USB Bench Camera Evaluation (`test_detection_camera.py` v2.1)
 If your webcam (Logitech C922) is plugged directly into your laptop via USB rather than through BlueOS:
 ```bash
 cd ~/Documents/AUV_GitHub_Upload
 /home/radhi/venv-ardupilot/bin/python3 test_detection_camera.py
 ```
-- **Real-Time Visual Comparison**:
+- **Optical Click-to-Focus & Hardware ISP Tuning**:
+  - **Click-to-Focus (Active ROI Sharpness Maximization)**: Left-click on any object in the video stream to lock onto it. An asynchronous background routine sweeps the C922's internal motorized voice-coil lens, evaluates the Tenengrad/Laplacian variance sharpness metric $S = \operatorname{Var}\left(\nabla^2 I_{\text{ROI}}\right)$, and drives the optical lens directly to the sharpest focal plane.
+  - **Full HD 1080p vs. High-Speed 720p**: Toggle on the fly between **Full HD 1080p** (`1920x1080` @ 30 FPS for razor-sharp textures and 2.07 MP sensor resolution) and **High-Speed 720p** (`1280x720` @ 60 FPS for ultra-fluid motion tracking).
+  - **Hardware ISP Edge Sharpness**: Boosted to 170/255 by default to eliminate sensor haze and deliver crisp edges on fine components.
+- **Real-Time Visual Comparison & Tracking**:
   - **Red Box / Red Dot**: Raw YOLO detection (Without Kalman Filter). Shows pixel jitter, bounding box chatter, and instant dropout when occluded.
-  - **Green Box / Green Dot**: 8D Kalman Filter estimation (With Kalman Filter). Smooth motion, continuous trajectory, and velocity vector arrows ($v_x, v_y$).
-  - **Cyan Box**: Dead-reckoning trajectory bridging when the object is temporarily occluded.
-- **Interactive Hotkeys**:
+  - **Green Box / Green Dot**: 8D Kalman Filter estimation (With Kalman Filter). Smooth motion, continuous trajectory, and metric velocity vectors ($v_x, v_y$ in $\text{cm/s}$ and $\text{m/s}$).
+  - **Cyan Box**: Dead-reckoning trajectory bridging when the object is temporarily occluded (e.g., placing hands in front of the camera).
+- **Interactive Controls & Hotkeys**:
+  - `[Left-Click]`: Lock onto any object AND trigger optical Click-to-Focus.
+  - `[1]`: Switch to **Full HD 1080p Mode** (`1920x1080` @ 30 FPS).
+  - `[2]`: Switch to **High-Speed 720p Mode** (`1280x720` @ 60 FPS).
+  - `[f]`: Toggle Continuous Auto-Focus vs. Manual/Locked Focus.
+  - `[ [ ]` / `[ ] ]`: Manual focus nudge (step lens motor closer/farther by $\pm 5$).
+  - `[ < ]` / `[ > ]`: Adjust hardware ISP sharpness ($\pm 15$).
+  - `[r]`: Re-trigger auto-focus optimization on currently locked target.
+  - `[t]`: Cycle / unlock target (auto-locks to best target).
   - `[k]`: Toggle Kalman Filter ON / OFF for immediate before-and-after comparison.
   - `[s]`: Toggle **Side-by-Side Split-Screen** mode (Left = Raw YOLO, Right = 8D Kalman Filter).
+  - `[a]`: Toggle Agility: Agile Zero-Lag ($q_s = 1.0$) vs. Heavy Smooth ($q_s = 0.08$).
+  - `[i]`: Toggle YOLO inference resolution: 640px (ultra-fast) vs. 1024px (high-res).
   - `[e]`: Toggle real-time CLAHE underwater contrast enhancement.
-  - `[+]` / `[-]`: Adjust detection confidence threshold.
+  - `[+]` / `[-]`: Adjust detection confidence threshold ($\pm 0.02$).
   - `[q]`: Exit cleanly.
-- **Live Jitter Metric**: Computes frame-to-frame pixel fluctuation and displays the stabilization percentage in real time.
+- **Live Jitter & Sharpness HUD**: Real-time stabilization percentage ($>75\%$ reduction in jitter) and numerical optical sharpness readout displayed on the target bounding box.
 
 ---
 
