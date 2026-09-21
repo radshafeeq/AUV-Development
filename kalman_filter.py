@@ -148,6 +148,10 @@ class AUVVisualKalmanFilter:
         self.missed_frames = 0
         self._last_time = time.perf_counter()
 
+    def reset_state(self, x, y, w=50.0, h=50.0, vx=0.0, vy=0.0, vw=0.0, vh=0.0):
+        """Reset and initialize Kalman filter state (alias for init)."""
+        return self.init(x, y, w=w, h=h, vx=vx, vy=vy, vw=vw, vh=vh)
+
     def predict(self, dt=None):
         """
         Predict the next state.

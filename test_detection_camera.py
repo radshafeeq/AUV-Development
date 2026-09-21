@@ -886,7 +886,9 @@ def main():
 
                 # Snap Kalman Filter directly to the clicked object to eliminate lag
                 bx, by = locked_center
-                kf.reset_state(float(bx), float(by), float(locked_bbox[2] - locked_bbox[0]), float(locked_bbox[3] - locked_bbox[1]))
+                bw = float(locked_bbox[2] - locked_bbox[0])
+                bh = float(locked_bbox[3] - locked_bbox[1])
+                kf.init(float(bx), float(by), bw, bh)
 
                 print(f"[Target Lock] MANUALLY LOCKED ONTO: {selected_cand['label']} (Area={selected_cand['area']}px)!")
                 focus_engine.trigger_focus(selected_cand["bbox"], selected_cand["label"])
