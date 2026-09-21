@@ -298,6 +298,24 @@ On a dry desk, ArduSub will block arming because the external Bar30 / MS5837 und
 > [!TIP]
 > This dry HIL bench test confirms your entire vision-to-control pipeline—from camera photon capture through neural inference, Kalman filtering, MAVLink packet transmission, and Pixhawk PWM motor mixing—before immersing any hardware into water!
 
+### 5. Direct Laptop USB Bench Camera Evaluation (`test_detection_camera.py`)
+If your webcam (Logitech C922) is plugged directly into your laptop via USB rather than through BlueOS:
+```bash
+cd ~/Documents/AUV_GitHub_Upload
+/home/radhi/venv-ardupilot/bin/python3 test_detection_camera.py
+```
+- **Real-Time Visual Comparison**:
+  - **Red Box / Red Dot**: Raw YOLO detection (Without Kalman Filter). Shows pixel jitter, bounding box chatter, and instant dropout when occluded.
+  - **Green Box / Green Dot**: 8D Kalman Filter estimation (With Kalman Filter). Smooth motion, continuous trajectory, and velocity vector arrows ($v_x, v_y$).
+  - **Cyan Box**: Dead-reckoning trajectory bridging when the object is temporarily occluded.
+- **Interactive Hotkeys**:
+  - `[k]`: Toggle Kalman Filter ON / OFF for immediate before-and-after comparison.
+  - `[s]`: Toggle **Side-by-Side Split-Screen** mode (Left = Raw YOLO, Right = 8D Kalman Filter).
+  - `[e]`: Toggle real-time CLAHE underwater contrast enhancement.
+  - `[+]` / `[-]`: Adjust detection confidence threshold.
+  - `[q]`: Exit cleanly.
+- **Live Jitter Metric**: Computes frame-to-frame pixel fluctuation and displays the stabilization percentage in real time.
+
 ---
 
 # Fresh Install Guide — Setting Up on a New Device
