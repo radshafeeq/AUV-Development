@@ -298,12 +298,17 @@ On a dry desk, ArduSub will block arming because the external Bar30 / MS5837 und
 > [!TIP]
 > This dry HIL bench test confirms your entire vision-to-control pipeline—from camera photon capture through neural inference, Kalman filtering, MAVLink packet transmission, and Pixhawk PWM motor mixing—before immersing any hardware into water!
 
-#### 5. Direct Laptop USB Bench Camera Evaluation (`test_detection_camera.py` v2.4)
+#### 5. Direct Laptop USB Bench Camera Evaluation (`test_detection_camera.py` v2.5)
 If your webcam (Logitech C922) is plugged directly into your laptop via USB rather than through BlueOS:
 ```bash
 cd ~/Documents/AUV_GitHub_Upload
 /home/radhi/venv-ardupilot/bin/python3 test_detection_camera.py
 ```
+- **Native Full HD 1080p Default & Optical Fidelity**:
+  - **Zero Upscaling Softness**: Defaults to **Full HD 1080p (`1920x1080` @ 30 FPS, MJPG)**. On modern high-resolution laptop displays (e.g. 2.5K WQXGA $2560\times 1600$), 1080p provides $2.25\times$ more physical pixels than 720p, completely eliminating blurry bilinear stretch artifacts and rendering text, component pins, and edges razor-sharp.
+  - **Calibrated ISP Sharpness ($140/255$)**: The hardware Image Signal Processor (ISP) unsharp-masking register is calibrated to $140$ (down from $170$), eliminating artificial white edge ringing (halos) and amplified chroma noise while keeping optical edges crisp.
+  - **Longer Exposure Integration ($33.3\text{ ms}$)**: Running at 30 FPS allows double the light collection time per frame compared to 60 FPS ($16.6\text{ ms}$), enabling the camera ISP to drop analog gain (ISO) to minimum, eliminating grain and digital sensor noise.
+  - **Clean View Mode (`[h]` / On-Screen `[HUD]` Button)**: Instantly hide all red bounding boxes, green Kalman boxes, banners, and crosshairs to evaluate the pure optical sensor output directly.
 - **Precision Target Selection & Ironclad Tracking**:
   - **Smallest-Area-First Click Selection**: When clicking on an object sitting on a table or near a person, the tracker calculates overlapping bounding box geometry and selects the most specific object (e.g., **Laptop**, Bottle, Mouse) rather than parent containers (Table, Person).
   - **Ironclad Lock Retention**: Once you click on an object, the Kalman filter strictly holds that target class and **never jumps to Person** or background objects. During autofocus sweeps or temporary drops, it dead-reckons seamlessly on the selected target.
@@ -316,12 +321,15 @@ cd ~/Documents/AUV_GitHub_Upload
   - **`[AUTO FOCUS]` Button**: Execute a synchronized contrast-maximization autofocus sweep on the current target with a single click.
   - **`AF*` Target Notch**: Shows the autofocus convergence point directly on the slider track.
   - **Quick Presets**: Click `[ROOM 15]` to snap to verified razor-sharp room standoff ($~1.5\text{m}$ to $\infty$) or `[DESK 40]` for close desk inspection ($~40\text{cm}$).
+  - **`[RES: 1080p]` / `[RES: 720p]` Button**: Click directly on the card to switch between Full HD 1080p and High-Speed 720p 60 FPS on the fly.
+  - **`[HUD: ON]` / `[HUD: OFF]` Button**: Click to toggle Clean View mode without touching the keyboard.
   - **Mouse Wheel Tuning**: Scroll the mouse wheel anywhere over the window to nudge focus by $\pm 2$.
 - **Interactive Controls & Hotkeys**:
   - **`[Left-Click]`**: Click any object on screen to lock target AND trigger optical autofocus.
   - **`[Right Slider]`**: Drag knob with mouse to adjust focus in real time.
-  - `[1]`: Switch to **Full HD 1080p Mode** (`1920x1080` @ 30 FPS).
-  - `[2]`: Switch to **High-Speed 720p Mode** (`1280x720` @ 60 FPS, default).
+  - `[h]`: Toggle **Clean View Mode** (Hide/Show all bounding boxes and HUD).
+  - `[1]`: Switch to **Full HD 1080p Mode** (`1920x1080` @ 30 FPS, default).
+  - `[2]`: Switch to **High-Speed 720p Mode** (`1280x720` @ 60 FPS).
   - `[t]`: Reset target lock (reverts to auto-tracking).
   - `[k]`: Toggle Kalman Filter ON / OFF for instant before-and-after comparison.
   - `[s]`: Toggle **Side-by-Side Split-Screen** mode (Left = Raw YOLO, Right = 8D Kalman Filter).
