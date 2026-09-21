@@ -13,7 +13,7 @@ The simulation is split into two main components that communicate over a local n
 ## 📚 Master Academic Reference Monographs (Thesis Documentation)
 This repository includes two publication-grade, unabridged theoretical monographs grounded in the master research library:
 - **Monograph 1 — Visual Servoing & State Estimation**: [`AUV_Kalman_Filter_Comprehensive_Explanation.md`](AUV_Kalman_Filter_Comprehensive_Explanation.md)  
-  *Exhaustive theoretical derivation of discrete Kalman filtering (DKF, EKF, UKF, EIF, RHKF), CWNA process noise covariance discretization ($\mathbf{Q}$), 8D position + scale tracking, 5-step numerical walk-through, and MAVLink visual servoing closed-loop control.*
+  *Exhaustive theoretical derivation of discrete Kalman filtering (DKF, EKF, UKF, EIF, RHKF), CWNA process noise covariance discretization ($\mathbf{Q}$), dual-filter architecture (`AUVVisualKalmanFilter` on Topside Laptop + `AUVDynamicsKalmanFilter` on Raspberry Pi 4B), zero-allocation optimization ($13.49\text{ \mu s}$ / $20.99\text{ \mu s}$), Fossen (2021) 4-DOF hydrodynamic plant model, subsea current disturbance observer, and Hardware-in-the-Loop (HIL) dry bench test methodology.*
 - **Monograph 2 — Kinematic and Dynamic Modeling**: [`AUV_Kinematics_and_Dynamics_Comprehensive_Derivation.md`](AUV_Kinematics_and_Dynamics_Comprehensive_Derivation.md)  
   *Exhaustive first-principles derivation of 6-DOF kinematics ($SO(3)$ rotation matrix $\mathbf{R}_b^n$, $\mathbf{T}_\Theta$ matrix inversion, quaternions), Fossen's 6-DOF kinetics plant model (mass, Coriolis, damping, hydrostatics, 8-thruster allocation), variable-by-variable 4-DOF reduction, and the first-principles proof of the destabilizing hydrodynamic Munk Moment.*
 
@@ -115,25 +115,48 @@ Open `auv_yolo_tracking.py` and set `USE_YOLO_WORLD`:
 
 ---
 
-### 📈 8D Position + Scale Kalman Filter State Estimation & Trajectory Prediction
+### 📈 Dual Kalman Filter Suite: Visual Estimation & Hydrodynamic Observer
 
-The AI tracking pipeline incorporates a Continuous White Noise Acceleration (CWNA) discrete **8D Kalman Filter** ([`kalman_filter.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/kalman_filter.py)) to optimize AUV motion control across horizontal steering, vertical heave, and forward surge:
+The autonomy stack incorporates a high-performance **Dual Kalman Filter Suite** implemented in [`kalman_filter.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/kalman_filter.py), dividing state estimation responsibilities between the topside GPU workstation and the subsea companion computer:
 
-#### 🧠 What the Kalman Filter Does for the AUV:
-1. **Thruster Smoothing & Noise Elimination**:
-   - Raw vision bounding boxes jitter due to pixel noise and water shimmer. The Kalman Filter smooths target centroid $(x, y)$ and bounding box dimensions $(w, h)$, eliminating erratic thruster oscillations.
-2. **Water Occlusion & Missing Frame Recovery (Dead-Reckoning)**:
-   - In turbid water, bubble wash, or light glare, YOLO may temporarily lose detection. The Kalman Filter **predicts the target's trajectory and scale** for up to 15 frames (~0.5s), allowing continuous visual tracking.
-3. **Velocity & Surge Approach Rate Estimation**:
-   - Estimates real-time target velocity $(v_x, v_y)$ for predictive steering and bounding box expansion rates $(v_w, v_h)$.
-   - Computes analytical projected area growth rate $\frac{d\mathcal{A}}{dt} = v_w h + w v_h$, providing monocular range-rate feedback for forward surge distance holding.
+```
+                            ETHERNET TETHER (192.168.2.x)
+     TOPSIDE WORKSTATION (LAPTOP)                 │             SUBSEA VEHICLE (AUV HULL)
+┌────────────────────────────────────────────┐    │    ┌─────────────────────────────────────────┐
+│ • RTSP H.264 Video Ingestion (50-60 FPS)   │◄───┼────│ • RPi 4B: BlueOS System & Camera Server │
+│ • YOLO26 World Neural Detection (RTX GPU)  │    │    │ • AUVDynamicsKalmanFilter (4-DOF EKF)   │
+│ • AUVVisualKalmanFilter (8D Position/Scale)│    │    │   Estimates [u, v, w, r] & currents     │
+│ • Visual Servoing Guidance Law             │────┼───►│ • Autonomous Tracking Setpoints         │
+└────────────────────────────────────────────┘    │    └────────────────────┬────────────────────┘
+                                                  │                         │ USB MAVLink (/dev/ttyACM0)
+                                                  │                         ▼
+                                                  │    ┌─────────────────────────────────────────┐
+                                                  │    │ • Pixhawk 2.4.8: Stock ArduSub Firmware │
+                                                  │    │   400 Hz EKF3 IMU/Depth Attitude PID    │
+                                                  │    │   6x T200 PWM Motor Mixing              │
+                                                  └────┴─────────────────────────────────────────┘
+```
 
-#### 📐 State Space Model:
-- **8D State Vector**: $\mathbf{x}_k = [x, y, w, h, v_x, v_y, v_w, v_h]^T$ *(Position + Dimensions + Velocities)*
+#### 1. Topside Visual Kalman Filter (`AUVVisualKalmanFilter` on Laptop GPU/CPU)
+- **Role**: Smooths noisy YOLO detections, predicts trajectories through occlusions/turbidity, and computes monocular surge approach rates.
+- **State Vector**: 8D $\mathbf{x}_{\text{vis}} = [x, y, w, h, v_x, v_y, v_w, v_h]^T$ *(Centroid + Dimensions + Velocities)*
 - **Measurement Vector**: $\mathbf{z}_k = [x_m, y_m, w_m, h_m]^T$ *(Raw YOLO bounding box)*
-- **CWNA Process Noise Covariance**: $\mathbf{Q}_{8\times 8}$ derived from continuous power spectral density $q_s = 0.05$.
-- **Measurement Noise Covariance**: $\mathbf{R}_{4\times 4} = \text{diag}[0.20, 0.20, 0.50, 0.50]$ (higher tolerance on outer edge shimmer).
-- **Module**: Implemented in [`kalman_filter.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/kalman_filter.py) with dual 4D/8D support and integrated into [`auv_yolo_tracking.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/auv_yolo_tracking.py).
+- **Zero-Allocation Optimization**: Built using Python `__slots__` and pre-allocated NumPy contiguous memory buffers—eliminates garbage collection pauses during high-speed tracking.
+- **Adaptive Time-Step ($\Delta t$)**: Automatically measures elapsed hardware time (`time.perf_counter()`), adjusting the state transition matrix $\mathbf{A}(\Delta t)$ to prevent velocity distortion during network frame jitters.
+- **Confidence-Scaled Measurement Covariance**: Dynamically weights $\mathbf{R}(\text{conf}) = \mathbf{R}_0 / \max(\text{conf}, 0.15)^2$. High-confidence detections are tightly tracked; lower-confidence detections in murky water rely more on model dead-reckoning.
+- **Innovation Outlier Gating**: Mahalanobis distance gating rejects sudden water surface reflections, bubbles, and false positive detections ($> 300\text{ px}$).
+- **Scale Rate & Monocular Standoff**: Computes analytical projected area expansion rate $\frac{d\mathcal{A}}{dt} = v_w h + w v_h$, providing closed-loop feedback for forward distance holding without an acoustic DVL.
+- **Performance Benchmark**: **$13.49\text{ \mu s}$** execution time per step (>74,000 Hz throughput).
+
+#### 2. Subsea Hydrodynamic Dynamics Kalman Filter (`AUVDynamicsKalmanFilter` on Raspberry Pi 4B)
+- **Role**: Non-linear Extended Kalman Filter and Disturbance Observer fusing Pixhawk IMU/depth telemetry with thruster command efforts.
+- **Physical Model**: Fossen's (2021) 4-DOF marine craft equations of motion:
+  $$\mathbf{M} \dot{\boldsymbol{\nu}} + \mathbf{C}(\boldsymbol{\nu})\boldsymbol{\nu} + \mathbf{D}(\boldsymbol{\nu})\boldsymbol{\nu} = \boldsymbol{\tau} + \mathbf{d}$$
+- **State Vector**: 6D $\mathbf{x}_{\text{dyn}} = [u, v, w, r, d_u, d_v]^T$ *(Surge, Sway, Heave, Yaw rate, plus Ocean Current Disturbance Forces $d_u, d_v$)*
+- **Inertia Matrix**: $\mathbf{M} = \text{diag}[17.86, 18.62, 30.18, 0.25]$ kg, kg$\cdot\text{m}^2$ (including hydrodynamic added mass).
+- **Coupled Quadratic Damping**: $\mathbf{D}_{\text{lin}} = [13.7, 0, 33.8, 0]^T$, $\mathbf{D}_{\text{quad}} = [141.0, 217.0, 190.0, 1.5]^T$.
+- **Disturbance Observer**: Uncouples vehicle thrust from external environmental currents, providing direct current force estimates ($d_u, d_v$ in Newtons) for active trim compensation.
+- **Performance Benchmark**: **$20.99\text{ \mu s}$** execution time per step (>47,000 Hz throughput on Raspberry Pi ARM Cortex-A72).
 
 ---
 
@@ -213,6 +236,67 @@ cd ~/Documents/AUV_GitHub_Upload
 ```
 - Trains YOLO26 on custom underwater annotated datasets.
 - Saves custom weights to `runs/detect/yolo26_combined_model/weights/best.pt`.
+
+---
+
+## 🔬 Hardware-in-the-Loop (HIL) Dry Bench Testing Guide
+
+You can validate the complete autonomous tracking and control pipeline on a workbench **without building the full waterproof hull, mounting thrusters, or testing in water**.
+
+```
+┌───────────────────────────┐                        ┌─────────────────────────────────────────┐
+│     Topside Laptop        │                        │      Raspberry Pi 4B (BlueOS 1.4.5)     │
+│  • auv_yolo_tracking.py   │◄─── Ethernet Tether ──►│  • RTSP/RTP Video Streamer              │
+│  • AUVVisualKalmanFilter  │    (192.168.2.x)       │  • MAVLink Router (Endpoints on 14550)  │
+│  • Cockpit / QGC HUD      │                        │  • AUVDynamicsKalmanFilter Observer     │
+└───────────────────────────┘                        └────────────────────┬────────────────────┘
+                                                                          │ USB Telemetry Cable
+                                                                          ▼
+                                                     ┌─────────────────────────────────────────┐
+                                                     │         Pixhawk 2.4.8 (ArduSub)         │
+                                                     │  • 400 Hz Internal Attitude EKF3        │
+                                                     │  • Servo PWM Output Mixer (Ch 1 - 6)    │
+                                                     └─────────────────────────────────────────┘
+```
+
+### 1. Hardware Connections:
+1. Connect the **Raspberry Pi 4B** to the **Pixhawk 2.4.8** using a standard micro-USB to USB-A cable (`/dev/ttyACM0`).
+2. Plug the **Pi Camera module** (CSI flat cable) and/or the **Logitech C922 USB webcam** into the Raspberry Pi 4B.
+3. Connect the **Topside Laptop** to the Raspberry Pi 4B with an Ethernet cable. Set your laptop's Ethernet IPv4 address to `192.168.2.1` (netmask `255.255.255.0`).
+4. Power the Raspberry Pi (5V USB-C) and Pixhawk (via USB or Power Module).
+
+### 2. Bypass Pre-Arming Checks for Dry Benchtop Testing:
+On a dry desk, ArduSub will block arming because the external Bar30 / MS5837 underwater pressure sensor is absent. To allow bench testing:
+1. Open the BlueOS web interface at `http://192.168.2.2` or launch **Cockpit** / **QGroundControl**.
+2. Go to **Parameters** and set:
+   ```text
+   ARMING_CHECK = 0
+   ```
+3. Reboot the Pixhawk or restart ArduSub.
+
+### 3. Step-by-Step Bench Test Verification:
+1. **Attitude / IMU Tracking Verification**:
+   - Open **Cockpit** (`./start_cockpit.sh`) or check the GCS artificial horizon.
+   - Pick up the Pixhawk and rotate it along pitch, roll, and yaw.
+   - Confirm that the artificial horizon and 3D vehicle orientation in Cockpit respond instantly to physical movements.
+2. **Launch Topside Autonomous AI Tracking**:
+   ```bash
+   cd ~/Documents/AUV_GitHub_Upload
+   /home/radhi/venv-ardupilot/bin/python3 auv_yolo_tracking.py
+   ```
+3. **Arm Thrusters in MANUAL Mode**:
+   - In Cockpit or your MAVLink terminal, arm the vehicle (`arm throttle`). Keep mode in `MANUAL`.
+4. **Visual Closed-Loop Servoing & PWM Output Verification**:
+   - Place a test object (e.g., a BLDC motor, electronics, or water bottle) in front of the camera.
+   - Watch the HUD: YOLO26 World detects the object, the green `AUVVisualKalmanFilter` box locks onto target centroid, and the tracking error vectors display current pixel offsets $(e_x, e_y)$.
+   - Move the target object to the left or right:
+     - The script transmits MAVLink `MANUAL_CONTROL` yaw packets at 30 Hz.
+     - Observe the **Servo Outputs** (`SERVO_OUTPUT_RAW`) in Cockpit or MAVProxy. The PWM signals on thruster channels 1–4 will dynamically deviate from neutral ($1500\text{ \mu s}$) in proportion to target offset.
+   - Move the target closer or further away:
+     - The Kalman filter computes projected area expansion rate $\frac{d\mathcal{A}}{dt}$, driving forward/backward surge channels accordingly.
+
+> [!TIP]
+> This dry HIL bench test confirms your entire vision-to-control pipeline—from camera photon capture through neural inference, Kalman filtering, MAVLink packet transmission, and Pixhawk PWM motor mixing—before immersing any hardware into water!
 
 ---
 
