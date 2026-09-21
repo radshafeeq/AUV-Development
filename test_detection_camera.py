@@ -147,11 +147,15 @@ class V4L2HardwareController:
     CID_TILT_ABSOLUTE = 0x009a0909    # Digital Tilt (0 = center)
 
     def __init__(self, dev_index=2):
-        self.dev_path = f"/dev/video{dev_index}"
+        self.is_remote = (dev_index == "rpi")
+        self.dev_path = f"/dev/video{dev_index}" if not self.is_remote else "rpi"
         self.fd = None
         self.current_focus_cache = 15
         self.is_auto_focus = False
-        self.open_device()
+        if not self.is_remote:
+            self.open_device()
+        else:
+            print("[V4L2 Hardware] Connected to Subsea Raspberry Pi 4B over network for remote camera ISP controls.")
 
         # Guarantee 100% full uncropped wide-angle FOV (1.0x zoom, zero digital crop)
         self.set_zoom(100)
@@ -162,6 +166,17 @@ class V4L2HardwareController:
         self.set_autofocus(False)
         self.set_focus(15)
         self.set_sharpness(140)
+
+    def _run_remote_v4l2(self, cmd_str):
+        def _worker():
+            try:
+                subprocess.run(
+                    ["ssh", "-o", "ConnectTimeout=1", "pi@192.168.2.2", f"v4l2-ctl -d /dev/video0 {cmd_str}"],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=2.0
+                )
+            except Exception:
+                pass
+        threading.Thread(target=_worker, daemon=True).start()
 
     def open_device(self):
         try:
@@ -196,9 +211,14 @@ class V4L2HardwareController:
     def set_autofocus(self, enable: bool):
         self.is_auto_focus = enable
         val = 1 if enable else 0
+        if self.is_remote:
+            self._run_remote_v4l2(f"-c focus_auto={val}")
+            return True
         return self._set_ctrl(self.CID_FOCUS_AUTO, val)
 
     def get_autofocus(self):
+        if self.is_remote:
+            return self.is_auto_focus
         val = self._get_ctrl(self.CID_FOCUS_AUTO)
         if val is not None:
             self.is_auto_focus = (val == 1)
@@ -209,11 +229,16 @@ class V4L2HardwareController:
         focus_val = int(max(0, min(250, focus_val)))
         self.current_focus_cache = focus_val
         self.is_auto_focus = False
+        if self.is_remote:
+            self._run_remote_v4l2(f"-c focus_auto=0 && v4l2-ctl -d /dev/video0 -c focus_absolute={focus_val}")
+            return True
         # Disable continuous firmware AF when manual focus is commanded
         self._set_ctrl(self.CID_FOCUS_AUTO, 0)
         return self._set_ctrl(self.CID_FOCUS_ABSOLUTE, focus_val)
 
     def get_focus(self):
+        if self.is_remote:
+            return self.current_focus_cache
         val = self._get_ctrl(self.CID_FOCUS_ABSOLUTE)
         if val is not None:
             self.current_focus_cache = val
@@ -222,24 +247,40 @@ class V4L2HardwareController:
 
     def set_sharpness(self, sharpness_val: int):
         sharpness_val = int(max(0, min(255, sharpness_val)))
+        if self.is_remote:
+            self._run_remote_v4l2(f"-c sharpness={sharpness_val}")
+            return True
         return self._set_ctrl(self.CID_SHARPNESS, sharpness_val)
 
     def get_sharpness(self):
+        if self.is_remote:
+            return 140
         val = self._get_ctrl(self.CID_SHARPNESS)
         return val if val is not None else 140
 
     def set_zoom(self, zoom_val: int = 100):
         """Ensure full wide-angle 78-deg optical FOV with zero digital crop (100 = 1.0x)."""
+        if self.is_remote:
+            self._run_remote_v4l2(f"-c zoom_absolute={int(zoom_val)}")
+            return True
         return self._set_ctrl(self.CID_ZOOM_ABSOLUTE, int(zoom_val))
 
     def get_zoom(self):
+        if self.is_remote:
+            return 100
         val = self._get_ctrl(self.CID_ZOOM_ABSOLUTE)
         return val if val is not None else 100
 
     def set_pan(self, pan_val: int = 0):
+        if self.is_remote:
+            self._run_remote_v4l2(f"-c pan_absolute={int(pan_val)}")
+            return True
         return self._set_ctrl(self.CID_PAN_ABSOLUTE, int(pan_val))
 
     def set_tilt(self, tilt_val: int = 0):
+        if self.is_remote:
+            self._run_remote_v4l2(f"-c tilt_absolute={int(tilt_val)}")
+            return True
         return self._set_ctrl(self.CID_TILT_ABSOLUTE, int(tilt_val))
 
     def close(self):
@@ -251,16 +292,83 @@ class V4L2HardwareController:
             self.fd = None
 
 
+
+class GStreamerFrameGrabber:
+    """Zero-latency GStreamer pipeline receiver for BlueOS / Raspberry Pi RTP MJPEG stream."""
+    def __init__(self, port=5601, width=1920, height=1080, encoding="JPEG"):
+        self.width = width
+        self.height = height
+        self.frame_size = width * height * 3
+        self.port = port
+        self.encoding = encoding
+        self.lock = threading.Lock()
+        self.frame = None
+        self.status = False
+        self.stopped = False
+
+        gst_cmd = [
+            "gst-launch-1.0", "-q",
+            "udpsrc", f"port={port}",
+            "caps=application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)JPEG",
+            "!", "rtpjpegdepay",
+            "!", "jpegdec",
+            "!", "videoconvert",
+            "!", "videoscale",
+            "!", f"video/x-raw, format=BGR, width={width}, height={height}",
+            "!", "fdsink"
+        ]
+
+        try:
+            self.proc = subprocess.Popen(gst_cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, bufsize=10**7)
+            self.thread = threading.Thread(target=self.update, daemon=True)
+            self.thread.start()
+            time.sleep(0.4)
+            self.status = (self.proc.poll() is None)
+        except Exception as e:
+            print(f"[GStreamer Error] Failed to launch pipeline: {e}")
+            self.status = False
+
+    def isOpened(self):
+        return self.status and (self.proc.poll() is None)
+
+    def update(self):
+        while not self.stopped:
+            try:
+                raw_frame = self.proc.stdout.read(self.frame_size)
+                if len(raw_frame) == self.frame_size:
+                    frame = np.frombuffer(raw_frame, dtype=np.uint8).reshape((self.height, self.width, 3))
+                    with self.lock:
+                        self.frame = frame
+                        self.status = True
+                else:
+                    time.sleep(0.005)
+            except Exception:
+                break
+
+    def read(self):
+        with self.lock:
+            return self.status, (self.frame.copy() if self.frame is not None else None)
+
+    def release(self):
+        self.stopped = True
+        if hasattr(self, 'proc') and self.proc:
+            try:
+                self.proc.terminate()
+            except Exception:
+                pass
+
+
 # ==========================================
 # THREADED CAPTURE WITH FRAME SYNCHRONIZATION
 # ==========================================
 class ThreadedWebcamCapture:
     """High-speed threaded frame grabber with hardware MJPG and monotonic frame synchronization."""
-    def __init__(self, src=2, width=1280, height=720, fps=60):
+    def __init__(self, src=2, width=1920, height=1080, fps=30):
         self.src = src
         self.width = width
         self.height = height
         self.fps = fps
+        self.is_remote = (src == "rpi")
 
         self.lock = threading.Lock()
         self.ret = False
@@ -268,6 +376,7 @@ class ThreadedWebcamCapture:
         self.frame_id = 0
         self.stopped = False
         self.cap = None
+        self.grabber = None
 
         self._start_capture(width, height, fps)
 
@@ -275,23 +384,29 @@ class ThreadedWebcamCapture:
         self.thread.start()
 
         # Wait for first valid frame
-        for _ in range(25):
+        for _ in range(35):
             if self.frame is not None:
                 break
             time.sleep(0.04)
 
     def _start_capture(self, width, height, fps):
-        if self.cap is not None:
-            self.cap.release()
         self.width = width
         self.height = height
         self.fps = fps
-        self.cap = cv2.VideoCapture(self.src, cv2.CAP_V4L2 if os.name == 'posix' else cv2.CAP_ANY)
-        self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-        self.cap.set(cv2.CAP_PROP_FPS, fps)
-        self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+
+        if self.is_remote:
+            if self.grabber is not None:
+                self.grabber.release()
+            self.grabber = GStreamerFrameGrabber(port=5601, width=width, height=height, encoding="JPEG")
+        else:
+            if self.cap is not None:
+                self.cap.release()
+            self.cap = cv2.VideoCapture(self.src, cv2.CAP_V4L2 if os.name == 'posix' else cv2.CAP_ANY)
+            self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+            self.cap.set(cv2.CAP_PROP_FPS, fps)
+            self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
     def set_resolution(self, width, height, fps):
         """Dynamically switch sensor capture resolution without restarting the application."""
@@ -302,19 +417,29 @@ class ThreadedWebcamCapture:
 
     def _reader(self):
         while not self.stopped:
-            with self.lock:
-                cap_ref = self.cap
-            if cap_ref is None or not cap_ref.isOpened():
-                time.sleep(0.01)
-                continue
-            ret, frame = cap_ref.read()
-            if ret and frame is not None:
-                with self.lock:
-                    self.ret = ret
-                    self.frame = frame
-                    self.frame_id += 1
+            if self.is_remote and self.grabber is not None:
+                ret, frame = self.grabber.read()
+                if ret and frame is not None:
+                    with self.lock:
+                        self.ret = ret
+                        self.frame = frame
+                        self.frame_id += 1
+                else:
+                    time.sleep(0.005)
             else:
-                time.sleep(0.002)
+                with self.lock:
+                    cap_ref = self.cap
+                if cap_ref is None or not cap_ref.isOpened():
+                    time.sleep(0.01)
+                    continue
+                ret, frame = cap_ref.read()
+                if ret and frame is not None:
+                    with self.lock:
+                        self.ret = ret
+                        self.frame = frame
+                        self.frame_id += 1
+                else:
+                    time.sleep(0.002)
 
     def read(self):
         with self.lock:
@@ -338,12 +463,17 @@ class ThreadedWebcamCapture:
             return self.frame.copy() if self.frame is not None else None
 
     def isOpened(self):
+        if self.is_remote:
+            return self.grabber.isOpened() if self.grabber is not None else False
         return self.cap.isOpened() if self.cap is not None else False
 
     def release(self):
         self.stopped = True
-        if self.cap is not None:
+        if self.is_remote and self.grabber is not None:
+            self.grabber.release()
+        elif self.cap is not None:
             self.cap.release()
+
 
 
 # ==========================================
@@ -667,7 +797,12 @@ def compute_iou(boxA, boxB):
 
 
 def auto_detect_camera():
-    """Detect Logitech C922 or fallback to available camera."""
+    """Detect Logitech C922 locally on laptop or remote on Subsea Raspberry Pi."""
+    # Check if --rpi or --source=rpi was passed in CLI
+    if any(arg in sys.argv for arg in ["--rpi", "-rpi", "--source=rpi"]):
+        print("[Camera Discovery] Using Subsea Raspberry Pi 4B over Ethernet Tether (UDP Port 5601)...")
+        return "rpi"
+
     candidates = []
     for idx in range(10):
         path = f"/sys/class/video4linux/video{idx}/name"
@@ -681,10 +816,22 @@ def auto_detect_camera():
     for idx, name in candidates:
         if "c922" in name.lower() or "logitech" in name.lower():
             return idx
+
+    # If no local C922, check if Raspberry Pi tether is reachable
+    try:
+        res = subprocess.run(["ping", "-c", "1", "-W", "1", "192.168.2.2"],
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if res.returncode == 0:
+            print("[Camera Discovery] Logitech C922 detected on Subsea Raspberry Pi 4B (Ethernet Tether UDP 5601)!")
+            return "rpi"
+    except Exception:
+        pass
+
     for idx in [2, 0]:
         if os.path.exists(f"/dev/video{idx}"):
             return idx
     return 0
+
 
 
 # ==========================================
@@ -818,7 +965,10 @@ def main():
     print(f"[AI Model] Target dictionary ready ({len(YOLO26_WORLD_CLASSES)} classes).")
 
     cam_index = auto_detect_camera()
-    print(f"[Camera] Connecting to Logitech C922 on /dev/video{cam_index}...")
+    if cam_index == "rpi":
+        print("[Camera] Connecting to Logitech C922 on Subsea Raspberry Pi 4B (UDP Port 5601)...")
+    else:
+        print(f"[Camera] Connecting to Logitech C922 on /dev/video{cam_index}...")
 
     # Hardware V4L2 Controller (Initializes at Focus=15, Sharpness=140)
     v4l2_ctrl = V4L2HardwareController(dev_index=cam_index)
@@ -827,10 +977,11 @@ def main():
     current_res_mode = "1080p"
     current_cap_w, current_cap_h, current_cap_fps = 1920, 1080, 30
     stream = ThreadedWebcamCapture(src=cam_index, width=current_cap_w, height=current_cap_h, fps=current_cap_fps)
-    if not stream.isOpened():
+    if not stream.isOpened() and cam_index != "rpi":
         print("[Error] Failed to open Logitech C922! Trying index 0...")
         cam_index = 0
         stream = ThreadedWebcamCapture(src=0, width=current_cap_w, height=current_cap_h, fps=current_cap_fps)
+
 
     # Enhanced Click-to-Focus Engine with monotonic frame synchronization
     focus_engine = ClickToFocusEngine(v4l2_ctrl, stream)
@@ -1263,7 +1414,7 @@ def main():
 
                 # Top Dashboard Banner
                 kf_badge = "[KALMAN: ON]" if kalman_enabled else "[KALMAN: OFF]"
-                sensor_badge = f"[{current_res_mode.upper()} {w}x{h} @ {fps_smooth:.0f}FPS]"
+                sensor_badge = f"[RPI TETHER {current_res_mode.upper()} {w}x{h} @ {fps_smooth:.0f}FPS]" if getattr(stream, "is_remote", False) else f"[{current_res_mode.upper()} {w}x{h} @ {fps_smooth:.0f}FPS]"
                 det_count_badge = f"[{len(candidate_boxes)} OBJECTS DETECTED]"
 
                 banner_w = max(1100, w - 145)
