@@ -304,11 +304,17 @@ If your webcam (Logitech C922) is plugged directly into your laptop via USB rath
 cd ~/Documents/AUV_GitHub_Upload
 /home/radhi/venv-ardupilot/bin/python3 test_detection_camera.py
 ```
+- **100% Uncropped Display & Aspect Ratio Guarantees**:
+  - **Zero Sensor Crop ($78^\circ$ Optical Wide-Angle)**: Direct hardware V4L2 registers enforce `ZOOM_ABSOLUTE = 100` ($1.0\times$ optical wide angle), `PAN = 0`, and `TILT = 0`. The camera firmware never applies digital zoom or center cropping.
+  - **Screen-Aware Safe Window Sizing**: Sized to fit safely inside your monitor's usable workarea (accounting for Ubuntu dock, GNOME top bar, and window title bar). The window will **never overflow the screen edges**, preventing the bottom presets or right slider from being clipped off-screen.
+  - **`cv2.WINDOW_KEEPRATIO` Aspect Lock**: Enforces standard $16:9$ aspect ratio geometry. Resizing or maximizing the window scales the image smoothly without stretching, squashing, or cropping any edges.
+  - **Fullscreen Mode (`[m]` Key)**: Press **`[m]`** to toggle borderless fullscreen mode to inspect the uncropped camera feed across your entire monitor.
+  - **100% Uncropped Clean View (`[h]` Key / `[HUD: ON]` Button)**: Instantly strips all bounding boxes, banners, crosshairs, and the right slider card. Every pixel of the camera sensor from $(0, 0)$ to $(W-1, H-1)$ is completely visible and unobstructed.
+  - **Semi-Transparent Overlays ($65\%$ Alpha)**: In normal HUD mode, the top dashboard banner and right slider card backgrounds are semi-transparent, so objects and movements along the screen margins remain visible underneath.
 - **Native Full HD 1080p Default & Optical Fidelity**:
   - **Zero Upscaling Softness**: Defaults to **Full HD 1080p (`1920x1080` @ 30 FPS, MJPG)**. On modern high-resolution laptop displays (e.g. 2.5K WQXGA $2560\times 1600$), 1080p provides $2.25\times$ more physical pixels than 720p, completely eliminating blurry bilinear stretch artifacts and rendering text, component pins, and edges razor-sharp.
   - **Calibrated ISP Sharpness ($140/255$)**: The hardware Image Signal Processor (ISP) unsharp-masking register is calibrated to $140$ (down from $170$), eliminating artificial white edge ringing (halos) and amplified chroma noise while keeping optical edges crisp.
   - **Longer Exposure Integration ($33.3\text{ ms}$)**: Running at 30 FPS allows double the light collection time per frame compared to 60 FPS ($16.6\text{ ms}$), enabling the camera ISP to drop analog gain (ISO) to minimum, eliminating grain and digital sensor noise.
-  - **Clean View Mode (`[h]` / On-Screen `[HUD]` Button)**: Instantly hide all red bounding boxes, green Kalman boxes, banners, and crosshairs to evaluate the pure optical sensor output directly.
 - **Precision Target Selection & Ironclad Tracking**:
   - **Smallest-Area-First Click Selection**: When clicking on an object sitting on a table or near a person, the tracker calculates overlapping bounding box geometry and selects the most specific object (e.g., **Laptop**, Bottle, Mouse) rather than parent containers (Table, Person).
   - **Ironclad Lock Retention**: Once you click on an object, the Kalman filter strictly holds that target class and **never jumps to Person** or background objects. During autofocus sweeps or temporary drops, it dead-reckons seamlessly on the selected target.
@@ -327,7 +333,8 @@ cd ~/Documents/AUV_GitHub_Upload
 - **Interactive Controls & Hotkeys**:
   - **`[Left-Click]`**: Click any object on screen to lock target AND trigger optical autofocus.
   - **`[Right Slider]`**: Drag knob with mouse to adjust focus in real time.
-  - `[h]`: Toggle **Clean View Mode** (Hide/Show all bounding boxes and HUD).
+  - `[m]`: Toggle **Maximize / Fullscreen** mode (fills monitor seamlessly with zero borders).
+  - `[h]`: Toggle **Clean View Mode** (Hide/Show all bounding boxes and HUD overlays).
   - `[1]`: Switch to **Full HD 1080p Mode** (`1920x1080` @ 30 FPS, default).
   - `[2]`: Switch to **High-Speed 720p Mode** (`1280x720` @ 60 FPS).
   - `[t]`: Reset target lock (reverts to auto-tracking).

@@ -33,6 +33,7 @@ import math
 import fcntl
 import struct
 import threading
+import subprocess
 from collections import deque
 import cv2
 import numpy as np
@@ -41,6 +42,26 @@ from ultralytics import YOLOWorld
 
 # Import the optimized AUV Kalman Filter
 from kalman_filter import AUVVisualKalmanFilter
+
+def get_screen_resolution():
+    """Detect desktop resolution to ensure window fits 100% without overflowing or cropping."""
+    try:
+        out = subprocess.check_output(['xrandr', '--current'], stderr=subprocess.DEVNULL).decode()
+        for line in out.splitlines():
+            if ' connected primary' in line:
+                for part in line.split():
+                    if 'x' in part and '+' in part:
+                        w, h = map(int, part.split('+')[0].split('x'))
+                        return w, h
+        for line in out.splitlines():
+            if ' connected' in line and '+' in line:
+                for part in line.split():
+                    if 'x' in part and '+' in part:
+                        w, h = map(int, part.split('+')[0].split('x'))
+                        return w, h
+    except Exception:
+        pass
+    return 1920, 1080
 
 # ==========================================
 # CONFIGURATION & VOCABULARY
@@ -121,6 +142,9 @@ class V4L2HardwareController:
     CID_CONTRAST = 0x00980901         # Contrast (0..255)
     CID_AUTO_EXPOSURE = 0x009a0901    # Auto Exposure (1=manual, 3=auto)
     CID_EXPOSURE_ABS = 0x009a0902     # Exposure Time, Absolute (3..2047)
+    CID_ZOOM_ABSOLUTE = 0x009a090d    # Digital Zoom (100 = 1.0x wide-angle, zero crop)
+    CID_PAN_ABSOLUTE = 0x009a0908     # Digital Pan (0 = center)
+    CID_TILT_ABSOLUTE = 0x009a0909    # Digital Tilt (0 = center)
 
     def __init__(self, dev_index=2):
         self.dev_path = f"/dev/video{dev_index}"
@@ -128,6 +152,11 @@ class V4L2HardwareController:
         self.current_focus_cache = 15
         self.is_auto_focus = False
         self.open_device()
+
+        # Guarantee 100% full uncropped wide-angle FOV (1.0x zoom, zero digital crop)
+        self.set_zoom(100)
+        self.set_pan(0)
+        self.set_tilt(0)
 
         # Initialize to razor-sharp room standoff settings
         self.set_autofocus(False)
@@ -198,6 +227,20 @@ class V4L2HardwareController:
     def get_sharpness(self):
         val = self._get_ctrl(self.CID_SHARPNESS)
         return val if val is not None else 140
+
+    def set_zoom(self, zoom_val: int = 100):
+        """Ensure full wide-angle 78-deg optical FOV with zero digital crop (100 = 1.0x)."""
+        return self._set_ctrl(self.CID_ZOOM_ABSOLUTE, int(zoom_val))
+
+    def get_zoom(self):
+        val = self._get_ctrl(self.CID_ZOOM_ABSOLUTE)
+        return val if val is not None else 100
+
+    def set_pan(self, pan_val: int = 0):
+        return self._set_ctrl(self.CID_PAN_ABSOLUTE, int(pan_val))
+
+    def set_tilt(self, tilt_val: int = 0):
+        return self._set_ctrl(self.CID_TILT_ABSOLUTE, int(tilt_val))
 
     def close(self):
         if self.fd is not None:
@@ -440,7 +483,7 @@ def draw_focus_control_card(display, current_focus, is_scanning, is_af, af_targe
     # 1. Semi-transparent card background
     overlay = display.copy()
     cv2.rectangle(overlay, (card_x, card_y), (card_x + card_w, card_y + card_h), (20, 20, 20), -1)
-    cv2.addWeighted(overlay, 0.85, display, 0.15, 0, display)
+    cv2.addWeighted(overlay, 0.60, display, 0.40, 0, display)
     cv2.rectangle(display, (card_x, card_y), (card_x + card_w, card_y + card_h), (80, 80, 80), 1)
 
     # 2. Interactive Mode Toggle Button: [AUTO AF] vs [MANUAL]
@@ -672,6 +715,16 @@ def on_mouse_event(event, x, y, flags, param):
 
     # 2. Left Button Down
     if event == cv2.EVENT_LBUTTONDOWN:
+        if param.get("clean_view_active", False):
+            # In Clean View mode: clicking the top pill restores the HUD
+            if 10 <= x <= 520 and 10 <= y <= 44:
+                param["request_clean_toggle"] = True
+                return
+            # Clicking on the image locks target as normal
+            mouse_state["pending_click_target"] = (x, y)
+            mouse_state["last_click_visual"] = (x, y, time.time())
+            return
+
         if ui is not None and ui["card_x1"] <= x <= ui["card_x2"] and ui["card_y1"] <= y <= ui["card_y2"]:
             # Check Mode Button: [AUTO AF] vs [MANUAL]
             mx1, my1, mx2, my2 = ui["btn_mode"]
@@ -804,17 +857,35 @@ def main():
     raw_history = deque(maxlen=20)
     kf_history = deque(maxlen=20)
 
-    # Clean Qt Window without toolbar padding to ensure 1:1 pixel coordinate alignment
+    # Dynamic Screen-Aware Window Sizing:
+    # Ensure window fits 100% inside visible screen with 16:9 aspect ratio and zero edge cropping
+    screen_w, screen_h = get_screen_resolution()
+    # Leave safe margin for GNOME top bar (32px), title bar (38px), and dock (65px)
+    max_win_w = max(960, screen_w - 140)
+    max_win_h = max(540, screen_h - 160)
+    scale_fit = min(max_win_w / current_cap_w, max_win_h / current_cap_h, 1.0)
+    init_win_w = int(current_cap_w * scale_fit)
+    init_win_h = int(current_cap_h * scale_fit)
+    if init_win_w >= 1600 and init_win_h >= 900:
+        init_win_w, init_win_h = 1600, 900
+    elif init_win_w >= 1280 and init_win_h >= 720:
+        init_win_w, init_win_h = 1280, 720
+    else:
+        init_win_w, init_win_h = 960, 540
+
+    # Clean Qt Window with aspect-ratio lock to guarantee zero edge cropping
     WINDOW_NAME = "AUV Bench Test v2.5 (Logitech C922: Full HD 1080p & Focus Evaluation)"
     cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL | cv2.WINDOW_GUI_NORMAL)
-    cv2.resizeWindow(WINDOW_NAME, 1920, 1080)
+    cv2.setWindowProperty(WINDOW_NAME, cv2.WND_PROP_ASPECT_RATIO, cv2.WINDOW_KEEPRATIO)
+    cv2.resizeWindow(WINDOW_NAME, init_win_w, init_win_h)
 
     param_dict = {
         "v4l2": v4l2_ctrl,
         "focus_engine": focus_engine,
         "active_target_bbox": (current_cap_w // 2 - 120, current_cap_h // 2 - 120, current_cap_w // 2 + 120, current_cap_h // 2 + 120),
         "request_res_toggle": False,
-        "request_clean_toggle": False
+        "request_clean_toggle": False,
+        "clean_view_active": False
     }
     cv2.setMouseCallback(WINDOW_NAME, on_mouse_event, param_dict)
 
@@ -828,6 +899,7 @@ def main():
     print("   [RES BUTTON]    - Click [RES: 1080p] / [RES: 720p] to toggle resolution instantly")
     print("   [HUD BUTTON]    - Click [HUD: ON] / [HUD: OFF] or press [h] for Clean Optical View")
     print("   [MOUSE WHEEL]   - Scroll wheel anywhere to micro-adjust focus (+/- 2)")
+    print("   [m]             - Toggle Maximize / Fullscreen (Uncropped full monitor)")
     print("   [t]             - Reset target lock (Reverts to auto-tracking)")
     print("   [h]             - Toggle Clean View (Hide/Show all bounding boxes & HUD)")
     print("   [1] / [2]       - Toggle 1080p Full HD vs 720p 60 FPS")
@@ -864,12 +936,13 @@ def main():
                 current_res_mode = "1080p"
                 current_cap_w, current_cap_h, current_cap_fps = 1920, 1080, 30
             stream.set_resolution(current_cap_w, current_cap_h, current_cap_fps)
-            cv2.resizeWindow(WINDOW_NAME, current_cap_w, current_cap_h)
 
         if param_dict.get("request_clean_toggle", False):
             param_dict["request_clean_toggle"] = False
             clean_view_mode = not clean_view_mode
             print(f"[HUD] Clean View Mode: {'ON (HUD Hidden)' if clean_view_mode else 'OFF (HUD Visible)'}")
+
+        param_dict["clean_view_active"] = clean_view_mode
 
         ret, frame = stream.read()
         if not ret or frame is None:
@@ -1122,10 +1195,12 @@ def main():
             display = frame
 
             if clean_view_mode:
-                # Clean View Mode: Pure uncompressed optics with a minimal status badge
-                cv2.rectangle(display, (10, 10), (490, 44), (15, 15, 15), -1)
-                cv2.rectangle(display, (10, 10), (490, 44), (0, 255, 255), 1)
-                cv2.putText(display, "[CLEAN VIEW: RAW OPTICS] Press 'h' to show overlays",
+                # Clean View Mode: 100% Uncropped Raw Camera Optics
+                pill_overlay = display.copy()
+                cv2.rectangle(pill_overlay, (10, 10), (510, 44), (20, 20, 20), -1)
+                cv2.addWeighted(pill_overlay, 0.65, display, 0.35, 0, display)
+                cv2.rectangle(display, (10, 10), (510, 44), (0, 255, 255), 1)
+                cv2.putText(display, "[UNCROPPED OPTICS] Press 'h' or Click to show HUD",
                             (20, 32), cv2.FONT_HERSHEY_SIMPLEX, 0.44, (0, 255, 255), 1)
             else:
                 # Center Crosshair
@@ -1192,7 +1267,10 @@ def main():
                 det_count_badge = f"[{len(candidate_boxes)} OBJECTS DETECTED]"
 
                 banner_w = max(1100, w - 145)
-                cv2.rectangle(display, (10, 10), (banner_w, 95), (15, 15, 15), -1)
+                banner_overlay = display.copy()
+                cv2.rectangle(banner_overlay, (10, 10), (banner_w, 95), (15, 15, 15), -1)
+                cv2.addWeighted(banner_overlay, 0.65, display, 0.35, 0, display)
+                cv2.rectangle(display, (10, 10), (banner_w, 95), (60, 60, 60), 1)
 
                 # Header Line 1
                 cv2.putText(display, f"LOGITECH C922 BENCH TEST v2.5 | {sensor_badge} {det_count_badge} {kf_badge}",
@@ -1212,18 +1290,21 @@ def main():
         # -------------------------------------------------------------
         # DRAW RIGHT-SIDE MANUAL FOCUS SLIDER (MATCHED TO AUTOFOCUS)
         # -------------------------------------------------------------
-        ui_boxes = draw_focus_control_card(
-            display=display,
-            current_focus=current_focus,
-            is_scanning=is_focus_scanning,
-            is_af=current_af,
-            af_target_f=af_peak_focus,
-            target_sharpness=target_sharpness,
-            slider_dragging=mouse_state["dragging_slider"],
-            current_res_mode=current_res_mode,
-            clean_view=clean_view_mode
-        )
-        mouse_state["last_ui_boxes"] = ui_boxes
+        if not clean_view_mode:
+            ui_boxes = draw_focus_control_card(
+                display=display,
+                current_focus=current_focus,
+                is_scanning=is_focus_scanning,
+                is_af=current_af,
+                af_target_f=af_peak_focus,
+                target_sharpness=target_sharpness,
+                slider_dragging=mouse_state["dragging_slider"],
+                current_res_mode=current_res_mode,
+                clean_view=clean_view_mode
+            )
+            mouse_state["last_ui_boxes"] = ui_boxes
+        else:
+            mouse_state["last_ui_boxes"] = None
 
         cv2.imshow(WINDOW_NAME, display)
 
@@ -1241,7 +1322,6 @@ def main():
                 current_res_mode = "1080p"
                 current_cap_w, current_cap_h, current_cap_fps = 1920, 1080, 30
                 stream.set_resolution(1920, 1080, 30)
-                cv2.resizeWindow(WINDOW_NAME, 1920, 1080)
 
         # [2] High-Speed 720p Mode (1280x720 @ 60 FPS)
         elif key == ord('2'):
@@ -1250,7 +1330,17 @@ def main():
                 current_res_mode = "720p"
                 current_cap_w, current_cap_h, current_cap_fps = 1280, 720, 60
                 stream.set_resolution(1280, 720, 60)
-                cv2.resizeWindow(WINDOW_NAME, 1280, 720)
+
+        # [m] Toggle Maximize / Fullscreen
+        elif key in [ord('m'), ord('M')]:
+            is_fs = cv2.getWindowProperty(WINDOW_NAME, cv2.WND_PROP_FULLSCREEN) == cv2.WINDOW_FULLSCREEN
+            if is_fs:
+                cv2.setWindowProperty(WINDOW_NAME, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_NORMAL)
+                cv2.resizeWindow(WINDOW_NAME, init_win_w, init_win_h)
+                print(f"[Window] Restored to Windowed Mode ({init_win_w}x{init_win_h}).")
+            else:
+                cv2.setWindowProperty(WINDOW_NAME, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+                print("[Window] Switched to Fullscreen Mode (100% uncropped display).")
 
         # [h] Toggle Clean View Mode (Hide / Show Overlays & HUD)
         elif key == ord('h'):
