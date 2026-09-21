@@ -1,30 +1,26 @@
 #!/usr/bin/env python3
 """
-AUV Detection Camera Bench Test: Ultra-Fidelity Logitech C922 Evaluation (v2.2)
+AUV Detection Camera Bench Test: Ultra-Fidelity Logitech C922 Evaluation (v2.3)
 =================================================================================
 Optimizations & Enhancements:
-1. INTERACTIVE MANUAL FOCUS SLIDER & ON-SCREEN CONTROLS:
-   - Dedicated interactive focus control card along the right edge of the screen
-   - Click and drag the vertical slider with your mouse in real-time (0 to 250)
-   - One-click presets: [ROOM 15] (razor-sharp bench/room standoff) & [DESK 40]
-   - Mouse wheel support: scroll wheel anywhere to micro-adjust focus by +/- 2
-2. ENHANCED ACTIVE ROI AUTOFOCUS WITH HARDWARE FRAME SYNCHRONIZATION:
-   - Eliminates kernel buffer latency by tracking monotonic frame IDs and flushing
-     stale frames between voice-coil motor step movements
-   - Prioritized candidate sweep focused on realistic bench distances (0 to 80)
-   - Fine hill-climbing bracket around sharpness peak
-   - Automatic startup initialization at Focus=15 and Sharpness=170 to guarantee
-     instant razor-sharp optical clarity from the very first frame
-3. FULL HD 1080p HIGH-FIDELITY SENSOR MODE:
-   - Toggle between Full HD 1080p ([1] - 1920x1080 @ 30 FPS, maximum sensor fidelity)
-     and High-Speed 720p ([2] - 1280x720 @ 60 FPS, ultra-fluid motion tracking)
-   - Dynamic in-flight stream reconnection without restarting the script
+1. FULL VISIBILITY FOR ALL DETECTIONS (RED & GREEN BOXES):
+   - Red bounding boxes drawn for ALL detected objects simultaneously (Laptop, Bottle,
+     Mouse, Keyboard, Smartphone, Multimeter, etc.) with class label and confidence
+   - Prominent Bright Green / Cyan bounding box for the active 8D Kalman Filter target
+   - Smart Auto-Relocking: Never gets permanently stuck on a lost target; dynamically
+     tracks active objects with zero signal dropouts
+2. MANUAL FOCUS SLIDER FULLY SYNCHRONIZED WITH AUTOFOCUS:
+   - Slider knob dynamically moves in real-time to match the autofocus motor position
+   - Integrated [AUTO AF] / [MANUAL] mode toggle button right on the slider card
+   - [AUTO FOCUS NOW] one-click scan button on the card
+   - Visual AF recommended notch (AF*) displayed on the slider track
+   - Dragging the slider automatically switches to Manual mode at that exact position
+3. ZERO-LATENCY VIDEO PIPELINE (1280x720 @ 60 FPS DEFAULT):
+   - 60 FPS MJPG hardware decoding for maximum YOLO detection rate & fluid tracking
+   - Press [1] for Full HD 1080p mode, [2] for High-Speed 720p mode
 4. ULTRA-AGILE KALMAN FILTER (ZERO PHASE LAG):
    - Process noise covariance qs=1.0 for instant zero-lag response
-   - Target persistence with IoU tracking and dead-reckoning on occlusion
-5. METRIC VELOCITY & OPTICAL SHARPNESS HUD:
-   - Displays real-world speed in cm/s and m/s with cardinal direction
-   - Live numerical Laplacian variance sharpness metric on target bounding box
+   - Metric velocity in cm/s and m/s with cardinal direction
 """
 
 import os
@@ -77,12 +73,12 @@ YOLO26_WORLD_CLASSES = [
     "subsea pipe", "underwater pipeline", "pipe",
     "subsea flange", "subsea valve", "underwater cable",
 
-    # --- Ambient / Occluding Entities ---
-    "person", "hand"
+    # --- Common Room & Lab Entities ---
+    "person", "chair", "table", "backpack", "camera", "tripod", "hand"
 ]
 
-# Objects to actively track (excludes "hand" and "person" so hands act as occluders)
-VALID_TRACKING_TARGETS = set(YOLO26_WORLD_CLASSES) - {"person", "hand"}
+# Objects to actively track (hand acts as occluder for dead-reckoning)
+VALID_TRACKING_TARGETS = set(YOLO26_WORLD_CLASSES) - {"hand"}
 
 
 # ==========================================
@@ -106,6 +102,7 @@ class V4L2HardwareController:
         self.dev_path = f"/dev/video{dev_index}"
         self.fd = None
         self.current_focus_cache = 15
+        self.is_auto_focus = False
         self.open_device()
 
         # Initialize to razor-sharp room standoff settings
@@ -144,17 +141,22 @@ class V4L2HardwareController:
             return None
 
     def set_autofocus(self, enable: bool):
+        self.is_auto_focus = enable
         val = 1 if enable else 0
         return self._set_ctrl(self.CID_FOCUS_AUTO, val)
 
     def get_autofocus(self):
         val = self._get_ctrl(self.CID_FOCUS_AUTO)
-        return (val == 1) if val is not None else False
+        if val is not None:
+            self.is_auto_focus = (val == 1)
+            return self.is_auto_focus
+        return self.is_auto_focus
 
     def set_focus(self, focus_val: int):
         focus_val = int(max(0, min(250, focus_val)))
         self.current_focus_cache = focus_val
-        # Always disable continuous firmware AF when manual focus is set
+        self.is_auto_focus = False
+        # Disable continuous firmware AF when manual focus is commanded
         self._set_ctrl(self.CID_FOCUS_AUTO, 0)
         return self._set_ctrl(self.CID_FOCUS_ABSOLUTE, focus_val)
 
@@ -187,7 +189,7 @@ class V4L2HardwareController:
 # ==========================================
 class ThreadedWebcamCapture:
     """High-speed threaded frame grabber with hardware MJPG and monotonic frame synchronization."""
-    def __init__(self, src=2, width=1920, height=1080, fps=30):
+    def __init__(self, src=2, width=1280, height=720, fps=60):
         self.src = src
         self.width = width
         self.height = height
@@ -255,7 +257,7 @@ class ThreadedWebcamCapture:
         with self.lock:
             return self.frame.copy() if self.frame is not None else None
 
-    def wait_for_fresh_frame(self, skip_frames=2, timeout=0.40):
+    def wait_for_fresh_frame(self, skip_frames=2, timeout=0.35):
         """Guarantee camera optical synchronization by waiting for newly exposed frames."""
         with self.lock:
             start_id = self.frame_id
@@ -285,7 +287,6 @@ def calculate_sharpness(roi_bgr):
     if roi_bgr is None or roi_bgr.size == 0:
         return 0.0
     gray = cv2.cvtColor(roi_bgr, cv2.COLOR_BGR2GRAY)
-    # Use center 75% of ROI to prioritize object texture over background boundary
     rh, rw = gray.shape[:2]
     if rh > 40 and rw > 40:
         margin_y = int(rh * 0.12)
@@ -301,7 +302,7 @@ class ClickToFocusEngine:
         self.stream = stream
         self.lock = threading.Lock()
         self.scanning = False
-        self.status = "IDLE (Manual Focus)"
+        self.status = "READY"
         self.target_label = None
         self.best_focus = 15
         self.best_score = 0.0
@@ -320,7 +321,7 @@ class ClickToFocusEngine:
             if self.scanning:
                 return
             self.scanning = True
-            self.status = f"AUTOFOCUSING: Scanning '{label}'..."
+            self.status = f"AUTOFOCUSING: '{label}'..."
             self.target_label = label
 
         t = threading.Thread(target=self._focus_worker, args=(bbox, label), daemon=True)
@@ -328,25 +329,23 @@ class ClickToFocusEngine:
 
     def _focus_worker(self, bbox, label):
         x1, y1, x2, y2 = bbox
-        # Prioritized candidate sweep: high density in realistic bench distances (0..80)
-        candidates = [0, 15, 30, 45, 65, 90, 130, 180, 240]
+        # Realistic bench candidates with prioritized standoff range
+        candidates = [0, 15, 30, 45, 65, 90, 130, 180]
         best_f = 15
         max_score = -1.0
 
-        # Step 1: Disable firmware AF to take manual control of voice coil
+        # Disable firmware AF
         self.v4l2.set_autofocus(False)
         time.sleep(0.03)
 
-        # Step 2: Coarse Sweep with frame synchronization
+        # Coarse Sweep with monotonic frame synchronization
         for f_val in candidates:
-            # Check if user cancelled or manual slider dragged
             with self.lock:
                 if not self.scanning:
                     return
 
             self.v4l2.set_focus(f_val)
-            # Wait for physical lens displacement and fresh frame exposure
-            frame = self.stream.wait_for_fresh_frame(skip_frames=2, timeout=0.25)
+            frame = self.stream.wait_for_fresh_frame(skip_frames=2, timeout=0.20)
             if frame is not None:
                 h, w = frame.shape[:2]
                 rx1, ry1 = max(0, x1), max(0, y1)
@@ -358,15 +357,15 @@ class ClickToFocusEngine:
                         max_score = score
                         best_f = f_val
 
-        # Step 3: Fine Bracket around the peak (+/- 10 in steps of 5)
-        fine_candidates = [f for f in range(max(0, best_f - 12), min(250, best_f + 15), 5) if f != best_f]
+        # Fine bracket around peak (+/- 10 in steps of 5)
+        fine_candidates = [f for f in range(max(0, best_f - 10), min(250, best_f + 15), 5) if f != best_f]
         for f_val in fine_candidates:
             with self.lock:
                 if not self.scanning:
                     return
 
             self.v4l2.set_focus(f_val)
-            frame = self.stream.wait_for_fresh_frame(skip_frames=2, timeout=0.25)
+            frame = self.stream.wait_for_fresh_frame(skip_frames=2, timeout=0.20)
             if frame is not None:
                 h, w = frame.shape[:2]
                 rx1, ry1 = max(0, x1), max(0, y1)
@@ -378,64 +377,85 @@ class ClickToFocusEngine:
                         max_score = score
                         best_f = f_val
 
-        # Step 4: Lock voice-coil motor at the sharpest optical plane
+        # Lock voice coil at peak
         self.v4l2.set_focus(best_f)
-        self.stream.wait_for_fresh_frame(skip_frames=2, timeout=0.25)
+        self.stream.wait_for_fresh_frame(skip_frames=2, timeout=0.20)
 
         with self.lock:
             self.best_focus = best_f
             self.best_score = max_score
             self.scanning = False
             self.last_lock_time = time.time()
-            self.status = f"LOCKED: Focus={best_f} | Sharpness={max_score:.1f}"
-            print(f"[Click-to-Focus] Complete! Locked onto '{label}' at Focus={best_f} (Sharpness={max_score:.1f}).")
+            self.status = f"LOCKED: Focus={best_f} (S={max_score:.0f})"
+            print(f"[Click-to-Focus] Locked onto '{label}' at Focus={best_f} (Sharpness={max_score:.1f}).")
 
     def cancel(self):
         with self.lock:
             self.scanning = False
-            self.status = "MANUAL OVERRIDE"
+            self.status = "MANUAL"
 
 
 # ==========================================
-# INTERACTIVE FOCUS SLIDER UI
+# INTERACTIVE FOCUS SLIDER UI (MATCHED TO AF)
 # ==========================================
-def draw_focus_control_card(display, current_focus, is_scanning, is_af, target_sharpness, slider_dragging):
-    """Draw interactive on-screen focus slider and preset buttons on the right side of the screen."""
+def draw_focus_control_card(display, current_focus, is_scanning, is_af, af_target_f, target_sharpness, slider_dragging):
+    """Draw interactive on-screen focus slider perfectly matched to autofocus."""
     h, w = display.shape[:2]
 
-    # Card layout geometry
-    card_w = 110
+    card_w = 115
     card_x = w - card_w - 10
     card_y = 105
     card_h = h - card_y - 20
 
     slider_x = card_x + 35
-    slider_y_top = card_y + 90
+    slider_y_top = card_y + 95
     slider_y_bottom = card_y + card_h - 90
     slider_h = slider_y_bottom - slider_y_top
 
-    # 1. Semi-transparent background card
+    # 1. Semi-transparent card background
     overlay = display.copy()
     cv2.rectangle(overlay, (card_x, card_y), (card_x + card_w, card_y + card_h), (20, 20, 20), -1)
-    cv2.addWeighted(overlay, 0.82, display, 0.18, 0, display)
+    cv2.addWeighted(overlay, 0.85, display, 0.15, 0, display)
     cv2.rectangle(display, (card_x, card_y), (card_x + card_w, card_y + card_h), (80, 80, 80), 1)
 
-    # 2. Header
-    cv2.putText(display, "FOCUS", (card_x + 25, card_y + 24), cv2.FONT_HERSHEY_SIMPLEX, 0.52, (0, 255, 255), 2)
-    mode_str = "AUTO (AF)" if is_af else f"MANUAL: {current_focus}"
-    mode_col = (0, 255, 0) if is_af else (0, 200, 255)
-    cv2.putText(display, mode_str, (card_x + 8, card_y + 44), cv2.FONT_HERSHEY_SIMPLEX, 0.38, mode_col, 1)
+    # 2. Interactive Mode Toggle Button: [AUTO AF] vs [MANUAL]
+    btn_mode_y1 = card_y + 8
+    btn_mode_y2 = btn_mode_y1 + 24
+    mode_btn_col = (0, 160, 0) if is_af else (45, 45, 45)
+    mode_txt_col = (255, 255, 255) if is_af else (0, 255, 255)
+    cv2.rectangle(display, (card_x + 8, btn_mode_y1), (card_x + card_w - 8, btn_mode_y2), mode_btn_col, -1)
+    cv2.rectangle(display, (card_x + 8, btn_mode_y1), (card_x + card_w - 8, btn_mode_y2), (0, 255, 0) if is_af else (100, 100, 100), 1)
+    mode_label = "MODE: AUTO" if is_af else "MODE: MANUAL"
+    cv2.putText(display, mode_label, (card_x + 12, btn_mode_y1 + 16), cv2.FONT_HERSHEY_SIMPLEX, 0.36, mode_txt_col, 1)
 
-    # 3. Slider Track
+    # 3. [FOCUS NOW] Scan Button
+    btn_scan_y1 = btn_mode_y2 + 6
+    btn_scan_y2 = btn_scan_y1 + 22
+    scan_btn_col = (0, 200, 255) if is_scanning else (35, 35, 35)
+    cv2.rectangle(display, (card_x + 8, btn_scan_y1), (card_x + card_w - 8, btn_scan_y2), scan_btn_col if is_scanning else (35, 35, 35), -1)
+    cv2.rectangle(display, (card_x + 8, btn_scan_y1), (card_x + card_w - 8, btn_scan_y2), (0, 255, 255), 1)
+    scan_lbl = "SCANNING..." if is_scanning else "[AUTO FOCUS]"
+    cv2.putText(display, scan_lbl, (card_x + 11, btn_scan_y1 + 15), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 0) if is_scanning else (0, 255, 255), 1)
+
+    # Header Value
+    cv2.putText(display, f"FOCUS: {current_focus}", (card_x + 18, btn_scan_y2 + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.40, (255, 255, 255), 1)
+
+    # 4. Slider Track
     cv2.rectangle(display, (slider_x - 3, slider_y_top), (slider_x + 3, slider_y_bottom), (50, 50, 50), -1)
     cv2.rectangle(display, (slider_x - 3, slider_y_top), (slider_x + 3, slider_y_bottom), (90, 90, 90), 1)
 
-    # 4. Active Fill
+    # 5. Active Level Fill
     clamped_focus = max(0, min(250, current_focus))
     fill_y = slider_y_bottom - int((clamped_focus / 250.0) * slider_h)
     cv2.rectangle(display, (slider_x - 2, fill_y), (slider_x + 2, slider_y_bottom), (0, 255, 255), -1)
 
-    # 5. Scale Ticks & Distance Labels
+    # 6. Autofocus Target Marker (AF* Notch on Track)
+    if af_target_f is not None and 0 <= af_target_f <= 250:
+        af_y = slider_y_bottom - int((af_target_f / 250.0) * slider_h)
+        cv2.line(display, (slider_x - 12, af_y), (slider_x + 12, af_y), (0, 255, 0), 2)
+        cv2.putText(display, f"AF*", (card_x + 8, af_y + 4), cv2.FONT_HERSHEY_SIMPLEX, 0.32, (0, 255, 0), 1)
+
+    # 7. Scale Ticks & Distance Labels
     ticks = [
         (250, "MACRO"),
         (150, "15cm"),
@@ -446,32 +466,27 @@ def draw_focus_control_card(display, current_focus, is_scanning, is_af, target_s
     ]
     for val, name in ticks:
         ty = slider_y_bottom - int((val / 250.0) * slider_h)
-        cv2.line(display, (slider_x - 8, ty), (slider_x - 4, ty), (150, 150, 150), 1)
-        cv2.putText(display, name, (card_x + 48, ty + 4), cv2.FONT_HERSHEY_SIMPLEX, 0.32, (170, 170, 170), 1)
+        cv2.line(display, (slider_x - 6, ty), (slider_x - 4, ty), (150, 150, 150), 1)
+        cv2.putText(display, name, (card_x + 48, ty + 4), cv2.FONT_HERSHEY_SIMPLEX, 0.30, (160, 160, 160), 1)
 
-    # 6. Draggable Knob / Handle
-    knob_col = (0, 255, 255) if slider_dragging else (255, 190, 0)
-    if is_scanning:
-        knob_col = (0, 255, 0)
-
+    # 8. Slider Knob Handle (Synchronized with current focus!)
+    knob_col = (0, 255, 255) if slider_dragging else ((0, 255, 0) if is_af else (255, 190, 0))
     cv2.rectangle(display, (slider_x - 20, fill_y - 12), (slider_x + 20, fill_y + 12), knob_col, -1)
     cv2.rectangle(display, (slider_x - 20, fill_y - 12), (slider_x + 20, fill_y + 12), (255, 255, 255), 2)
-    # Value inside knob
-    cv2.putText(display, f"{clamped_focus}", (slider_x - 13, fill_y + 5),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.42, (0, 0, 0), 2)
+    cv2.putText(display, f"{clamped_focus}", (slider_x - 12, fill_y + 5), cv2.FONT_HERSHEY_SIMPLEX, 0.40, (0, 0, 0), 2)
 
-    # 7. Preset Buttons at Bottom
-    btn_room_y1 = slider_y_bottom + 15
+    # 9. Preset Buttons at Bottom
+    btn_room_y1 = slider_y_bottom + 12
     btn_room_y2 = btn_room_y1 + 24
-    cv2.rectangle(display, (card_x + 10, btn_room_y1), (card_x + card_w - 10, btn_room_y2), (40, 40, 40), -1)
-    cv2.rectangle(display, (card_x + 10, btn_room_y1), (card_x + card_w - 10, btn_room_y2), (100, 100, 100), 1)
-    cv2.putText(display, "[ROOM 15]", (card_x + 16, btn_room_y1 + 16), cv2.FONT_HERSHEY_SIMPLEX, 0.38, (0, 255, 255), 1)
+    cv2.rectangle(display, (card_x + 8, btn_room_y1), (card_x + card_w - 8, btn_room_y2), (40, 40, 40), -1)
+    cv2.rectangle(display, (card_x + 8, btn_room_y1), (card_x + card_w - 8, btn_room_y2), (100, 100, 100), 1)
+    cv2.putText(display, "[ROOM 15]", (card_x + 18, btn_room_y1 + 16), cv2.FONT_HERSHEY_SIMPLEX, 0.38, (0, 255, 255), 1)
 
-    btn_desk_y1 = btn_room_y2 + 8
+    btn_desk_y1 = btn_room_y2 + 6
     btn_desk_y2 = btn_desk_y1 + 24
-    cv2.rectangle(display, (card_x + 10, btn_desk_y1), (card_x + card_w - 10, btn_desk_y2), (40, 40, 40), -1)
-    cv2.rectangle(display, (card_x + 10, btn_desk_y1), (card_x + card_w - 10, btn_desk_y2), (100, 100, 100), 1)
-    cv2.putText(display, "[DESK 40]", (card_x + 18, btn_desk_y1 + 16), cv2.FONT_HERSHEY_SIMPLEX, 0.38, (0, 255, 255), 1)
+    cv2.rectangle(display, (card_x + 8, btn_desk_y1), (card_x + card_w - 8, btn_desk_y2), (40, 40, 40), -1)
+    cv2.rectangle(display, (card_x + 8, btn_desk_y1), (card_x + card_w - 8, btn_desk_y2), (100, 100, 100), 1)
+    cv2.putText(display, "[DESK 40]", (card_x + 20, btn_desk_y1 + 16), cv2.FONT_HERSHEY_SIMPLEX, 0.38, (0, 255, 255), 1)
 
     return {
         "card_x1": card_x,
@@ -482,8 +497,10 @@ def draw_focus_control_card(display, current_focus, is_scanning, is_af, target_s
         "slider_y_top": slider_y_top,
         "slider_y_bottom": slider_y_bottom,
         "slider_h": slider_h,
-        "btn_room": (card_x + 10, btn_room_y1, card_x + card_w - 10, btn_room_y2),
-        "btn_desk": (card_x + 10, btn_desk_y1, card_x + card_w - 10, btn_desk_y2),
+        "btn_mode": (card_x + 8, btn_mode_y1, card_x + card_w - 8, btn_mode_y2),
+        "btn_scan": (card_x + 8, btn_scan_y1, card_x + card_w - 8, btn_scan_y2),
+        "btn_room": (card_x + 8, btn_room_y1, card_x + card_w - 8, btn_room_y2),
+        "btn_desk": (card_x + 8, btn_desk_y1, card_x + card_w - 8, btn_desk_y2),
     }
 
 
@@ -538,6 +555,14 @@ def format_display_label(raw_name):
         return "Hand (Occluder)"
     elif "person" in n:
         return "Person"
+    elif "chair" in n:
+        return "Chair"
+    elif "table" in n or "desk" in n:
+        return "Table"
+    elif "backpack" in n:
+        return "Backpack"
+    elif "camera" in n or "tripod" in n:
+        return "Camera/Tripod"
     return raw_name.title()
 
 
@@ -581,12 +606,15 @@ mouse_state = {
     "dragging_slider": False,
     "pending_click_target": None,
     "last_ui_boxes": None,
-    "wheel_delta": 0
+    "wheel_delta": 0,
+    "manual_lock": False
 }
 
 def on_mouse_event(event, x, y, flags, param):
     global mouse_state
     ui = mouse_state.get("last_ui_boxes")
+    v4l2 = param["v4l2"]
+    focus_engine = param["focus_engine"]
 
     # 1. Mouse Wheel Focus Adjustment
     if event == cv2.EVENT_MOUSEWHEEL:
@@ -599,33 +627,48 @@ def on_mouse_event(event, x, y, flags, param):
     # 2. Left Button Down
     if event == cv2.EVENT_LBUTTONDOWN:
         if ui is not None and ui["card_x1"] <= x <= ui["card_x2"] and ui["card_y1"] <= y <= ui["card_y2"]:
+            # Check Mode Button: [AUTO AF] vs [MANUAL]
+            mx1, my1, mx2, my2 = ui["btn_mode"]
+            if mx1 <= x <= mx2 and my1 <= y <= my2:
+                is_af = v4l2.get_autofocus()
+                new_af = not is_af
+                v4l2.set_autofocus(new_af)
+                print(f"[Focus Mode] Toggled: {'AUTO AF' if new_af else 'MANUAL'}")
+                return
+
+            # Check Scan Button: [AUTO FOCUS NOW]
+            sx1, sy1, sx2, sy2 = ui["btn_scan"]
+            if sx1 <= x <= sx2 and sy1 <= y <= sy2:
+                print("[Focus] Triggering Auto-Focus scan on scene...")
+                focus_engine.trigger_focus(param.get("active_target_bbox", (640-100, 360-100, 640+100, 360+100)), "Center/Target")
+                return
+
             # Check Preset 1: ROOM (15)
             bx1, by1, bx2, by2 = ui["btn_room"]
             if bx1 <= x <= bx2 and by1 <= y <= by2:
-                param["v4l2"].set_focus(15)
-                param["focus_engine"].cancel()
+                v4l2.set_focus(15)
+                focus_engine.cancel()
                 print("[Manual Focus] Preset selected: ROOM (Focus=15)")
                 return
 
             # Check Preset 2: DESK (40)
             dx1, dy1, dx2, dy2 = ui["btn_desk"]
             if dx1 <= x <= dx2 and dy1 <= y <= dy2:
-                param["v4l2"].set_focus(40)
-                param["focus_engine"].cancel()
+                v4l2.set_focus(40)
+                focus_engine.cancel()
                 print("[Manual Focus] Preset selected: DESK (Focus=40)")
                 return
 
             # Clicked on Slider Track
             if ui["slider_y_top"] - 15 <= y <= ui["slider_y_bottom"] + 15:
                 mouse_state["dragging_slider"] = True
-                param["focus_engine"].cancel()
-                # Compute focus from Y
+                focus_engine.cancel()
                 norm_pos = float(ui["slider_y_bottom"] - y) / float(ui["slider_h"])
                 new_f = int(np.clip(norm_pos * 250.0, 0, 250))
-                param["v4l2"].set_focus(new_f)
+                v4l2.set_focus(new_f)
                 return
         else:
-            # Clicked on Video Canvas -> Register Target Click
+            # Clicked on Video Canvas -> Register Target Lock & Click-to-Focus
             mouse_state["pending_click_target"] = (x, y)
 
     # 3. Mouse Move while Dragging Slider
@@ -633,7 +676,7 @@ def on_mouse_event(event, x, y, flags, param):
         if mouse_state["dragging_slider"] and ui is not None:
             norm_pos = float(ui["slider_y_bottom"] - y) / float(ui["slider_h"])
             new_f = int(np.clip(norm_pos * 250.0, 0, 250))
-            param["v4l2"].set_focus(new_f)
+            v4l2.set_focus(new_f)
 
     # 4. Left Button Up
     elif event == cv2.EVENT_LBUTTONUP:
@@ -646,7 +689,7 @@ def on_mouse_event(event, x, y, flags, param):
 def main():
     global mouse_state
     print("=" * 80)
-    print("   AUV BENCH TEST v2.2: ULTRA-FIDELITY LOGITECH C922 & MANUAL FOCUS SLIDER   ")
+    print("   AUV BENCH TEST v2.3: MULTI-TARGET DETECTION & SYNCHRONIZED FOCUS   ")
     print("=" * 80)
 
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -663,12 +706,12 @@ def main():
     cam_index = auto_detect_camera()
     print(f"[Camera] Connecting to Logitech C922 on /dev/video{cam_index}...")
 
-    # Hardware V4L2 ISP Controller (Initializes at Focus=15, Sharpness=170)
+    # Hardware V4L2 Controller (Initializes at Focus=15, Sharpness=170)
     v4l2_ctrl = V4L2HardwareController(dev_index=cam_index)
 
-    # Default Full HD 1080p mode for maximum optical clarity
-    current_res_mode = "1080p"
-    current_cap_w, current_cap_h, current_cap_fps = 1920, 1080, 30
+    # Default to High-Speed 720p @ 60 FPS for maximum YOLO detection rate & fluid tracking
+    current_res_mode = "720p"
+    current_cap_w, current_cap_h, current_cap_fps = 1280, 720, 60
     stream = ThreadedWebcamCapture(src=cam_index, width=current_cap_w, height=current_cap_h, fps=current_cap_fps)
     if not stream.isOpened():
         print("[Error] Failed to open Logitech C922! Trying index 0...")
@@ -680,52 +723,52 @@ def main():
 
     # Kalman Filter initialization with AGILE tuning (qs=1.0 for instant zero-lag response)
     current_qs = 1.0
-    kf = AUVVisualKalmanFilter(dt=1.0 / 30.0, mode="8D", qs=current_qs, r_var=0.15, gate_px=450.0)
+    kf = AUVVisualKalmanFilter(dt=1.0 / 60.0, mode="8D", qs=current_qs, r_var=0.15, gate_px=450.0)
 
     # Runtime toggles
     kalman_enabled = True
     split_screen_mode = False
     clahe_enabled = False
-    current_imgsz = 640  # 640px inference = ~8ms on RTX 4070 GPU
-    conf_thresh = 0.15
+    current_imgsz = 640
+    conf_thresh = 0.12  # Sensitive threshold so all bench objects appear reliably
 
-    # Target persistence / locking state
+    # Target persistence state
     locked_label = None
     locked_bbox = None
+    target_lost_frames = 0
+    mouse_state["manual_lock"] = False
 
     # Jitter evaluation deques
     raw_history = deque(maxlen=20)
     kf_history = deque(maxlen=20)
 
-    WINDOW_NAME = "AUV Bench Test v2.2 (Logitech C922: 1080p + Manual Focus Slider)"
+    WINDOW_NAME = "AUV Bench Test v2.3 (Logitech C922: Multi-Target Detection & Focus)"
     cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
     cv2.resizeWindow(WINDOW_NAME, 1280, 720)
-    cv2.setMouseCallback(WINDOW_NAME, on_mouse_event, {"v4l2": v4l2_ctrl, "focus_engine": focus_engine})
+
+    param_dict = {"v4l2": v4l2_ctrl, "focus_engine": focus_engine, "active_target_bbox": (640-100, 360-100, 640+100, 360+100)}
+    cv2.setMouseCallback(WINDOW_NAME, on_mouse_event, param_dict)
 
     print("\n" + "=" * 80)
     print("   INTERACTIVE CONTROLS:")
-    print("   [FOCUS SLIDER]  - Drag the vertical slider on the RIGHT with your mouse!")
+    print("   [FOCUS SLIDER]  - Drag the vertical slider on the RIGHT (matches AF in real-time)")
+    print("   [MODE: AUTO]    - Click the button above the slider to toggle Auto-Focus / Manual")
+    print("   [AUTO FOCUS]    - Click to trigger synchronized autofocus sweep on current target")
     print("   [PRESETS]       - Click [ROOM 15] or [DESK 40] on screen for instant focus")
     print("   [MOUSE WHEEL]   - Scroll wheel anywhere to micro-adjust focus (+/- 2)")
     print("   [Left-Click]    - Click any object on canvas to LOCK target & trigger Auto-Focus")
     print("   [1]             - Full HD 1080p Mode (1920x1080 @ 30 FPS - Maximum Clarity)")
     print("   [2]             - High-Speed 720p Mode (1280x720 @ 60 FPS - High FPS)")
-    print("   [f]             - Toggle Continuous Auto-Focus vs. Manual Lock")
-    print("   [ [ ] / [ ] ]   - Manual focus nudge (+/- 5)")
-    print("   [ < ] / [ > ]   - Hardware Sharpness ISP Tuning (+/- 15)")
-    print("   [r]             - Re-trigger Auto-Focus Optimization on Current Locked Target")
-    print("   [t]             - Cycle / Unlock Target (Auto-selects best target)")
-    print("   [k]             - Toggle Kalman Filter ON / OFF (Instant comparison)")
+    print("   [t]             - Reset target lock (Reverts to auto-tracking best object)")
+    print("   [k]             - Toggle Kalman Filter ON / OFF")
     print("   [s]             - Toggle Split-Screen (Side-by-Side vs. Overlay)")
-    print("   [a]             - Toggle Agility: Agile Zero-Lag (qs=1.0) vs Heavy Smooth (qs=0.08)")
-    print("   [i]             - Toggle YOLO Resolution: 640px (Fast) vs 1024px (High-Res)")
-    print("   [e]             - Toggle CLAHE Underwater Contrast Enhancement")
-    print("   [+] / [-]       - Adjust Confidence Threshold (+/- 0.02)")
+    print("   [a]             - Toggle Agility (Zero-Lag qs=1.0 vs Heavy Smooth qs=0.08)")
+    print("   [+] / [-]       - Adjust Detection Confidence Threshold (+/- 0.02)")
     print("   [q]             - Exit cleanly")
     print("=" * 80 + "\n")
 
     t_prev = time.perf_counter()
-    fps_smooth = 30.0
+    fps_smooth = 60.0
 
     while True:
         # Handle Mouse Wheel Focus Adjustments
@@ -770,6 +813,7 @@ def main():
             raw_name = model.names[cls_id].lower()
             pretty_label = format_display_label(raw_name)
             is_valid_target = (raw_name in VALID_TRACKING_TARGETS)
+
             candidate_boxes.append({
                 "bbox": (x1, y1, x2, y2),
                 "center": ((x1 + x2) // 2, (y1 + y2) // 2),
@@ -791,8 +835,10 @@ def main():
                 if x1 <= cx_click <= x2 and y1 <= cy_click <= y2 and cand["is_valid"]:
                     locked_label = cand["raw_name"]
                     locked_bbox = cand["bbox"]
+                    mouse_state["manual_lock"] = True
+                    target_lost_frames = 0
                     clicked_any = True
-                    print(f"[Target Lock] Locked onto: {cand['label']}!")
+                    print(f"[Target Lock] Manually locked onto: {cand['label']}!")
                     focus_engine.trigger_focus(cand["bbox"], cand["label"])
                     break
 
@@ -800,37 +846,66 @@ def main():
                 print(f"[Click-to-Focus] Focusing on clicked coordinate ({cx_click}, {cy_click})...")
                 locked_label = None
                 locked_bbox = None
+                mouse_state["manual_lock"] = False
                 roi_r = 90
                 rx1, ry1 = max(0, cx_click - roi_r), max(0, cy_click - roi_r)
                 rx2, ry2 = min(w, cx_click + roi_r), min(h, cy_click + roi_r)
                 focus_engine.trigger_focus((rx1, ry1, rx2, ry2), "Clicked Spot")
 
-        # Determine Best Target with IoU Continuity
+        # -------------------------------------------------------------
+        # SMART TARGET SELECTION (PREVENTS SIGNAL LOSS & DRIFT)
+        # -------------------------------------------------------------
         best_cand = None
-        if locked_label is not None and locked_bbox is not None:
+
+        if mouse_state["manual_lock"] and locked_label is not None and locked_bbox is not None:
+            # Manually locked target tracking: find candidate with closest proximity / highest IoU
+            best_dist = 999999
             best_iou = -1.0
+            lx1, ly1, lx2, ly2 = locked_bbox
+            lcx, lcy = (lx1 + lx2) // 2, (ly1 + ly2) // 2
+
             for cand in candidate_boxes:
                 if cand["raw_name"] == locked_label:
                     iou = compute_iou(locked_bbox, cand["bbox"])
-                    if iou > best_iou:
-                        best_iou = iou
-                        best_cand = cand
-            if best_cand is not None and best_iou > 0.05:
+                    cx, cy = cand["center"]
+                    dist = math.hypot(cx - lcx, cy - lcy)
+                    if iou > 0.05 or dist < 250:
+                        if dist < best_dist:
+                            best_dist = dist
+                            best_cand = cand
+
+            if best_cand is not None:
                 locked_bbox = best_cand["bbox"]
+                target_lost_frames = 0
             else:
-                best_cand = None
-        else:
-            # Auto-selection: Pick largest valid non-hand/person object
-            max_score = 0
+                target_lost_frames += 1
+                # If target is lost for > 20 consecutive frames, revert to auto-select
+                if target_lost_frames > 20:
+                    mouse_state["manual_lock"] = False
+                    locked_label = None
+                    locked_bbox = None
+
+        if not mouse_state["manual_lock"] or best_cand is None:
+            # Auto-selection mode: pick the highest-priority visible object
+            max_score = 0.0
             for cand in candidate_boxes:
                 if cand["is_valid"]:
-                    score = cand["area"] * cand["conf"]
+                    # Bias towards electronics and lab tools over person
+                    weight = 0.6 if cand["raw_name"] in ["person", "chair", "table", "backpack"] else 1.2
+                    score = math.sqrt(cand["area"]) * cand["conf"] * weight
                     if score > max_score:
                         max_score = score
                         best_cand = cand
+
             if best_cand is not None:
                 locked_label = best_cand["raw_name"]
                 locked_bbox = best_cand["bbox"]
+
+        # Pass active target bbox to mouse param callback
+        if best_cand is not None:
+            param_dict["active_target_bbox"] = best_cand["bbox"]
+        else:
+            param_dict["active_target_bbox"] = (center_x - 100, center_y - 100, center_x + 100, center_y + 100)
 
         # Process Target Coordinates & Kalman Update
         raw_x, raw_y = None, None
@@ -847,7 +922,7 @@ def main():
             target_display_name = best_cand["label"]
             raw_history.append((raw_x, raw_y))
 
-            # Compute optical sharpness of this target
+            # Compute optical sharpness of primary target
             target_roi = frame[max(0, y1):min(h, y2), max(0, x1):min(w, x2)]
             target_sharpness = calculate_sharpness(target_roi)
 
@@ -884,9 +959,9 @@ def main():
         horiz_dir = "Right ->" if vx_metric_cms > 3.0 else ("Left <-" if vx_metric_cms < -3.0 else "Still")
         vert_dir = "Up ^" if vy_metric_cms > 3.0 else ("Down v" if vy_metric_cms < -3.0 else "Still")
 
-        # Focus Engine Status
+        # Real-Time Focus & Autofocus Matching
         is_focus_scanning = focus_engine.is_scanning()
-        focus_status_str, focus_target, focus_val, focus_score = focus_engine.get_status()
+        focus_status_str, focus_target, af_peak_focus, focus_score = focus_engine.get_status()
         current_focus = v4l2_ctrl.get_focus()
         current_af = v4l2_ctrl.get_autofocus()
 
@@ -897,20 +972,14 @@ def main():
             frame_raw = frame.copy()
             frame_kf = frame.copy()
 
-            # Left: RAW YOLO
-            cv2.putText(frame_raw, "[WITHOUT KALMAN: RAW YOLO]", (20, 35),
+            # Left: RAW YOLO (All detections)
+            cv2.putText(frame_raw, f"[WITHOUT KALMAN: RAW YOLO ({len(candidate_boxes)} Detections)]", (20, 35),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 0, 255), 2)
-            cv2.putText(frame_raw, f"RAW JITTER: +/-{raw_jitter:.1f} px", (20, 65),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 0, 255), 2)
-            if best_cand is not None:
-                x1, y1, x2, y2 = best_cand["bbox"]
-                cv2.rectangle(frame_raw, (x1, y1), (x2, y2), (0, 0, 255), 2)
-                cv2.circle(frame_raw, (raw_x, raw_y), 6, (0, 0, 255), -1)
-                cv2.putText(frame_raw, f"{target_display_name} (TWITCHING)", (x1, max(20, y1 - 8)),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 0, 255), 2)
-            else:
-                cv2.putText(frame_raw, "SIGNAL LOST (ZERO DEAD-RECKONING)", (20, 100),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+            for cand in candidate_boxes:
+                x1, y1, x2, y2 = cand["bbox"]
+                cv2.rectangle(frame_raw, (x1, y1), (x2, y2), (0, 0, 255), 1)
+                cv2.putText(frame_raw, f"{cand['label']} {cand['conf']:.2f}", (x1, max(15, y1 - 4)),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.42, (0, 0, 255), 1)
 
             # Right: KALMAN FILTER
             cv2.putText(frame_kf, "[WITH 8D KALMAN FILTER]", (20, 35),
@@ -925,41 +994,39 @@ def main():
                     cv2.rectangle(frame_kf, (sx1, sy1), (sx2, sy2), col, 2)
                 cv2.circle(frame_kf, (kf_x, kf_y), 6, col, -1)
                 cv2.arrowedLine(frame_kf, (kf_x, kf_y), (int(kf_x + vx_px * 0.25), int(kf_y + vy_px * 0.25)), (0, 255, 255), 2)
-                tag = f"DEAD-RECKONING ({kf.missed_frames}f lost)" if is_occluded else f"{target_display_name} [SMOOTH]"
+                tag = f"DEAD-RECKONING ({kf.missed_frames}f)" if is_occluded else f"{target_display_name} [SMOOTH]"
                 cv2.putText(frame_kf, tag, (max(10, kf_x - 70), max(25, kf_y - 12)),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.55, col, 2)
-            else:
-                cv2.putText(frame_kf, "SEARCHING...", (20, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
             half_w = w // 2
             display = np.hstack((cv2.resize(frame_raw, (half_w, h)), cv2.resize(frame_kf, (half_w, h))))
             cv2.line(display, (half_w, 0), (half_w, h), (255, 255, 255), 2)
 
         else:
-            # === OVERLAY COMPARISON MODE ===
+            # === OVERLAY MODE ===
             display = frame
 
             # Center Crosshair
             cv2.line(display, (center_x - 12, center_y), (center_x + 12, center_y), (120, 120, 120), 1)
             cv2.line(display, (center_x, center_y - 12), (center_x, center_y + 12), (120, 120, 120), 1)
 
-            # Ambient/Hand Detections in faint orange
+            # 1. DRAW ALL RAW YOLO DETECTIONS IN CRISP RED
             for cand in candidate_boxes:
-                if not cand["is_valid"]:
-                    x1, y1, x2, y2 = cand["bbox"]
+                x1, y1, x2, y2 = cand["bbox"]
+                if cand["raw_name"] == "hand":
+                    # Draw hands in faint orange as occluders
                     cv2.rectangle(display, (x1, y1), (x2, y2), (0, 140, 255), 1)
-                    cv2.putText(display, cand["label"], (x1, max(15, y1 - 4)),
+                    cv2.putText(display, f"Hand (Occluder) {cand['conf']:.2f}", (x1, max(15, y1 - 4)),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.40, (0, 140, 255), 1)
+                else:
+                    # Draw every detected object on table/room in red
+                    is_main_target = (best_cand is not None and cand is best_cand)
+                    cv2.rectangle(display, (x1, y1), (x2, y2), (0, 0, 255), 2 if is_main_target else 1)
+                    cv2.circle(display, cand["center"], 3, (0, 0, 255), -1)
+                    cv2.putText(display, f"{cand['label']} {cand['conf']:.2f}", (x1, max(15, y1 - 6)),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.42, (0, 0, 255), 1)
 
-            # 1. Raw Bounding Box (Thin Red)
-            if best_cand is not None:
-                x1, y1, x2, y2 = best_cand["bbox"]
-                cv2.rectangle(display, (x1, y1), (x2, y2), (0, 0, 255), 1)
-                cv2.circle(display, (raw_x, raw_y), 4, (0, 0, 255), -1)
-                cv2.putText(display, f"RAW: {target_display_name}", (x1, max(15, y1 - 6)),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 1)
-
-            # 2. 8D Kalman Filtered Box (Bright Green / Cyan)
+            # 2. DRAW 8D KALMAN FILTERED BOX ON ACTIVE TARGET (BRIGHT GREEN / CYAN)
             if kalman_enabled and kf_x is not None and kf_y is not None:
                 bbox_smooth = kf.get_bbox()
                 col = (255, 255, 0) if is_occluded else (0, 255, 0)
@@ -984,20 +1051,21 @@ def main():
 
                 # Target tag with live optical sharpness indicator
                 sharp_tag = f" | S: {target_sharpness:.0f}" if target_sharpness > 0 else ""
-                lbl = f"DEAD-RECKONING ({kf.missed_frames}f)" if is_occluded else f"8D KF: {target_display_name}{sharp_tag}"
+                lock_indicator = "[LOCKED]" if mouse_state["manual_lock"] else "[AUTO]"
+                lbl = f"DEAD-RECKONING ({kf.missed_frames}f)" if is_occluded else f"8D KF: {target_display_name} {lock_indicator}{sharp_tag}"
                 cv2.putText(display, lbl, (max(10, kf_x - 70), max(25, kf_y - 10)),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.55, col, 2)
 
             # Top Dashboard Banner
             kf_badge = "[KALMAN: ON]" if kalman_enabled else "[KALMAN: OFF]"
             sensor_badge = f"[{current_res_mode.upper()} {w}x{h} @ {fps_smooth:.0f}FPS]"
-            sharp_badge = f"[ISP SHARP: {v4l2_ctrl.get_sharpness()}]"
+            det_count_badge = f"[{len(candidate_boxes)} OBJECTS DETECTED]"
 
-            banner_w = max(1100, w - 140)
+            banner_w = max(1100, w - 145)
             cv2.rectangle(display, (10, 10), (banner_w, 95), (15, 15, 15), -1)
 
             # Header Line 1
-            cv2.putText(display, f"LOGITECH C922 BENCH TEST v2.2 | {sensor_badge} {sharp_badge} {kf_badge}",
+            cv2.putText(display, f"LOGITECH C922 BENCH TEST v2.3 | {sensor_badge} {det_count_badge} {kf_badge}",
                         (20, 32), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 255, 255), 2)
 
             # Header Line 2: Velocity & Jitter
@@ -1008,17 +1076,18 @@ def main():
 
             # Header Line 3: Focus Status Readout
             f_col = (0, 255, 255) if is_focus_scanning else ((0, 255, 0) if "LOCKED" in focus_status_str else (180, 180, 180))
-            focus_hud = f"FOCUS: {focus_status_str} | Drag RIGHT SLIDER or Scroll Wheel to tune focus"
+            focus_hud = f"FOCUS: {focus_status_str} | Click any Red Box to lock & autofocus | Drag Slider on right"
             cv2.putText(display, focus_hud, (20, 84), cv2.FONT_HERSHEY_SIMPLEX, 0.44, f_col, 1)
 
         # -------------------------------------------------------------
-        # DRAW RIGHT-SIDE MANUAL FOCUS SLIDER & PRESETS
+        # DRAW RIGHT-SIDE MANUAL FOCUS SLIDER (MATCHED TO AUTOFOCUS)
         # -------------------------------------------------------------
         ui_boxes = draw_focus_control_card(
             display=display,
             current_focus=current_focus,
             is_scanning=is_focus_scanning,
             is_af=current_af,
+            af_target_f=af_peak_focus,
             target_sharpness=target_sharpness,
             slider_dragging=mouse_state["dragging_slider"]
         )
@@ -1033,7 +1102,7 @@ def main():
         if key == ord('q'):
             break
 
-        # [1] Full HD 1080p Sensor Mode (1920x1080 @ 30 FPS)
+        # [1] Full HD 1080p Mode (1920x1080 @ 30 FPS)
         elif key == ord('1'):
             if current_res_mode != "1080p":
                 print("[Resolution] Switching to Full HD 1080p Mode (1920x1080 @ 30 FPS)...")
@@ -1042,7 +1111,7 @@ def main():
                 stream.set_resolution(1920, 1080, 30)
                 cv2.resizeWindow(WINDOW_NAME, 1280, 720)
 
-        # [2] High-Speed 720p Sensor Mode (1280x720 @ 60 FPS)
+        # [2] High-Speed 720p Mode (1280x720 @ 60 FPS)
         elif key == ord('2'):
             if current_res_mode != "720p":
                 print("[Resolution] Switching to High-Speed 720p Mode (1280x720 @ 60 FPS)...")
@@ -1088,14 +1157,21 @@ def main():
             v4l2_ctrl.set_sharpness(new_s)
             print(f"[Hardware Sharpness] Increased to {new_s}/255")
 
-        # [r] Re-trigger autofocus optimization on current locked target
+        # [r] Re-trigger autofocus optimization
         elif key == ord('r'):
-            if locked_bbox is not None:
-                print(f"[Auto-Focus] Re-optimizing optical focus for '{locked_label}'...")
-                focus_engine.trigger_focus(locked_bbox, locked_label)
+            if best_cand is not None:
+                print(f"[Auto-Focus] Re-optimizing optical focus for '{target_display_name}'...")
+                focus_engine.trigger_focus(best_cand["bbox"], target_display_name)
             else:
-                print("[Auto-Focus] No target locked. Re-optimizing center region...")
+                print("[Auto-Focus] Re-optimizing center region...")
                 focus_engine.trigger_focus((center_x - 100, center_y - 100, center_x + 100, center_y + 100), "Center")
+
+        # [t] Reset target lock (Revert to auto-tracking)
+        elif key == ord('t'):
+            locked_label = None
+            locked_bbox = None
+            mouse_state["manual_lock"] = False
+            print("[Target Lock] Reset. Reverting to auto-tracking.")
 
         # [k] Toggle Kalman Filter
         elif key == ord('k'):
@@ -1107,7 +1183,7 @@ def main():
             split_screen_mode = not split_screen_mode
             print(f"[Toggle] View Mode: {'SPLIT SCREEN' if split_screen_mode else 'OVERLAY'}")
 
-        # [a] Toggle Agility between Fast Zero-Lag and Heavy Smooth
+        # [a] Toggle Agility Mode
         elif key == ord('a'):
             if current_qs > 0.5:
                 current_qs = 0.08
@@ -1115,18 +1191,7 @@ def main():
             else:
                 current_qs = 1.0
                 print("[Agility] Switched to AGILE ZERO-LAG Mode (qs = 1.0).")
-            kf = AUVVisualKalmanFilter(dt=1.0 / 30.0, mode="8D", qs=current_qs, r_var=0.15, gate_px=450.0)
-
-        # [i] Toggle YOLO inference resolution
-        elif key == ord('i'):
-            current_imgsz = 1024 if current_imgsz == 640 else 640
-            print(f"[Resolution] Switched YOLO inference resolution to {current_imgsz}px.")
-
-        # [t] Reset target lock
-        elif key == ord('t'):
-            locked_label = None
-            locked_bbox = None
-            print("[Target] Reset target lock. Re-locking to next target.")
+            kf = AUVVisualKalmanFilter(dt=1.0 / 60.0, mode="8D", qs=current_qs, r_var=0.15, gate_px=450.0)
 
         # [e] Toggle CLAHE
         elif key == ord('e'):
