@@ -298,22 +298,28 @@ On a dry desk, ArduSub will block arming because the external Bar30 / MS5837 und
 > [!TIP]
 > This dry HIL bench test confirms your entire vision-to-control pipeline—from camera photon capture through neural inference, Kalman filtering, MAVLink packet transmission, and Pixhawk PWM motor mixing—before immersing any hardware into water!
 
-### 5. Direct Laptop USB Bench Camera Evaluation (`test_detection_camera.py` v2.1)
+### 5. Direct Laptop USB Bench Camera Evaluation (`test_detection_camera.py` v2.2)
 If your webcam (Logitech C922) is plugged directly into your laptop via USB rather than through BlueOS:
 ```bash
 cd ~/Documents/AUV_GitHub_Upload
 /home/radhi/venv-ardupilot/bin/python3 test_detection_camera.py
 ```
-- **Optical Click-to-Focus & Hardware ISP Tuning**:
-  - **Click-to-Focus (Active ROI Sharpness Maximization)**: Left-click on any object in the video stream to lock onto it. An asynchronous background routine sweeps the C922's internal motorized voice-coil lens, evaluates the Tenengrad/Laplacian variance sharpness metric $S = \operatorname{Var}\left(\nabla^2 I_{\text{ROI}}\right)$, and drives the optical lens directly to the sharpest focal plane.
-  - **Full HD 1080p vs. High-Speed 720p**: Toggle on the fly between **Full HD 1080p** (`1920x1080` @ 30 FPS for razor-sharp textures and 2.07 MP sensor resolution) and **High-Speed 720p** (`1280x720` @ 60 FPS for ultra-fluid motion tracking).
-  - **Hardware ISP Edge Sharpness**: Boosted to 170/255 by default to eliminate sensor haze and deliver crisp edges on fine components.
+- **Interactive Manual Focus Slider & On-Screen Controls**:
+  - **Right-Side Focus Slider**: Click and drag the on-screen vertical slider on the right edge of the screen to dial in the optical focus plane in real time ($0$ to $250$).
+  - **Quick Presets**: Single-click `[ROOM 15]` to immediately snap to crystal-clear bench/room standoff focus ($~1.5\text{m}$ to $\infty$) or `[DESK 40]` for close desk inspection ($~40\text{cm}$).
+  - **Mouse Wheel Micro-Tuning**: Scroll the mouse wheel anywhere over the window to nudge focus smoothly by $\pm 2$ steps.
+  - **Hardware Frame-Synchronized Auto-Focus**: Left-click on any object to execute a synchronized contrast-maximization sweep with kernel buffer flushing to guarantee sharp convergence.
+  - **Full HD 1080p vs. High-Speed 720p**: Toggle on the fly between **Full HD 1080p** (`1920x1080` @ 30 FPS for razor-sharp textures) and **High-Speed 720p** (`1280x720` @ 60 FPS for ultra-fluid tracking).
+  - **Hardware ISP Edge Sharpness**: Boosted to 170/255 by default for clean edge contrast and zero sensor haze.
 - **Real-Time Visual Comparison & Tracking**:
   - **Red Box / Red Dot**: Raw YOLO detection (Without Kalman Filter). Shows pixel jitter, bounding box chatter, and instant dropout when occluded.
   - **Green Box / Green Dot**: 8D Kalman Filter estimation (With Kalman Filter). Smooth motion, continuous trajectory, and metric velocity vectors ($v_x, v_y$ in $\text{cm/s}$ and $\text{m/s}$).
   - **Cyan Box**: Dead-reckoning trajectory bridging when the object is temporarily occluded (e.g., placing hands in front of the camera).
 - **Interactive Controls & Hotkeys**:
-  - `[Left-Click]`: Lock onto any object AND trigger optical Click-to-Focus.
+  - **`[Right Slider]`**: Drag knob with mouse to adjust focus in real time.
+  - **`[ROOM 15] / [DESK 40]`**: On-screen one-click focus distance presets.
+  - **`[Mouse Wheel]`**: Scroll to micro-tune focus ($\pm 2$).
+  - **`[Left-Click]`**: Lock onto any object AND trigger optical Click-to-Focus.
   - `[1]`: Switch to **Full HD 1080p Mode** (`1920x1080` @ 30 FPS).
   - `[2]`: Switch to **High-Speed 720p Mode** (`1280x720` @ 60 FPS).
   - `[f]`: Toggle Continuous Auto-Focus vs. Manual/Locked Focus.
