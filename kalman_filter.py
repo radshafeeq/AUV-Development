@@ -28,7 +28,10 @@ Undergraduate Thesis — Hasanuddin University (Mechatronics Engineering)
 import time
 import math
 import numpy as np
-import cv2
+try:
+    import cv2
+except ImportError:
+    cv2 = None
 
 
 # ==============================================================================
@@ -464,29 +467,32 @@ if __name__ == "__main__":
     print("=" * 70)
 
     # 1. Visual Servoing 8D Filter Benchmark
-    print("\n--- 1. Testing AUVVisualKalmanFilter (Topside Laptop / Vision) ---")
-    vkf = AUVVisualKalmanFilter(mode="8D")
-    vkf.init(640.0, 360.0, w=100.0, h=80.0)
+    if cv2 is None:
+        print("\n--- 1. Skipping AUVVisualKalmanFilter (Headless Subsea Companion - OpenCV cv2 not needed) ---")
+    else:
+        print("\n--- 1. Testing AUVVisualKalmanFilter (Topside Laptop / Vision) ---")
+        vkf = AUVVisualKalmanFilter(mode="8D")
+        vkf.init(640.0, 360.0, w=100.0, h=80.0)
 
-    t0 = time.perf_counter()
-    N = 10000
-    for i in range(N):
-        vkf.predict()
-        # Synthetic noisy observation
-        obs_x = 640.0 + i * 0.05 + np.random.randn() * 0.5
-        obs_y = 360.0 - i * 0.02 + np.random.randn() * 0.5
-        obs_w = 100.0 + i * 0.01 + np.random.randn() * 0.3
-        obs_h = 80.0 + i * 0.008 + np.random.randn() * 0.3
-        vkf.update(obs_x, obs_y, obs_w, obs_h, conf=0.88)
-    dt_vis = (time.perf_counter() - t0) / N * 1e6
+        t0 = time.perf_counter()
+        N = 10000
+        for i in range(N):
+            vkf.predict()
+            # Synthetic noisy observation
+            obs_x = 640.0 + i * 0.05 + np.random.randn() * 0.5
+            obs_y = 360.0 - i * 0.02 + np.random.randn() * 0.5
+            obs_w = 100.0 + i * 0.01 + np.random.randn() * 0.3
+            obs_h = 80.0 + i * 0.008 + np.random.randn() * 0.3
+            vkf.update(obs_x, obs_y, obs_w, obs_h, conf=0.88)
+        dt_vis = (time.perf_counter() - t0) / N * 1e6
 
-    vx, vy = vkf.get_velocity()
-    area, area_rate = vkf.get_scale_rates()
-    eyaw, edepth, esurge = vkf.get_control_errors(1280, 720, desired_w=120.0)
-    print(f"  Execution speed  : {dt_vis:.2f} microseconds per cycle (~{1e6/dt_vis:,.0f} FPS capacity)")
-    print(f"  Target Velocity  : vx={vx:+.2f} px/s, vy={vy:+.2f} px/s")
-    print(f"  BBox Area/Growth : Area={area:.0f} px², Growth={area_rate:+.1f} px²/s")
-    print(f"  Guidance Errors  : Yaw={eyaw:+.3f}, Depth={edepth:+.3f}, Standoff Surge={esurge:+.3f}")
+        vx, vy = vkf.get_velocity()
+        area, area_rate = vkf.get_scale_rates()
+        eyaw, edepth, esurge = vkf.get_control_errors(1280, 720, desired_w=120.0)
+        print(f"  Execution speed  : {dt_vis:.2f} microseconds per cycle (~{1e6/dt_vis:,.0f} FPS capacity)")
+        print(f"  Target Velocity  : vx={vx:+.2f} px/s, vy={vy:+.2f} px/s")
+        print(f"  BBox Area/Growth : Area={area:.0f} px², Growth={area_rate:+.1f} px²/s")
+        print(f"  Guidance Errors  : Yaw={eyaw:+.3f}, Depth={edepth:+.3f}, Standoff Surge={esurge:+.3f}")
 
     # 2. Hydrodynamic 4-DOF Dynamics Filter Benchmark
     print("\n--- 2. Testing AUVDynamicsKalmanFilter (Subsea Companion / BlueOS) ---")
