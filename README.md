@@ -298,17 +298,18 @@ On a dry desk, ArduSub will block arming because the external Bar30 / MS5837 und
 > [!TIP]
 > This dry HIL bench test confirms your entire vision-to-control pipeline—from camera photon capture through neural inference, Kalman filtering, MAVLink packet transmission, and Pixhawk PWM motor mixing—before immersing any hardware into water!
 
-### 5. Direct Laptop USB Bench Camera Evaluation (`test_detection_camera.py` v2.3)
+#### 5. Direct Laptop USB Bench Camera Evaluation (`test_detection_camera.py` v2.4)
 If your webcam (Logitech C922) is plugged directly into your laptop via USB rather than through BlueOS:
 ```bash
 cd ~/Documents/AUV_GitHub_Upload
 /home/radhi/venv-ardupilot/bin/python3 test_detection_camera.py
 ```
-- **Simultaneous Multi-Object Detection & Real-Time Tracking**:
-  - **Red Boxes (Raw YOLO Detections)**: ALL detected objects in view (Laptop, Bottle, Mouse, Keyboard, Smartphone, Multimeter, Cables, etc.) are enclosed in crisp **Red Bounding Boxes** displaying their class name and confidence score simultaneously.
-  - **Green Box (8D Kalman Filter)**: The primary tracked object is highlighted with the bold **Bright Green / Cyan Kalman Box**, with smoothed coordinates, optical center crosshair line, and velocity vector arrows ($v_x, v_y$).
-  - **Smart Auto-Relocking**: Prevents signal loss or dead locks. If a target is moved or occluded, the tracker dynamically tracks active objects with zero signal dropouts.
-  - **Cyan Box**: Dead-reckoning trajectory bridging when the object is temporarily occluded (e.g., placing hands in front of the camera).
+- **Precision Target Selection & Ironclad Tracking**:
+  - **Smallest-Area-First Click Selection**: When clicking on an object sitting on a table or near a person, the tracker calculates overlapping bounding box geometry and selects the most specific object (e.g., **Laptop**, Bottle, Mouse) rather than parent containers (Table, Person).
+  - **Ironclad Lock Retention**: Once you click on an object, the Kalman filter strictly holds that target class and **never jumps to Person** or background objects. During autofocus sweeps or temporary drops, it dead-reckons seamlessly on the selected target.
+  - **Benchtop Object Priority**: In auto-selection mode, benchtop electronics and AUV hardware (Laptops, Multimeters, Bottles, Thrusters, ESCs, Pixhawk) are given 30x higher priority weight than background people.
+  - **Simultaneous Multi-Object Red Boxes**: ALL detected objects in view are enclosed in crisp **Red Bounding Boxes** displaying their class name and confidence score simultaneously.
+  - **Green Box (8D Kalman Filter)**: The locked target is tracked by the bold **Bright Green / Cyan Kalman Box** with optical crosshairs and velocity vectors.
 - **Manual Focus Slider Matched with Auto-Focus**:
   - **Real-Time Slider Sync**: The slider knob dynamically glides along the vertical track to reflect the camera's true optical focus position during autofocus sweeps or manual tuning.
   - **`[MODE: AUTO]` / `[MODE: MANUAL]` Button**: Toggle continuous autofocus directly from the on-screen card.
@@ -317,8 +318,8 @@ cd ~/Documents/AUV_GitHub_Upload
   - **Quick Presets**: Click `[ROOM 15]` to snap to verified razor-sharp room standoff ($~1.5\text{m}$ to $\infty$) or `[DESK 40]` for close desk inspection ($~40\text{cm}$).
   - **Mouse Wheel Tuning**: Scroll the mouse wheel anywhere over the window to nudge focus by $\pm 2$.
 - **Interactive Controls & Hotkeys**:
-  - **`[Right Slider]`**: Drag knob with mouse to adjust focus in real time.
   - **`[Left-Click]`**: Click any object on screen to lock target AND trigger optical autofocus.
+  - **`[Right Slider]`**: Drag knob with mouse to adjust focus in real time.
   - `[1]`: Switch to **Full HD 1080p Mode** (`1920x1080` @ 30 FPS).
   - `[2]`: Switch to **High-Speed 720p Mode** (`1280x720` @ 60 FPS, default).
   - `[t]`: Reset target lock (reverts to auto-tracking).

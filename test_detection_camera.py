@@ -1,26 +1,27 @@
 #!/usr/bin/env python3
 """
-AUV Detection Camera Bench Test: Ultra-Fidelity Logitech C922 Evaluation (v2.3)
+AUV Detection Camera Bench Test: Ultra-Fidelity Logitech C922 Evaluation (v2.4)
 =================================================================================
 Optimizations & Enhancements:
-1. FULL VISIBILITY FOR ALL DETECTIONS (RED & GREEN BOXES):
-   - Red bounding boxes drawn for ALL detected objects simultaneously (Laptop, Bottle,
-     Mouse, Keyboard, Smartphone, Multimeter, etc.) with class label and confidence
-   - Prominent Bright Green / Cyan bounding box for the active 8D Kalman Filter target
-   - Smart Auto-Relocking: Never gets permanently stuck on a lost target; dynamically
-     tracks active objects with zero signal dropouts
-2. MANUAL FOCUS SLIDER FULLY SYNCHRONIZED WITH AUTOFOCUS:
-   - Slider knob dynamically moves in real-time to match the autofocus motor position
-   - Integrated [AUTO AF] / [MANUAL] mode toggle button right on the slider card
-   - [AUTO FOCUS NOW] one-click scan button on the card
-   - Visual AF recommended notch (AF*) displayed on the slider track
-   - Dragging the slider automatically switches to Manual mode at that exact position
-3. ZERO-LATENCY VIDEO PIPELINE (1280x720 @ 60 FPS DEFAULT):
-   - 60 FPS MJPG hardware decoding for maximum YOLO detection rate & fluid tracking
-   - Press [1] for Full HD 1080p mode, [2] for High-Speed 720p mode
-4. ULTRA-AGILE KALMAN FILTER (ZERO PHASE LAG):
-   - Process noise covariance qs=1.0 for instant zero-lag response
-   - Metric velocity in cm/s and m/s with cardinal direction
+1. PRECISION TARGET SELECTION (CLICK-TO-LOCK FIX):
+   - Smallest-area-first selection: When multiple bounding boxes overlap (e.g. Laptop
+     sitting on a Table, or Smartphone held by a Person), clicking ALWAYS selects the
+     specific object (Laptop) rather than the parent container (Table / Person).
+   - Distance fallback: Snaps to the closest object center within 90px if clicking near edge.
+   - Clean Qt Window (WINDOW_GUI_NORMAL): Eliminates toolbar padding/offsets for 1:1 pixel accuracy.
+2. IRONCLAD MANUAL LOCKING (PREVENTS SWITCHING TO PERSON):
+   - Once locked onto an object (e.g. Laptop), the tracker NEVER jumps to Person or another object.
+   - During autofocus sweeps or momentary occlusion, the Kalman filter DEAD-RECKONS on the target
+     (Cyan Box) and re-acquires it immediately once focus settles.
+   - Smart Auto-Selection Priority: Bench objects (Laptop, Bottle, Tools, AUV hardware) are heavily
+     prioritized over background entities (Person = 0.08 weight).
+3. SIMULTANEOUS MULTI-OBJECT DETECTION (ALL RED BOXES):
+   - All detected objects drawn in Red with class name and confidence.
+   - Primary target smoothed with bold Bright Green / Cyan 8D Kalman Filter box.
+4. SYNCHRONIZED MANUAL FOCUS SLIDER:
+   - Real-time matching between on-screen slider and autofocus motor.
+   - Clickable [MODE: AUTO / MANUAL] and [AUTO FOCUS] buttons.
+   - Quick presets [ROOM 15] and [DESK 40].
 """
 
 import os
@@ -79,6 +80,27 @@ YOLO26_WORLD_CLASSES = [
 
 # Objects to actively track (hand acts as occluder for dead-reckoning)
 VALID_TRACKING_TARGETS = set(YOLO26_WORLD_CLASSES) - {"hand"}
+
+# Priority weights for auto-selection mode (heavily favors benchtop items over room background)
+OBJECT_PRIORITY = {
+    # High Priority: Bench Electronics & AUV Hardware
+    "laptop": 3.0, "computer monitor": 2.5, "bottle": 2.5, "water bottle": 2.5,
+    "mouse": 2.2, "computer mouse": 2.2, "smartphone": 2.2, "cell phone": 2.2,
+    "multimeter": 3.0, "digital multimeter": 3.0, "oscilloscope": 3.0,
+    "keyboard": 2.0, "computer keyboard": 2.0, "tablet": 2.2,
+    "pixhawk": 3.5, "flight controller": 3.5, "raspberry pi": 3.5,
+    "bldc motor": 3.5, "thruster": 3.5, "underwater thruster": 3.5,
+    "esc": 3.0, "electronic speed controller": 3.0, "battery": 3.0, "lipo battery": 3.0,
+    "power bank": 2.5, "charger": 2.5, "power adapter": 2.5,
+    "circuit board": 3.0, "pcb": 3.0, "printed circuit board": 3.0,
+    "watertight enclosure": 3.0, "acrylic tube": 3.0,
+    "cup": 2.0, "mug": 2.0, "notebook": 1.8, "screwdriver": 2.2, "pliers": 2.2,
+
+    # Low Priority: Ambient Room & Furniture
+    "camera": 1.0, "tripod": 0.8, "backpack": 0.6, "chair": 0.2, "table": 0.1,
+    # Person has very low auto-selection priority so it NEVER steals focus from benchtop items
+    "person": 0.05,
+}
 
 
 # ==========================================
@@ -607,7 +629,8 @@ mouse_state = {
     "pending_click_target": None,
     "last_ui_boxes": None,
     "wheel_delta": 0,
-    "manual_lock": False
+    "manual_lock": False,
+    "last_click_visual": None
 }
 
 def on_mouse_event(event, x, y, flags, param):
@@ -639,8 +662,8 @@ def on_mouse_event(event, x, y, flags, param):
             # Check Scan Button: [AUTO FOCUS NOW]
             sx1, sy1, sx2, sy2 = ui["btn_scan"]
             if sx1 <= x <= sx2 and sy1 <= y <= sy2:
-                print("[Focus] Triggering Auto-Focus scan on scene...")
-                focus_engine.trigger_focus(param.get("active_target_bbox", (640-100, 360-100, 640+100, 360+100)), "Center/Target")
+                print("[Focus] Triggering Auto-Focus scan on target...")
+                focus_engine.trigger_focus(param.get("active_target_bbox", (640-100, 360-100, 640+100, 360+100)), "Target")
                 return
 
             # Check Preset 1: ROOM (15)
@@ -670,6 +693,7 @@ def on_mouse_event(event, x, y, flags, param):
         else:
             # Clicked on Video Canvas -> Register Target Lock & Click-to-Focus
             mouse_state["pending_click_target"] = (x, y)
+            mouse_state["last_click_visual"] = (x, y, time.time())
 
     # 3. Mouse Move while Dragging Slider
     elif event == cv2.EVENT_MOUSEMOVE:
@@ -689,7 +713,7 @@ def on_mouse_event(event, x, y, flags, param):
 def main():
     global mouse_state
     print("=" * 80)
-    print("   AUV BENCH TEST v2.3: MULTI-TARGET DETECTION & SYNCHRONIZED FOCUS   ")
+    print("   AUV BENCH TEST v2.4: PRECISION CLICK-TO-LOCK & TARGET STABILIZATION   ")
     print("=" * 80)
 
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -735,15 +759,16 @@ def main():
     # Target persistence state
     locked_label = None
     locked_bbox = None
-    target_lost_frames = 0
+    locked_center = None
     mouse_state["manual_lock"] = False
 
     # Jitter evaluation deques
     raw_history = deque(maxlen=20)
     kf_history = deque(maxlen=20)
 
-    WINDOW_NAME = "AUV Bench Test v2.3 (Logitech C922: Multi-Target Detection & Focus)"
-    cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
+    # Clean Qt Window without toolbar padding to ensure 1:1 pixel coordinate alignment
+    WINDOW_NAME = "AUV Bench Test v2.4 (Logitech C922: Precision Target Tracking & Focus)"
+    cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL | cv2.WINDOW_GUI_NORMAL)
     cv2.resizeWindow(WINDOW_NAME, 1280, 720)
 
     param_dict = {"v4l2": v4l2_ctrl, "focus_engine": focus_engine, "active_target_bbox": (640-100, 360-100, 640+100, 360+100)}
@@ -751,15 +776,14 @@ def main():
 
     print("\n" + "=" * 80)
     print("   INTERACTIVE CONTROLS:")
+    print("   [Left-Click]    - CLICK ANY OBJECT (Laptop, Bottle, Tools) TO LOCK & AUTOFOCUS!")
     print("   [FOCUS SLIDER]  - Drag the vertical slider on the RIGHT (matches AF in real-time)")
-    print("   [MODE: AUTO]    - Click the button above the slider to toggle Auto-Focus / Manual")
+    print("   [MODE: AUTO]    - Click button above slider to toggle Auto-Focus / Manual")
     print("   [AUTO FOCUS]    - Click to trigger synchronized autofocus sweep on current target")
     print("   [PRESETS]       - Click [ROOM 15] or [DESK 40] on screen for instant focus")
     print("   [MOUSE WHEEL]   - Scroll wheel anywhere to micro-adjust focus (+/- 2)")
-    print("   [Left-Click]    - Click any object on canvas to LOCK target & trigger Auto-Focus")
-    print("   [1]             - Full HD 1080p Mode (1920x1080 @ 30 FPS - Maximum Clarity)")
-    print("   [2]             - High-Speed 720p Mode (1280x720 @ 60 FPS - High FPS)")
-    print("   [t]             - Reset target lock (Reverts to auto-tracking best object)")
+    print("   [t]             - Reset target lock (Reverts to auto-tracking)")
+    print("   [1] / [2]       - Toggle 1080p Full HD vs 720p 60 FPS")
     print("   [k]             - Toggle Kalman Filter ON / OFF")
     print("   [s]             - Toggle Split-Screen (Side-by-Side vs. Overlay)")
     print("   [a]             - Toggle Agility (Zero-Lag qs=1.0 vs Heavy Smooth qs=0.08)")
@@ -821,77 +845,97 @@ def main():
                 "label": pretty_label,
                 "raw_name": raw_name,
                 "is_valid": is_valid_target,
-                "area": (x2 - x1) * (y2 - y1)
+                "area": max(1, (x2 - x1) * (y2 - y1))
             })
 
-        # Check Mouse Click on Video Canvas
+        # -------------------------------------------------------------
+        # PRECISION CLICK SELECTION: SMALLEST-AREA-FIRST MATCHING
+        # -------------------------------------------------------------
         if mouse_state["pending_click_target"] is not None:
             cx_click, cy_click = mouse_state["pending_click_target"]
             mouse_state["pending_click_target"] = None
-            clicked_any = False
 
-            for cand in candidate_boxes:
-                x1, y1, x2, y2 = cand["bbox"]
-                if x1 <= cx_click <= x2 and y1 <= cy_click <= y2 and cand["is_valid"]:
-                    locked_label = cand["raw_name"]
-                    locked_bbox = cand["bbox"]
-                    mouse_state["manual_lock"] = True
-                    target_lost_frames = 0
-                    clicked_any = True
-                    print(f"[Target Lock] Manually locked onto: {cand['label']}!")
-                    focus_engine.trigger_focus(cand["bbox"], cand["label"])
-                    break
+            # 1. Find all candidates that geometrically enclose the click
+            enclosing_cands = [c for c in candidate_boxes if c["bbox"][0] <= cx_click <= c["bbox"][2]
+                               and c["bbox"][1] <= cy_click <= c["bbox"][3] and c["is_valid"]]
 
-            if not clicked_any:
-                print(f"[Click-to-Focus] Focusing on clicked coordinate ({cx_click}, {cy_click})...")
+            selected_cand = None
+            if len(enclosing_cands) > 0:
+                # CRITICAL FIX: Sort by SMALLEST bounding box area first!
+                # If Laptop sits on Table, Laptop is smaller than Table -> selects Laptop!
+                # If Smartphone is held by Person, Smartphone is smaller than Person -> selects Smartphone!
+                enclosing_cands.sort(key=lambda c: c["area"])
+                selected_cand = enclosing_cands[0]
+            else:
+                # 2. Distance fallback: if clicked within 90px of an object center
+                close_cands = []
+                for c in candidate_boxes:
+                    if c["is_valid"]:
+                        dist = math.hypot(c["center"][0] - cx_click, c["center"][1] - cy_click)
+                        if dist < 90:
+                            close_cands.append((dist, c))
+                if len(close_cands) > 0:
+                    close_cands.sort(key=lambda item: item[0])
+                    selected_cand = close_cands[0][1]
+
+            if selected_cand is not None:
+                locked_label = selected_cand["raw_name"]
+                locked_bbox = selected_cand["bbox"]
+                locked_center = selected_cand["center"]
+                mouse_state["manual_lock"] = True
+
+                # Snap Kalman Filter directly to the clicked object to eliminate lag
+                bx, by = locked_center
+                kf.reset_state(float(bx), float(by), float(locked_bbox[2] - locked_bbox[0]), float(locked_bbox[3] - locked_bbox[1]))
+
+                print(f"[Target Lock] MANUALLY LOCKED ONTO: {selected_cand['label']} (Area={selected_cand['area']}px)!")
+                focus_engine.trigger_focus(selected_cand["bbox"], selected_cand["label"])
+            else:
+                # Clicked on empty space -> Trigger focus on clicked spot and return to auto-tracking
+                print(f"[Target Lock] Clicked on background ({cx_click}, {cy_click}). Returning to auto-selection.")
+                mouse_state["manual_lock"] = False
                 locked_label = None
                 locked_bbox = None
-                mouse_state["manual_lock"] = False
+                locked_center = None
                 roi_r = 90
                 rx1, ry1 = max(0, cx_click - roi_r), max(0, cy_click - roi_r)
                 rx2, ry2 = min(w, cx_click + roi_r), min(h, cy_click + roi_r)
                 focus_engine.trigger_focus((rx1, ry1, rx2, ry2), "Clicked Spot")
 
         # -------------------------------------------------------------
-        # SMART TARGET SELECTION (PREVENTS SIGNAL LOSS & DRIFT)
+        # IRONCLAD TARGET TRACKING (NEVER SWITCHES TO PERSON)
         # -------------------------------------------------------------
         best_cand = None
 
-        if mouse_state["manual_lock"] and locked_label is not None and locked_bbox is not None:
-            # Manually locked target tracking: find candidate with closest proximity / highest IoU
+        if mouse_state["manual_lock"] and locked_label is not None:
+            # MANUALLY LOCKED MODE: STRICTLY TRACK ONLY THE LOCKED OBJECT CLASS
             best_dist = 999999
-            best_iou = -1.0
-            lx1, ly1, lx2, ly2 = locked_bbox
-            lcx, lcy = (lx1 + lx2) // 2, (ly1 + ly2) // 2
+            lcx, lcy = locked_center if locked_center is not None else (center_x, center_y)
 
             for cand in candidate_boxes:
+                # Strict class match (e.g. only Laptop matches Laptop)
                 if cand["raw_name"] == locked_label:
-                    iou = compute_iou(locked_bbox, cand["bbox"])
                     cx, cy = cand["center"]
                     dist = math.hypot(cx - lcx, cy - lcy)
-                    if iou > 0.05 or dist < 250:
-                        if dist < best_dist:
-                            best_dist = dist
-                            best_cand = cand
+                    if dist < best_dist and dist < 350:
+                        best_dist = dist
+                        best_cand = cand
 
             if best_cand is not None:
                 locked_bbox = best_cand["bbox"]
-                target_lost_frames = 0
+                locked_center = best_cand["center"]
             else:
-                target_lost_frames += 1
-                # If target is lost for > 20 consecutive frames, revert to auto-select
-                if target_lost_frames > 20:
-                    mouse_state["manual_lock"] = False
-                    locked_label = None
-                    locked_bbox = None
+                # If the target is temporarily dropped (e.g. during focus sweep or occlusion),
+                # DO NOT switch to Person or any other object! Hold lock and dead-reckon!
+                pass
 
-        if not mouse_state["manual_lock"] or best_cand is None:
-            # Auto-selection mode: pick the highest-priority visible object
+        else:
+            # AUTO-SELECTION MODE: Uses OBJECT_PRIORITY (Bench electronics heavily favored over Person)
             max_score = 0.0
             for cand in candidate_boxes:
                 if cand["is_valid"]:
-                    # Bias towards electronics and lab tools over person
-                    weight = 0.6 if cand["raw_name"] in ["person", "chair", "table", "backpack"] else 1.2
+                    weight = OBJECT_PRIORITY.get(cand["raw_name"], 1.5)
+                    # Priority score: Area factor scaled by class priority weight
                     score = math.sqrt(cand["area"]) * cand["conf"] * weight
                     if score > max_score:
                         max_score = score
@@ -900,10 +944,13 @@ def main():
             if best_cand is not None:
                 locked_label = best_cand["raw_name"]
                 locked_bbox = best_cand["bbox"]
+                locked_center = best_cand["center"]
 
         # Pass active target bbox to mouse param callback
         if best_cand is not None:
             param_dict["active_target_bbox"] = best_cand["bbox"]
+        elif locked_bbox is not None:
+            param_dict["active_target_bbox"] = locked_bbox
         else:
             param_dict["active_target_bbox"] = (center_x - 100, center_y - 100, center_x + 100, center_y + 100)
 
@@ -931,7 +978,7 @@ def main():
                 kf_x, kf_y = int(fx), int(fy)
                 kf_history.append((kf_x, kf_y))
         else:
-            # Target is occluded -> Dead-reckoning
+            # Target is temporarily occluded or dropped during focus scan -> DEAD-RECKON ON LOCKED TARGET!
             if kalman_enabled and kf.initialized:
                 pred_x, pred_y = kf.handle_missing_frame()
                 if pred_x is not None:
@@ -973,7 +1020,7 @@ def main():
             frame_kf = frame.copy()
 
             # Left: RAW YOLO (All detections)
-            cv2.putText(frame_raw, f"[WITHOUT KALMAN: RAW YOLO ({len(candidate_boxes)} Detections)]", (20, 35),
+            cv2.putText(frame_raw, f"[WITHOUT KALMAN: RAW YOLO ({len(candidate_boxes)} Objects)]", (20, 35),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 0, 255), 2)
             for cand in candidate_boxes:
                 x1, y1, x2, y2 = cand["bbox"]
@@ -1010,16 +1057,24 @@ def main():
             cv2.line(display, (center_x - 12, center_y), (center_x + 12, center_y), (120, 120, 120), 1)
             cv2.line(display, (center_x, center_y - 12), (center_x, center_y + 12), (120, 120, 120), 1)
 
+            # Draw visual click ripple if recently clicked
+            if mouse_state["last_click_visual"] is not None:
+                lcx, lcy, t_click = mouse_state["last_click_visual"]
+                elapsed = time.time() - t_click
+                if elapsed < 0.8:
+                    radius = int(12 + elapsed * 30)
+                    alpha = max(0.0, 1.0 - elapsed / 0.8)
+                    cv2.circle(display, (lcx, lcy), radius, (0, 255, 255), 2)
+                    cv2.drawMarker(display, (lcx, lcy), (0, 255, 255), cv2.MARKER_CROSS, 16, 1)
+
             # 1. DRAW ALL RAW YOLO DETECTIONS IN CRISP RED
             for cand in candidate_boxes:
                 x1, y1, x2, y2 = cand["bbox"]
                 if cand["raw_name"] == "hand":
-                    # Draw hands in faint orange as occluders
                     cv2.rectangle(display, (x1, y1), (x2, y2), (0, 140, 255), 1)
                     cv2.putText(display, f"Hand (Occluder) {cand['conf']:.2f}", (x1, max(15, y1 - 4)),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.40, (0, 140, 255), 1)
                 else:
-                    # Draw every detected object on table/room in red
                     is_main_target = (best_cand is not None and cand is best_cand)
                     cv2.rectangle(display, (x1, y1), (x2, y2), (0, 0, 255), 2 if is_main_target else 1)
                     cv2.circle(display, cand["center"], 3, (0, 0, 255), -1)
@@ -1065,7 +1120,7 @@ def main():
             cv2.rectangle(display, (10, 10), (banner_w, 95), (15, 15, 15), -1)
 
             # Header Line 1
-            cv2.putText(display, f"LOGITECH C922 BENCH TEST v2.3 | {sensor_badge} {det_count_badge} {kf_badge}",
+            cv2.putText(display, f"LOGITECH C922 BENCH TEST v2.4 | {sensor_badge} {det_count_badge} {kf_badge}",
                         (20, 32), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 255, 255), 2)
 
             # Header Line 2: Velocity & Jitter
@@ -1170,6 +1225,7 @@ def main():
         elif key == ord('t'):
             locked_label = None
             locked_bbox = None
+            locked_center = None
             mouse_state["manual_lock"] = False
             print("[Target Lock] Reset. Reverting to auto-tracking.")
 
