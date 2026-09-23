@@ -19,6 +19,11 @@ import urllib.request
 import cv2
 import numpy as np
 import torch
+import ultralytics.nn.tasks
+try:
+    torch.serialization.add_safe_globals([ultralytics.nn.tasks.WorldModel])
+except Exception:
+    pass
 from ultralytics import YOLOWorld
 from pymavlink import mavutil
 from kalman_filter import AUVKalmanFilter, TargetKalmanFilter
@@ -45,9 +50,22 @@ def ensure_blueos_logitech_stream():
             for s in streams:
                 if "5601" in str(s):
                     return True
+        # Dynamically determine source device node
+        dev_node = "/dev/video0"
+        try:
+            v4l_req = urllib.request.Request("http://192.168.2.2:6020/v4l")
+            with urllib.request.urlopen(v4l_req, timeout=1.0) as v4l_resp:
+                v4l_devices = json.loads(v4l_resp.read().decode())
+                for dev in v4l_devices:
+                    if any(k in dev.get("name", "").lower() for k in ["c922", "logitech", "webcam"]):
+                        dev_node = dev.get("source", "/dev/video0")
+                        break
+        except Exception:
+            pass
+
         payload = {
             "name": "Logitech C922 Stream",
-            "source": "/dev/video1",
+            "source": dev_node,
             "stream_information": {
                 "endpoints": ["udp://192.168.2.115:5601"],
                 "configuration": {
@@ -443,23 +461,26 @@ def main():
         mav = None
 
     # 4. Camera Setup & BlueOS Stream Initialization
+    print("[BlueOS] Ensuring Logitech C922 stream on UDP 5601...")
+    ensure_blueos_logitech_stream()
+
     CAMERAS = [
-        {
-            "name": "RPi CSI Camera Module",
-            "port": 5600,
-            "encoding": "H264",
-            "width": 640,
-            "height": 480
-        },
         {
             "name": "Logitech C922 USB Webcam",
             "port": 5601,
             "encoding": "JPEG",
             "width": 1280,
             "height": 720
+        },
+        {
+            "name": "RPi CSI Camera Module",
+            "port": 5600,
+            "encoding": "H264",
+            "width": 640,
+            "height": 480
         }
     ]
-    current_cam_idx = 0  # Default to RPi CSI Camera
+    current_cam_idx = 0  # Default to Logitech C922
 
     def init_camera_grabber(idx):
         cam = CAMERAS[idx]
