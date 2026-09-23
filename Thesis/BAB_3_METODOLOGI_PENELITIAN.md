@@ -424,6 +424,20 @@ Spesifikasi perangkat keras mekatronika yang diintegrasikan dalam arsitektur HIT
 | Sistem Penggerak | 8x Blue Robotics T200 Brushless Motor + Basic ESC | Sinyal PWM ($$1100 - 1900	ext{ }\mu	ext{s}$$) | Aktuasi gaya dorong 6-DOF *over-actuated* (maksimum $$\pm 35	ext{ N}$$ per pendorong) [3] |
 | Sistem Daya | Baterai LiPo 4S (14.8V nominal, 10.000 mAh) | Konektor XT90 / Power Sense Module | Pencatu daya utama sistem propulsi dan modul elektronik internal wahana |
 
+Untuk memberikan gambaran yang lebih konkret terkait perangkat yang digunakan, berikut adalah visualisasi perangkat keras utama yang dikonfigurasi pada wahana AUV ini:
+
+![Gambar 3.2. Rangka (*Frame*) dan Lambung Tekanan (*Pressure Hull*) Tipe BlueROV2 Heavy]([PATH_FOTO_FRAME_HULL])
+
+![Gambar 3.3. Papan Pengendali Penerbangan (*Flight Controller*) Pixhawk 2.4.8]([PATH_FOTO_PIXHAWK])
+
+![Gambar 3.4. Komputer Pendamping (*Companion Computer*) Raspberry Pi 4B]([PATH_FOTO_RASPBERRY_PI])
+
+![Gambar 3.5. Modul Pengendali Kecepatan Elektronik (*Basic Electronic Speed Controller* / ESC)]([PATH_FOTO_ESC])
+
+![Gambar 3.6. Motor Pendorong (*Thruster*) T200]([PATH_FOTO_THRUSTER_T200])
+
+![Gambar 3.7. Sumber Daya Utama Baterai Li-Po 4S 14.8V]([PATH_FOTO_BATERAI])
+
 ### 3.5.2 Aliran Data Telemetri Cepat (*Low-Latency Telemetry Bridge*)
 Untuk mengalirkan data sensor dari wahana ke modul estimasi tanpa membebani bus komputasi serial MAVLink secara berlebihan, diimplementasikan jembatan telemetri asinkron berbasis REST API memanfaatkan layanan `mavlink2rest` yang terintegrasi pada BlueOS (port HTTP `6040`):
 1. **Akuisisi Data IMU dan Tekanan**: Modul Python `SubseaTelemetryBridge` pada berkas [`auv_dynamics_hil_node.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/auv_dynamics_hil_node.py) melakukan *polling* data JSON pada endpoint `http://192.168.2.2:6040/mavlink/vehicles/1/components/1/messages` dengan batas waktu (*timeout*) $$0.25	ext{ detik}$$.
