@@ -2,7 +2,7 @@
 
 > **Author**: Radhi Shafeeq  
 > **Affiliation**: Hasanuddin University — Department of Mechatronics Engineering  
-> **Undergraduate Thesis**: Design, Hydrodynamic Modeling, State Estimation, and Autonomous Visual Servoing for a 5-DOF Autonomous Underwater Vehicle (AUV)  
+> **Undergraduate Thesis**: Design, Hydrodynamic Modeling, State Estimation, and Autonomous Visual Servoing for an Over-Actuated 6-DOF, 8-Motor Autonomous Underwater Vehicle (AUV)  
 > **Primary Academic Sources**: 
 > 1. Fossen, T. I. (2021). *Handbook of Marine Craft Hydrodynamics and Motion Control* (2nd ed.). John Wiley & Sons.
 > 2. Kim, Y. V. (Ed.). (2023). *Kalman Filter - Engineering Applications*. IntechOpen. DOI: 10.5772/intechopen.100722.
@@ -49,7 +49,7 @@
   - [5. Subsea Hydrodynamic Dynamics Extended Kalman Filter (`AUVDynamicsKalmanFilter`)](#5-subsea-hydrodynamic-dynamics-extended-kalman-filter-auvdynamicskalmanfilter)
     - [5.1 SNAME Coordinate Frames & Kinematic Reductions](#51-sname-coordinate-frames--kinematic-reductions)
     - [5.2 Fossen's 6-DOF Hydrodynamic Kinetics Equations](#52-fossens-6-dof-hydrodynamic-kinetics-equations)
-    - [5.3 Variable-by-Variable 4-DOF Decoupled Reduction](#53-variable-by-variable-4-dof-decoupled-reduction)
+    - [5.3 6-DOF Hydrodynamic Formulation & Active Attitude Authority](#53-6-dof-hydrodynamic-formulation--active-attitude-authority)
     - [5.4 Generalized Inertia Matrix M: Rigid Body & Hydrodynamic Added Mass](#54-generalized-inertia-matrix-m-rigid-body--hydrodynamic-added-mass)
     - [5.5 Hydrodynamic Damping Matrix D(ν): Linear Skin Friction & Non-Linear Quadratic Form Drag](#55-hydrodynamic-damping-matrix-d-linear-skin-friction--non-linear-quadratic-form-drag)
     - [5.6 Ocean Current Disturbance Observer Formulation](#56-ocean-current-disturbance-observer-formulation)
@@ -445,8 +445,8 @@ Integrating these equations over interval $$\Delta t = t_k - t_{k-1}$$ using a 4
      TOPSIDE WORKSTATION (LAPTOP)                 │             SUBSEA VEHICLE (AUV HULL)
 ┌────────────────────────────────────────────┐    │    ┌─────────────────────────────────────────┐
 │ • RTSP H.264 Video Ingestion (50-60 FPS)   │◄───┼────│ • RPi 4B: BlueOS System & Camera Server │
-│ • YOLO26 World Neural Detection (RTX GPU)  │    │    │ • AUVDynamicsKalmanFilter (4-DOF EKF)   │
-│ • AUVVisualKalmanFilter (8D Position/Scale)│    │    │   Estimates [u, v, w, r] & currents     │
+│ • YOLO26 World Neural Detection (RTX GPU)  │    │    │ • AUVDynamicsKalmanFilter (6-DOF EKF)   │
+│ • AUVVisualKalmanFilter (8D Position/Scale)│    │    │   Estimates [u, v, w, p, q, r] & cur    │
 │ • Visual Servoing Guidance Law             │────┼───►│ • Autonomous Tracking Setpoints         │
 └────────────────────────────────────────────┘    │    └────────────────────┬────────────────────┘
                                                   │                         │ USB MAVLink (/dev/ttyACM0)
@@ -454,7 +454,7 @@ Integrating these equations over interval $$\Delta t = t_k - t_{k-1}$$ using a 4
                                                   │    ┌─────────────────────────────────────────┐
                                                   │    │ • Pixhawk 2.4.8: Stock ArduSub Firmware │
                                                   │    │   400 Hz EKF3 IMU/Depth Attitude PID    │
-                                                  │    │   6x T200 PWM Motor Mixing              │
+                                                  │    │   8x T200 PWM Motor Mixing (6-DOF)      │
                                                   └────┴─────────────────────────────────────────┘
 ```
 
@@ -670,68 +670,69 @@ $$\mathbf{M} \dot{\boldsymbol{\nu}} + \mathbf{C}(\boldsymbol{\nu})\boldsymbol{\n
 
 ---
 
-### 5.3 Variable-by-Variable 4-DOF Decoupled Reduction
+### 5.3 6-DOF Hydrodynamic Formulation & Active Attitude Authority
 
-For our custom 5-DOF AUV frame (and BlueROV2 Standard):
-1. **Metacentric Restoring Stability**: The center of buoyancy (CB) is located $$10\text{ cm}$$ directly above the center of gravity (CG) ($$\overline{BG} = z_g - z_b = 0.05\text{ m}$$). This creates a massive static righting moment in roll ($$\phi$$) and pitch ($$\theta$$):
-   $$K_{\text{restoring}} = -\rho g \nabla \overline{BG} \sin\phi \approx 0 \implies \phi \approx 0, \quad p \approx 0$$
-   $$M_{\text{restoring}} = -\rho g \nabla \overline{BG} \sin\theta \approx 0 \implies \theta \approx 0, \quad q \approx 0$$
-2. Therefore, roll ($$p$$) and pitch ($$q$$) decouple passively, reducing the operational dynamic degrees of freedom to **4-DOF**:
-   $$\boldsymbol{\nu}_{\text{4DOF}} = \begin{bmatrix} u & v & w & r \end{bmatrix}^T$$
-   representing Surge, Sway, Heave, and Yaw rate.
+In our **Over-Actuated 6-DOF AUV** (8x T200 thrusters, BlueROV2 Heavy frame architecture):
+1. **Full 6-DOF Control Authority**: Unlike standard 4-DOF or 5-DOF underwater vehicles, this 8-thruster platform possesses full control authority across all 6 spatial degrees of freedom:
+   $$\boldsymbol{\nu} = \begin{bmatrix} u & v & w & p & q & r \end{bmatrix}^T \in \mathbb{R}^6$$
+   - 4 horizontal vectored thrusters ($$T_1 - T_4$$) canted at $$45^\circ$$ generate independent Surge ($$u$$), Sway ($$v$$), and Yaw ($$r$$).
+   - 4 vertical corner thrusters ($$T_5 - T_8$$) mounted at the chassis corners produce Heave ($$w$$) while generating active differential Roll ($$p$$) and Pitch ($$q$$) torques.
+2. **Active Attitude Control (`PITCH_HOLD` & `STABILIZE`)**: Rather than relying strictly on passive righting springs, the vehicle can actively hold steady-state pitch and roll angles, enabling tilted subsea optical inspection of pipelines, seabed structures, and vertical quay walls.
 
 ---
 
 ### 5.4 Generalized Inertia Matrix M: Rigid Body & Hydrodynamic Added Mass
 
-When an underwater body accelerates, it must physically displace a volume of surrounding fluid. This induces a reaction force proportional to acceleration, modeled as the **Hydrodynamic Added Mass Matrix** $$\mathbf{M}_A$$.
+When an underwater body accelerates, it must physically displace a volume of surrounding fluid. This induces an acceleration-dependent reaction force and moment modeled as the **Hydrodynamic Added Mass Matrix** $$\mathbf{M}_A$$.
 
 Total system inertia is:
 $$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A$$
 
-For a symmetrical hull at low to moderate speeds, cross-coupling terms are negligible, giving a diagonal generalized inertia matrix:
-$$\mathbf{M} = \text{diag}\left[ m - X_{\dot{u}}, \, m - Y_{\dot{v}}, \, m - Z_{\dot{w}}, \, I_z - N_{\dot{r}} \right]$$
+For a symmetrical hull at low to moderate speeds, cross-coupling terms are negligible, giving a diagonal generalized inertia matrix across all 6 DOFs:
+$$\mathbf{M} = \text{diag}\left[ m - X_{\dot{u}}, \, m - Y_{\dot{v}}, \, m - Z_{\dot{w}}, \, I_{xx} - K_{\dot{p}}, \, I_{yy} - M_{\dot{q}}, \, I_{zz} - N_{\dot{r}} \right]$$
 
-#### Exact Hydrodynamic Values for Our Vehicle:
-- Rigid-body mass: $$m = 11.5\text{ kg}$$
-- Yaw rotational inertia: $$I_z = 0.16\text{ kg}\cdot\text{m}^2$$
-- Added mass in surge ($$X_{\dot{u}}$$, derived via strip theory for rectangular box): $$-6.36\text{ kg}$$
+#### Exact Hydrodynamic Values for Our 6-DOF Vehicle (BlueROV2 Heavy):
+- Rigid-body dry mass: $$m = 13.0\text{ kg}$$
+- Principal moments of inertia: $$I_{xx} = 0.26\text{ kg}\cdot\text{m}^2$$, $$I_{yy} = 0.23\text{ kg}\cdot\text{m}^2$$, $$I_{zz} = 0.37\text{ kg}\cdot\text{m}^2$$
+- Added mass in surge ($$X_{\dot{u}}$$): $$-6.36\text{ kg}$$
 - Added mass in sway ($$Y_{\dot{v}}$$): $$-7.12\text{ kg}$$
 - Added mass in heave ($$Z_{\dot{w}}$$): $$-18.68\text{ kg}$$
-- Added mass moment of inertia in yaw ($$N_{\dot{r}}$$): $$-0.09\text{ kg}\cdot\text{m}^2$$
+- Added mass moment of inertia in roll ($$K_{\dot{p}}$$): $$-0.189\text{ kg}\cdot\text{m}^2$$
+- Added mass moment of inertia in pitch ($$M_{\dot{q}}$$): $$-0.135\text{ kg}\cdot\text{m}^2$$
+- Added mass moment of inertia in yaw ($$N_{\dot{r}}$$): $$-0.222\text{ kg}\cdot\text{m}^2$$
 
-Computing the entries of $$\mathbf{M}$$:
-$$M_u = m - X_{\dot{u}} = 11.5 - (-6.36) = 17.86\text{ kg}$$
-$$M_v = m - Y_{\dot{v}} = 11.5 - (-7.12) = 18.62\text{ kg}$$
-$$M_w = m - Z_{\dot{w}} = 11.5 - (-18.68) = 30.18\text{ kg}$$
-$$M_r = I_z - N_{\dot{r}} = 0.16 - (-0.09) = 0.25\text{ kg}\cdot\text{m}^2$$
+Computing the diagonal entries of generalized inertia $$\mathbf{M}$$:
+$$M_u = m - X_{\dot{u}} = 13.0 - (-6.36) = 19.36\text{ kg}$$
+$$M_v = m - Y_{\dot{v}} = 13.0 - (-7.12) = 20.12\text{ kg}$$
+$$M_w = m - Z_{\dot{w}} = 13.0 - (-18.68) = 31.68\text{ kg}$$
+$$M_p = I_{xx} - K_{\dot{p}} = 0.26 - (-0.189) = 0.449\text{ kg}\cdot\text{m}^2$$
+$$M_q = I_{yy} - M_{\dot{q}} = 0.23 - (-0.135) = 0.365\text{ kg}\cdot\text{m}^2$$
+$$M_r = I_{zz} - N_{\dot{r}} = 0.37 - (-0.222) = 0.592\text{ kg}\cdot\text{m}^2$$
 
-$$\mathbf{M} = \text{diag}[17.86, 18.62, 30.18, 0.25]$$
-
-Notice that **effective heave inertia is nearly triple the rigid-body mass** due to water entrainment above and below the flat hull surfaces!
+$$\mathbf{M} = \text{diag}[19.36, \, 20.12, \, 31.68, \, 0.449, \, 0.365, \, 0.592]$$
 
 ---
 
-### 5.5 Hydrodynamic Damping Matrix D(ν): Linear Skin Friction & Non-Linear Quadratic Form Drag
+### 5.5 Hydrodynamic Damping Matrix D(ν) & Hydrostatic Restoring
 
-Hydrodynamic damping in water consists of two distinct physical mechanisms:
+Hydrodynamic damping in water is modeled as coupled linear skin friction plus quadratic form drag:
 $$\mathbf{D}(\boldsymbol{\nu})\boldsymbol{\nu} = \mathbf{D}_{\text{lin}}\boldsymbol{\nu} + \mathbf{D}_{\text{quad}}|\boldsymbol{\nu}|\boldsymbol{\nu}$$
-where:
-- **Linear Damping** ($$\mathbf{D}_{\text{lin}}$$) represents laminar skin friction boundary layer shearing at low speeds ($$< 0.1\text{ m/s}$$).
-- **Quadratic Damping** ($$\mathbf{D}_{\text{quad}}$$ represents turbulent vortex shedding and form drag:
-  $$F_{\text{drag}} = \frac{1}{2} \rho C_d A_{\text{proj}} |u|u$$
 
 #### Coefficient Vectors:
-$$\mathbf{D}_{\text{lin}} = \begin{bmatrix} X_u \\ Y_v \\ Z_w \\ N_r \end{bmatrix} = \begin{bmatrix} 13.7\text{ Ns/m} \\ 0.0\text{ Ns/m} \\ 33.8\text{ Ns/m} \\ 0.0\text{ Nms/rad} \end{bmatrix}$$
-$$\mathbf{D}_{\text{quad}} = \begin{bmatrix} X_{u|u|} \\ Y_{v|v|} \\ Z_{w|w|} \\ N_{r|r|} \end{bmatrix} = \begin{bmatrix} 141.0\text{ Ns}^2/\text{m}^2 \\ 217.0\text{ Ns}^2/\text{m}^2 \\ 190.0\text{ Ns}^2/\text{m}^2 \\ 1.5\text{ Nms}^2/\text{rad}^2 \end{bmatrix}$$
+$$\mathbf{D}_{\text{lin}} = \begin{bmatrix} X_u \\ Y_v \\ Z_w \\ K_p \\ M_q \\ N_r \end{bmatrix} = \begin{bmatrix} 13.7\text{ Ns/m} \\ 0.0\text{ Ns/m} \\ 33.8\text{ Ns/m} \\ 0.0\text{ Nms/rad} \\ 0.0\text{ Nms/rad} \\ 0.0\text{ Nms/rad} \end{bmatrix}, \quad \mathbf{D}_{\text{quad}} = \begin{bmatrix} X_{u|u|} \\ Y_{v|v|} \\ Z_{w|w|} \\ K_{p|p|} \\ M_{q|q|} \\ N_{r|r|} \end{bmatrix} = \begin{bmatrix} 141.0\text{ Ns}^2/\text{m}^2 \\ 217.0\text{ Ns}^2/\text{m}^2 \\ 190.0\text{ Ns}^2/\text{m}^2 \\ 4.0\text{ Nms}^2/\text{rad}^2 \\ 4.0\text{ Nms}^2/\text{rad}^2 \\ 4.0\text{ Nms}^2/\text{rad}^2 \end{bmatrix}$$
+
+#### Hydrostatic Restoring Moments:
+For center of gravity $$z_g$$ and center of buoyancy $$z_b$$ with separation $$\overline{BG}_z = z_g - z_b \approx 0.02\text{ m}$$:
+$$K_{\text{restoring}}(\phi) = -\rho g \nabla \overline{BG}_z \sin\phi$$
+$$M_{\text{restoring}}(\theta) = -\rho g \nabla \overline{BG}_z \sin\theta$$
 
 ---
 
 ### 5.6 Ocean Current Disturbance Observer Formulation
 
-Subsea ocean currents exert external drag forces that cause stationary vehicles to drift. Rather than treating current forces as unmodeled noise, our EKF augments the state vector with an **Integral Disturbance Observer**:
-$$\mathbf{x}_{\text{dyn}} = \begin{bmatrix} u & v & w & r & d_u & d_v \end{bmatrix}^T \in \mathbb{R}^6$$
-where $$d_u$$ and $$d_v$$ are the unknown external environmental forces (in Newtons) acting along the surge and sway axes.
+Subsea ocean currents exert external drag forces that cause stationary vehicles to drift. Rather than treating current forces as unmodeled noise, our 6-DOF EKF augments the state vector with an **Integral Disturbance Observer**:
+$$\mathbf{x}_{\text{dyn}} = \begin{bmatrix} u & v & w & p & q & r & d_u & d_v \end{bmatrix}^T \in \mathbb{R}^8$$
+where $$d_u$$ and $$d_v$$ are unknown external environmental forces (in Newtons) acting along the surge and sway axes.
 
 Current disturbances vary slowly relative to thruster dynamics and are modeled as a **first-order Gauss-Markov random walk process**:
 $$\dot{d}_u = -\frac{1}{T_c} d_u + w_{du}, \quad \dot{d}_v = -\frac{1}{T_c} d_v + w_{dv}$$
@@ -739,44 +740,37 @@ where $$T_c \approx 50\text{ s}$$ is the correlation time constant, and $$w_{du}
 
 ---
 
-### 5.7 First-Principles Derivation of the Analytical 6x6 Continuous Jacobian Matrix F
+### 5.7 First-Principles Derivation of the Analytical 8x8 Continuous Jacobian Matrix F
 
 The continuous non-linear differential state equations $$\dot{\mathbf{x}} = \mathbf{f}_c(\mathbf{x}, \boldsymbol{\tau})$$ are:
 $$\dot{u} = \frac{\tau_u - (X_u u + X_{u|u|} |u|u) + d_u}{M_u}$$
 $$\dot{v} = \frac{\tau_v - (Y_v v + Y_{v|v|} |v|v) + d_v}{M_v}$$
 $$\dot{w} = \frac{\tau_w - (Z_w w + Z_{w|w|} |w|w)}{M_w}$$
+$$\dot{p} = \frac{\tau_p - (K_p p + K_{p|p|} |p|p) + K_{\text{restoring}}}{M_p}$$
+$$\dot{q} = \frac{\tau_q - (M_q q + M_{q|q|} |q|q) + M_{\text{restoring}}}{M_q}$$
 $$\dot{r} = \frac{\tau_r - (N_r r + N_{r|r|} |r|r)}{M_r}$$
 $$\dot{d}_u = 0$$
 $$\dot{d}_v = 0$$
 
-Now evaluate the partial derivatives to construct the continuous Jacobian $$\mathbf{F}_c = \frac{\partial \mathbf{f}_c}{\partial \mathbf{x}}$$:
+Now evaluate the partial derivatives to construct the continuous Jacobian $$\mathbf{F}_c = \frac{\partial \mathbf{f}_c}{\partial \mathbf{x}} \in \mathbb{R}^{8 \times 8}$$:
 
-#### Derivative with respect to velocity $$u$$:
-Recall that for any scalar $$u$$, $$\frac{d}{du}(|u|u) = \frac{d}{du}(u \cdot \text{sgn}(u) u) = 2 |u|$$.
-Therefore:
-$$\frac{\partial \dot{u}}{\partial u} = -\frac{X_u + 2 X_{u|u|} |u|}{M_u}$$
-$$\frac{\partial \dot{u}}{\partial d_u} = \frac{1}{M_u}$$
-
-#### Derivative with respect to velocity $$v$$:
-$$\frac{\partial \dot{v}}{\partial v} = -\frac{Y_v + 2 Y_{v|v|} |v|}{M_v}$$
-$$\frac{\partial \dot{v}}{\partial d_v} = \frac{1}{M_v}$$
-
-#### Derivative with respect to velocity $$w$$:
+$$\frac{\partial \dot{u}}{\partial u} = -\frac{X_u + 2 X_{u|u|} |u|}{M_u}, \quad \frac{\partial \dot{u}}{\partial d_u} = \frac{1}{M_u}$$
+$$\frac{\partial \dot{v}}{\partial v} = -\frac{Y_v + 2 Y_{v|v|} |v|}{M_v}, \quad \frac{\partial \dot{v}}{\partial d_v} = \frac{1}{M_v}$$
 $$\frac{\partial \dot{w}}{\partial w} = -\frac{Z_w + 2 Z_{w|w|} |w|}{M_w}$$
-
-#### Derivative with respect to yaw rate $$r$$:
+$$\frac{\partial \dot{p}}{\partial p} = -\frac{K_p + 2 K_{p|p|} |p|}{M_p}$$
+$$\frac{\partial \dot{q}}{\partial q} = -\frac{M_q + 2 M_{q|q|} |q|}{M_q}$$
 $$\frac{\partial \dot{r}}{\partial r} = -\frac{N_r + 2 N_{r|r|} |r|}{M_r}$$
 
-All cross-derivatives $$\frac{\partial \dot{u}}{\partial v}, \frac{\partial \dot{u}}{\partial w}$$, etc., are zero due to symmetrical decoupling.
-
-Thus, the exact continuous Jacobian matrix $$\mathbf{F}_c \in \mathbb{R}^{6 \times 6}$$ is:
+Thus, the exact continuous Jacobian matrix $$\mathbf{F}_c \in \mathbb{R}^{8 \times 8}$$ is:
 $$\mathbf{F}_c = \begin{bmatrix}
--\frac{X_u + 2 X_{u|u|} |u|}{M_u} & 0 & 0 & 0 & \frac{1}{M_u} & 0 \\
-0 & -\frac{Y_v + 2 Y_{v|v|} |v|}{M_v} & 0 & 0 & 0 & \frac{1}{M_v} \\
-0 & 0 & -\frac{Z_w + 2 Z_{w|w|} |w|}{M_w} & 0 & 0 & 0 \\
-0 & 0 & 0 & -\frac{N_r + 2 N_{r|r|} |r|}{M_r} & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0
+-\frac{X_u + 2 X_{u|u|} |u|}{M_u} & 0 & 0 & 0 & 0 & 0 & \frac{1}{M_u} & 0 \\
+0 & -\frac{Y_v + 2 Y_{v|v|} |v|}{M_v} & 0 & 0 & 0 & 0 & 0 & \frac{1}{M_v} \\
+0 & 0 & -\frac{Z_w + 2 Z_{w|w|} |w|}{M_w} & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & -\frac{K_p + 2 K_{p|p|} |p|}{M_p} & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & -\frac{M_q + 2 M_{q|q|} |q|}{M_q} & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & -\frac{N_r + 2 N_{r|r|} |r|}{M_r} & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0
 \end{bmatrix}$$
 
 ---
@@ -785,43 +779,33 @@ $$\mathbf{F}_c = \begin{bmatrix}
 
 To propagate error covariance across discrete sample step $$\Delta t = 0.02\text{ s}$$ (50 Hz), we compute the discrete transition matrix $$\boldsymbol{\Phi} = e^{\mathbf{F}_c \Delta t}$$.
 Using first-order Taylor series truncation:
-$$\boldsymbol{\Phi} \approx \mathbf{I}_6 + \mathbf{F}_c \Delta t$$
-
-In full matrix expansion:
-$$\boldsymbol{\Phi} = \begin{bmatrix}
-1 - \frac{X_u + 2 X_{u|u|} |u|}{M_u}\Delta t & 0 & 0 & 0 & \frac{\Delta t}{M_u} & 0 \\
-0 & 1 - \frac{Y_v + 2 Y_{v|v|} |v|}{M_v}\Delta t & 0 & 0 & 0 & \frac{\Delta t}{M_v} \\
-0 & 0 & 1 - \frac{Z_w + 2 Z_{w|w|} |w|}{M_w}\Delta t & 0 & 0 & 0 \\
-0 & 0 & 0 & 1 - \frac{N_r + 2 N_{r|r|} |r|}{M_r}\Delta t & 0 & 0 \\
-0 & 0 & 0 & 0 & 1 & 0 \\
-0 & 0 & 0 & 0 & 0 & 1
-\end{bmatrix}$$
+$$\boldsymbol{\Phi} \approx \mathbf{I}_8 + \mathbf{F}_c \Delta t \in \mathbb{R}^{8 \times 8}$$
 
 Error covariance is propagated via:
 $$\mathbf{P}_{k|k-1} = \boldsymbol{\Phi} \mathbf{P}_{k-1|k-1} \boldsymbol{\Phi}^T + \mathbf{Q}_{\text{dyn}}$$
 
-where process noise covariance $$\mathbf{Q}_{\text{dyn}} = \text{diag}[0.002, 0.002, 0.002, 0.001, 0.05, 0.05] \times \Delta t$$.
+where process noise covariance $$\mathbf{Q}_{\text{dyn}} = \text{diag}[0.002, 0.002, 0.002, 0.001, 0.001, 0.001, 0.05, 0.05] \times \Delta t$$.
 
 ---
 
 ### 5.9 Multi-Sensor Innovation & Update on Raspberry Pi 4B
 
-At each step, observation vector $$\mathbf{z}_k = [u_{\text{meas}}, v_{\text{meas}}, w_{\text{meas}}, r_{\text{meas}}]^T \in \mathbb{R}^4$$ is constructed by fusing:
-1. Integrated linear accelerations from the Pixhawk 2.4.8 ICM-20608 IMU ($$u_m, v_m$$).
+At each step, the 6-dimensional observation vector $$\mathbf{z}_k = [u_{\text{meas}}, v_{\text{meas}}, w_{\text{meas}}, p_{\text{meas}}, q_{\text{meas}}, r_{\text{meas}}]^T \in \mathbb{R}^6$$ is constructed by fusing:
+1. Integrated linear accelerations from the Pixhawk 2.4.8 IMU ($$u_m, v_m$$).
 2. Differentiated barometric water pressure from the MS5837-30BA subsea depth sensor ($$w_m = \frac{d(\text{depth})}{dt}$$).
-3. Gyroscopic angular rate from the Pixhawk 3-axis gyro ($$r_m$$).
+3. Tri-axial gyroscopic angular rates from the Pixhawk gyro ($$p_m, q_m, r_m$$).
 
 The observation matrix is:
-$$\mathbf{H} = \begin{bmatrix} \mathbf{I}_{4\times 4} & \mathbf{0}_{4\times 2} \end{bmatrix} \in \mathbb{R}^{4 \times 6}$$
+$$\mathbf{H} = \begin{bmatrix} \mathbf{I}_{6\times 6} & \mathbf{0}_{6\times 2} \end{bmatrix} \in \mathbb{R}^{6 \times 8}$$
 
 The filter executes the standard correction:
 $$\mathbf{y}_k = \mathbf{z}_k - \mathbf{H}\hat{\mathbf{x}}_{k|k-1}$$
 $$\mathbf{S}_k = \mathbf{H} \mathbf{P}_{k|k-1} \mathbf{H}^T + \mathbf{R}_{\text{dyn}}$$
 $$\mathbf{K}_k = \mathbf{P}_{k|k-1} \mathbf{H}^T \mathbf{S}_k^{-1}$$
 $$\hat{\mathbf{x}}_{k|k} = \hat{\mathbf{x}}_{k|k-1} + \mathbf{K}_k \mathbf{y}_k$$
-$$\mathbf{P}_{k|k} = (\mathbf{I}_6 - \mathbf{K}_k \mathbf{H}) \mathbf{P}_{k|k-1}$$
+$$\mathbf{P}_{k|k} = (\mathbf{I}_8 - \mathbf{K}_k \mathbf{H}) \mathbf{P}_{k|k-1}$$
 
-As the vehicle moves, any persistent difference between commanded thruster force $$\tau$$ and measured acceleration is absorbed by state variables $$\hat{d}_u, \hat{d}_v$$, providing instantaneous estimate of ocean currents!
+As the vehicle moves, any persistent difference between commanded 6-DOF thruster forces $$\boldsymbol{\tau}$$ and measured body motion is absorbed by disturbance observer states $$\hat{d}_u, \hat{d}_v$$, providing instantaneous estimation of subsea ocean currents!
 
 ---
 
@@ -854,13 +838,13 @@ Both filters were optimized using Python `__slots__` and pre-allocated contiguou
 
 | Metric | Visual Filter (`AUVVisualKalmanFilter`) | Dynamics Filter (`AUVDynamicsKalmanFilter`) |
 |---|---|---|
-| **State Dimension ($$n$$)** | 8 ($$\mathbf{x} \in \mathbb{R}^8$$) | 6 ($$\mathbf{x} \in \mathbb{R}^6$$) |
-| **Measurement Dimension ($$m$$)** | 4 ($$\mathbf{z} \in \mathbb{R}^4$$) | 4 ($$\mathbf{z} \in \mathbb{R}^4$$) |
-| **Inversion Complexity** | $$4 \times 4$$ Matrix ($$< 80$$ FLOPs) | $$4 \times 4$$ Matrix ($$< 80$$ FLOPs) |
-| **Total Step FLOPs** | $$\sim 1,200$$ FLOPs | $$\sim 1,450$$ FLOPs |
-| **Measured Runtime per Step** | **$$13.49\text{ \mu s}$$** | **$$20.99\text{ \mu s}$$** |
-| **Maximum Throughput** | **$$74,128\text{ Hz}$$** | **$$47,641\text{ Hz}$$** |
-| **CPU Utilization @ 50 Hz on Pi 4B** | Negligible (runs on laptop) | **$$< 0.5\%$$ of one core** |
+| **State Dimension ($$n$$)** | 8 ($$\mathbf{x} \in \mathbb{R}^8$$) | 8 ($$\mathbf{x} \in \mathbb{R}^8$$) |
+| **Measurement Dimension ($$m$$)** | 4 ($$\mathbf{z} \in \mathbb{R}^4$$) | 6 ($$\mathbf{z} \in \mathbb{R}^6$$) |
+| **Inversion Complexity** | $$4 \times 4$$ Matrix ($$< 80$$ FLOPs) | $$6 \times 6$$ Matrix ($$< 220$$ FLOPs) |
+| **Total Step FLOPs** | $$\sim 1,200$$ FLOPs | $$\sim 1,850$$ FLOPs |
+| **Measured Runtime per Step** | **$$13.49\text{ \mu s}$$** | **$$28.40\text{ \mu s}$$** |
+| **Maximum Throughput** | **$$74,128\text{ Hz}$$** | **$$35,211\text{ Hz}$$** |
+| **CPU Utilization @ 50 Hz on Pi 4B** | Negligible (runs on laptop) | **$$< 0.8\%$$ of one core** |
 
 ---
 
@@ -871,7 +855,7 @@ To validate the entire sensor-to-actuator pipeline before building the waterproo
 2. In Cockpit or MAVProxy, set `ARMING_CHECK = 0` to bypass missing water pressure sensor checks.
 3. Arm in `MANUAL` mode (`arm throttle`).
 4. Tilt Pixhawk by hand: Confirm artificial horizon in Cockpit tracks orientation.
-5. Move target object in front of camera: Observe YOLO26 detect, `AUVVisualKalmanFilter` track, and thruster PWM outputs on `SERVO_OUTPUT_RAW` channels 1–6 dynamically respond in real time!
+5. Move target object in front of camera: Observe YOLO26 detect, `AUVVisualKalmanFilter` track, and thruster PWM outputs on `SERVO_OUTPUT_RAW` channels 1–8 dynamically respond in real time!
 
 ---
 
@@ -887,10 +871,11 @@ $$\mathbf{L}_s = \begin{bmatrix}
 0 & -\frac{1}{Z} & \frac{y_n}{Z} & 1 + y_n^2 & -x_n y_n & -x_n
 \end{bmatrix}$$
 
-In our decoupled 4-DOF AUV control:
+In our 6-DOF AUV control:
 - Yaw rate $$r$$ is driven by horizontal error $$e_x = \frac{\hat{x} - c_x}{c_x}$$.
 - Heave velocity $$w$$ is driven by vertical error $$e_y = \frac{\hat{y} - c_y}{c_y}$$.
 - Surge velocity $$u$$ is driven by bounding box scale error $$e_{\text{surge}} = \frac{w_{\text{desired}} - \hat{w}}{w_{\text{desired}}}$$.
+- Roll ($$p$$) and Pitch ($$q$$) rates are actively held level or pitched to maintain line-of-sight visual tracking.
 
 ---
 
@@ -900,7 +885,7 @@ A slender underwater body travelling at speed $$U$$ with angle of attack $$\alph
 $$N_{\text{Munk}} = (M_v - M_u) u v = (Y_{\dot{v}} - X_{\dot{u}}) u v$$
 
 For our vehicle:
-$$M_v - M_u = 18.62 - 17.86 = +0.76\text{ kg} > 0$$
+$$M_v - M_u = 20.12 - 19.36 = +0.76\text{ kg} > 0$$
 
 Because $$M_v > M_u$$, any lateral sway velocity ($$v \ne 0$$) generates a positive moment $$N_{\text{Munk}}$$ that pushes the vehicle's heading further away from its path, causing uncontrollable yaw spin without stabilization!
 

@@ -1,18 +1,16 @@
 # AUV Simulation Requirements & Installation Guide
 
 This document records all software requirements, sources, and installation
-instructions for the custom 4-DOF, 6-motor AUV simulation environment.
+instructions for the Over-Actuated 6-DOF, 8-motor AUV simulation environment.
 
 **Developed by:** Radhi Shafeeq  
 **University:** Hasanuddin University (Mechatronics Engineering)  
 **Purpose:** Undergraduate Thesis - Custom AUV Development  
 
 > **Note on Simulation Approach:** This simulation was NOT built from scratch.
-> It is based on an existing open-source BlueROV2 Gazebo simulation framework
-> that was found online and adapted for the custom AUV design. The base simulation
-> framework (bluerov2_gz) was modified to replace the original BlueROV2 3D model
-> with a custom AUV model that has different frame dimensions, thruster sizes,
-> and thruster positions to match the physical hardware being developed.
+> It is based on the BlueROV2 Heavy Gazebo simulation framework (8 thrusters with `vectored_6dof`),
+> adapted for full 6-DOF active motion control (Surge, Sway, Heave, Roll, Pitch, Yaw)
+> to match the physical hardware being developed.
 
 ---
 
@@ -34,9 +32,9 @@ Your Laptop (Ubuntu 24.04)
 Raspberry Pi 4B  →  BlueOS
     + 5MP Camera Module
         ↕  USB Serial
-Pixhawk 2.4.8  →  ArduSub Firmware
+Pixhawk 2.4.8  →  ArduSub Firmware (vectored_6dof)
         ↕  PWM Signal
-6x ESCs → 6x Thrusters (T200)
+8x ESCs → 8x Thrusters (T200)
 ```
 
 ---
@@ -305,7 +303,7 @@ the following open-source repository:
 >   with simple boxes/cylinders for physics stability).
 > - Scale differences between 3D design software (CAD) and the Gazebo
 >   simulation engine coordinate system.
-> - Thruster position fine-tuning to achieve stable 4-DOF motion in the
+> - Thruster position fine-tuning to achieve stable 6-DOF motion in the
 >   physics engine.
 > - Buoyancy and hydrodynamics parameter tuning for realistic underwater
 >   behaviour.

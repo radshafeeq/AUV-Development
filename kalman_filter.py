@@ -15,11 +15,11 @@ Provides two specialized, mathematically grounded Kalman filters for the AUV:
 
 2. AUVDynamicsKalmanFilter:
    - Runs Subsea (Raspberry Pi 4B under BlueOS).
-   - 4-DOF Hydrodynamic Extended Kalman Filter & Disturbance Observer.
-   - State: [u, v, w, r, d_u, d_v]^T (Surge, Sway, Heave, Yaw Rate, and Ocean Current Forces).
-   - Built on Fossen's non-linear equations with exact BlueROV2 parameters:
-     Rigid-body mass (11.5 kg) + Added mass (M_A) + Coupled Quadratic Drag (D_q).
-   - Execution time: < 0.05 ms per step, running seamlessly on Raspberry Pi CPU.
+   - 6-DOF Hydrodynamic Extended Kalman Filter & Disturbance Observer.
+   - State: [u, v, w, p, q, r, d_u, d_v]^T (Surge, Sway, Heave, Roll, Pitch, Yaw Rates, and Current Forces).
+   - Built on Fossen's non-linear equations with exact BlueROV2 Heavy (8-motor) parameters:
+     Rigid-body mass (13.0 kg) + Added mass (M_A) + Coupled Quadratic Drag (D_q).
+   - Execution time: < 0.08 ms per step, running seamlessly on Raspberry Pi CPU.
 
 Author: Radhi Shafeeq
 Undergraduate Thesis — Hasanuddin University (Mechatronics Engineering)
@@ -332,119 +332,145 @@ class AUVVisualKalmanFilter:
 
 class AUVDynamicsKalmanFilter:
     """
-    4-DOF Non-linear Hydrodynamic Extended Kalman Filter & Disturbance Observer:
-    - State vector: x = [u, v, w, r, d_u, d_v]^T
+    6-DOF Non-linear Hydrodynamic Extended Kalman Filter & Disturbance Observer:
+    - State vector: x = [u, v, w, p, q, r, d_u, d_v]^T (8 states)
       u   : Surge velocity (forward, m/s)
       v   : Sway velocity (lateral, m/s)
       w   : Heave velocity (vertical, m/s)
-      r   : Yaw rate (angular rate, rad/s)
+      p   : Roll angular rate (rad/s)
+      q   : Pitch angular rate (rad/s)
+      r   : Yaw angular rate (rad/s)
       d_u : Estimated ocean current disturbance force in surge (N)
       d_v : Estimated ocean current disturbance force in sway (N)
       
-    Derived from Fossen's Equations of Motion tailored for BlueROV2:
-      M * nu_dot + D(nu) * nu = tau + tau_dist
+    Derived from Fossen's Equations of Motion tailored for BlueROV2 Heavy (8-motor, 6-DOF):
+      M * nu_dot + D(nu) * nu + g(eta) = tau + tau_dist
     """
-    __slots__ = ('dt', 'M', 'D_lin', 'D_quad', 'x', 'P', 'Q', 'R', '_H', '_eye6')
+    __slots__ = ('dt', 'mass', 'M', 'D_lin', 'D_quad', 'x', 'P', 'Q', 'R', '_H', '_eye8')
 
-    def __init__(self, dt=0.02, mass=11.5):
+    def __init__(self, dt=0.02, mass=13.0):
         """
-        Initialize AUV Dynamics Filter with verified thesis hydrodynamic parameters.
+        Initialize 6-DOF AUV Dynamics Filter with verified thesis hydrodynamic parameters.
         dt: nominal sampling period (0.02 s = 50 Hz)
-        mass: rigid-body mass (11.5 kg for standard BlueROV2 configuration)
+        mass: rigid-body mass (13.0 kg for BlueROV2 Heavy 8-motor configuration)
         """
         self.dt = float(dt)
+        self.mass = float(mass)
 
         # Generalized mass vector (Rigid-body mass + Added Mass M_A)
-        # Surge: m - X_udot = 11.5 + 6.36 = 17.86 kg
-        # Sway : m - Y_vdot = 11.5 + 7.12 = 18.62 kg
-        # Heave: m - Z_wdot = 11.5 + 18.68 = 30.18 kg
-        # Yaw  : Iz - N_rdot = 0.16 + 0.09 = 0.25 kg*m^2
-        self.M = np.array([17.86, 18.62, 30.18, 0.25], dtype=np.float32)
+        # Surge: m - X_udot = 13.0 + 6.36 = 19.36 kg
+        # Sway : m - Y_vdot = 13.0 + 7.12 = 20.12 kg
+        # Heave: m - Z_wdot = 13.0 + 18.68 = 31.68 kg
+        # Roll : Ixx - K_pdot = 0.26 + 0.189 = 0.449 kg*m^2
+        # Pitch: Iyy - M_qdot = 0.23 + 0.135 = 0.365 kg*m^2
+        # Yaw  : Izz - N_rdot = 0.37 + 0.222 = 0.592 kg*m^2
+        self.M = np.array([19.36, 20.12, 31.68, 0.449, 0.365, 0.592], dtype=np.float32)
 
-        # Linear damping coefficients [Xu, Yv, Zw, Nr]
-        self.D_lin = np.array([13.7, 0.0, 33.8, 0.0], dtype=np.float32)
+        # Linear damping coefficients [Xu, Yv, Zw, Kp, Mq, Nr]
+        self.D_lin = np.array([13.7, 0.0, 33.8, 0.0, 0.0, 0.0], dtype=np.float32)
 
-        # Quadratic non-linear damping coefficients [Xuu, Yvv, Zww, Nrr]
-        self.D_quad = np.array([141.0, 217.0, 190.0, 1.5], dtype=np.float32)
+        # Quadratic non-linear damping coefficients [Xuu, Yvv, Zww, Kpp, Mqq, Nrr]
+        self.D_quad = np.array([141.0, 217.0, 190.0, 4.0, 4.0, 4.0], dtype=np.float32)
 
-        # State vector: [u, v, w, r, d_u, d_v]^T
-        self.x = np.zeros(6, dtype=np.float32)
+        # State vector: [u, v, w, p, q, r, d_u, d_v]^T
+        self.x = np.zeros(8, dtype=np.float32)
 
-        # Initial Error Covariance P
-        self.P = np.diag([0.1, 0.1, 0.1, 0.05, 2.0, 2.0]).astype(np.float32)
+        # Initial Error Covariance P (8x8)
+        self.P = np.diag([0.1, 0.1, 0.1, 0.05, 0.05, 0.05, 2.0, 2.0]).astype(np.float32)
 
         # Process Noise Covariance Q (stochastic hydrodynamic turbulence + disturbance drift)
-        self.Q = np.diag([0.002, 0.002, 0.002, 0.001, 0.05, 0.05]).astype(np.float32) * self.dt
+        self.Q = np.diag([0.002, 0.002, 0.002, 0.001, 0.001, 0.001, 0.05, 0.05]).astype(np.float32) * self.dt
 
-        # Measurement Noise Covariance R [u_meas, v_meas, w_meas, r_meas]
-        self.R = np.diag([0.02, 0.02, 0.01, 0.005]).astype(np.float32)
+        # Measurement Noise Covariance R [u_meas, v_meas, w_meas, p_meas, q_meas, r_meas]
+        self.R = np.diag([0.02, 0.02, 0.01, 0.005, 0.005, 0.005]).astype(np.float32)
 
-        # Observation Matrix H
-        self._H = np.zeros((4, 6), dtype=np.float32)
-        self._H[:4, :4] = np.eye(4, dtype=np.float32)
-        self._eye6 = np.eye(6, dtype=np.float32)
+        # Observation Matrix H (6 measurements x 8 states)
+        self._H = np.zeros((6, 8), dtype=np.float32)
+        self._H[:6, :6] = np.eye(6, dtype=np.float32)
+        self._eye8 = np.eye(8, dtype=np.float32)
 
-    def predict(self, tau, dt=None):
+    def predict(self, tau, angles=None, dt=None):
         """
-        Hydrodynamic Prediction step using thruster input tau = [tau_u, tau_v, tau_w, tau_r] (in N, N*m).
-        Propagates 4-DOF state through continuous non-linear damping kinetics.
+        Hydrodynamic Prediction step using 6-DOF thruster input tau = [tau_u, tau_v, tau_w, tau_p, tau_q, tau_r]
+        (in N and N*m). Propagates 6-DOF state through continuous non-linear damping and restoring kinetics.
         """
         dt = float(dt) if dt is not None else self.dt
-        u, v, w, r, du, dv = self.x
+        u, v, w, p, q, r, du, dv = self.x
 
-        # Non-linear damping forces: D(nu) * nu = (D_lin + D_quad * |nu|) * nu
-        drag_u = (self.D_lin[0] + self.D_quad[0] * abs(u)) * u
-        drag_v = (self.D_lin[1] + self.D_quad[1] * abs(v)) * v
-        drag_w = (self.D_lin[2] + self.D_quad[2] * abs(w)) * w
-        drag_r = (self.D_lin[3] + self.D_quad[3] * abs(r)) * r
+        # Pad 4-DOF input to 6-DOF for backwards compatibility
+        if len(tau) == 4:
+            tau = [tau[0], tau[1], tau[2], 0.0, 0.0, tau[3]]
 
-        # Net accelerations (including estimated ocean disturbance forces du, dv)
-        u_dot = (tau[0] - drag_u + du) / self.M[0]
-        v_dot = (tau[1] - drag_v + dv) / self.M[1]
-        w_dot = (tau[2] - drag_w) / self.M[2]
-        r_dot = (tau[3] - drag_r) / self.M[3]
+        # Hydrostatic restoring moments in Roll and Pitch:
+        # BG_z = z_g - z_b ~= 0.02 m; Restoring moment = -W * BG_z * sin(angle)
+        restoring_p = 0.0
+        restoring_q = 0.0
+        if angles is not None:
+            phi, theta = angles[0], angles[1]
+            W = self.mass * 9.80665
+            BG_z = 0.02
+            restoring_p = -W * BG_z * math.sin(phi)
+            restoring_q = -W * BG_z * math.sin(theta)
+
+        # Non-linear damping forces/moments: D(nu) * nu = (D_lin + D_quad * |nu|) * nu
+        nu = self.x[:6]
+        drag = (self.D_lin + self.D_quad * np.abs(nu)) * nu
+
+        # Net accelerations (including ocean disturbances du, dv and hydrostatic restoring)
+        u_dot = (tau[0] - drag[0] + du) / self.M[0]
+        v_dot = (tau[1] - drag[1] + dv) / self.M[1]
+        w_dot = (tau[2] - drag[2]) / self.M[2]
+        p_dot = (tau[3] - drag[3] + restoring_p) / self.M[3]
+        q_dot = (tau[4] - drag[4] + restoring_q) / self.M[4]
+        r_dot = (tau[5] - drag[5]) / self.M[5]
 
         # Numerical integration
         self.x[0] += u_dot * dt
         self.x[1] += v_dot * dt
         self.x[2] += w_dot * dt
-        self.x[3] += r_dot * dt
+        self.x[3] += p_dot * dt
+        self.x[4] += q_dot * dt
+        self.x[5] += r_dot * dt
 
-        # Jacobian linearization F = df/dx
-        F = self._eye6.copy()
-        F[0, 0] += -(self.D_lin[0] + 2.0 * self.D_quad[0] * abs(u)) / self.M[0] * dt
-        F[0, 4] = dt / self.M[0]
-        F[1, 1] += -(self.D_lin[1] + 2.0 * self.D_quad[1] * abs(v)) / self.M[1] * dt
-        F[1, 5] = dt / self.M[1]
-        F[2, 2] += -(self.D_lin[2] + 2.0 * self.D_quad[2] * abs(w)) / self.M[2] * dt
-        F[3, 3] += -(self.D_lin[3] + 2.0 * self.D_quad[3] * abs(r)) / self.M[3] * dt
+        # Analytical Jacobian linearization F = df/dx (8x8)
+        F = self._eye8.copy()
+        for i in range(6):
+            F[i, i] += -(self.D_lin[i] + 2.0 * self.D_quad[i] * abs(nu[i])) / self.M[i] * dt
+        F[0, 6] = dt / self.M[0]
+        F[1, 7] = dt / self.M[1]
 
         # Covariance propagation
         self.P = F @ self.P @ F.T + self.Q
-        return self.x[:4].copy()
+        return self.x[:6].copy()
 
     def update(self, z_meas):
         """
-        Correction step using vehicle sensor observations z_meas = [u_m, v_m, w_m, r_m].
-        Supports measurements from IMU integration, depth rate differentiator, DVL, or visual odometry.
+        Correction step using vehicle sensor observations z_meas = [u_m, v_m, w_m, p_m, q_m, r_m].
+        Supports measurements from IMU gyro (p, q, r), depth rate (w), and linear observers (u, v).
         """
-        z = np.asarray(z_meas, dtype=np.float32).reshape(4)
-        y = z - self._H @ self.x  # Innovation
+        z_arr = np.asarray(z_meas, dtype=np.float32).reshape(-1)
+        if len(z_arr) == 4:
+            # Backwards compatibility: [u, v, w, r] -> [u, v, w, 0, 0, r]
+            z = np.array([z_arr[0], z_arr[1], z_arr[2], 0.0, 0.0, z_arr[3]], dtype=np.float32)
+        else:
+            z = z_arr[:6]
+
+        y = z - self._H @ self.x  # Innovation (6x1)
 
         S = self._H @ self.P @ self._H.T + self.R
-        K = self.P @ self._H.T @ np.linalg.inv(S)  # Optimal Kalman Gain
+        K = self.P @ self._H.T @ np.linalg.inv(S)  # Optimal Kalman Gain (8x6)
 
         self.x += K @ y
-        self.P = (self._eye6 - K @ self._H) @ self.P
-        return self.x[:4].copy()
+        self.P = (self._eye8 - K @ self._H) @ self.P
+        return self.x[:6].copy()
 
     def get_velocities(self):
-        """Returns filtered body-frame velocities: (u, v, w, r)."""
-        return float(self.x[0]), float(self.x[1]), float(self.x[2]), float(self.x[3])
+        """Returns filtered 6-DOF body-frame velocities: (u, v, w, p, q, r)."""
+        return float(self.x[0]), float(self.x[1]), float(self.x[2]), float(self.x[3]), float(self.x[4]), float(self.x[5])
 
     def get_disturbance_forces(self):
         """Returns estimated external ocean current disturbance forces: (d_u, d_v) in Newtons."""
-        return float(self.x[4]), float(self.x[5])
+        return float(self.x[6]), float(self.x[7])
 
 
 # ==============================================================================

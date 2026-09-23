@@ -3,12 +3,13 @@
 AUV Hydrodynamic Dynamics Hardware-In-The-Loop (HIL) Companion Node
 ===================================================================
 Author: Radhi Shafeeq (Hasanuddin University - Mechatronics Engineering)
-Project: 5-DOF AUV Autonomous State Estimation & Visual Servoing
+Project: Over-Actuated 6-DOF 8-Motor AUV Autonomous State Estimation & Visual Servoing
+         (BlueROV2 Heavy Configuration)
 
 Description:
-  Executes the 4-DOF Non-linear Hydrodynamic Extended Kalman Filter &
+  Executes the 6-DOF Non-linear Hydrodynamic Extended Kalman Filter &
   Disturbance Observer (AUVDynamicsKalmanFilter) live with real vehicle
-  hardware: Pixhawk 2.4.8 (ArduSub) + MS5837 Depth/Pressure Sensor.
+  hardware: Pixhawk 2.4.8 (ArduSub vectored_6dof) + MS5837 Depth/Pressure Sensor.
 
 Execution Modes:
   1. Onboard Subsea (on Raspberry Pi 4B):
@@ -33,7 +34,7 @@ if SCRIPT_DIR not in sys.path:
 from kalman_filter import AUVDynamicsKalmanFilter
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="AUV Hydrodynamic Dynamics HIL Estimator")
+    parser = argparse.ArgumentParser(description="AUV 6-DOF Hydrodynamic Dynamics HIL Estimator")
     parser.add_argument("--host", type=str, default="127.0.0.1",
                         help="BlueOS IP address (127.0.0.1 if running on Pi, 192.168.2.2 if on Laptop)")
     parser.add_argument("--port", type=int, default=6040,
@@ -60,22 +61,34 @@ class SubseaTelemetryBridge:
         except Exception:
             return None
 
+def pwm_to_thrust_n(pwm):
+    """Converts 1100-1900 PWM signal to T200 thruster force in Newtons (~ +/- 35 N max at 16V)."""
+    if pwm is None or pwm < 1000 or pwm > 2000:
+        return 0.0
+    if 1475 <= pwm <= 1525:
+        return 0.0  # Deadband
+    if pwm > 1525:
+        return float((pwm - 1525) / 375.0) * 35.0
+    else:
+        return float((pwm - 1475) / 375.0) * 35.0
+
 def main():
     args = parse_args()
     dt = 1.0 / args.freq
     rho = 1000.0 if args.water == "fresh" else 1025.0
     g = 9.80665
 
-    print("=" * 70)
-    print("   AUV HYDRODYNAMIC DYNAMICS EXTENDED KALMAN FILTER (HIL NODE)    ")
-    print("=" * 70)
+    print("=" * 80)
+    print("   AUV 6-DOF HYDRODYNAMIC DYNAMICS EXTENDED KALMAN FILTER (HIL NODE)    ")
+    print("=" * 80)
     print(f" Target Host : {args.host}:{args.port}")
+    print(f" Vehicle     : Over-Actuated 6-DOF (8x T200 Thrusters, BlueROV2 Heavy)")
     print(f" Frequency   : {args.freq:.1f} Hz (dt = {dt*1000:.1f} ms)")
     print(f" Water Type  : {args.water.upper()} water (rho = {rho:.1f} kg/m³)")
     print(" Connecting to subsea telemetry bridge...")
 
     bridge = SubseaTelemetryBridge(host=args.host, port=args.port)
-    dkf = AUVDynamicsKalmanFilter(dt=dt, mass=11.5)
+    dkf = AUVDynamicsKalmanFilter(dt=dt, mass=13.0)
 
     # 1. Calibrate Surface Atmospheric Pressure
     print("[Calibrating] Sampling MS5837 pressure sensor for atmospheric baseline...")
@@ -96,12 +109,11 @@ def main():
         p_atm = 1013.25
         print(f"[Warning] Could not read MS5837; defaulting P_atm = {p_atm:.2f} hPa")
 
-    print("\n[Running] Dynamics EKF Active! Streaming live state estimates:")
-    print("Surge(u) | Sway(v) | Heave(w) | YawRate(r) | Depth(z) | Dist(du,dv) | Temp")
-    print("-" * 75)
+    print("\n[Running] 6-DOF Dynamics EKF Active! Streaming live state estimates:")
+    print("Surge(u) | Sway(v) | Heave(w) | Roll(p) | Pitch(q) | Yaw(r) | Depth(z) | Dist(du,dv)")
+    print("-" * 85)
 
     step_count = 0
-    t_prev = time.perf_counter()
     prev_z = 0.0
 
     while True:
@@ -122,32 +134,53 @@ def main():
             w_meas = (depth_m - prev_z) / dt
             prev_z = depth_m
 
-            # B. Angular Rate & Attitude from Pixhawk
+            # B. Tri-Axial Angular Rates & Attitude from Pixhawk
             att = msgs.get("ATTITUDE", {}).get("message", {})
+            p_meas = att.get("rollspeed", 0.0)
+            q_meas = att.get("pitchspeed", 0.0)
             r_meas = att.get("yawspeed", 0.0)
-            roll_deg = np.degrees(att.get("roll", 0.0))
-            pitch_deg = np.degrees(att.get("pitch", 0.0))
-            yaw_deg = np.degrees(att.get("yaw", 0.0))
+            roll_rad = att.get("roll", 0.0)
+            pitch_rad = att.get("pitch", 0.0)
+            yaw_rad = att.get("yaw", 0.0)
 
-            # C. Linear Acceleration / Surmise velocities
+            # C. Linear Surmise velocities
             u_meas = 0.0
             v_meas = 0.0
 
-            # D. Commanded Thrust from Servo Outputs / Manual Control
-            # M1-M4 horizontal vectored thrusters, M5-M6 vertical
-            tau_cmd = [0.0, 0.0, 0.0, 0.0]  # [surge, sway, heave, yaw]
+            # D. Commanded 6-DOF Thrust from 8-Thruster Servo Outputs
+            servo_msg = msgs.get("SERVO_OUTPUT_RAW", {}).get("message", {})
+            f_thrusters = [pwm_to_thrust_n(servo_msg.get(f"servo{i}_raw", 1500)) for i in range(1, 9)]
 
-            # E. EKF Predict and Update
-            dkf.predict(tau_cmd)
-            dkf.update([u_meas, v_meas, w_meas, r_meas])
+            # 6x8 Allocation Mapping (BlueROV2 Heavy vectored_6dof layout):
+            # Horizontal vectored at 45 deg: T1-T4
+            c45 = 0.7071
+            tau_u = c45 * (f_thrusters[0] + f_thrusters[1] - f_thrusters[2] - f_thrusters[3])
+            tau_v = c45 * (-f_thrusters[0] + f_thrusters[1] + f_thrusters[2] - f_thrusters[3])
+            # Vertical corner thrusters: T5-T8
+            tau_w = -(f_thrusters[4] + f_thrusters[5] + f_thrusters[6] + f_thrusters[7])
+            # Differential vertical thrust creates Roll (K) and Pitch (M)
+            # Arm lengths: dy ~= 0.218 m, dx ~= 0.120 m
+            dy, dx = 0.218, 0.120
+            tau_p = dy * (f_thrusters[4] - f_thrusters[5] + f_thrusters[6] - f_thrusters[7])
+            tau_q = dx * (-f_thrusters[4] - f_thrusters[5] + f_thrusters[6] + f_thrusters[7])
+            # Yaw torque (N) from horizontal thrusters: arm r_yaw ~= 0.175 m
+            r_yaw = 0.175
+            tau_r = r_yaw * (-f_thrusters[0] + f_thrusters[1] - f_thrusters[2] + f_thrusters[3])
 
-            u_est, v_est, w_est, r_est = dkf.get_velocities()
+            tau_cmd = [tau_u, tau_v, tau_w, tau_p, tau_q, tau_r]
+
+            # E. 6-DOF EKF Predict and Update
+            dkf.predict(tau_cmd, angles=[roll_rad, pitch_rad], dt=dt)
+            dkf.update([u_meas, v_meas, w_meas, p_meas, q_meas, r_meas])
+
+            u_est, v_est, w_est, p_est, q_est, r_est = dkf.get_velocities()
             du_est, dv_est = dkf.get_disturbance_forces()
 
             step_count += 1
             if step_count % 5 == 0:  # Print every 5 cycles (10 Hz terminal refresh)
-                print(f" {u_est:+5.2f}m/s | {v_est:+5.2f}m/s | {w_est:+5.2f}m/s | {r_est:+5.2f}r/s | "
-                      f"{depth_m*100:6.1f}cm | {du_est:+4.1f},{dv_est:+4.1f}N | {temp_c:4.1f}°C",
+                print(f" {u_est:+5.2f} | {v_est:+5.2f} | {w_est:+5.2f} | "
+                      f"{np.degrees(p_est):+5.1f}°/s | {np.degrees(q_est):+5.1f}°/s | {np.degrees(r_est):+5.1f}°/s | "
+                      f"{depth_m*100:6.1f}cm | {du_est:+4.1f},{dv_est:+4.1f}N",
                       end="\r", flush=True)
 
         elapsed = time.perf_counter() - cycle_start

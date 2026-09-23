@@ -1,34 +1,33 @@
-# Custom 4-DOF AUV Simulation
-This repository contains the simulation files for a custom 6-motor, 4-DOF Autonomous Underwater Vehicle (AUV). This project is being developed as part of an undergraduate Mechatronics Engineering thesis at Hasanuddin University.
+# Over-Actuated 6-DOF 8-Motor AUV Simulation & Autonomous Control
+This repository contains the simulation files, mathematical derivations, state estimators, and autonomous control suite for an **Over-Actuated 6-DOF, 8-Motor Autonomous Underwater Vehicle (AUV)** based on the BlueROV2 Heavy frame architecture. This project is being developed as part of an undergraduate Mechatronics Engineering thesis at Hasanuddin University.
 
-The simulation integrates a custom 3D AUV frame design with Gazebo Harmonic (for physics and 3D rendering) and ArduSub SITL (for the flight controller and vehicle dynamics).
+The platform features 8x T200 brushless thrusters (4 horizontal vectored at $$45^\circ$$ + 4 vertical corner thrusters), providing full active 6-DOF authority (Surge, Sway, Heave, Roll, Pitch, Yaw) via ArduSub's `vectored_6dof` motor mixer.
 
 ## Architecture Overview
-The simulation is split into two main components that communicate over a local network:
+The simulation and autonomous control framework is split across three cooperating tiers:
 
-**Gazebo Sim:** Handles the 3D graphics, water physics, buoyancy, and collisions using the custom 3D .obj models.
-
-**ArduSub SITL (Software In The Loop):** Acts as the "brain" of the robot. It runs the ArduSub firmware, calculates motor thrusts based on the 6-motor geometry, and provides a MAVLink interface via MAVProxy.
+1. **Gazebo Sim (Harmonic v8.14):** Simulates 3D underwater graphics, fluid dynamics, hydrodynamic added mass ($\mathbf{M}_A$), linear/quadratic drag ($\mathbf{D}(\boldsymbol{\nu})$), buoyancy, and thruster physics for the 8-motor 6-DOF vehicle.
+2. **ArduSub SITL (`vectored_6dof`):** Acts as the autopilot "brain". It executes ArduSub 4.6 firmware with 6-DOF motor allocation, high-rate EKF3 attitude estimation, and provides a MAVLink interface via MAVProxy on UDP port 14550.
+3. **Subsea Companion Computer (Raspberry Pi 4B):** Executes the 6-DOF Hydrodynamic Extended Kalman Filter (`AUVDynamicsKalmanFilter`) at 50 Hz, estimating true vehicle velocities ($u, v, w, p, q, r$) and subsea ocean current disturbances ($d_u, d_v$).
+4. **Topside Workstation (Laptop GPU):** Runs real-time YOLO26 World visual object detection and the 8D Visual Target Kalman Filter (`AUVVisualKalmanFilter`) for closed-loop visual servoing.
 
 ## 📚 Master Academic Reference Monographs (Thesis Documentation)
-This repository includes two publication-grade, unabridged theoretical monographs grounded in the master research library:
+This repository includes two publication-grade theoretical monographs grounded in the master research library:
 - **Monograph 1 — Visual Servoing & State Estimation**: [`AUV_Kalman_Filter_Comprehensive_Explanation.md`](AUV_Kalman_Filter_Comprehensive_Explanation.md)  
-  *Exhaustive theoretical derivation of discrete Kalman filtering (DKF, EKF, UKF, EIF, RHKF), CWNA process noise covariance discretization ($\mathbf{Q}$), dual-filter architecture (`AUVVisualKalmanFilter` on Topside Laptop + `AUVDynamicsKalmanFilter` on Raspberry Pi 4B), zero-allocation optimization ($13.49\text{ \mu s}$ / $20.99\text{ \mu s}$), Fossen (2021) 4-DOF hydrodynamic plant model, subsea current disturbance observer, and Hardware-in-the-Loop (HIL) dry bench test methodology.*
+  *Exhaustive theoretical derivation of discrete Kalman filtering (DKF, EKF, UKF), CWNA process noise covariance discretization ($\mathbf{Q}$), dual-filter architecture (`AUVVisualKalmanFilter` on Topside Laptop + `AUVDynamicsKalmanFilter` on Raspberry Pi 4B), zero-allocation optimization, Fossen (2021) 6-DOF hydrodynamic plant model ($13.0\text{ kg}$), subsea current disturbance observer, and Hardware-in-the-Loop (HIL) dry bench test methodology.*
 - **Monograph 2 — Kinematic and Dynamic Modeling**: [`AUV_Kinematics_and_Dynamics_Comprehensive_Derivation.md`](AUV_Kinematics_and_Dynamics_Comprehensive_Derivation.md)  
-  *Exhaustive first-principles derivation of 6-DOF kinematics ($SO(3)$ rotation matrix $\mathbf{R}_b^n$, $\mathbf{T}_\Theta$ matrix inversion, quaternions), Fossen's 6-DOF kinetics plant model (mass, Coriolis, damping, hydrostatics, 8-thruster allocation), variable-by-variable 4-DOF reduction, and the first-principles proof of the destabilizing hydrodynamic Munk Moment.*
+  *Exhaustive first-principles derivation of 6-DOF kinematics ($SO(3)$ rotation matrix $\mathbf{R}_b^n$, $\mathbf{T}_\Theta$ matrix inversion, quaternions), Fossen's 6-DOF kinetics plant model (mass, Coriolis, damping, hydrostatics, 8-thruster allocation $\mathbf{T}_{6\times 8}$), comparative variable-by-variable analysis, and the first-principles proof of the destabilizing hydrodynamic Munk Moment.*
 
 ## How to Run the Simulation
 
-You can launch either your **Custom 4-DOF AUV (6 Thrusters)** or the **BlueROV2 Heavy (8 Thrusters / 6-DOF)** simulation environment.
-
-### Option A: Custom 4-DOF AUV Simulation - "Poseidon AUV" (6 Thrusters)
+### Primary Platform: Over-Actuated 6-DOF AUV (8 Thrusters / BlueROV2 Heavy)
 1. **Launch Gazebo Physics World**:
    ```bash
-   ./start_gazebo.sh
+   ./start_bluerov2_heavy_gazebo.sh
    ```
-2. **Launch ArduSub SITL Flight Controller**:
+2. **Launch ArduSub SITL Flight Controller (`vectored_6dof`)**:
    ```bash
-   ./start_ardusub.sh
+   ./start_bluerov2_heavy_ardusub.sh
    ```
 3. **Launch Blue Robotics Cockpit GCS**:
    ```bash
@@ -37,14 +36,14 @@ You can launch either your **Custom 4-DOF AUV (6 Thrusters)** or the **BlueROV2 
 
 ---
 
-### Option B: BlueROV2 Heavy Simulation (8 Thrusters / 6-DOF)
+### Secondary / Legacy Platform: 4-DOF AUV Simulation (6 Thrusters)
 1. **Launch Gazebo Physics World**:
    ```bash
-   ./start_bluerov2_heavy_gazebo.sh
+   ./start_gazebo.sh
    ```
 2. **Launch ArduSub SITL Flight Controller**:
    ```bash
-   ./start_bluerov2_heavy_ardusub.sh
+   ./start_ardusub.sh
    ```
 3. **Launch Blue Robotics Cockpit GCS**:
    ```bash
