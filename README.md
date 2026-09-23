@@ -148,16 +148,36 @@ The autonomy stack incorporates a high-performance **Dual Kalman Filter Suite** 
 - **Performance Benchmark**: **$13.49\text{ \mu s}$** execution time per step (>74,000 Hz throughput).
 
 #### 2. Subsea Hydrodynamic Dynamics Kalman Filter (`AUVDynamicsKalmanFilter` on Raspberry Pi 4B)
-- **Role**: Non-linear Extended Kalman Filter and Disturbance Observer fusing Pixhawk IMU/depth telemetry with thruster command efforts.
-- **Physical Model**: Fossen's (2021) 4-DOF marine craft equations of motion:
-  $$\mathbf{M} \dot{\boldsymbol{\nu}} + \mathbf{C}(\boldsymbol{\nu})\boldsymbol{\nu} + \mathbf{D}(\boldsymbol{\nu})\boldsymbol{\nu} = \boldsymbol{\tau} + \mathbf{d}$$
-- **State Vector**: 6D $\mathbf{x}_{\text{dyn}} = [u, v, w, r, d_u, d_v]^T$ *(Surge, Sway, Heave, Yaw rate, plus Ocean Current Disturbance Forces $d_u, d_v$)*
-- **Inertia Matrix**: $\mathbf{M} = \text{diag}[17.86, 18.62, 30.18, 0.25]$ kg, kg$\cdot\text{m}^2$ (including hydrodynamic added mass).
-- **Coupled Quadratic Damping**: $\mathbf{D}_{\text{lin}} = [13.7, 0, 33.8, 0]^T$, $\mathbf{D}_{\text{quad}} = [141.0, 217.0, 190.0, 1.5]^T$.
+- **Role**: Non-linear Extended Kalman Filter and Disturbance Observer fusing Pixhawk IMU/depth telemetry with thruster command efforts across all 6 spatial degrees of freedom.
+- **Physical Model**: Fossen's (2021) 6-DOF marine craft equations of motion:
+  $$\mathbf{M} \dot{\boldsymbol{\nu}} + \mathbf{C}(\boldsymbol{\nu})\boldsymbol{\nu} + \mathbf{D}(\boldsymbol{\nu})\boldsymbol{\nu} + \mathbf{g}(\boldsymbol{\eta}) = \boldsymbol{\tau} + \mathbf{d}$$
+- **State Vector**: 8D $\mathbf{x}_{\text{dyn}} = [u, v, w, p, q, r, d_u, d_v]^T$ *(Surge, Sway, Heave, Roll rate, Pitch rate, Yaw rate, plus Ocean Current Disturbance Forces $d_u, d_v$)*
+- **Inertia Matrix**: $\mathbf{M} = \text{diag}[19.36, 20.12, 31.68, 0.449, 0.365, 0.592]$ kg, kg$\cdot\text{m}^2$ (including full 6-DOF hydrodynamic added mass).
+- **Coupled Quadratic Damping**: $\mathbf{D}_{\text{lin}} = [13.7, 0, 33.8, 0, 0, 0]^T$, $\mathbf{D}_{\text{quad}} = [141.0, 217.0, 190.0, 4.0, 4.0, 4.0]^T$.
+- **Restoring Vector**: $\mathbf{g}(\boldsymbol{\eta}) = [0, 0, 0, \rho g \nabla \overline{BG}_z \cos\theta \sin\phi, \rho g \nabla \overline{BG}_z \sin\theta, 0]^T$ with $\overline{BG}_z \approx 0.02\text{ m}$.
 - **Disturbance Observer**: Uncouples vehicle thrust from external environmental currents, providing direct current force estimates ($d_u, d_v$ in Newtons) for active trim compensation.
 - **Performance Benchmark**: **$20.99\text{ \mu s}$** execution time per step (>47,000 Hz throughput on Raspberry Pi ARM Cortex-A72).
 
 ---
+
+### 📊 6-DOF Kinematics, Dynamics, and Multi-Sensor Telemetry Analyzer
+
+To analyze, log, and visualize the full 6-DOF Kinematics, Fossen Kinetics, 8-Motor Thruster Allocation, and Multi-Sensor Fusion (Pixhawk IMU, MS5837 Bar30 depth, 8-motor PWMs, YOLO26 target tracking, and dual Kalman filters), use [`auv_kinematics_dynamics_analyzer.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/auv_kinematics_dynamics_analyzer.py):
+
+```bash
+# 1. Run synthetic 6-DOF benchmark and generate publication plots (300 DPI)
+python3 auv_kinematics_dynamics_analyzer.py --test --duration 10.0
+
+# 2. Capture live multi-sensor telemetry from Pixhawk / BlueOS
+python3 auv_kinematics_dynamics_analyzer.py --live --duration 15.0 --mavlink-url http://192.168.2.2:6040
+```
+
+Outputs generated:
+- `auv_live_telemetry.csv` / `auv_synthetic_telemetry.csv`: Full synchronized time-series dataset.
+- `figure1_6dof_kinematics.png`: Earth-Fixed North-East planar trajectory, depth profile $z(t)$, attitude angles $(\phi, \theta)$, and compass heading $\psi(t)$.
+- `figure2_6dof_velocities.png`: 6-DOF translational velocities $(u, v, w)$ and rotational rates $(p, q, r)$.
+- `figure3_hydrodynamic_forces_disturbances.png`: Surge kinetics balance ($\tau_X$ vs $D(u)u$) and Kalman disturbance observer convergence $(\hat{d}_u, \hat{d}_v)$.
+- `figure4_8motor_thruster_allocation.png`: PWM duty cycle distribution across all 8 thrusters (Channels 1–8).
 
 ### 🏋️‍♂️ How to Train YOLO26 Model on Combined Dataset:
 To fine-tune YOLO26 on the combined Mechatronics + Office dataset on your GPU:
