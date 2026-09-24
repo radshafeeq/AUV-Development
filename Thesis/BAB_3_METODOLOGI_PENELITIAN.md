@@ -1,11 +1,11 @@
 # BAB III. METODOLOGI PENELITIAN
-## ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL *KALMAN FILTER* UNTUK PELACAKAN BERBASIS VISI PADA AUV *VECTORED 6-DOF* *OVER-ACTUATED* 8-PENDORONG
+## ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL *KALMAN FILTER* UNTUK *VISION-BASED TRACKING* PADA *OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV*
 
 ---
 
 > **Penulis**: Radhi Shafeeq  
 > **NIM**: D021201000  
-> **Program Studi**: Sarjana (S1) Teknik Mekatronika — Departemen Teknik Mesin  
+> **Program Studi**: Sarjana (S1) Departemen Teknik Mesin  
 > **Fakultas**: Fakultas Teknik, Universitas Hasanuddin  
 > **Format Penulisan**: Sesuai dengan *Pedoman Tugas Akhir Mahasiswa Fakultas Teknik Universitas Hasanuddin*  
 > **Standar Notasi**: Society of Naval Architects and Marine Engineers (SNAME, 1950) & Fossen (2021)  
@@ -30,7 +30,7 @@ Pelaksanaan penelitian berlangsung selama kurun waktu enam bulan pada Tahun Akad
 - **Bulan 6**: Analisis data kuantitatif, komputasi metrik evaluasi galat (*Root Mean Square Error* / RMSE), penyusunan laporan naskah skripsi, dan penyiapan publikasi ilmiah.
 
 ### 3.1.3 Batasan dan Asumsi Penelitian
-Untuk menjaga fokus analisis teknik mekatronika dan memastikan ketercapaian target ilmiah, ditetapkan batasan dan asumsi penelitian sebagai berikut:
+Untuk menjaga fokus analisis teknik mesin pada sistem wahana otonom dan memastikan ketercapaian target ilmiah, ditetapkan batasan dan asumsi penelitian sebagai berikut:
 1. **Model Wahana**: Wahana yang diteliti menggunakan geometri kerangka *retrofit* BlueROV2 Heavy [3], [21]. Sistem propulsi terdiri atas 8 unit pendorong elektro-mekanis tanpa sikat (*brushless DC thrusters*) Blue Robotics T200, yang dikonfigurasikan menjadi 4 pendorong horizontal bersudut vektor $$45^\circ$$ dan 4 pendorong vertikal independen pada empat sudut kerangka.
 2. **Karakteristik Fluida Kerja**: Media fluida diasumsikan sebagai fluida inkompresibel tak terbatas (*unbounded incompressible fluid*) homogen dengan densitas air tawar nominal $$
 ho = 1000	ext{ kg/m}^3$$ untuk uji laboratorium simulasi dan air laut nominal $$

@@ -1,7 +1,7 @@
 # BAB I: PENDAHULUAN
 
 **Judul Tugas Akhir**:  
-*Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal Kalman Filter untuk Pelacakan Berbasis Visi pada AUV Vectored 6-DOF Over-Actuated 8-Pendorong*
+*Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal *Kalman Filter* untuk *Vision-Based Tracking* pada *Over-Actuated 8-Thruster 6-DOF Vectored AUV**
 
 ---
 
@@ -38,7 +38,7 @@ Untuk menyelesaikan tantangan estimasi keadaan dan pelacakan ini, **Suite Optima
 
 Untuk menjembatani simulasi dan realitas fisik, arsitektur ini diimplementasikan di seluruh kerangka kerja terdistribusi **Software-In-The-Loop (SITL)** dan **Hardware-In-The-Loop (HITL)**. Aliran data kamera dan *Kalman Filter* visual berjalan pada komputer pendamping (*Raspberry Pi 4B* yang menjalankan BlueOS dan *node* Python HIL kustom), dan berinteraksi secara langsung dengan *flight controller* (*Pixhawk 2.4.8* yang menjalankan *firmware* ArduSub `vectored_6dof`) melalui telemetri MAVLink pada 50 Hz, yang kesemuanya divalidasi di dalam simulasi fisika Gazebo Harmonic dan ROS 2 Jazzy [14], [21], [31].
 
-Oleh karena itu, penelitian ini menyajikan **"Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal Kalman Filter untuk Pelacakan Berbasis Visi pada AUV Vectored 6-DOF Over-Actuated 8-Pendorong"**, untuk membangun derivasi teoretis yang tak terpotong (*unabridged*), parameterisasi fisik, dan validasi eksperimental HITL/SITL.
+Oleh karena itu, penelitian ini menyajikan **"Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal *Kalman Filter* untuk *Vision-Based Tracking* pada *Over-Actuated 8-Thruster 6-DOF Vectored AUV*"**, untuk membangun derivasi teoretis yang tak terpotong (*unabridged*), parameterisasi fisik, dan validasi eksperimental HITL/SITL.
 
 ---
 
@@ -107,7 +107,7 @@ Hasil dari penelitian ini diharapkan memberikan kontribusi ilmiah, rekayasa meka
    * Menghadirkan sistem perangkat lunak yang terbuka dan terverifikasi untuk mengintegrasikan teknologi *computer vision deep learning* (YOLO), *stochastic state filtering* (*Kalman Filter*), dan *firmware* kendali wahana (ArduSub `vectored_6dof`) dengan memanfaatkan *companion computer* yang terjangkau (Raspberry Pi 4B) [2], [14], [21].
    * Memungkinkan sistem kendali posisi dan pelacakan orientasi spasial (**attitude* tracking*) 6-DOF yang aktif secara dinamis, sehingga stabilitas posisi selalu terjaga ketika mengoperasikan *subsea robotic manipulator arm* (lengan robot) tanpa memiringkan postur wahana secara serampangan [18], [21], [31].
 3. **Kontribusi Kelembagaan dan Publik**:
-   * Memperkuat secara langsung program penelitian robotika bawah air (*underwater robotics*) dan sistem otonom (*autonomous systems*) di lingkungan Departemen Teknik Mesin / Program Studi Teknik Mekatronika, Universitas Hasanuddin.
+   * Memperkuat secara langsung program penelitian robotika bawah air (*underwater robotics*) dan sistem otonom (*autonomous systems*) di lingkungan Departemen Teknik Mesin / Program Studi Teknik Mesin, Universitas Hasanuddin.
    * Turut berkontribusi dalam mencari solusi teknologi praktis dan ramah lingkungan yang menunjang peta jalan ekonomi biru (*Blue Economy*) Nasional, inspeksi integritas struktural aset lepas pantai, serta memajukan agenda konservasi laut dan terumbu karang di Indonesia, khususnya Kawasan Timur Indonesia.
 
 ---

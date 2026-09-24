@@ -15,7 +15,7 @@
 
 <br>
 
-### **ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL KALMAN FILTER UNTUK PELACAKAN BERBASIS VISI PADA AUV VECTORED 6-DOF OVER-ACTUATED 8-PENDORONG**
+### **ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL *KALMAN FILTER* UNTUK *VISION-BASED TRACKING* PADA *OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV***
 
 <br>
 
@@ -46,7 +46,6 @@
 
 <br><br>
 
-**PROGRAM STUDI TEKNIK MEKATRONIKA**  
 **DEPARTEMEN TEKNIK MESIN**  
 **FAKULTAS TEKNIK**  
 **UNIVERSITAS HASANUDDIN**  
@@ -71,7 +70,7 @@
 
 <br>
 
-### **ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL KALMAN FILTER UNTUK PELACAKAN BERBASIS VISI PADA AUV VECTORED 6-DOF OVER-ACTUATED 8-PENDORONG**
+### **ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL *KALMAN FILTER* UNTUK *VISION-BASED TRACKING* PADA *OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV***
 
 <br>
 
@@ -88,7 +87,6 @@
 
 <br><br><br>
 
-**PROGRAM STUDI TEKNIK MEKATRONIKA**  
 **DEPARTEMEN TEKNIK MESIN**  
 **FAKULTAS TEKNIK**  
 **UNIVERSITAS HASANUDDIN**  
@@ -109,7 +107,7 @@
 
 *Halaman ii (Dihitung, tidak dicetak)*
 
-### **ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL KALMAN FILTER UNTUK PELACAKAN BERBASIS VISI PADA AUV VECTORED 6-DOF OVER-ACTUATED 8-PENDORONG**
+### **ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL *KALMAN FILTER* UNTUK *VISION-BASED TRACKING* PADA *OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV***
 
 <br><br>
 
@@ -120,7 +118,7 @@
 
 **Proposal Tugas Akhir**  
 sebagai salah satu syarat untuk mencapai gelar sarjana  
-Program Studi Teknik Mekatronika
+Program Studi Teknik Mesin
 
 <br><br>
 
@@ -128,7 +126,6 @@ pada
 
 <br><br>
 
-**PROGRAM STUDI TEKNIK MEKATRONIKA**  
 **DEPARTEMEN TEKNIK MESIN**  
 **FAKULTAS TEKNIK**  
 **UNIVERSITAS HASANUDDIN**  
@@ -153,7 +150,7 @@ pada
 
 <br>
 
-### **ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL KALMAN FILTER UNTUK PELACAKAN BERBASIS VISI PADA AUV VECTORED 6-DOF OVER-ACTUATED 8-PENDORONG**
+### **ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL *KALMAN FILTER* UNTUK *VISION-BASED TRACKING* PADA *OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV***
 
 <br>
 
@@ -169,7 +166,7 @@ Disusun dan diajukan oleh:
 Telah dipertahankan di hadapan Panitia Ujian Seminar Proposal Tugas Akhir  
 pada tanggal ......................... 2026  
 dan dinyatakan telah memenuhi syarat kelayakan proposal penelitian  
-pada Program Studi Teknik Mekatronika, Departemen Teknik Mesin,  
+pada Program Studi Teknik Mesin, Departemen Teknik Mesin,  
 Fakultas Teknik, Universitas Hasanuddin.
 
 <br><br><br>
@@ -197,7 +194,7 @@ Fakultas Teknik, Universitas Hasanuddin.
   <tr>
     <td colspan="2" style="border:none; text-align:center;">
       Mengetahui:<br>
-      <strong>Ketua Program Studi Teknik Mekatronika</strong><br>
+      <strong>Ketua Program Studi Teknik Mesin</strong><br>
       Departemen Teknik Mesin, Fakultas Teknik, Universitas Hasanuddin<br><br><br><br><br>
       <u>(Nama Lengkap Ketua Program Studi & Gelar)</u><br>
       NIP. ....................................................
@@ -226,7 +223,7 @@ Fakultas Teknik, Universitas Hasanuddin.
 Dengan ini saya menyatakan bahwa proposal tugas akhir yang berjudul:
 
 <div align="center">
-<strong>“ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL KALMAN FILTER UNTUK PELACAKAN BERBASIS VISI PADA AUV VECTORED 6-DOF OVER-ACTUATED 8-PENDORONG”</strong>
+<strong>“ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL *KALMAN FILTER* UNTUK *VISION-BASED TRACKING* PADA *OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV*”</strong>
 </div>
 
 adalah benar merupakan karya ilmiah orisinal saya sendiri di bawah arahan dan bimbingan tim pembimbing:
@@ -272,17 +269,17 @@ Dengan ini saya juga melimpahkan hak cipta (hak ekonomis) dari karya tulis ilmia
 
 <br>
 
-Puji dan syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas berkat, rahmat, dan karunia-Nya yang melimpah, sehingga penyusunan naskah proposal tugas akhir yang berjudul **"Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal Kalman Filter untuk Pelacakan Berbasis Visi pada AUV Vectored 6-DOF Over-Actuated 8-Pendorong"** ini dapat diselesaikan dengan baik. Naskah proposal ini disusun sebagai salah satu persyaratan kurikulum akademik untuk memperoleh gelar Sarjana Teknik (S.T.) pada Program Studi Teknik Mekatronika, Departemen Teknik Mesin, Fakultas Teknik, Universitas Hasanuddin.
+Puji dan syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas berkat, rahmat, dan karunia-Nya yang melimpah, sehingga penyusunan naskah proposal tugas akhir yang berjudul **"Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal *Kalman Filter* untuk *Vision-Based Tracking* pada *Over-Actuated 8-Thruster 6-DOF Vectored AUV*"** ini dapat diselesaikan dengan baik. Naskah proposal ini disusun sebagai salah satu persyaratan kurikulum akademik untuk memperoleh gelar Sarjana Teknik (S.T.) pada Program Studi Teknik Mesin, Departemen Teknik Mesin, Fakultas Teknik, Universitas Hasanuddin.
 
 Penyelesaian naskah proposal tugas akhir ini tidak lepas dari bimbingan, arahan, dorongan motivasi, serta bantuan berharga dari berbagai pihak. Oleh karena itu, dengan penuh rasa hormat dan kerendahan hati, penulis menyampaikan terima kasih dan penghargaan yang setinggi-tingginya kepada:
 
 1. **Bapak Prof. Dr. Ir. Jamaluddin Jompa, M.Sc.**, selaku Rektor Universitas Hasanuddin.
 2. **Bapak Prof. Dr. Eng. Ir. Muhammad Isran Ramli, S.T., M.T.**, selaku Dekan Fakultas Teknik, Universitas Hasanuddin.
 3. **Bapak/Ibu [Nama Ketua Departemen & Gelar]**, selaku Ketua Departemen Teknik Mesin, Fakultas Teknik, Universitas Hasanuddin.
-4. **Bapak/Ibu [Nama Ketua Program Studi & Gelar]**, selaku Ketua Program Studi Teknik Mekatronika, Fakultas Teknik, Universitas Hasanuddin.
+4. **Bapak/Ibu [Nama Ketua Program Studi & Gelar]**, selaku Ketua Program Studi Teknik Mesin, Fakultas Teknik, Universitas Hasanuddin.
 5. **Bapak/Ibu [Nama Pembimbing Utama & Gelar]**, selaku Pembimbing Utama, yang senantiasa meluangkan waktu, memberikan bimbingan ilmiah yang sangat berharga, arahan matematis yang mendalam, serta teladan profesionalisme dalam penyusunan penelitian ini.
 6. **Bapak/Ibu [Nama Pembimbing Pendamping & Gelar]**, selaku Pembimbing Pendamping, atas segala masukan teknis, telaah kritis, saran konstruktif, dan dukungan moril yang senantiasa membimbing penulis.
-7. Seluruh Dosen dan Staf Pengajar di lingkungan Program Studi Teknik Mekatronika dan Departemen Teknik Mesin Universitas Hasanuddin atas bekal keilmuan, wawasan teknik, dan dedikasi akademis yang telah dicurahkan selama masa perkuliahan.
+7. Seluruh Dosen dan Staf Pengajar di lingkungan Program Studi Teknik Mesin dan Departemen Teknik Mesin Universitas Hasanuddin atas bekal keilmuan, wawasan teknik, dan dedikasi akademis yang telah dicurahkan selama masa perkuliahan.
 8. Rekan-rekan mahasiswa dan asisten di Laboratorium Mekatronika dan Robotika atas diskusi teknis, kolaborasi ilmiah, dan kebersamaan dalam eksplorasi teknologi subsea robotics.
 9. Teristimewa kepada kedua orang tua tercinta, keluarga besar, dan sanak saudara, atas doa tulus yang tak pernah terputus, cinta kasih tanpa pamrih, pengorbanan, dan dorongan moral serta spiritual yang tak ternilai harganya.
 
@@ -317,7 +314,7 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
 
 <br>
 
-**MUH. RADHI SYAFIQ GHANIM. S. Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal Kalman Filter untuk Pelacakan Berbasis Visi pada AUV Vectored 6-DOF Over-Actuated 8-Pendorong** *(dibimbing oleh Andi Amijoyo Mochtar, S.T., M.Sc., Ph.D. dan [Nama Pembimbing Pendamping])*.
+**MUH. RADHI SYAFIQ GHANIM. S. Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal *Kalman Filter* untuk *Vision-Based Tracking* pada *Over-Actuated 8-Thruster 6-DOF Vectored AUV*** *(dibimbing oleh Andi Amijoyo Mochtar, S.T., M.Sc., Ph.D. dan [Nama Pembimbing Pendamping])*.
 
 </div>
 

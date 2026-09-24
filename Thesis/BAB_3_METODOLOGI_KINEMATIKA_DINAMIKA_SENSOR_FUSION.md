@@ -5,7 +5,7 @@
 
 > **Penulis**: Radhi Shafeeq  
 > **NIM**: D021201000  
-> **Program Studi**: Teknik Mekatronika — Departemen Teknik Mesin  
+> **Program Studi**: Departemen Teknik Mesin  
 > **Fakultas**: Fakultas Teknik, Universitas Hasanuddin  
 > **Pembimbing Utama**: [Nama Dosen Pembimbing]  
 > **Format Penulisan**: Sesuai dengan *Pedoman Tugas Akhir Mahasiswa Fakultas Teknik Universitas Hasanuddin*  

@@ -2,7 +2,7 @@
 
 This master bibliography serves as the immutable, synchronized citation registry for the undergraduate thesis:
 **"Analysis of Kinematics, Dynamics, and Optimal Kalman Filter State Estimation for Vision-Based Tracking in an Over-Actuated 8-Thruster 6-DOF Vectored AUV"**  
-*(Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal Kalman Filter untuk Pelacakan Berbasis Visi pada AUV Vectored 6-DOF Over-Actuated 8-Pendorong)*  
+*(Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal *Kalman Filter* untuk *Vision-Based Tracking* pada *Over-Actuated 8-Thruster 6-DOF Vectored AUV*)*  
 Author: Radhi Shafeeq — Hasanuddin University (Mechatronics Engineering)
 
 > [!IMPORTANT]

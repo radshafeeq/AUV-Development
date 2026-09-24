@@ -1,7 +1,7 @@
 # BAB II: TINJAUAN PUSTAKA DAN LANDASAN TEORI
 
 **Judul Tugas Akhir**:  
-*Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal Kalman Filter untuk Pelacakan Berbasis Visi pada AUV Vectored 6-DOF Over-Actuated 8-Pendorong*  
+*Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal *Kalman Filter* untuk *Vision-Based Tracking* pada *Over-Actuated 8-Thruster 6-DOF Vectored AUV**  
 (**Title**: *Analysis of Kinematics, Dynamics, and Optimal Kalman Filter State Estimation for Vision-Based Tracking in an Over-Actuated 8-Thruster 6-DOF Vectored AUV*)
 
 ---
