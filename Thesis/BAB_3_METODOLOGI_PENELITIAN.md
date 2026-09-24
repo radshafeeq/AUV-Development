@@ -35,10 +35,10 @@ Untuk menjaga fokus analisis teknik mekatronika dan memastikan ketercapaian targ
 2. **Karakteristik Fluida Kerja**: Media fluida diasumsikan sebagai fluida inkompresibel tak terbatas (*unbounded incompressible fluid*) homogen dengan densitas air tawar nominal $$
 ho = 1000	ext{ kg/m}^3$$ untuk uji laboratorium simulasi dan air laut nominal $$
 ho = 1025	ext{ kg/m}^3$$ untuk uji kondisi subsea penuh [5], [7].
-3. **Rezim Kecepatan Operasi**: Kecepatan linier translasi wahana dibatasi pada rentang kecepatan rendah hingga sedang ($$|oldsymbol{
+3. **Rezim Kecepatan Operasi**: Kecepatan linier translasi wahana dibatasi pada rentang kecepatan rendah hingga sedang ($$|\boldsymbol{
 u}| \le 1.5	ext{ m/s}$$), di mana gelombang permukaan dan efek batas dinding dapat diabaikan (*deep-water assumption*).
 4. **Gangguan Arus Laut (*Ocean Currents*)**: Arus laut dimodelkan sebagai aliran irasional dan konstan atau bervariasi lambat (*slowly-varying horizontal current*) relatif terhadap waktu dalam kerangka bumi:
-   $$\dot{\mathbf{V}}_c^n pprox \mathbf{0}$$
+   $$\dot{\mathbf{V}}_c^n \approx \mathbf{0}$$
 5. **Kondisi Optik Bawah Air**: Citra visual monokuler dari kamera diasumsikan mengalami degradasi kontras, penyerapan spektral, dan hamburan cahaya (*scattering*) khas lingkungan perairan, yang dimitigasi secara komputasional melalui algoritma prapemrosesan *Contrast Limited Adaptive Histogram Equalization* (CLAHE) [2], [14].
 
 ---
@@ -109,9 +109,9 @@ Metodologi penelitian ini dirancang dengan pendekatan rekayasa sistem mekatronik
 
 ### Penjelasan Rinci Setiap Tahapan Diagram Alir:
 1. **Fase I (Studi Pendahuluan)**: Mengidentifikasi keterbatasan mendasar pada wahana konvensional *underactuated* 6-pendorong, khususnya fenomena kopling silang momen Munk hidrodinamika yang mendestabilisasi gerak *yaw* dan ketidakmampuan manuver *pitch-hold* aktif [7], [6], [32], [40], [34]. Studi literatur dipusatkan pada publikasi mutakhir ($$\ge 2021$$) di bidang estimasi parameter hidrodinamika [1], penapis Bayesian [25], dan kendali wahana *over-actuated* [21], [32].
-2. **Fase II (Pemodelan Matematis Rigorous)**: Menurunkan model analitis lengkap gerak wahana bawah air 6-DOF berdasarkan standar SNAME (1950) dan Fossen (2021) [7]. Formulasi meliputi transformasi rotasi $$SO(3)$$, perumusan kinematika kuaternion bebas *gimbal lock*, pemodelan tensor inersia total $$\mathbf{M}$$, tensor Coriolis $$\mathbf{C}(oldsymbol{
-u})$$, tensor redaman non-linier $$\mathbf{D}(oldsymbol{
-u}_r)$$, gaya apung/berat hidrostatis $$\mathbf{g}(oldsymbol{\eta})$$, serta matriks geometri alokasi pendorong $$\mathbf{T}_{6 	imes 8}$$ menggunakan invers semu Moore-Penrose [21], [32].
+2. **Fase II (Pemodelan Matematis Rigorous)**: Menurunkan model analitis lengkap gerak wahana bawah air 6-DOF berdasarkan standar SNAME (1950) dan Fossen (2021) [7]. Formulasi meliputi transformasi rotasi $$SO(3)$$, perumusan kinematika kuaternion bebas *gimbal lock*, pemodelan tensor inersia total $$\mathbf{M}$$, tensor Coriolis $$\mathbf{C}(\boldsymbol{
+u})$$, tensor redaman non-linier $$\mathbf{D}(\boldsymbol{
+u}_r)$$, gaya apung/berat hidrostatis $$\mathbf{g}(\boldsymbol{\eta})$$, serta matriks geometri alokasi pendorong $$\mathbf{T}_{6 	imes 8}$$ menggunakan invers semu Moore-Penrose [21], [32].
 3. **Fase III (Perancangan Arsitektur Dual Kalman Filter)**: Merancang dua modul penapis optimal yang bekerja secara komplementer:
    - *Topside/Onboard Visual Target Kalman Filter* (`AUVVisualKalmanFilter`): Penapis linier diskrit 8-dimensi berbasis model percepatan derau putih kontinu (*Continuous White Noise Acceleration* / CWNA) dengan kovariansi adaptif berbobot skor konfidensi YOLO $$\mathbf{R}_k(	ext{conf})$$, validasi jarak inovasi Mahalanobis $$\chi^2(4)$$, dan mekanisme propagasi *dead-reckoning* saat terjadi oklusi visual [16], [17], [25].
    - *Subsea Hydrodynamic Dynamics Extended Kalman Filter* (`AUVDynamicsKalmanFilter`): Penapis non-linier 6-DOF yang menggabungkan pembacaan sensor inersia Pixhawk dan sensor tekanan kedalaman dengan model kinetika Fossen, dilengkapi pengamat gangguan arus laut (*ocean current disturbance observer*) [7], [18], [29].
@@ -164,10 +164,10 @@ Selisih gaya hidrostatis neto ($$B - W$$) menghasilkan daya apung positif (*posi
 Karena pusat massa ($$z_g = +0.02	ext{ m}$$) terletak di bawah pusat apung ($$z_b = 0.00	ext{ m}$$), jarak metasentrik vertikal bernilai positif ($$\overline{BG} = z_g - z_b = +0.02	ext{ m}$$), yang memberikan stabilitas statis pasif inheren pada sumbu *Roll* ($$\phi$$) dan *Pitch* ($$	heta$$) [7].
 
 Matriks inersia benda tegar $$\mathbf{M}_{RB} \in \mathbb{R}^{6 	imes 6}$$ dihitung menggunakan formulasi Fossen:
-$$\mathbf{M}_{RB} = egin{bmatrix} 
+$$\mathbf{M}_{RB} = \begin{bmatrix} 
 m\mathbf{I}_{3 	imes 3} & -m\mathbf{S}(\mathbf{r}_g) \ 
 m\mathbf{S}(\mathbf{r}_g) & \mathbf{I}_b 
-\end{bmatrix} = egin{bmatrix} 
+\end{bmatrix} = \begin{bmatrix} 
 13.00 & 0 & 0 & 0 & 0.26 & 0 \ 
 0 & 13.00 & 0 & -0.26 & 0 & 0 \ 
 0 & 0 & 13.00 & 0 & 0 & 0 \ 
@@ -205,7 +205,7 @@ $$N_{	ext{Munk}} = +7.20 \, u_r v_r \quad (	ext{N}\cdot	ext{m})$$
 yang harus diredam secara aktif oleh sistem kendali alokasi pendorong 8-motor [21], [32].
 
 Matriks massa total wahana $$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A$$ adalah:
-$$\mathbf{M} = egin{bmatrix} 
+$$\mathbf{M} = \begin{bmatrix} 
 18.50 & 0 & 0 & 0 & 0.26 & 0 \ 
 0 & 25.70 & 0 & -0.26 & 0 & 0 \ 
 0 & 0 & 27.60 & 0 & 0 & 0 \ 
@@ -217,14 +217,14 @@ $$\mathbf{M} = egin{bmatrix}
 ### 3.3.3 Matriks Koefisien Redaman Hidrodinamika Fluida
 Gaya hambat hidrodinamika fluida dimodelkan sebagai superposisi antara redaman gesek linier Navier-Stokes ($$\mathbf{D}_L$$) untuk aliran laminer kecepatan rendah dan redaman bentuk kuadratik non-linier (*quadratic form drag* $$\mathbf{D}_{NL}$$) akibat pusaran turbulen (*vortex shedding*) di sekitar struktur kerangka terbuka [7], [31], [34]:
 
-$$\mathbf{D}(oldsymbol{
-u}_r) = \mathbf{D}_L + \mathbf{D}_{NL}(oldsymbol{
+$$\mathbf{D}(\boldsymbol{
+u}_r) = \mathbf{D}_L + \mathbf{D}_{NL}(\boldsymbol{
 u}_r)$$
 
 di mana matriks linier dan matriks kuadratik diagonal didefinisikan sebagai:
 $$\mathbf{D}_L = -	ext{diag}\left( X_u, Y_v, Z_w, K_p, M_q, N_r 
 ight)$$
-$$\mathbf{D}_{NL}(oldsymbol{
+$$\mathbf{D}_{NL}(\boldsymbol{
 u}_r) = -	ext{diag}\left( X_{u|u|}|u_r|, Y_{v|v|}|v_r|, Z_{w|w|}|w_r|, K_{p|p|}|p|, M_{q|q|}|q|, N_{r|r|}|r| 
 ight)$$
 
@@ -259,11 +259,11 @@ Koordinat posisi pendorong $$\mathbf{r}_i = [x_i, y_i, z_i]^T$$ relatif terhadap
 | Pendorong 7 (Vertikal Belakang-Kanan)| $$-0.120$$ | $$+0.218$$ | $$-0.075$$ | $$[0, 0, 1]^T$$ | Heave (+), Roll (-), Pitch (-) |
 | Pendorong 8 (Vertikal Belakang-Kiri) | $$-0.120$$ | $$-0.218$$ | $$-0.075$$ | $$[0, 0, 1]^T$$ | Heave (+), Roll (+), Pitch (-) |
 
-Dengan konstanta arah horizontal $$c = \cos(45^\circ) = \sin(45^\circ) = rac{\sqrt{2}}{2} pprox 0.7071$$, kolom ke-$$i$$ dari matriks konfigurasi pendorong $$\mathbf{T}_{6 	imes 8}$$ dibentuk melalui hubungan momen gaya:
-$$\mathbf{t}_i = egin{bmatrix} \mathbf{d}_i \ \mathbf{r}_i 	imes \mathbf{d}_i \end{bmatrix} \in \mathbb{R}^6$$
+Dengan konstanta arah horizontal $$c = \cos(45^\circ) = \sin(45^\circ) = \frac{\sqrt{2}}{2} \approx 0.7071$$, kolom ke-$$i$$ dari matriks konfigurasi pendorong $$\mathbf{T}_{6 	imes 8}$$ dibentuk melalui hubungan momen gaya:
+$$\mathbf{t}_i = \begin{bmatrix} \mathbf{d}_i \ \mathbf{r}_i 	imes \mathbf{d}_i \end{bmatrix} \in \mathbb{R}^6$$
 
 Perhitungan perkalian silang lengan torsi menghasilkan matriks konfigurasi numerik eksak $$\mathbf{T}_{6 	imes 8} \in \mathbb{R}^{6 	imes 8}$$:
-$$\mathbf{T}_{6 	imes 8} = egin{bmatrix} 
+$$\mathbf{T}_{6 	imes 8} = \begin{bmatrix} 
 0.7071 & 0.7071 & -0.7071 & -0.7071 & 0.0000 & 0.0000 & 0.0000 & 0.0000 \ 
 -0.7071 & 0.7071 & -0.7071 & 0.7071 & 0.0000 & 0.0000 & 0.0000 & 0.0000 \ 
 0.0000 & 0.0000 & 0.0000 & 0.0000 & 1.0000 & 1.0000 & 1.0000 & 1.0000 \ 
@@ -276,15 +276,15 @@ di mana baris ke-6 (sumbu *Yaw*) diperoleh dari:
 $$	au_{N,1} = x_1 d_{y,1} - y_1 d_{x,1} = (0.156)(-0.7071) - (0.111)(0.7071) = -0.1103 - 0.0785 = -0.1888	ext{ m}$$
 
 Karena jumlah aktuator ($$m = 8$$) melebihi jumlah derajat kebebasan gerak ($$n = 6$$), sistem ini bersifat *over-actuated* dengan derajat redundansi $$m - n = 2$$ [21], [32]. Solusi vektor gaya dorong individual pendorong $$\mathbf{f} = [f_1, f_2, \dots, f_8]^T \in \mathbb{R}^8$$ yang meminimalkan kriteria energi kuadratik total dihitung secara seketika (*real-time*) melalui operator invers semu Moore-Penrose:
-$$\mathbf{f} = \mathbf{T}_{6 	imes 8}^\dagger oldsymbol{	au} = \mathbf{T}_{6 	imes 8}^T \left( \mathbf{T}_{6 	imes 8} \mathbf{T}_{6 	imes 8}^T 
-ight)^{-1} oldsymbol{	au}$$
+$$\mathbf{f} = \mathbf{T}_{6 	imes 8}^\dagger \boldsymbol{	au} = \mathbf{T}_{6 	imes 8}^T \left( \mathbf{T}_{6 	imes 8} \mathbf{T}_{6 	imes 8}^T 
+ight)^{-1} \boldsymbol{	au}$$
 
 Setiap komponen gaya dorong $$f_i	ext{ (N)}$$ kemudian dipetakan ke sinyal lebar pulsa servo aktuator PWM ($$1100 - 1900	ext{ }\mu	ext{s}$$) dengan zona mati (*deadband*) nominal $$1475 - 1525	ext{ }\mu	ext{s}$$ sesuai karakteristik elektro-hidrodinamika ESC pendorong T200 [3]:
-$$	ext{PWM}_i = egin{cases} 
+$$	ext{PWM}_i = \begin{cases} 
 1500 & 	ext{jika } |f_i| < f_{	ext{thresh}} \ 
-1525 + \left( rac{f_i}{f_{\max}} 
+1525 + \left( \frac{f_i}{f_{\max}} 
 ight) 	imes 375 & 	ext{jika } f_i \ge f_{	ext{thresh}} \ 
-1475 + \left( rac{f_i}{f_{\max}} 
+1475 + \left( \frac{f_i}{f_{\max}} 
 ight) 	imes 375 & 	ext{jika } f_i \le -f_{	ext{thresh}} 
 \end{cases}$$
 dengan batas gaya dorong maksimum $$f_{\max} = 35.0	ext{ N}$$ pada tegangan suplai nominal $$16.0	ext{ V}$$ [3].
@@ -443,7 +443,7 @@ Untuk mengalirkan data sensor dari wahana ke modul estimasi tanpa membebani bus 
 1. **Akuisisi Data IMU dan Tekanan**: Modul Python `SubseaTelemetryBridge` pada berkas [`auv_dynamics_hil_node.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/auv_dynamics_hil_node.py) melakukan *polling* data JSON pada endpoint `http://192.168.2.2:6040/mavlink/vehicles/1/components/1/messages` dengan batas waktu (*timeout*) $$0.25	ext{ detik}$$.
 2. **Pengekstrakkan Pesan MAVLink**: Pesan `SCALED_IMU2` atau `RAW_IMU` diekstraksi untuk memperoleh percepatan linier tiga sumbu ($$a_x, a_y, a_z$$) dan kecepatan sudut ($$p, q, r$$). Pesan `ATTITUDE` diekstraksi untuk memperoleh orientasi Euler ($$\phi, 	heta, \psi$$). Pesan `SCALED_PRESSURE2` diekstraksi untuk memperoleh tekanan absolut subsea ($$P_{	ext{fluid}}$$). Pesan `SERVO_OUTPUT_RAW` diekstraksi untuk merekam sinyal PWM dari delapan pendorong secara simultan.
 3. **Kalibrasi Tekanan Atmosfer Otomatis**: Saat node diinisialisasi di permukaan air, sistem secara otomatis mengambil sampel baseline tekanan atmosfer sebanyak 10 sampel untuk mengkalibrasi tekanan udara lokal ($$P_{	ext{atm}}$$). Kedalaman subsea dihitung secara langsung menggunakan persamaan hidrostatik:
-   $$z_k = rac{(P_{	ext{fluid}} - P_{	ext{atm}}) 	imes 100.0}{
+   $$z_k = \frac{(P_{	ext{fluid}} - P_{	ext{atm}}) 	imes 100.0}{
 ho g}$$
    dengan konversi tekanan dari hektopaskal (hPa) ke Pascal ($$1	ext{ hPa} = 100.0	ext{ Pa}$$).
 
@@ -466,13 +466,13 @@ Diimplementasikan pada workstation permukaan di dalam berkas [`kalman_filter.py`
   di mana $$x, y$$ merepresentasikan koordinat titik pusat *bounding box*, $$s = w 	imes h$$ adalah luas area skala target, $$r = w / h$$ adalah rasio aspek, serta $$\dot{x}, \dot{y}, \dot{s}, \dot{r}$$ adalah laju perubahan temporalnya.
 - **Kovariansi Proses Stokastik CWNA**:
   Matriks kovariansi proses diskrit dievaluasi secara eksak melalui integrasi analitis model percepatan derau putih kontinu (*Continuous White Noise Acceleration*):
-  $$\mathbf{Q}(\Delta t) = egin{bmatrix} 
-  rac{\Delta t^3}{3} 	ilde{\mathbf{Q}} & rac{\Delta t^2}{2} 	ilde{\mathbf{Q}} \ 
-  rac{\Delta t^2}{2} 	ilde{\mathbf{Q}} & \Delta t 	ilde{\mathbf{Q}} 
+  $$\mathbf{Q}(\Delta t) = \begin{bmatrix} 
+  \frac{\Delta t^3}{3} 	ilde{\mathbf{Q}} & \frac{\Delta t^2}{2} 	ilde{\mathbf{Q}} \ 
+  \frac{\Delta t^2}{2} 	ilde{\mathbf{Q}} & \Delta t 	ilde{\mathbf{Q}} 
   \end{bmatrix}, \quad 	ilde{\mathbf{Q}} = 	ext{diag}(q_x, q_y, q_s, q_r)$$
   dengan nilai kerapatan spektral nominal $$q_x = q_y = 0.05$$, $$q_s = 0.08$$, dan $$q_r = 0.01$$.
 - **Kovariansi Pengukuran Adaptif Berbobot Konfidensi**:
-  $$\mathbf{R}_k(	ext{conf}) = rac{\mathbf{R}_0}{\max(	ext{conf}_k, 0.15)^2}$$
+  $$\mathbf{R}_k(	ext{conf}) = \frac{\mathbf{R}_0}{\max(	ext{conf}_k, 0.15)^2}$$
   Formulasi ini memastikan bahwa saat deteksi YOLO memiliki konfidensi tinggi ($$	ext{conf} 	o 1.0$$), penapis mempercayai pengukuran sensor, sedangkan saat konfidensi rendah di air keruh ($$	ext{conf} < 0.4$$), penapis lebih mengandalkan propagasi model internal.
 - **Validasi Inovasi Jarak Mahalanobis (*Outlier Gating*)**:
   Sebelum pembaruan status dilakukan, residual inovasi $$\mathbf{y}_k = \mathbf{z}_k - \mathbf{H}\mathbf{x}_k^-$$ diuji terhadap kovariansi inovasi $$\mathbf{S}_k = \mathbf{H}\mathbf{P}_k^-\mathbf{H}^T + \mathbf{R}_k$$:
@@ -496,23 +496,23 @@ Dijalankan secara langsung pada frekuensi $$50	ext{ Hz}$$ ($$\Delta t = 20	ext{ 
   yang diukur langsung dari akselerometer 3-sumbu, giroskop 3-sumbu Pixhawk, dan laju perubahan kedalaman sensor tekanan Bar30 MS5837.
 - **Linearisasi Analitis Matriks Transisi Kontinu $$\mathbf{F}$$**:
   Dievaluasi secara analitis dari persamaan dinamika Fossen 6-DOF:
-  $$\mathbf{F}(t) = \left. rac{\partial \mathbf{f}(\mathbf{x}, oldsymbol{	au})}{\partial \mathbf{x}} 
-ight|_{\hat{\mathbf{x}}} = egin{bmatrix} 
-  -\mathbf{M}^{-1}\left( \mathbf{C}^*(\hat{oldsymbol{
-u}}_r) + \mathbf{D}^*(\hat{oldsymbol{
+  $$\mathbf{F}(t) = \left. \frac{\partial \mathbf{f}(\mathbf{x}, \boldsymbol{	au})}{\partial \mathbf{x}} 
+ight|_{\hat{\mathbf{x}}} = \begin{bmatrix} 
+  -\mathbf{M}^{-1}\left( \mathbf{C}^*(\hat{\boldsymbol{
+u}}_r) + \mathbf{D}^*(\hat{\boldsymbol{
 u}}_r) 
 ight) & \mathbf{0}_{6 	imes 3} \ 
   \mathbf{0}_{3 	imes 6} & \mathbf{0}_{3 	imes 3} 
   \end{bmatrix}$$
   di mana Jacobian redaman non-linier dievaluasi secara eksak:
-  $$\mathbf{D}^*(\hat{oldsymbol{
+  $$\mathbf{D}^*(\hat{\boldsymbol{
 u}}_r) = 	ext{diag}\left( -(X_u + 2 X_{u|u|}|\hat{u}_r|), -(Y_v + 2 Y_{v|v|}|\hat{v}_r|), \dots 
 ight)$$
-  dan suku kopling silang momen Munk terefleksikan pada baris ke-6 matriks $$\mathbf{C}^*(\hat{oldsymbol{
+  dan suku kopling silang momen Munk terefleksikan pada baris ke-6 matriks $$\mathbf{C}^*(\hat{\boldsymbol{
 u}}_r)$$ [7], [34].
 - **Diskritisasi Matriks Fundamental Transisi**:
-  $$oldsymbol{\Phi} pprox \mathbf{I}_{9 	imes 9} + \mathbf{F} \Delta t$$
-  memastikan perambatan kovariansi kesalahan estimasi $$\mathbf{P}_k^- = oldsymbol{\Phi}\mathbf{P}_{k-1}oldsymbol{\Phi}^T + \mathbf{Q}_{	ext{dyn}}$$ berjalan sangat cepat tanpa beban faktorisasi matriks eksponensial yang berat pada prosesor embedded ARM Cortex-A72 Raspberry Pi.
+  $$\boldsymbol{\Phi} \approx \mathbf{I}_{9 	imes 9} + \mathbf{F} \Delta t$$
+  memastikan perambatan kovariansi kesalahan estimasi $$\mathbf{P}_k^- = \boldsymbol{\Phi}\mathbf{P}_{k-1}\boldsymbol{\Phi}^T + \mathbf{Q}_{	ext{dyn}}$$ berjalan sangat cepat tanpa beban faktorisasi matriks eksponensial yang berat pada prosesor embedded ARM Cortex-A72 Raspberry Pi.
 
 ---
 
@@ -542,7 +542,7 @@ Skenario ini dirancang untuk memvalidasi performa penapis non-linier *AUVDynamic
      $$\mathbf{V}_c^n = [0.30, 0.15, 0.00]^T	ext{ m/s}$$
      yang memicu timbulnya kecepatan geser relatif $$v_r > 0$$ dan membangkitkan momen Munk destabilisasi:
      $$N_{	ext{Munk}} = (X_{\dot{u}} - Y_{\dot{v}})u_r v_r = +7.20 \, u_r v_r$$
-  3. Modul EKF merekonstruksi estimasi kecepatan bodi $$\hat{oldsymbol{
+  3. Modul EKF merekonstruksi estimasi kecepatan bodi $$\hat{\boldsymbol{
 u}}_r$$ dan estimasi arus $$\hat{\mathbf{V}}_c^n$$ secara langsung dari telemetri IMU Pixhawk 2.4.8 dan sensor tekanan Bar30 MS5837.
   4. Sinyal gaya dorong kompensasi dari alokasi Moore-Penrose dievaluasi untuk membuktikan peredaman momen Munk pada wahana *over-actuated* 8-pendorong dibandingkan dengan wahana konvensional *underactuated* 6-pendorong [21], [32].
 
@@ -563,17 +563,17 @@ Untuk memberikan penilaian performa yang objektif dan terstandarisasi secara ilm
 
 #### 1. *Root Mean Square Error* (RMSE)
 Digunakan untuk mengukur deviasi magnitudo galat antara variabel estimasi filter terhadap nilai kebenaran dasar (*ground truth*):
-$$	ext{RMSE} = \sqrt{rac{1}{N} \sum_{k=1}^N \left( x_k^{	ext{true}} - \hat{x}_k 
+$$	ext{RMSE} = \sqrt{\frac{1}{N} \sum_{k=1}^N \left( x_k^{	ext{true}} - \hat{x}_k 
 ight)^2}$$
 
 #### 2. *Mean Absolute Error* (MAE)
 Digunakan untuk mengevaluasi magnitudo kesalahan rata-rata tanpa memberikan bobot kuadrat berlebih pada pencilan (*outliers*):
-$$	ext{MAE} = rac{1}{N} \sum_{k=1}^N \left| x_k^{	ext{true}} - \hat{x}_k 
+$$	ext{MAE} = \frac{1}{N} \sum_{k=1}^N \left| x_k^{	ext{true}} - \hat{x}_k 
 ight|$$
 
 #### 3. *Tracking Success Rate* (TSR)
 Rasio persentase keberhasilan pelacak visual dalam mempertahankan estimasi posisi target di dalam wilayah toleransi spasial ($$\delta_{	ext{tol}} \le 20	ext{ piksel}$$) sepanjang durasi pengujian $$N_{	ext{total}}$$ frame:
-$$	ext{TSR} = \left( rac{N_{	ext{success}}}{N_{	ext{total}}} 
+$$	ext{TSR} = \left( \frac{N_{	ext{success}}}{N_{	ext{total}}} 
 ight) 	imes 100\%$$
 
 #### 4. Waktu Pemulihan Oklusi (*Occlusion Recovery Time* / $$t_{	ext{rec}}$$)
