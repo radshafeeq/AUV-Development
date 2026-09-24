@@ -428,13 +428,13 @@ Untuk memberikan gambaran yang lebih konkret terkait perangkat yang digunakan, b
 
 ![Gambar 3.2. Rangka (*Frame*) dan Lambung Tekanan (*Pressure Hull*) Tipe BlueROV2 Heavy]([PATH_FOTO_FRAME_HULL])
 
-![Gambar 3.3. Papan Pengendali Penerbangan (**Flight Controller**) Pixhawk 2.4.8]([PATH_FOTO_PIXHAWK])
+![Gambar 3.3. Papan Pengendali Penerbangan (*Flight Controller*) Pixhawk 2.4.8]([PATH_FOTO_PIXHAWK])
 
-![Gambar 3.4. Komputer Pendamping (**Companion Computer**) Raspberry Pi 4B]([PATH_FOTO_RASPBERRY_PI])
+![Gambar 3.4. Komputer Pendamping (*Companion Computer*) Raspberry Pi 4B]([PATH_FOTO_RASPBERRY_PI])
 
-![Gambar 3.5. Modul Pengendali Kecepatan Elektronik (*Basic *Electronic Speed Controller** / ESC)]([PATH_FOTO_ESC])
+![Gambar 3.5. Modul Pengendali Kecepatan Elektronik (*Basic Electronic Speed Controller* / ESC)]([PATH_FOTO_ESC])
 
-![Gambar 3.6. Motor Pendorong (**Thruster**) T200]([PATH_FOTO_THRUSTER_T200])
+![Gambar 3.6. Motor Pendorong (*Thruster*) T200]([PATH_FOTO_THRUSTER_T200])
 
 ![Gambar 3.7. Sumber Daya Utama Baterai Li-Po 4S 14.8V]([PATH_FOTO_BATERAI])
 

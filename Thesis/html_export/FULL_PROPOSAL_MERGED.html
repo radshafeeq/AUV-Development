@@ -2439,10 +2439,10 @@ dengan batas gaya dorong maksimum $$f_{\max} = 35.0 ext{ N}$$ pada tegangan supl
 | Sistem Daya | Baterai LiPo 4S (14.8V nominal, 10.000 mAh) | Konektor XT90 / Power Sense Module | Pencatu daya utama sistem propulsi dan modul elektronik internal wahana |</p>
 <p>Untuk memberikan gambaran yang lebih konkret terkait perangkat yang digunakan, berikut adalah visualisasi perangkat keras utama yang dikonfigurasi pada wahana AUV ini:</p>
 <p><img alt="Gambar 3.2. Rangka (*Frame*) dan Lambung Tekanan (*Pressure Hull*) Tipe BlueROV2 Heavy" src="[PATH_FOTO_FRAME_HULL]" /></p>
-<p><img alt="Gambar 3.3. Papan Pengendali Penerbangan (**Flight Controller**) Pixhawk 2.4.8" src="[PATH_FOTO_PIXHAWK]" /></p>
-<p><img alt="Gambar 3.4. Komputer Pendamping (**Companion Computer**) Raspberry Pi 4B" src="[PATH_FOTO_RASPBERRY_PI]" /></p>
-<p><img alt="Gambar 3.5. Modul Pengendali Kecepatan Elektronik (*Basic *Electronic Speed Controller** / ESC)" src="[PATH_FOTO_ESC]" /></p>
-<p><img alt="Gambar 3.6. Motor Pendorong (**Thruster**) T200" src="[PATH_FOTO_THRUSTER_T200]" /></p>
+<p><img alt="Gambar 3.3. Papan Pengendali Penerbangan (*Flight Controller*) Pixhawk 2.4.8" src="[PATH_FOTO_PIXHAWK]" /></p>
+<p><img alt="Gambar 3.4. Komputer Pendamping (*Companion Computer*) Raspberry Pi 4B" src="[PATH_FOTO_RASPBERRY_PI]" /></p>
+<p><img alt="Gambar 3.5. Modul Pengendali Kecepatan Elektronik (*Basic Electronic Speed Controller* / ESC)" src="[PATH_FOTO_ESC]" /></p>
+<p><img alt="Gambar 3.6. Motor Pendorong (*Thruster*) T200" src="[PATH_FOTO_THRUSTER_T200]" /></p>
 <p><img alt="Gambar 3.7. Sumber Daya Utama Baterai Li-Po 4S 14.8V" src="[PATH_FOTO_BATERAI]" /></p>
 <h3 id="352-aliran-data-telemetri-cepat-low-latency-telemetry-bridge">3.5.2 Aliran Data Telemetri Cepat (<em><em>Low-Latency</em> Telemetry Bridge</em>)</h3>
 <p>Untuk mengalirkan data sensor dari wahana ke modul estimasi tanpa membebani bus komputasi serial MAVLink secara berlebihan, diimplementasikan jembatan telemetri asinkron berbasis REST API memanfaatkan layanan <code>mavlink2rest</code> yang terintegrasi pada BlueOS (port HTTP <code>6040</code>):<br />
