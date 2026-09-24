@@ -8,21 +8,21 @@
 > **Program Studi**: Departemen Teknik Mesin  
 > **Fakultas**: Fakultas Teknik, Universitas Hasanuddin  
 > **Pembimbing Utama**: [Nama Dosen Pembimbing]  
-> **Format Penulisan**: Sesuai dengan *Pedoman Tugas Akhir Mahasiswa Fakultas Teknik Universitas Hasanuddin*  
-> **Standar Notasi**: Society of Naval Architects and Marine Engineers (SNAME, 1950) & Fossen (2021)  
-> **Format Matematis**: Menggunakan delimitasi `$$...$$` untuk kompabilitas konversi grafis publikasi jurnal dan dokumen skripsi.
+> **Format Penulisan*: Sesuai dengan Pedoman Tugas Akhir Mahasiswa Fakultas Teknik Universitas Hasanuddin  
+> *Standar Notasi**: Society of Naval Architects and Marine Engineers (SNAME, 1950) & Fossen (2021)  
+> **Format Matematis*: Menggunakan delimitasi `$$...$$` untuk kompabilitas konversi grafis publikasi jurnal dan dokumen skripsi.
 
 ---
 
 ## 3.1 Pendekatan dan Diagram Alir Metodologi Penelitian
 
-Metodologi penelitian ini dirancang secara sistematis untuk memodelkan, mensimulasikan, dan menguji estimasi *state* terpadu pada wahana kapal selam otonom (*Autonomous Underwater Vehicle* / AUV) 6 *Degrees of Freedom* (6-DOF) *over-actuated* berpenggerak 8 pendorong (*thruster* Blue Robotics T200) berbasis kerangka BlueROV2 *Heavy*.
+Metodologi penelitian ini dirancang secara sistematis untuk memodelkan, mensimulasikan, dan menguji estimasi state* terpadu pada wahana kapal selam otonom (*Autonomous Underwater Vehicle* / AUV) 6 *Degrees of Freedom* (6-DOF) *over-actuated* berpenggerak 8 pendorong (*thruster* Blue Robotics T200) berbasis kerangka BlueROV2 *Heavy.
 
 Penelitian ini memadukan empat pilar rekayasa mekatronika:
-1. **Pemodelan Kinematika Matematis**: Perumusan matriks transformasi koordinat ortogonal dari kerangka gerak wahana (*Body-Fixed Frame*) ke kerangka inersial bumi (*Earth-Fixed Frame*) serta mitigasi singularitas representasi (*gimbal lock*).
-2. **Pemodelan Kinetika & Hidrodinamika Non-Linear (Fossen)**: Formulasi tensor massa total (massa benda tegar dan *hydrodynamic added mass*), tensor redaman hidrodinamika coupled (gesekan laminar Navier-Stokes dan *quadratic drag*), serta gaya apung/pemulih hidrostatis.
-3. **Alokasi Pendorong Over-Actuated ($$6 \times 8$$)**: Pemetaan gaya generalisasi 6-DOF ke dalam 8 sinyal modulasi lebar pulsa (*Pulse Width Modulation* / PWM) aktuator menggunakan invers semu Moore-Penrose dengan optimasi energi kuadratik minimum.
-4. **Fusi Multi-Sensor & Arsitektur Dual Kalman Filter**: Penggabungan telemetri *Inertial Measurement Unit* (IMU), sensor tekanan subsea Bar30 (MS5837), umpan balik PWM motor, dan sistem visi kecerdasan buatan (kamera YOLO26) ke dalam *Extended Kalman Filter* (EKF) dinamika dan *Visual Kalman Filter* 8D.
+1. *Pemodelan Kinematika Matematis*: Perumusan matriks transformasi koordinat ortogonal dari kerangka gerak wahana (Body-Fixed Frame*) ke kerangka inersial bumi (*Earth-Fixed Frame*) serta mitigasi singularitas representasi (*gimbal lock).
+2. *Pemodelan Kinetika & Hidrodinamika Non-Linear (Fossen)*: Formulasi tensor massa total (massa benda tegar dan hydrodynamic added mass*), tensor redaman hidrodinamika coupled (gesekan laminar Navier-Stokes dan *quadratic drag), serta gaya apung/pemulih hidrostatis.
+3. *Alokasi Pendorong Over-Actuated ($$6 \times 8$$)*: Pemetaan gaya generalisasi 6-DOF ke dalam 8 sinyal modulasi lebar pulsa (Pulse Width Modulation / PWM) aktuator menggunakan invers semu Moore-Penrose dengan optimasi energi kuadratik minimum.
+4. *Fusi Multi-Sensor & Arsitektur *Dual Kalman Filter*: Penggabungan telemetri Inertial Measurement Unit (IMU), sensor tekanan subsea Bar30 (MS5837), umpan balik PWM motor, dan sistem visi kecerdasan buatan (kamera YOLO26) ke dalam *Extended Kalman Filter* (EKF) dinamika dan *Visual Kalman Filter* 8D.
 
 ```
        +------------------------------------------------------------------+
@@ -71,7 +71,7 @@ Penelitian ini memadukan empat pilar rekayasa mekatronika:
 
 ## 3.2 Kerangka Referensi Koordinat SNAME (1950)
 
-Untuk menggambarkan orientasi, posisi, dan gerak dinamika AUV di bawah air tanpa ambiguitas geometris, digunakan dua sistem koordinat tangan kanan (*right-handed orthogonal frames*) yang distandarisasi oleh *Society of Naval Architects and Marine Engineers* (SNAME, 1950) dan Fossen (2021):
+Untuk menggambarkan orientasi, posisi, dan gerak dinamika AUV di bawah air tanpa ambiguitas geometris, digunakan dua sistem koordinat tangan kanan (*right-handed orthogonal frames*) yang distandarisasi oleh *Society of Naval Architects and Marine Engineers (SNAME, 1950) dan Fossen (2021):
 
 ```
                    Z_n (Down)
@@ -99,14 +99,14 @@ Untuk menggambarkan orientasi, posisi, dan gerak dinamika AUV di bawah air tanpa
                                Z_b (Heave / Keel)
 ```
 
-1. **Earth-Fixed Inertial Reference Frame $$\mathcal{F}^n = \{O_n, X_n, Y_n, Z_n\}$$ (NED)**:
-   Kerangka acuan tetap bumi berorientasi *North-East-Down* (Utara-Timur-Bawah). Titik asal $$O_n$$ ditetapkan pada permukaan perairan lokal. Sumbu $$X_n$$ mengarah ke Utara geografis, $$Y_n$$ mengarah ke Timur, dan sumbu $$Z_n$$ mengarah tegak lurus ke bawah menuju pusat bumi searah medan gravitasi. Posisi linear dan sudut AUV didefinisikan terhadap kerangka $$\mathcal{F}^n$$.
+1. *Earth-Fixed Inertial Reference Frame $$\mathcal{F}^n = \{O_n, X_n, Y_n, Z_n\}$$ (NED)*:
+   Kerangka acuan tetap bumi berorientasi North-East-Down (Utara-Timur-Bawah). Titik asal $$O_n$$ ditetapkan pada permukaan perairan lokal. Sumbu $$X_n$$ mengarah ke Utara geografis, $$Y_n$$ mengarah ke Timur, dan sumbu $$Z_n$$ mengarah tegak lurus ke bawah menuju pusat bumi searah medan gravitasi. Posisi linear dan sudut AUV didefinisikan terhadap kerangka $$\mathcal{F}^n$$.
 
-2. **Body-Fixed Reference Frame $$\mathcal{F}^b = \{O_b, X_b, Y_b, Z_b\}$$**:
-   Kerangka acuan bergerak yang melekat secara kaku pada struktur fisik AUV. Titik asal $$O_b$$ ditempatkan pada Pusat Gravitasi (*Center of Gravity* / CG) wahana:
-   - Sumbu longitudinal $$X_b$$: Mengarah ke haluan (*forward/bow*). Gerak translasi sepanjang sumbu ini disebut **Surge** ($$u$$), dan gerak rotasi mengelilinginya disebut **Roll** ($$p$$).
-   - Sumbu transversal $$Y_b$$: Mengarah ke lambung kanan (*starboard*). Gerak translasi sepanjang sumbu ini disebut **Sway** ($$v$$), dan gerak rotasi mengelilinginya disebut **Pitch** ($$q$$).
-   - Sumbu normal $$Z_b$$: Mengarah ke lunas bawah (*keel/downward*). Gerak translasi sepanjang sumbu ini disebut **Heave** ($$w$$), dan gerak rotasi mengelilinginya disebut **Yaw** ($$r$$).
+2. *Body-Fixed Reference Frame $$\mathcal{F}^b = \{O_b, X_b, Y_b, Z_b\}$$*:
+   Kerangka acuan bergerak yang melekat secara kaku pada struktur fisik AUV. Titik asal $$O_b$$ ditempatkan pada Pusat Gravitasi (Center of Gravity* / CG) wahana:
+   - Sumbu longitudinal $$X_b$$: Mengarah ke haluan (*forward/bow). Gerak translasi sepanjang sumbu ini disebut *Surge** ($$u$$), dan gerak rotasi mengelilinginya disebut **Roll* ($$p$$).
+   - Sumbu transversal $$Y_b$$: Mengarah ke lambung kanan (starboard). Gerak translasi sepanjang sumbu ini disebut *Sway** ($$v$$), dan gerak rotasi mengelilinginya disebut **Pitch* ($$q$$).
+   - Sumbu normal $$Z_b$$: Mengarah ke lunas bawah (keel/downward). Gerak translasi sepanjang sumbu ini disebut *Heave** ($$w$$), dan gerak rotasi mengelilinginya disebut **Yaw* ($$r$$).
 
 ### Vektor Keadaan 6-DOF (Tatanama SNAME)
 
@@ -117,7 +117,7 @@ $$\boldsymbol{\eta} = \begin{bmatrix} \boldsymbol{\eta}_1 \\ \boldsymbol{\eta}_2
 di mana:
 - $$\boldsymbol{\eta} \in \mathbb{R}^6$$: Vektor posisi dan orientasi wahana diekspresikan dalam kerangka inersial bumi $$\mathcal{F}^n$$.
   - $$\boldsymbol{\eta}_1 = [x, y, z]^T$$: Posisi translasi (meter).
-  - $$\boldsymbol{\eta}_2 = [\phi, \theta, \psi]^T$$: Sudut orientasi Euler (radian): sudut geleng (*roll* $$\phi$$), sudut angguk (*pitch* $$\theta$$), dan sudut oleng (*yaw/heading* $$\psi$$).
+  - $$\boldsymbol{\eta}_2 = [\phi, \theta, \psi]^T$$: Sudut orientasi Euler (radian): sudut geleng (roll* $$\phi$$), sudut angguk (*pitch* $$\theta$$), dan sudut oleng (*yaw/heading* $$\psi$$).
 - $$\boldsymbol{\nu} \in \mathbb{R}^6$$: Vektor kecepatan linear dan angular wahana diekspresikan dalam kerangka gerak tubuh $$\mathcal{F}^b$$.
   - $$\boldsymbol{\nu}_1 = [u, v, w]^T$$: Kecepatan linear translasi (m/s).
   - $$\boldsymbol{\nu}_2 = [p, q, r]^T$$: Kecepatan angular rotasi (rad/s).
@@ -171,7 +171,7 @@ $$\mathbf{T}_\Theta(\boldsymbol{\eta}_2) = \begin{bmatrix} 1 & 0 & -\sin\theta \
 
 ### 3.3.3 Singularitas Representasi (*Gimbal Lock*) dan Formulasi Unit Kuaternion
 
-Pada sudut pitch $$\theta = \pm \frac{\pi}{2} = \pm 90^\circ$$, fungsi $$\tan\theta \to \pm\infty$$ dan $$\cos\theta = 0$$, menyebabkan pembagian dengan nol (*Gimbal Lock*). Untuk wahana 6-DOF yang mampu melakukan manuver pitch vertikal penuh (`PITCH_HOLD`), sistem estimasi pada algoritma pendukung mengonversi orientasi ke dalam representasi **Unit Kuaternion**:
+Pada sudut pitch $$\theta = \pm \frac{\pi}{2} = \pm 90^\circ$$, fungsi $$\tan\theta \to \pm\infty$$ dan $$\cos\theta = 0$$, menyebabkan pembagian dengan nol (*Gimbal Lock). Untuk wahana 6-DOF yang mampu melakukan manuver pitch vertikal penuh (`PITCH_HOLD`), sistem estimasi pada algoritma pendukung mengonversi orientasi ke dalam representasi *Unit Kuaternion*:
 
 $$\mathbf{q} = \begin{bmatrix} \eta_q & \boldsymbol{\epsilon}_q^T \end{bmatrix}^T = \begin{bmatrix} \eta_q & \epsilon_1 & \epsilon_2 & \epsilon_3 \end{bmatrix}^T \in \mathbb{R}^4, \quad \|\mathbf{q}\| = \eta_q^2 + \epsilon_1^2 + \epsilon_2^2 + \epsilon_3^2 = 1$$
 
@@ -184,7 +184,7 @@ $$\dot{\mathbf{q}} = \frac{1}{2} \begin{bmatrix} -\boldsymbol{\epsilon}_q^T \\ \
 -\epsilon_2 & \epsilon_1 & \eta_q
 \end{bmatrix} \begin{bmatrix} p \\ q \\ r \end{bmatrix}$$
 
-di mana $$\mathbf{S}(\mathbf{a})$$ merupakan operator matriks *skew-symmetric* perkalian silang (*cross-product*).
+di mana $$\mathbf{S}(\mathbf{a})$$ merupakan operator matriks skew-symmetric* perkalian silang (*cross-product*).
 
 ---
 
@@ -196,9 +196,9 @@ $$\mathbf{M} \dot{\boldsymbol{\nu}} + \mathbf{C}(\boldsymbol{\nu}) \boldsymbol{\
 
 ### 3.4.1 Matriks Inersia Total $$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A \in \mathbb{R}^{6 \times 6}$$
 
-Inersia total merupakan penjumlahan dari inersia benda tegar (*rigid-body*) $$\mathbf{M}_{RB}$$ dan inersia massa tambahan hidrodinamika (*hydrodynamic added mass*) $$\mathbf{M}_A$$.
+Inersia total merupakan penjumlahan dari inersia benda tegar (*rigid-body*) $$\mathbf{M}_{RB}$$ dan inersia massa tambahan hidrodinamika (*hydrodynamic added mass) $$\mathbf{M}_A$$.
 
-1. **Matriks Massa Benda Tegar $$\mathbf{M}_{RB}$$**:
+1. *Matriks Massa Benda Tegar $$\mathbf{M}_{RB}$$**:
    Untuk wahana berbobot massa $$m = 13.0\text{ kg}$$ dengan pusat massa pada $$O_b$$:
    $$\mathbf{M}_{RB} = \begin{bmatrix} m \mathbf{I}_{3 \times 3} & -m \mathbf{S}(\mathbf{r}_g) \\ m \mathbf{S}(\mathbf{r}_g) & \mathbf{I}_g \end{bmatrix} = \begin{bmatrix}
    m & 0 & 0 & 0 & m z_g & -m y_g \\
@@ -209,7 +209,7 @@ Inersia total merupakan penjumlahan dari inersia benda tegar (*rigid-body*) $$\m
    -m y_g & m x_g & 0 & -I_{zx} & -I_{zy} & I_{zz}
    \end{bmatrix}$$
 
-2. **Matriks Massa Tambahan Hidrodinamika $$\mathbf{M}_A$$**:
+2. **Matriks Massa Tambahan Hidrodinamika $$\mathbf{M}_A$$*:
    Ketika wahana berakselerasi di dalam air, terdapat massa fluida di sekitar lambung yang ikut terakselerasi, menimbulkan gaya reaksi berlawanan arah akselerasi. Menggunakan notasi derivatif hidrodinamika SNAME:
    $$\mathbf{M}_A = -\begin{bmatrix}
    X_{\dot{u}} & X_{\dot{v}} & X_{\dot{w}} & X_{\dot{p}} & X_{\dot{q}} & X_{\dot{r}} \\
@@ -220,7 +220,7 @@ Inersia total merupakan penjumlahan dari inersia benda tegar (*rigid-body*) $$\m
    N_{\dot{u}} & N_{\dot{v}} & N_{\dot{w}} & N_{\dot{p}} & N_{\dot{q}} & N_{\dot{r}}
    \end{bmatrix}$$
 
-   Karena kerangka BlueROV2 Heavy memiliki simetri bidang ganda (*bilateral symmetry* bidang port-starboard dan fore-aft) pada kecepatan operasional rendah ($$< 1.5\text{ m/s}$$), elemen non-diagonal dapat diabaikan, menghasilkan matriks inersia terkuantifikasi:
+   Karena kerangka BlueROV2 Heavy memiliki simetri bidang ganda (bilateral symmetry* bidang port-starboard dan fore-aft) pada kecepatan operasional rendah ($$< 1.5\text{ m/s}$$), elemen non-diagonal dapat diabaikan, menghasilkan matriks inersia terkuantifikasi:
 
 $$\mathbf{M} = \text{diag}\left[ m - X_{\dot{u}}, \, m - Y_{\dot{v}}, \, m - Z_{\dot{w}}, \, I_{xx} - K_{\dot{p}}, \, I_{yy} - M_{\dot{q}}, \, I_{zz} - N_{\dot{r}} \right]$$
 
@@ -230,7 +230,7 @@ $$\mathbf{M} = \text{diag}\left[ 19.36\text{ kg}, \, 20.12\text{ kg}, \, 31.68\t
 
 ### 3.4.2 Matriks Gaya Coriolis dan Sentripetal $$\mathbf{C}(\boldsymbol{\nu}) = \mathbf{C}_{RB}(\boldsymbol{\nu}) + \mathbf{C}_A(\boldsymbol{\nu}_r)$$
 
-Matriks Coriolis merepresentasikan gaya semu inersia yang muncul akibat gerak tubuh dalam koordinat berotasi. Menggunakan representasi Kirchhoff, suku ini bersifat *skew-symmetric* ($$\mathbf{C}(\boldsymbol{\nu}) = -\mathbf{C}^T(\boldsymbol{\nu})$$):
+Matriks Coriolis merepresentasikan gaya semu inersia yang muncul akibat gerak tubuh dalam koordinat berotasi. Menggunakan representasi Kirchhoff, suku ini bersifat *skew-symmetric ($$\mathbf{C}(\boldsymbol{\nu}) = -\mathbf{C}^T(\boldsymbol{\nu})$$):
 
 $$\mathbf{C}_{RB}(\boldsymbol{\nu}) = \begin{bmatrix} \mathbf{0}_{3 \times 3} & -m \mathbf{S}(\boldsymbol{\nu}_1) - m \mathbf{S}(\boldsymbol{\nu}_2)\mathbf{S}(\mathbf{r}_g) \\ -m \mathbf{S}(\boldsymbol{\nu}_1) + m \mathbf{S}(\mathbf{r}_g)\mathbf{S}(\boldsymbol{\nu}_2) & -\mathbf{S}(\mathbf{I}_g \boldsymbol{\nu}_2) \end{bmatrix}$$
 
@@ -239,11 +239,11 @@ $$\mathbf{C}_A(\boldsymbol{\nu}_r) = \begin{bmatrix}
 -\mathbf{S}(\mathbf{A}_{11}\boldsymbol{\nu}_{r1} + \mathbf{A}_{12}\boldsymbol{\nu}_{r2}) & -\mathbf{S}(\mathbf{A}_{21}\boldsymbol{\nu}_{r1} + \mathbf{A}_{22}\boldsymbol{\nu}_{r2})
 \end{bmatrix}$$
 
-di mana $$\mathbf{A}_{ij}$$ merupakan blok submatriks dari $$\mathbf{M}_A$$. Perbedaan antara $$X_{\dot{u}}$$ dan $$Y_{\dot{v}}$$ membangkitkan fenomena **momen Munk tak stabil** ($$(X_{\dot{u}} - Y_{\dot{v}}) u_r v_r$$) yang berusaha membelokkan wahana saat melaju miring, yang diredam secara aktif oleh umpan balik 8 pendorong.
+di mana $$\mathbf{A}_{ij}$$ merupakan blok submatriks dari $$\mathbf{M}_A$$. Perbedaan antara $$X_{\dot{u}}$$ dan $$Y_{\dot{v}}$$ membangkitkan fenomena *momen Munk tak stabil* ($$(X_{\dot{u}} - Y_{\dot{v}}) u_r v_r$$) yang berusaha membelokkan wahana saat melaju miring, yang diredam secara aktif oleh umpan balik 8 pendorong.
 
 ### 3.4.3 Tensor Redaman Hidrodinamika Coupled $$\mathbf{D}(\boldsymbol{\nu})$$
 
-Disipasi energi kinetik ke dalam air dimodelkan melalui redaman linier kulit laminar (*skin friction*) dan redaman kuadratik turbulen (*cross-flow drag*):
+Disipasi energi kinetik ke dalam air dimodelkan melalui redaman linier kulit laminar (skin friction*) dan redaman kuadratik turbulen (*cross-flow drag*):
 
 $$\mathbf{D}(\boldsymbol{\nu}) \boldsymbol{\nu} = \mathbf{D}_{\text{lin}} \boldsymbol{\nu} + \mathbf{D}_{\text{quad}} |\boldsymbol{\nu}| \boldsymbol{\nu}$$
 
@@ -313,7 +313,7 @@ $$\mathbf{T}_{6 \times 8} = \begin{bmatrix}
 
 ### 3.5.2 Solusi Invers Semu Moore-Penrose Kuadratik Minimum
 
-Karena jumlah aktuator lebih besar daripada derajat kebebasan ($$8 > 6$$), sistem memiliki redundansi kontrol (*over-actuated*). Solusi alokasi yang meminimalkan konsumsi energi total aktuator ($$J = \frac{1}{2} \mathbf{f}^T \mathbf{W} \mathbf{f}$$) diselesaikan menggunakan invers semu terbobot (*weighted Moore-Penrose pseudo-inverse*):
+Karena jumlah aktuator lebih besar daripada derajat kebebasan ($$8 > 6$$), sistem memiliki redundansi kontrol (*over-actuated*). Solusi alokasi yang meminimalkan konsumsi energi total aktuator ($$J = \frac{1}{2} \mathbf{f}^T \mathbf{W} \mathbf{f}$$) diselesaikan menggunakan invers semu terbobot (*weighted Moore-Penrose pseudo-inverse):
 
 $$\mathbf{f} = \mathbf{T}^+ \boldsymbol{\tau} = \mathbf{W}^{-1} \mathbf{T}^T (\mathbf{T} \mathbf{W}^{-1} \mathbf{T}^T)^{-1} \boldsymbol{\tau}$$
 
@@ -345,36 +345,36 @@ Semua sensor fisik dan piranti deteksi pada wahana dimodelkan matematis ke dalam
 +-----------------------------------------------------------------------------------------------+
 ```
 
-1. **Tri-Axial Gyroscope (MPU-6000)**:
+1. *Tri-Axial Gyroscope (MPU-6000)*:
    Mengukur kecepatan angular tubuh:
    $$\mathbf{z}_{\text{gyro}} = \boldsymbol{\nu}_2 + \mathbf{b}_g + \mathbf{w}_g = \begin{bmatrix} p \\ q \\ r \end{bmatrix} + \mathbf{b}_g + \mathbf{w}_g$$
-   di mana $$\mathbf{b}_g$$ adalah bias *drift* dan $$\mathbf{w}_g \sim \mathcal{N}(\mathbf{0}, \mathbf{R}_{\text{gyro}})$$ adalah *noise* instrumen putih Gauss.
+   di mana $$\mathbf{b}_g$$ adalah bias drift* dan $$\mathbf{w}_g \sim \mathcal{N}(\mathbf{0}, \mathbf{R}_{\text{gyro}})$$ adalah *noise instrumen putih Gauss.
 
-2. **Tri-Axial Accelerometer (MPU-6000 & LSM303D)**:
-   Mengukur gaya spesifik (*specific force*) yang mencakup akselerasi kinematis dan gravitasi:
+2. *Tri-Axial Accelerometer (MPU-6000 & LSM303D)*:
+   Mengukur gaya spesifik (specific force*) yang mencakup akselerasi kinematis dan gravitasi:
    $$\mathbf{z}_{\text{acc}} = \dot{\boldsymbol{\nu}}_1 + \mathbf{S}(\boldsymbol{\nu}_2)\boldsymbol{\nu}_1 - (\mathbf{R}_b^n)^T \begin{bmatrix} 0 \\ 0 \\ g \end{bmatrix} + \mathbf{b}_a + \mathbf{w}_a$$
-   Saat wahana diam/kecepatan konstan, akselerometer mengukur proyeksi vektor gravitasi, memberikan estimasi absolut sudut roll $$\phi$$ dan pitch $$\theta$$ tanpa *drift*.
+   Saat wahana diam/kecepatan konstan, akselerometer mengukur proyeksi vektor gravitasi, memberikan estimasi absolut sudut roll $$\phi$$ dan pitch $$\theta$$ tanpa *drift.
 
-3. **Digital Compass / Magnetometer (LSM303D)**:
+3. *Digital Compass / Magnetometer (LSM303D)*:
    Mengukur vektor medan magnet bumi $$\mathbf{B}^n$$ terproyeksi ke tubuh wahana:
    $$\mathbf{z}_{\text{mag}} = (\mathbf{R}_b^n)^T \mathbf{B}^n + \mathbf{b}_m + \mathbf{w}_m$$
-   Setelah kompensasi distorsi *hard iron* dan *soft iron*, sudut *heading* $$\psi$$ dihitung tanpa akumulasi kesalahan integrasi gyro.
+   Setelah kompensasi distorsi hard iron* dan *soft iron*, sudut *heading $$\psi$$ dihitung tanpa akumulasi kesalahan integrasi gyro.
 
-4. **Sensor Tekanan Subsea Bar30 (MS5837-30BA)**:
+4. *Sensor Tekanan Subsea Bar30 (MS5837-30BA)*:
    Tekanan hidrostatik absolut berhubungan linier dengan kedalaman fluida $$z$$:
    $$P_{\text{abs}} = \rho g z + P_{\text{atm}}$$
    $$z_{\text{meas}} = \frac{P_{\text{abs}} - P_{\text{atm}}}{\rho g}$$
-   Turunan waktu dari sinyal kedalaman terfilter memberikan estimasi kecepatan vertikal (*heave velocity*) $$w_m = \frac{dz}{dt}$$.
+   Turunan waktu dari sinyal kedalaman terfilter memberikan estimasi kecepatan vertikal (heave velocity) $$w_m = \frac{dz}{dt}$$.
 
-5. **Umpan Balik PWM Motor (ArduSub `SERVO_OUTPUT_RAW`)**:
+5. *Umpan Balik PWM Motor (ArduSub `SERVO_OUTPUT_RAW`)**:
    Sinyal PWM dari 8 saluran pendorong dikonversi ke gaya dorong Newton melalui pemodelan polinomial non-linear karakteristik baling-baling T200 ($$f_i = k_{\text{pwm}} (\text{PWM}_i - 1500) |\text{PWM}_i - 1500|$$), yang kemudian dialokasikan melalui $$\boldsymbol{\tau} = \mathbf{T}_{6 \times 8} \mathbf{f}$$.
 
-6. **Kamera & Deteksi Target YOLO26**:
+6. **Kamera & Deteksi Target YOLO26*:
    Kamera monokular memproyeksikan target 3D ke bidang citra 2D:
    $$x_p = f_x \frac{X_c}{Z_c} + c_x, \quad y_p = f_y \frac{Y_c}{Z_c} + c_y$$
    Luas kotak pembatas $$\mathcal{A} = w \cdot h$$ memiliki laju ekspansi diferensial terhadap jarak fisik $$Z_c$$:
    $$\dot{Z}_c = -\frac{Z_c}{2} \left( \frac{\dot{w}}{w} + \frac{\dot{h}}{h} \right)$$
-   memberikan pengukuran kecepatan pendekatan haluan (*surge approach velocity*) secara visual.
+   memberikan pengukuran kecepatan pendekatan haluan (surge approach velocity*) secara visual.
 
 ---
 
@@ -384,11 +384,11 @@ Sistem estimasi mengoperasikan dua Kalman filter yang terkoordinasi:
 
 ### 3.7.1 Subsea Hydrodynamic Dynamics EKF (`AUVDynamicsKalmanFilter`)
 
-Berjalan pada Raspberry Pi 4B pada frekuensi $$50\text{ Hz}$$. State vector diperluas dengan pengamat gangguan arus laut (*Disturbance Observer*):
+Berjalan pada Raspberry Pi 4B pada frekuensi $$50\text{ Hz}$$. State vector diperluas dengan pengamat gangguan arus laut (*Disturbance Observer):
 
 $$\mathbf{x}_{\text{dyn}} = \begin{bmatrix} u & v & w & p & q & r & d_u & d_v \end{bmatrix}^T \in \mathbb{R}^8$$
 
-1. **Tahap Prediksi**:
+1. *Tahap Prediksi**:
    $$\hat{\mathbf{x}}_{k|k-1} = \hat{\mathbf{x}}_{k-1|k-1} + \mathbf{f}_c(\hat{\mathbf{x}}_{k-1|k-1}, \boldsymbol{\tau}) \Delta t$$
    $$\mathbf{P}_{k|k-1} = \boldsymbol{\Phi}_k \mathbf{P}_{k-1|k-1} \boldsymbol{\Phi}_k^T + \mathbf{Q}_{\text{dyn}}$$
 
@@ -405,7 +405,7 @@ $$\mathbf{F}_c = \begin{bmatrix}
 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0
 \end{bmatrix}$$
 
-2. **Tahap Pembaruan Pengukuran Multi-Sensor**:
+2. **Tahap Pembaruan Pengukuran Multi-Sensor*:
    Vektor pengukuran $$\mathbf{z}_k = [u_m, v_m, w_m, p_m, q_m, r_m]^T \in \mathbb{R}^6$$:
    $$\mathbf{y}_k = \mathbf{z}_k - \mathbf{H} \hat{\mathbf{x}}_{k|k-1}, \quad \mathbf{H} = \begin{bmatrix} \mathbf{I}_{6 \times 6} & \mathbf{0}_{6 \times 2} \end{bmatrix}$$
    $$\mathbf{S}_k = \mathbf{H} \mathbf{P}_{k|k-1} \mathbf{H}^T + \mathbf{R}_{\text{dyn}}$$
@@ -417,7 +417,7 @@ $$\mathbf{F}_c = \begin{bmatrix}
 
 Berjalan pada workstation topside (NVIDIA GPU) memproses koordinat deteksi objek YOLO26:
 $$\mathbf{x}_{\text{vis}} = \begin{bmatrix} x_c & y_c & w & h & v_x & v_y & v_w & v_h \end{bmatrix}^T \in \mathbb{R}^8$$
-Menggunakan model *Continuous White Noise Acceleration* (CWNA), filter ini mengeliminasi *jitter* deteksi piksel, memvalidasi pengukuran melalui *Mahalanobis distance innovation gating* ($$d_M^2 \le \gamma$$), dan melakukan interpolasi *dead-reckoning* saat target terhalang gelembung/sedimen hingga 15 frame berturut-turut.
+Menggunakan model Continuous White Noise Acceleration* (CWNA), filter ini mengeliminasi *jitter* deteksi piksel, memvalidasi pengukuran melalui *Mahalanobis distance innovation gating* ($$d_M^2 \le \gamma$$), dan melakukan interpolasi *dead-reckoning* saat target terhalang gelembung/sedimen hingga 15 frame berturut-turut.
 
 ---
 

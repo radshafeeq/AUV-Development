@@ -47,16 +47,16 @@ blockquote {
 </head>
 <body>
 <h1 id="bab-ii-tinjauan-pustaka-dan-landasan-teori">BAB II: TINJAUAN PUSTAKA DAN LANDASAN TEORI</h1>
-<p><strong>Judul Tugas Akhir</strong>:<br />
-<em>Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal </em>Kalman Filter<em> untuk </em>Vision-Based Tracking<em> pada </em>Over-Actuated 8-Thruster 6-DOF Vectored AUV<strong><br />
-(</strong>Title<em><em>: </em>Analysis of Kinematics, Dynamics, and Optimal Kalman Filter State Estimation for Vision-Based Tracking in an Over-Actuated 8-Thruster 6-DOF Vectored AUV</em>)</p>
+<p><em><em>Judul Tugas Akhir</em>:<br />
+Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal </em>Kalman Filter<em> untuk </em>Vision-Based Tracking<em> pada Over-Actuated 8-Thruster 6-DOF Vectored AUV</em><br />
+(<em>Title</em>: Analysis of Kinematics, Dynamics, and Optimal Kalman Filter State Estimation for Vision-Based Tracking in an Over-Actuated 8-Thruster 6-DOF Vectored AUV*)</p>
 <hr />
 <h2 id="21-tinjauan-pustaka-state-of-the-art-penelitian-auv">2.1 Tinjauan Pustaka (<em>State of the Art</em> Penelitian AUV)</h2>
 <p>Perkembangan teknologi wahana bawah air tanpa awak (<em>unmanned underwater vehicles</em>) dalam lima tahun terakhir (2021–2026) mengalami akselerasi signifikan, terutama didorong oleh kebutuhan inspeksi infrastruktur maritim lepas pantai, pemantauan aset energi bawah laut, dan eksplorasi lingkungan bentik laut dalam [2], [14], [18]. Penelitian terdahulu pada wahana kelas mikro dan inspeksi umumnya bertumpu pada platform <em>Remotely Operated Vehicle</em> (ROV) yang dikonversi menjadi <em>Autonomous Underwater Vehicle</em> (AUV) atau <em>Hovering Autonomous Underwater Vehicle</em> (HAUV) [2], [14], [21], [31]. Namun, tantangan utama yang dihadapi oleh komunitas riset robotika kelautan global adalah keterbatasan derajat kebebasan aktuasi (<em>underactuation</em>), non-linearitas hidrodinamika fluida Navier-Stokes yang tinggi, ketidakpastian parameter lingkungan laut, serta degradasi kualitas sensor visual bawah air akibat turbiditas dan atenuasi cahaya [1], [7], [16], [31], [34].</p>
 <p>Dalam literatur dinamika dan kendali wahana bawah air, konfigurasi standar BlueROV2 dengan enam pendorong (<em>6-thruster standard frame</em>) telah banyak digunakan sebagai tolok ukur (<em>benchmark platform</em>) [2], [14], [21], [31]. von Benzon dkk. (2022) mengembangkan simulator <em>benchmark open-source</em> berbasis BlueROV2 untuk mengevaluasi berbagai algoritma kendali [31]. Namun, platform standar tersebut beroperasi dalam kondisi <em>underactuated</em> 4-DOF aktif (<em>Surge</em>, <em>Sway</em>, <em>Heave</em>, <em>Yaw</em>), di mana derajat kebebasan <em>pitch</em> ($$\theta$$) dan <em>roll</em> ($$\phi$$) tidak memiliki pendorong aktif dan hanya mengandalkan stabilitas metasentris hidrostatis pasif [21], [31]. Keterbatasan ini menghalangi wahana untuk melakukan inspeksi berorientasi miring (<em>tilt/pitch inspection</em>) terhadap struktur vertikal atau dasar laut berkontur curam [3], [21].</p>
 <p>Untuk mengatasi keterbatasan tersebut, konfigurasi <em>over-actuated</em> 8-pendorong berbasis BlueROV2 Heavy retrofit frame mulai diteliti secara intensif [3], [21], [6], [32], [40]. Vu dkk. (2021) mengkaji kendali posisi kokoh (<em>robust position control</em>) pada wahana bawah air <em>over-actuated</em> dengan menggabungkan <em>dynamic sliding mode surface</em> dan alokasi kendali optimal berbasis <em>pseudo-inverse</em> dan arsitektur kontrol modular [20] di bawah pengaruh arus laut dan ketidakpastian model [32]. Hasil studi mereka membuktikan bahwa penambahan aktuasi redundan tidak hanya memberikan kendali penuh pada enam derajat kebebasan spasial (6-DOF: <em>Surge</em>, <em>Sway</em>, <em>Heave</em>, <em>Roll</em>, <em>Pitch</em>, <em>Yaw</em>), tetapi juga meningkatkan toleransi kesalahan (<em>fault tolerance</em>) dan efisiensi konsumsi energi <em>thruster</em> [21], [32].</p>
 <p>Di sisi estimasi parameter hidrodinamika, identifikasi koefisien massa tambah (<em>hydrodynamic added mass</em>) dan redaman (<em>damping</em>) menjadi fondasi krusial dalam perancangan model kendali berbasis model (<em>model-based control</em>) [1], [7], [34]. Ahmed dkk. (2023) mempublikasikan survei komprehensif mengenai teknik estimasi parameter hidrodinamika tradisional (metode analitis strip theory, uji Planar Motion Mechanism/PMM) hingga pendekatan berbasis kecerdasan buatan (<em>AI-based estimation</em>) [1]. Lebih lanjut, Wei dkk. (2025) mengajukan metode solusi koefisien hidrodinamika AUV memanfaatkan data gerak terkopling multi-derajat kebebasan (<em>multi-DOF coupled motion data</em>), yang menyoroti betapa dominannya pengaruh kopling silang hidrodinamika non-linier seperti momen Munk hidrodinamika (<em>hydrodynamic Munk moment</em>) pada manuver kecepatan tinggi dan belokan tajam [34].</p>
-<p>Terkait persepsi visual dan penjejakan target bawah air, Alinei-Poiană dkk. (2024) serta Ismail dkk. (2021) menunjukkan bahwa integrasi modul kecerdasan buatan seperti <em>convolutional neural networks</em> (YOLO) pada <em>companion computer</em> (Raspberry Pi / Jetson) rentan terhadap derau pengukuran frekuensi tinggi, <em>detection jitter</em>, dan <em>occlusion</em> sementara [2], [14]. Untuk memitigasi derau tersebut, literatur estimasi mutakhir menyarankan pemanfaatan <em>Kalman Filter</em> optimal dan variannya [16], [17], [25], [29]. Särkkä dan Svensson (2023) dalam buku teks kanonikal <em>Bayesian Filtering and Smoothing</em> merumuskan kerangka stokastik rigorous untuk model <em>Continuous White Noise Acceleration</em> (CWNA) dan penapis non-linier seperti <em>Extended Kalman Filter</em> (EKF) [25]. Khalid dkk. (2024) serta Kim (2023) mendokumentasikan aplikasi <em>Kalman Filter</em> dalam fusi multi-sensor robotika dan pelacakan target dinamis [16], [17]. Di domain bawah laut, integrasi EKF yang memadukan data inersia (IMU), sensor kedalaman, dan persamaan dinamika Fossen 6-DOF terbukti mampu mengestimasi kecepatan relatif wahana sekaligus merekonstruksi gangguan arus laut (<em>ocean current disturbance observer</em>) secara <em>real-time</em> [7], [18], [29].</p>
+<p>Terkait persepsi visual dan penjejakan target bawah air, Alinei-Poiană dkk. (2024) serta Ismail dkk. (2021) menunjukkan bahwa integrasi modul kecerdasan buatan seperti <em>convolutional neural networks</em> (YOLO) pada <em>companion computer</em> (Raspberry Pi / Jetson) rentan terhadap derau pengukuran frekuensi tinggi, <em>detection jitter</em>, dan <em>occlusion</em> sementara [2], [14]. Untuk memitigasi derau tersebut, literatur estimasi mutakhir menyarankan pemanfaatan <em>Kalman Filter</em> optimal dan variannya [16], [17], [25], [29]. Särkkä dan Svensson (2023) dalam buku teks kanonikal <em>Bayesian Filtering and Smoothing</em> merumuskan kerangka stokastik rigorous untuk model <em>Continuous White Noise Acceleration (CWNA) dan penapis non-linier seperti </em>Extended Kalman Filter<em> (EKF) [25]. Khalid dkk. (2024) serta Kim (2023) mendokumentasikan aplikasi </em>Kalman Filter<em> dalam fusi multi-sensor robotika dan pelacakan target dinamis [16], [17]. Di domain bawah laut, integrasi EKF yang memadukan data inersia (IMU), sensor kedalaman, dan persamaan dinamika Fossen 6-DOF terbukti mampu mengestimasi kecepatan relatif wahana sekaligus merekonstruksi gangguan arus laut (</em>ocean current disturbance observer<em>) secara </em>real-time* [7], [18], [29].</p>
 <p>Tabel 2.1 merangkum matriks sintesis literatur terkini (2021–2025) yang menjadi pijakan komparatif dan fondasi kebaruan (<em>novelty</em>) penelitian tugas akhir ini.</p>
 <h3 id="tabel-21-matriks-sintesis-literatur-terkini-20212025-bidang-dinamika-dan-kontrol-auv">Tabel 2.1 Matriks Sintesis Literatur Terkini (2021–2025) Bidang Dinamika dan Kontrol AUV</h3>
 <table>
@@ -66,96 +66,96 @@ blockquote {
 <th style="text-align: left;">Platform Wahana</th>
 <th style="text-align: center;">Derajat Kebebasan (DOF)</th>
 <th style="text-align: left;">Fokus Metode &amp; Kontribusi Utama</th>
-<th style="text-align: left;">Keterbatasan / Kesenjangan Riset (<em>Research Gap</em>)</th>
+<th style="text-align: left;">Keterbatasan / Kesenjangan Riset (*Research Gap)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>Vu dkk. (2021)</strong> [32]</td>
-<td style="text-align: left;"><em>Over-actuated</em> UUV</td>
+<td style="text-align: left;"><em>Vu dkk. (2021)</em> [32]</td>
+<td style="text-align: left;">Over-actuated* UUV</td>
 <td style="text-align: center;">6-DOF (8 <em>Thruster</em>)</td>
 <td style="text-align: left;"><em>Dynamic Sliding Mode Control</em> dan alokasi gaya dorong optimal dengan ketidakpastian model dan arus laut.</td>
-<td style="text-align: left;">Tidak mengintegrasikan sistem pelacakan visual berbasis visi kamera (<em>visual tracking</em>) dan validasi terbatas pada simulasi numerik 2D/3D tanpa HITL terdistribusi.</td>
+<td style="text-align: left;">Tidak mengintegrasikan sistem pelacakan visual berbasis visi kamera (*visual tracking) dan validasi terbatas pada simulasi numerik 2D/3D tanpa HITL terdistribusi.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Ismail dkk. (2021)</strong> [14]</td>
+<td style="text-align: left;"><em>Ismail dkk. (2021)</em> [14]</td>
 <td style="text-align: left;">Hybrid ROV/AUV</td>
-<td style="text-align: center;">4-DOF (<em>Underactuated</em>)</td>
+<td style="text-align: center;">4-DOF (Underactuated*)</td>
 <td style="text-align: left;">Perancangan platform berbiaya terjangkau berbasis ArduSub dan ROS untuk riset kelautan mahasiswa.</td>
-<td style="text-align: left;">Model matematika sangat disederhanakan; tidak memodelkan massa tambah non-diagonal, redaman kuadratik terkopling, maupun kendali orientasi aktif (<em>pitch unactuated</em>).</td>
+<td style="text-align: left;">Model matematika sangat disederhanakan; tidak memodelkan massa tambah non-diagonal, redaman kuadratik terkopling, maupun kendali orientasi aktif (*pitch unactuated).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>von Benzon dkk. (2022)</strong> [31]</td>
+<td style="text-align: left;"><em>von Benzon dkk. (2022)</em> [31]</td>
 <td style="text-align: left;">BlueROV2 Standard</td>
-<td style="text-align: center;">4-DOF (<em>Underactuated</em>)</td>
+<td style="text-align: center;">4-DOF (Underactuated*)</td>
 <td style="text-align: left;">Pembuatan simulator <em>benchmark open-source</em> berbasis Fossen dynamics untuk BlueROV2 di Gazebo/ROS.</td>
-<td style="text-align: left;">Terbatas pada konfigurasi 6 pendorong (<em>standard frame</em>); mengabaikan aktuasi <em>pitch</em> aktif serta tidak menyediakan modul penapis Kalman visual.</td>
+<td style="text-align: left;">Terbatas pada konfigurasi 6 pendorong (<em>standard frame</em>); mengabaikan aktuasi *pitch aktif serta tidak menyediakan modul penapis Kalman visual.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Ahmed dkk. (2023)</strong> [1]</td>
+<td style="text-align: left;"><em>Ahmed dkk. (2023)</em> [1]</td>
 <td style="text-align: left;">Berbagai Kelas AUV</td>
 <td style="text-align: center;">Multi-DOF</td>
 <td style="text-align: left;">Survei komprehensif teknik estimasi koefisien hidrodinamika tradisional vs. algoritma AI/neural network.</td>
-<td style="text-align: left;">Merupakan artikel survei literatur; tidak merumuskan arsitektur kendali alokasi daya dorong atau implementasi <em>software-in-the-loop</em> terpadu.</td>
+<td style="text-align: left;">Merupakan artikel survei literatur; tidak merumuskan arsitektur kendali alokasi daya dorong atau implementasi software-in-the-loop terpadu.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Wang dkk. (2023)</strong> [33]</td>
+<td style="text-align: left;"><em>Wang dkk. (2023)</em> [33]</td>
 <td style="text-align: left;">Torpedo-Type AUV</td>
 <td style="text-align: center;">6-DOF</td>
-<td style="text-align: left;">Pemodelan dinamis terintegrasi antara lambung (<em>hull</em>), baling-baling (<em>propeller</em>), dan sirip kemudi (<em>rudder</em>).</td>
-<td style="text-align: left;">Berlaku eksklusif untuk AUV kelas penjelajah (<em>cruising AUV</em>); tidak dapat diaplikasikan pada wahana <em>hovering</em> dengan matriks pendorong bervektor (<em>vectored thrusters</em>).</td>
+<td style="text-align: left;">Pemodelan dinamis terintegrasi antara lambung (hull<em>), baling-baling (</em>propeller<em>), dan sirip kemudi (</em>rudder*).</td>
+<td style="text-align: left;">Berlaku eksklusif untuk AUV kelas penjelajah (<em>cruising AUV</em>); tidak dapat diaplikasikan pada wahana <em>hovering</em> dengan matriks pendorong bervektor (*vectored thrusters).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Alinei-Poiană dkk. (2024)</strong> [2]</td>
+<td style="text-align: left;"><em>Alinei-Poiană dkk. (2024)</em> [2]</td>
 <td style="text-align: left;">BlueROV2 Platform</td>
 <td style="text-align: center;">4-DOF</td>
-<td style="text-align: left;">Eksperimen pemetaan bawah air (<em>underwater mapping</em>) menggunakan fusi sensor akustik dan visual.</td>
-<td style="text-align: left;">Pemrosesan visi optik tidak dilengkapi penapis stokastik pelacakan dinamis adaptif terhadap <em>detection dropouts</em> dan <em>occlusion</em>.</td>
+<td style="text-align: left;">Eksperimen pemetaan bawah air (underwater mapping*) menggunakan fusi sensor akustik dan visual.</td>
+<td style="text-align: left;">Pemrosesan visi optik tidak dilengkapi penapis stokastik pelacakan dinamis adaptif terhadap <em>detection dropouts</em> dan *occlusion.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Ng &amp; Krieg (2024)</strong> [21]</td>
+<td style="text-align: left;"><em>Ng &amp; Krieg (2024)</em> [21]</td>
 <td style="text-align: left;">BlueROV2 Standard &amp; Heavy</td>
 <td style="text-align: center;">4-DOF &amp; 6-DOF</td>
 <td style="text-align: left;">Modifikasi ArduSub SITL untuk meningkatkan akurasi simulasi dan perancangan autopilot hibrida.</td>
-<td style="text-align: left;">Fokus utama pada modifikasi <em>firmware</em> ArduSub; tidak menurunkan secara analitis derivasi matematis matriks alokasi gaya dorong $$6 \times 8$$ maupun penapis Kalman visual.</td>
+<td style="text-align: left;">Fokus utama pada modifikasi firmware ArduSub; tidak menurunkan secara analitis derivasi matematis matriks alokasi gaya dorong $$6 \times 8$$ maupun penapis Kalman visual.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Suárez dkk. (2024)</strong> [27]</td>
+<td style="text-align: left;"><em>Suárez dkk. (2024)</em> [27]</td>
 <td style="text-align: left;">UUV 6-DOF</td>
 <td style="text-align: center;">6-DOF</td>
-<td style="text-align: left;">Pemodelan dinamika dan kendali kokoh wahana bawah air memanfaatkan aljabar <em>dual quaternions</em>.</td>
-<td style="text-align: left;">Formulasi <em>dual quaternion</em> sangat abstrak secara aljabar dan sulit diintegrasikan ke dalam ekosistem <em>flight controller</em> standar industri seperti Pixhawk/ArduSub.</td>
+<td style="text-align: left;">Pemodelan dinamika dan kendali kokoh wahana bawah air memanfaatkan aljabar dual quaternions*.</td>
+<td style="text-align: left;">Formulasi <em>dual quaternion</em> sangat abstrak secara aljabar dan sulit diintegrasikan ke dalam ekosistem *flight controller standar industri seperti Pixhawk/ArduSub.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Wei dkk. (2025)</strong> [34]</td>
+<td style="text-align: left;"><em>Wei dkk. (2025)</em> [34]</td>
 <td style="text-align: left;">AUV Multi-DOF</td>
 <td style="text-align: center;">6-DOF</td>
 <td style="text-align: left;">Solusi identifikasi koefisien hidrodinamika memanfaatkan data gerak terkopling multi-derajat kebebasan.</td>
-<td style="text-align: left;">Menitikberatkan pada uji identifikasi parameter <em>offline</em>; tidak mengkaji penapis keadaan Kalman <em>real-time</em> atau alokasi pendorong berlebih.</td>
+<td style="text-align: left;">Menitikberatkan pada uji identifikasi parameter offline<em>; tidak mengkaji penapis keadaan Kalman </em>real-time atau alokasi pendorong berlebih.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Llorente-Vidrio dkk. (2025)</strong> [18]</td>
+<td style="text-align: left;"><em>Llorente-Vidrio dkk. (2025)</em> [18]</td>
 <td style="text-align: left;">Underwater ROV</td>
 <td style="text-align: center;">4-DOF</td>
-<td style="text-align: left;"><em>Robust sliding-mode control</em> berbasis identifikasi diferensial neural untuk ketidakpastian model.</td>
-<td style="text-align: left;">Wahana beroperasi pada mode <em>tethered</em> ROV manual; tidak mengintegrasikan navigasi otonom berbasis estimasi <em>Kalman Filter</em> ganda.</td>
+<td style="text-align: left;">Robust sliding-mode control* berbasis identifikasi diferensial neural untuk ketidakpastian model.</td>
+<td style="text-align: left;">Wahana beroperasi pada mode <em>tethered</em> ROV manual; tidak mengintegrasikan navigasi otonom berbasis estimasi *Kalman Filter ganda.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Penelitian Tugas Akhir Ini (2026)</strong></td>
+<td style="text-align: left;"><em>Penelitian Tugas Akhir Ini (2026)</em>*</td>
 <td style="text-align: left;">BlueROV2 Heavy Frame</td>
 <td style="text-align: center;"><strong>6-DOF Penuh (8 Pendorong Over-Actuated)</strong></td>
 <td style="text-align: left;"><strong>Derivasi matematis analitis first-principles kinematika &amp; dinamika 6-DOF Fossen, alokasi gaya dorong $$6 \times 8$$ pseudo-inverse Moore-Penrose, suite Optimal Kalman Filter ganda (Visual 8D CWNA Mahalanobis + EKF Dinamika Fossen), dan validasi SITL (Gazebo Harmonic ROS 2) &amp; HITL (RPi4 - Pixhawk ArduSub MAVLink 50 Hz).</strong></td>
-<td style="text-align: left;"><strong>Menutup seluruh kesenjangan riset di atas secara terpadu, rigor, dan teruji.</strong></td>
+<td style="text-align: left;">*<em>Menutup seluruh kesenjangan riset di atas secara terpadu, rigor, dan teruji.</em></td>
 </tr>
 </tbody>
 </table>
-<p>Berdasarkan sintesis literatur pada Tabel 2.1, tampak jelas adanya kesenjangan riset (<em>research gap</em>) yang nyata: belum ada penelitian terdahulu yang menyatukan secara komprehensif formulasi matematis <em>first-principles</em> 6-DOF Fossen lengkap, alokasi pendorong redundan $$6 \times 8$$, estimasi keadaan visual adaptif 8D CWNA dengan <em>Mahalanobis distance gating</em>, serta EKF hidrodinamika non-linier dalam satu arsitektur terdistribusi SITL dan HITL yang siap diimplementasikan pada wahana bawah air berbiaya terjangkau. Penelitian tugas akhir ini secara spesifik hadir untuk mengisi kesenjangan fundamental tersebut.</p>
+<p>Berdasarkan sintesis literatur pada Tabel 2.1, tampak jelas adanya kesenjangan riset (research gap<em>) yang nyata: belum ada penelitian terdahulu yang menyatukan secara komprehensif formulasi matematis </em>first-principles<em> 6-DOF Fossen lengkap, alokasi pendorong redundan $$6 \times 8$$, estimasi keadaan visual adaptif 8D CWNA dengan </em>Mahalanobis distance gating*, serta EKF hidrodinamika non-linier dalam satu arsitektur terdistribusi SITL dan HITL yang siap diimplementasikan pada wahana bawah air berbiaya terjangkau. Penelitian tugas akhir ini secara spesifik hadir untuk mengisi kesenjangan fundamental tersebut.</p>
 <hr />
-<p>Pengembangan komputasi dinamika dan arsitektur estimasi wahana <em>over-actuated</em> ini diperkuat oleh landasan pustaka mutakhir ($$\ge 2021$$) di berbagai ranah mekatronika maritim:<br />
-1. <strong>Identifikasi Koefisien Hidrodinamika dan Efek Interaksi Fluida</strong>: Ahmed dkk. (2023) serta Hong dkk. (2024) memetakan metode penentuan koefisien hidrodinamika dari uji semi-empiris, uji tangki tarik <em>Planar Motion Mechanism</em> (PMM), hingga simulasi <em>Computational Fluid Dynamics</em> (CFD) [1], [12]. Validasi eksperimental fasilitas PMM oleh de Moraes dkk. (2025) menegaskan perubahan karakteristik massa tambah dan redaman fluida saat wahana beroperasi di dekat permukaan batas bebas air [4]. Interaksi hidrodinamika dua arah yang terkopling erat antara lambung wahana dan pusaran hidrodinamika baling-baling (<em>two-way hull-propeller coupled effect</em>) pada wahana <em>fully-actuated</em> dipaparkan secara mendalam oleh Xia dkk. (2025) [37]. Lebih lanjut, Song dkk. (2023) serta Sun dkk. (2022) mengkombinasikan komputasi CFD dengan algoritma genetika (<em>genetic algorithms</em>) dan formulasi dinamika non-linier terkopling untuk mengoptimasi geometri lambung dan memprediksi stabilitas manuver terdistorsi [26], [28].<br />
-2. <strong>Arsitektur Perangkat Lunak dan Keras Modular Berbasis Rekayasa Sistem</strong>: Kompleksitas integrasi sensor dan aktuasi redundan menuntut modularitas tinggi. McIvor dkk. (2024) merumuskan arsitektur <em>Entity-Component-System</em> (ECS) yang memisahkan status komponen fisik dari eksekusi logika kendali, memfasilitasi komputasi invers semu Moore-Penrose secara agnostik terhadap konfigurasi <em>thruster</em> [20]. Zuluaga dkk. (2022) serta Gieraths dkk. (2023) menetapkan metodologi <em>systems engineering</em> untuk arsitektur modular perangkat keras dan lunak ROV yang tangguh terhadap gangguan operasional [11], [41]. Konsep modularitas dan aksesibilitas berbiaya terjangkau juga dibuktikan oleh platform MeCO (Widhalm dkk., 2025), Modularis (Vögele dkk., 2022), fabrikasi aditif 3D (Rusu dkk., 2023), dan sistem modular terbuka (Westman dkk., 2021) [23], [30], [35], [36].<br />
-3. <strong>Navigasi Bawah Air, Digital Twin, dan Dinamika Tether</strong>: Tinjauan mendalam mengenai algoritma penentuan posisi (<em>localization</em>) dan perencanaan jalur (<em>path planning</em>) oleh Zhang dkk. (2023) serta Pandian dkk. (2023) menyoroti pentingnya keandalan estimasi status di lingkungan tanpa GPS [22], [39]. Karras dkk. (2024) membuktikan bahwa metodologi berbasis simulasi (<em>simulation-driven approach</em>) sangat efektif memitigasi risiko transisi dari perairan virtual ke lautan riil [15]. Penggunaan <em>digital twin</em> 3D untuk memvalidasi algoritma pembelajaran penguatan mendalam (<em>Deep Reinforcement Learning</em>) pada platform BlueROV2 dieksplorasi oleh Mari dkk. (2026) [19]. Pengaruh dinamika kabel <em>tether</em> dan sistem multi-wahana dianalisis oleh Franchi dkk. (2022) serta Gaggero dkk. (2024) menggunakan sensor tegangan dan sistem penangkap gerak (<em>motion capture</em>), sementara Ge dkk. (2025) dan Saad dkk. (2026) memvalidasi keandalan navigasi ROV terpadu pada inspeksi jaring budidaya perikanan laut [8], [9], [10], [24].<br />
-4. <strong>Kendali Kokoh dan Estimasi Adaptif</strong>: Kendali trajektori berbasis pemicu kejadian (<em>event-triggered</em>) dengan <em>grey wolf optimized disturbance observer</em> oleh Huang dkk. (2026) dan kendali formasi AUV oleh Yang dkk. (2021) melengkapi pembuktian analitis bahwa estimasi gangguan arus lingkungan sangat penting untuk mempertahankan stabilitas formasi dan orientasi wahana [13], [38].</p>
+<p>Pengembangan komputasi dinamika dan arsitektur estimasi wahana <em>over-actuated ini diperkuat oleh landasan pustaka mutakhir ($$\ge 2021$$) di berbagai ranah mekatronika maritim:<br />
+1. </em>Identifikasi Koefisien Hidrodinamika dan Efek Interaksi Fluida<em>: Ahmed dkk. (2023) serta Hong dkk. (2024) memetakan metode penentuan koefisien hidrodinamika dari uji semi-empiris, uji tangki tarik Planar Motion Mechanism</em> (PMM), hingga simulasi <em>Computational Fluid Dynamics</em> (CFD) [1], [12]. Validasi eksperimental fasilitas PMM oleh de Moraes dkk. (2025) menegaskan perubahan karakteristik massa tambah dan redaman fluida saat wahana beroperasi di dekat permukaan batas bebas air [4]. Interaksi hidrodinamika dua arah yang terkopling erat antara lambung wahana dan pusaran hidrodinamika baling-baling (<em>two-way hull-propeller coupled effect</em>) pada wahana <em>fully-actuated</em> dipaparkan secara mendalam oleh Xia dkk. (2025) [37]. Lebih lanjut, Song dkk. (2023) serta Sun dkk. (2022) mengkombinasikan komputasi CFD dengan algoritma genetika (<em>genetic algorithms) dan formulasi dinamika non-linier terkopling untuk mengoptimasi geometri lambung dan memprediksi stabilitas manuver terdistorsi [26], [28].<br />
+2. </em>Arsitektur Perangkat Lunak dan Keras Modular Berbasis Rekayasa Sistem<em>: Kompleksitas integrasi sensor dan aktuasi redundan menuntut modularitas tinggi. McIvor dkk. (2024) merumuskan arsitektur Entity-Component-System</em> (ECS) yang memisahkan status komponen fisik dari eksekusi logika kendali, memfasilitasi komputasi invers semu Moore-Penrose secara agnostik terhadap konfigurasi <em>thruster</em> [20]. Zuluaga dkk. (2022) serta Gieraths dkk. (2023) menetapkan metodologi <em>systems engineering untuk arsitektur modular perangkat keras dan lunak ROV yang tangguh terhadap gangguan operasional [11], [41]. Konsep modularitas dan aksesibilitas berbiaya terjangkau juga dibuktikan oleh platform MeCO (Widhalm dkk., 2025), Modularis (Vögele dkk., 2022), fabrikasi aditif 3D (Rusu dkk., 2023), dan sistem modular terbuka (Westman dkk., 2021) [23], [30], [35], [36].<br />
+3. </em>Navigasi Bawah Air, Digital Twin, dan Dinamika Tether<em>: Tinjauan mendalam mengenai algoritma penentuan posisi (localization</em>) dan perencanaan jalur (<em>path planning</em>) oleh Zhang dkk. (2023) serta Pandian dkk. (2023) menyoroti pentingnya keandalan estimasi status di lingkungan tanpa GPS [22], [39]. Karras dkk. (2024) membuktikan bahwa metodologi berbasis simulasi (<em>simulation-driven approach</em>) sangat efektif memitigasi risiko transisi dari perairan virtual ke lautan riil [15]. Penggunaan <em>digital twin</em> 3D untuk memvalidasi algoritma pembelajaran penguatan mendalam (<em>Deep Reinforcement Learning</em>) pada platform BlueROV2 dieksplorasi oleh Mari dkk. (2026) [19]. Pengaruh dinamika kabel <em>tether</em> dan sistem multi-wahana dianalisis oleh Franchi dkk. (2022) serta Gaggero dkk. (2024) menggunakan sensor tegangan dan sistem penangkap gerak (<em>motion capture), sementara Ge dkk. (2025) dan Saad dkk. (2026) memvalidasi keandalan navigasi ROV terpadu pada inspeksi jaring budidaya perikanan laut [8], [9], [10], [24].<br />
+4. </em>Kendali Kokoh dan Estimasi Adaptif<em>: Kendali trajektori berbasis pemicu kejadian (event-triggered</em>) dengan <em>grey wolf optimized disturbance observer</em> oleh Huang dkk. (2026) dan kendali formasi AUV oleh Yang dkk. (2021) melengkapi pembuktian analitis bahwa estimasi gangguan arus lingkungan sangat penting untuk mempertahankan stabilitas formasi dan orientasi wahana [13], [38].</p>
 <h2 id="22-sistem-koordinat-dan-konvensi-sname">2.2 Sistem Koordinat dan Konvensi SNAME</h2>
 <p>Analisis kinematika dan kinetika wahana laut didasarkan pada ruang grup Lie Euclidean khusus $$SE(3) = SO(3) \ltimes \mathbb{R}^3$$, yang mencakup translasi tiga dimensi dan rotasi tiga dimensi pada dua sistem kerangka koordinat ortogonal tangan kanan (<em>right-handed Cartesian reference frames</em>) yang dibakukan oleh <em>The Society of Naval Architects and Marine Engineers</em> (SNAME, 1950) dan Fossen (2021) [7]:</p>
 <pre><code class="language-text">       Utara (North) x_n
@@ -175,20 +175,20 @@ blockquote {
            ▼ Lunas / Keel (Heave) z_b (Tegak lurus menembus bagian bawah bodi)
 </code></pre>
 <h3 id="221-kerangka-acuan-inersia-bumi-mathcalfn-o_n-x_n-y_n-z_n">2.2.1 Kerangka Acuan Inersia Bumi $$\mathcal{F}^n = {O_n, x_n, y_n, z_n}$$</h3>
-<p>Kerangka acuan inersia bumi (<em>Earth-Fixed Frame</em> atau <em>North-East-Down</em> / NED) didefinisikan sebagai sistem koordinat stasioner yang terikat pada permukaan bumi:<br />
-- <strong>Titik Asal ($$O_n$$)</strong>: Ditetapkan pada lokasi referensi geografis di permukaan perairan atau dermaga peluncuran.<br />
-- <strong>Sumbu $$x_n$$</strong>: Mengarah horizontal ke arah Utara sejati (<em>true North</em>).<br />
-- <strong>Sumbu $$y_n$$</strong>: Mengarah horizontal ke arah Timur sejati (<em>true East</em>).<br />
-- <strong>Sumbu $$z_n$$</strong>: Mengarah vertikal tegak lurus ke bawah (<em>Down</em>) menuju pusat bumi, searah dengan vektor percepatan gravitasi bumi $$\mathbf{g}^n = [0, 0, g]^T$$ di mana $$g = 9.80665 \text{ m/s}^2$$.</p>
+<p>Kerangka acuan inersia bumi (<em>Earth-Fixed Frame</em> atau <em>North-East-Down / NED) didefinisikan sebagai sistem koordinat stasioner yang terikat pada permukaan bumi:<br />
+- </em>Titik Asal ($$O_n$$)<strong>: Ditetapkan pada lokasi referensi geografis di permukaan perairan atau dermaga peluncuran.<br />
+- </strong>Sumbu $$x_n$$<em>: Mengarah horizontal ke arah Utara sejati (true North).<br />
+- </em>Sumbu $$y_n$$<em>: Mengarah horizontal ke arah Timur sejati (true East).<br />
+- </em>Sumbu $$z_n$$<em>: Mengarah vertikal tegak lurus ke bawah (Down</em>) menuju pusat bumi, searah dengan vektor percepatan gravitasi bumi $$\mathbf{g}^n = [0, 0, g]^T$$ di mana $$g = 9.80665 \text{ m/s}^2$$.</p>
 <p>Karena kecepatan operasional wahana AUV mikro ($$U &lt; 2.0\text{ m/s}$$) dan radius area jelajah ($$L &lt; 5\text{ km}$$) relatif sangat kecil dibandingkan dengan kecepatan rotasi bumi ($$\Omega_E \approx 7.292 \times 10^{-5}\text{ rad/s}$$) dan jari-jari bumi ($$R_E \approx 6.371 \times 10^6\text{ m}$$), maka rasio percepatan sentrifugal rotasi bumi terhadap gravitasi bernilai [7]:<br />
 $$\frac{a_{\text{centrifugal}}}{g} = \frac{\Omega_E^2 R_E}{g} \approx \frac{(7.292 \times 10^{-5})^2 (6.371 \times 10^6)}{9.80665} \approx 0.0034 \ll 1$$</p>
 <p>Oleh karena itu, percepatan rotasi bumi dan efek Coriolis bumi dapat diabaikan secara analitis, sehingga kerangka acuan $$\mathcal{F}^n$$ diperlakukan secara valid sebagai kerangka inersia Newtonian sejati [7].</p>
 <h3 id="222-kerangka-acuan-bergerak-bodi-wahana-mathcalfb-o_b-x_b-y_b-z_b">2.2.2 Kerangka Acuan Bergerak Bodi Wahana $$\mathcal{F}^b = {O_b, x_b, y_b, z_b}$$</h3>
-<p>Kerangka acuan bergerak bodi (<em>Body-Fixed Frame</em> atau <em>Forward-Right-Down</em> / FRD) didefinisikan sebagai sistem koordinat ortogonal yang melekat secara permanen pada struktur fisik wahana AUV dan bergerak bersama wahana:<br />
-- <strong>Titik Asal Bodi ($$O_b$$)</strong>: Ditetapkan pada Pusat Geometris Wahana (<em>Center of Origin</em> / CO), yang bertepatan dengan pusat geometris tabung tekanan akrilik utama (<em>electronic enclosure</em>).<br />
-- <strong>Sumbu Longitudinal ($$x_b$$)</strong>: Mengarah maju ke arah haluan wahana (<em>Forward / Bow</em>), mendefinisikan gerak translasi <em>Surge</em>.<br />
-- <strong>Sumbu Transversal ($$y_b$$)</strong>: Mengarah ke sisi kanan lambung wahana (<em>Starboard</em>), mendefinisikan gerak translasi <em>Sway</em>.<br />
-- <strong>Sumbu Normal ($$z_b$$)</strong>: Mengarah tegak lurus ke bawah menembus lunas wahana (<em>Down / Keel</em>), mendefinisikan gerak translasi <em>Heave</em>.</p>
+<p>Kerangka acuan bergerak bodi (<em>Body-Fixed Frame</em> atau <em>Forward-Right-Down / FRD) didefinisikan sebagai sistem koordinat ortogonal yang melekat secara permanen pada struktur fisik wahana AUV dan bergerak bersama wahana:<br />
+- </em>Titik Asal Bodi ($$O_b$$)<em>: Ditetapkan pada Pusat Geometris Wahana (Center of Origin</em> / CO), yang bertepatan dengan pusat geometris tabung tekanan akrilik utama (<em>electronic enclosure).<br />
+- </em>Sumbu Longitudinal ($$x_b$$)<em>: Mengarah maju ke arah haluan wahana (Forward / Bow</em>), mendefinisikan gerak translasi <em>Surge.<br />
+- </em>Sumbu Transversal ($$y_b$$)<em>: Mengarah ke sisi kanan lambung wahana (Starboard</em>), mendefinisikan gerak translasi <em>Sway.<br />
+- </em>Sumbu Normal ($$z_b$$)<em>: Mengarah tegak lurus ke bawah menembus lunas wahana (Down / Keel</em>), mendefinisikan gerak translasi *Heave.</p>
 <p>Tabel 2.2 merinci konvensi formal notasi SNAME (1950) dan Fossen (2021) untuk 6 derajat kebebasan spasial [7].</p>
 <h3 id="tabel-22-notasi-dan-konvensi-6-derajat-kebebasan-sname-1950-fossen-2021">Tabel 2.2 Notasi dan Konvensi 6 Derajat Kebebasan SNAME (1950) &amp; Fossen (2021)</h3>
 <table>
@@ -203,43 +203,43 @@ $$\frac{a_{\text{centrifugal}}}{g} = \frac{\Omega_E^2 R_E}{g} \approx \frac{(7.2
 </thead>
 <tbody>
 <tr>
-<td style="text-align: center;"><strong>1</strong></td>
-<td style="text-align: left;">Gerak maju-mundur sepanjang sumbu $$x_b$$ (<em>Surge</em>)</td>
+<td style="text-align: center;"><em>1</em></td>
+<td style="text-align: left;">Gerak maju-mundur sepanjang sumbu $$x_b$$ (Surge)</td>
 <td style="text-align: center;">$$X$$ ($$\text{N}$$)</td>
 <td style="text-align: center;">$$u$$ ($$\text{m/s}$$)</td>
 <td style="text-align: center;">$$x$$ ($$\text{m}$$)</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>2</strong></td>
-<td style="text-align: left;">Gerak geser lateral sepanjang sumbu $$y_b$$ (<em>Sway</em>)</td>
+<td style="text-align: center;"><em>2</em></td>
+<td style="text-align: left;">Gerak geser lateral sepanjang sumbu $$y_b$$ (Sway)</td>
 <td style="text-align: center;">$$Y$$ ($$\text{N}$$)</td>
 <td style="text-align: center;">$$v$$ ($$\text{m/s}$$)</td>
 <td style="text-align: center;">$$y$$ ($$\text{m}$$)</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>3</strong></td>
-<td style="text-align: left;">Gerak vertikal sepanjang sumbu $$z_b$$ (<em>Heave</em>)</td>
+<td style="text-align: center;"><em>3</em></td>
+<td style="text-align: left;">Gerak vertikal sepanjang sumbu $$z_b$$ (Heave)</td>
 <td style="text-align: center;">$$Z$$ ($$\text{N}$$)</td>
 <td style="text-align: center;">$$w$$ ($$\text{m/s}$$)</td>
 <td style="text-align: center;">$$z$$ ($$\text{m}$$)</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>4</strong></td>
-<td style="text-align: left;">Gerak rotasi guling mengelilingi sumbu $$x_b$$ (<em>Roll</em>)</td>
+<td style="text-align: center;"><em>4</em></td>
+<td style="text-align: left;">Gerak rotasi guling mengelilingi sumbu $$x_b$$ (Roll)</td>
 <td style="text-align: center;">$$K$$ ($$\text{N}\cdot\text{m}$$)</td>
 <td style="text-align: center;">$$p$$ ($$\text{rad/s}$$)</td>
 <td style="text-align: center;">$$\phi$$ ($$\text{rad}$$)</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>5</strong></td>
-<td style="text-align: left;">Gerak rotasi angguk mengelilingi sumbu $$y_b$$ (<em>Pitch</em>)</td>
+<td style="text-align: center;"><em>5</em></td>
+<td style="text-align: left;">Gerak rotasi angguk mengelilingi sumbu $$y_b$$ (Pitch)</td>
 <td style="text-align: center;">$$M$$ ($$\text{N}\cdot\text{m}$$)</td>
 <td style="text-align: center;">$$q$$ ($$\text{rad/s}$$)</td>
 <td style="text-align: center;">$$\theta$$ ($$\text{rad}$$)</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>6</strong></td>
-<td style="text-align: left;">Gerak rotasi geleng mengelilingi sumbu $$z_b$$ (<em>Yaw</em>)</td>
+<td style="text-align: center;"><em>6</em></td>
+<td style="text-align: left;">Gerak rotasi geleng mengelilingi sumbu $$z_b$$ (Yaw)</td>
 <td style="text-align: center;">$$N$$ ($$\text{N}\cdot\text{m}$$)</td>
 <td style="text-align: center;">$$r$$ ($$\text{rad/s}$$)</td>
 <td style="text-align: center;">$$\psi$$ ($$\text{rad}$$)</td>
@@ -249,41 +249,41 @@ $$\frac{a_{\text{centrifugal}}}{g} = \frac{\Omega_E^2 R_E}{g} \approx \frac{(7.2
 <p>Berdasarkan konvensi Tabel 2.2, keadaan spasial wahana AUV direpresentasikan oleh tiga vektor utama berdimensi enam:</p>
 <ol>
 <li>
-<p><strong>Vektor Posisi dan Orientasi di $$\mathcal{F}^n$$</strong>:<br />
+<p><em>Vektor Posisi dan Orientasi di $$\mathcal{F}^n$$</em>:<br />
    $$\boldsymbol{\eta} = \begin{bmatrix} \boldsymbol{\eta}_1 \ \boldsymbol{\eta}_2 \end{bmatrix} = \begin{bmatrix} x \ y \ z \ \phi \ \theta \ \psi \end{bmatrix} \in \mathbb{R}^6$$<br />
-   di mana $$\boldsymbol{\eta}_1 = [x, y, z]^T \in \mathbb{R}^3$$ merepresentasikan posisi koordinat kartesian global dalam satuan meter, dan $$\boldsymbol{\eta}_2 = [\phi, \theta, \psi]^T \in \mathbb{R}^3$$ merepresentasikan sudut orientasi Euler (<em>Roll</em>, <em>Pitch</em>, <em>Yaw</em>) dalam satuan radian.</p>
+   di mana $$\boldsymbol{\eta}_1 = [x, y, z]^T \in \mathbb{R}^3$$ merepresentasikan posisi koordinat kartesian global dalam satuan meter, dan $$\boldsymbol{\eta}_2 = [\phi, \theta, \psi]^T \in \mathbb{R}^3$$ merepresentasikan sudut orientasi Euler (Roll<em>, </em>Pitch<em>, </em>Yaw) dalam satuan radian.</p>
 </li>
 <li>
-<p><strong>Vektor Kecepatan Linier dan Kecepatan Sudut di $$\mathcal{F}^b$$</strong>:<br />
+<p><em>Vektor Kecepatan Linier dan Kecepatan Sudut di $$\mathcal{F}^b$$</em>:<br />
    $$\boldsymbol{\nu} = \begin{bmatrix} \boldsymbol{\nu}_1 \ \boldsymbol{\nu}_2 \end{bmatrix} = \begin{bmatrix} u \ v \ w \ p \ q \ r \end{bmatrix} \in \mathbb{R}^6$$<br />
-   di mana $$\boldsymbol{\nu}_1 = [u, v, w]^T \in \mathbb{R}^3$$ adalah kecepatan linier bodi (<em>Surge</em>, <em>Sway</em>, <em>Heave</em>) dalam m/s, dan $$\boldsymbol{\nu}_2 = [p, q, r]^T \in \mathbb{R}^3$$ adalah kecepatan sudut bodi (<em>Roll rate</em>, <em>Pitch rate</em>, <em>Yaw rate</em>) dalam rad/s.</p>
+   di mana $$\boldsymbol{\nu}_1 = [u, v, w]^T \in \mathbb{R}^3$$ adalah kecepatan linier bodi (Surge<em>, </em>Sway<em>, </em>Heave<em>) dalam m/s, dan $$\boldsymbol{\nu}_2 = [p, q, r]^T \in \mathbb{R}^3$$ adalah kecepatan sudut bodi (</em>Roll rate<em>, </em>Pitch rate<em>, </em>Yaw rate) dalam rad/s.</p>
 </li>
 <li>
-<p><strong>Vektor Gaya dan Momen Generalisasi di $$\mathcal{F}^b$$</strong>:<br />
+<p><em>Vektor Gaya dan Momen Generalisasi di $$\mathcal{F}^b$$</em>*:<br />
    $$\boldsymbol{\tau} = \begin{bmatrix} \boldsymbol{\tau}_1 \ \boldsymbol{\tau}_2 \end{bmatrix} = \begin{bmatrix} X \ Y \ Z \ K \ M \ N \end{bmatrix} \in \mathbb{R}^6$$<br />
    di mana $$\boldsymbol{\tau}_1 = [X, Y, Z]^T \in \mathbb{R}^3$$ adalah resultan gaya dorong translasi bodi dalam Newton, dan $$\boldsymbol{\tau}_2 = [K, M, N]^T \in \mathbb{R}^3$$ adalah resultan torsi rotasi bodi dalam Newton-meter.</p>
 </li>
 </ol>
 <h3 id="223-pemodelan-arus-laut-dan-kecepatan-relatif-fluida">2.2.3 Pemodelan Arus Laut dan Kecepatan Relatif Fluida</h3>
-<p>Di dalam lingkungan bawah air, gaya hidrodinamika (massa tambah dan redaman fluida) tidak bekerja berdasarkan kecepatan absolut wahana $$\boldsymbol{\nu}$$, melainkan bergantung secara eksklusif pada <strong>kecepatan relatif wahana terhadap massa fluida</strong> di sekitarnya [5], [7].</p>
-<p>Misalkan vektor kecepatan arus laut di kerangka inersia $$\mathcal{F}^n$$ dimodelkan sebagai aliran translasi horizontal yang bersifat <em>irrotational</em> dan bervariasi lambat (<em>slowly varying current</em>):<br />
+<p>Di dalam lingkungan bawah air, gaya hidrodinamika (massa tambah dan redaman fluida) tidak bekerja berdasarkan kecepatan absolut wahana $$\boldsymbol{\nu}$$, melainkan bergantung secara eksklusif pada *<em>kecepatan relatif wahana terhadap massa fluida</em> di sekitarnya [5], [7].</p>
+<p>Misalkan vektor kecepatan arus laut di kerangka inersia $$\mathcal{F}^n$$ dimodelkan sebagai aliran translasi horizontal yang bersifat irrotational<em> dan bervariasi lambat (</em>slowly varying current):<br />
 $$\mathbf{V}_c^n = \begin{bmatrix} u_c^n \ v_c^n \ w_c^n \ 0 \ 0 \ 0 \end{bmatrix} \in \mathbb{R}^6, \qquad \dot{\mathbf{V}}_c^n \approx \mathbf{0}$$</p>
 <p>Transformasi kecepatan arus laut dari kerangka inersia $$\mathcal{F}^n$$ ke dalam kerangka bodi $$\mathcal{F}^b$$ dinyatakan melalui transpose matriks rotasi linier $$\mathbf{R}<em c_1="c,1">b^n(\boldsymbol{\eta}_2)^T = \mathbf{R}_n^b(\boldsymbol{\eta}_2)$$:<br />
 $$\boldsymbol{\nu}_c = \begin{bmatrix} \boldsymbol{\nu}</em> \ \boldsymbol{\nu}<em c_1="c,1">{c,2} \end{bmatrix} = \begin{bmatrix} \mathbf{R}_n^b(\boldsymbol{\eta}_2) \mathbf{V}</em>^n \ \mathbf{0}_{3 \times 1} \end{bmatrix} = \begin{bmatrix} u_c \ v_c \ w_c \ 0 \ 0 \ 0 \end{bmatrix}$$</p>
-<p>Dengan demikian, <strong>vektor kecepatan relatif wahana</strong> $$\boldsymbol{\nu}_r \in \mathbb{R}^6$$ diformulasikan sebagai [7]:<br />
+<p>Dengan demikian, <em>vektor kecepatan relatif wahana</em> $$\boldsymbol{\nu}_r \in \mathbb{R}^6$$ diformulasikan sebagai [7]:<br />
 $$\boldsymbol{\nu}_r = \boldsymbol{\nu} - \boldsymbol{\nu}_c = \begin{bmatrix} u - u_c \ v - v_c \ w - w_c \ p \ q \ r \end{bmatrix} = \begin{bmatrix} u_r \ v_r \ w_r \ p \ q \ r \end{bmatrix}$$</p>
-<p>Turunan waktu dari kecepatan relatif di dalam kerangka bergerak bodi diturunkan dengan memperhitungkan percepatan rotasi kerangka acuan (<em>Coriolis acceleration theorem</em>):<br />
-$$\dot{\boldsymbol{\nu}}<em c_1="c,1">r = \dot{\boldsymbol{\nu}} - \dot{\boldsymbol{\nu}}_c = \dot{\boldsymbol{\nu}} - \begin{bmatrix} \dot{\mathbf{R}}_n^b \mathbf{V}</em>^n \ \mathbf{0}<em c_1="c,1">{3 \times 1} \end{bmatrix}$$<br />
-Karena $$\dot{\mathbf{R}}_n^b = -\mathbf{S}(\boldsymbol{\nu}_2)\mathbf{R}_n^b$$, di mana $$\mathbf{S}(\boldsymbol{\nu}_2)$$ adalah operator matriks <em>skew-symmetric cross-product</em>, maka:<br />
-$$\dot{\boldsymbol{\nu}}_r = \dot{\boldsymbol{\nu}} + \begin{bmatrix} \mathbf{S}(\boldsymbol{\nu}_2)\boldsymbol{\nu}</em> \ \mathbf{0}<em c_1="c,1">{3 \times 1} \end{bmatrix} = \dot{\boldsymbol{\nu}} + \begin{bmatrix} \boldsymbol{\nu}_2 \times \boldsymbol{\nu}</em> \ \mathbf{0}_{3 \times 1} \end{bmatrix}$$</p>
+<p>Turunan waktu dari kecepatan relatif di dalam kerangka bergerak bodi diturunkan dengan memperhitungkan percepatan rotasi kerangka acuan (Coriolis acceleration theorem<em>):<br />
+$$\dot{\boldsymbol{\nu}}<em c_1="c,1">r = \dot{\boldsymbol{\nu}} - \dot{\boldsymbol{\nu}}_c = \dot{\boldsymbol{\nu}} - \begin{bmatrix} \dot{\mathbf{R}}_n^b \mathbf{V}</em>^n \ \mathbf{0}_{3 \times 1} \end{bmatrix}$$<br />
+Karena $$\dot{\mathbf{R}}_n^b = -\mathbf{S}(\boldsymbol{\nu}_2)\mathbf{R}_n^b$$, di mana $$\mathbf{S}(\boldsymbol{\nu}_2)$$ adalah operator matriks </em>skew-symmetric cross-product*, maka:<br />
+$$\dot{\boldsymbol{\nu}}<em c_1="c,1">r = \dot{\boldsymbol{\nu}} + \begin{bmatrix} \mathbf{S}(\boldsymbol{\nu}_2)\boldsymbol{\nu}</em> \ \mathbf{0}<em c_1="c,1">{3 \times 1} \end{bmatrix} = \dot{\boldsymbol{\nu}} + \begin{bmatrix} \boldsymbol{\nu}_2 \times \boldsymbol{\nu}</em> \ \mathbf{0}_{3 \times 1} \end{bmatrix}$$</p>
 <h3 id="224-stabilitas-metasentris-hidrostatis-pasif-dan-batasannya">2.2.4 Stabilitas Metasentris Hidrostatis Pasif dan Batasannya</h3>
 <p>Pada wahana bawah air, Pusat Gravitasi (<em>Center of Gravity</em> / CG) berlokasi di $$\mathbf{r}_g = [x_g, y_g, z_g]^T$$, sedangkan Pusat Gaya Apung (<em>Center of Buoyancy</em> / CB) berlokasi di $$\mathbf{r}_b = [x_b, y_b, z_b]^T$$. Berat total wahana di udara adalah $$W = mg$$, dan gaya apung total fluida yang dipindahkan adalah $$B = \rho g \nabla$$, di mana $$\nabla$$ adalah volume air yang dipindahkan oleh lambung wahana [7].</p>
-<p>Untuk menjamin wahana tidak mudah terbalik di bawah air, tata letak massa dirancang sedemikian rupa sehingga komponen berat (baterai, ballast timbal, tabung aluminium) diletakkan di bagian paling bawah lunas ($$z_g &gt; 0$$), sedangkan busa apung (<em>syntactic foam</em>) diletakkan di bagian atas bodi ($$z_b &lt; 0$$). Hal ini menghasilkan <strong>tinggi metasentris positif</strong>:<br />
+<p>Untuk menjamin wahana tidak mudah terbalik di bawah air, tata letak massa dirancang sedemikian rupa sehingga komponen berat (baterai, ballast timbal, tabung aluminium) diletakkan di bagian paling bawah lunas ($$z_g &gt; 0$$), sedangkan busa apung (<em>syntactic foam) diletakkan di bagian atas bodi ($$z_b &lt; 0$$). Hal ini menghasilkan </em>tinggi metasentris positif*:<br />
 $$GM_T = z_g - z_b &gt; 0$$</p>
-<p>Gaya berat $$W$$ dan gaya apung $$B$$ yang terpisah secara vertikal menghasilkan momen pemulih hidrostatis pasif (<em>passive metacentric righting moments</em>):<br />
+<p>Gaya berat $$W$$ dan gaya apung $$B$$ yang terpisah secara vertikal menghasilkan momen pemulih hidrostatis pasif (passive metacentric righting moments):<br />
 $$K_{\text{restoring}}(\phi) = -(z_g W - z_b B)\cos\theta\sin\phi$$<br />
 $$M_{\text{restoring}}(\theta) = -(z_g W - z_b B)\sin\theta$$</p>
-<p>Untuk sudut kemiringan kecil ($$\sin\phi \approx \phi, \sin\theta \approx \theta, \cos\theta \approx 1$$), momen ini berperilaku persis seperti <strong>pegas torsi mekanis</strong> (<em>torsional stiffness springs</em>):<br />
+<p>Untuk sudut kemiringan kecil ($$\sin\phi \approx \phi, \sin\theta \approx \theta, \cos\theta \approx 1$$), momen ini berperilaku persis seperti <em>pegas torsi mekanis</em> (torsional stiffness springs*):<br />
 $$K_{\text{restoring}} \approx -k_\phi \phi, \qquad k_\phi = z_g W - z_b B &gt; 0$$<br />
 $$M_{\text{restoring}} \approx -k_\theta \theta, \qquad k_\theta = z_g W - z_b B &gt; 0$$</p>
 <p>Frekuensi natural osilasi sudut pada sumbu <em>roll</em> ($$\omega_{n,\phi}$$) dan sumbu <em>pitch</em> ($$\omega_{n,\theta}$$) dirumuskan oleh [7], [31]:<br />
@@ -296,10 +296,10 @@ $$\dot{\boldsymbol{\eta}} = \mathbf{J}(\boldsymbol{\eta}<em 3="3" _times="\times
 <h3 id="231-penurunan-langkah-demi-langkah-matriks-transformasi-rotasi-linier-mathbfr_bn-in-so3">2.3.1 Penurunan Langkah Demi Langkah Matriks Transformasi Rotasi Linier $$\mathbf{R}_b^n \in SO(3)$$</h3>
 <p>Matriks rotasi $$\mathbf{R}<em 3="3" _times="\times">b^n(\boldsymbol{\eta}_2)$$ mentransformasikan kecepatan linier dari kerangka bodi $$\mathcal{F}^b$$ ke kerangka bumi $$\mathcal{F}^n$$. Matriks ini merupakan elemen dari grup ortogonal khusus berdimensi tiga, dinotasikan $$\mathbf{R}_b^n \in SO(3)$$, yang memenuhi sifat fundamental:<br />
 $$\mathbf{R}_b^n (\mathbf{R}_b^n)^T = (\mathbf{R}_b^n)^T \mathbf{R}_b^n = \mathbf{I}</em>, \qquad \det(\mathbf{R}_b^n) = +1$$</p>
-<p>Transformasi rotasi diturunkan menggunakan konvensi rotasi intrinsik Euler Tait-Bryan dengan urutan kanonikal maritim $$z-y-x$$ (<em>Yaw-Pitch-Roll</em>) [7]:</p>
+<p>Transformasi rotasi diturunkan menggunakan konvensi rotasi intrinsik Euler Tait-Bryan dengan urutan kanonikal maritim $$z-y-x$$ (*Yaw-Pitch-Roll) [7]:</p>
 <ol>
 <li>
-<p><strong>Rotasi Pertama: Sudut Yaw ($$\psi$$) mengelilingi sumbu $$z_n$$</strong>:<br />
+<p><em>Rotasi Pertama: Sudut Yaw ($$\psi$$) mengelilingi sumbu $$z_n$$</em>*:<br />
    Rotasi ini menghasilkan kerangka antara pertama $$\mathcal{F}'$$:<br />
    $$\mathbf{R}_{z,\psi} = \begin{bmatrix} \cos\psi &amp; -\sin\psi &amp; 0 \ \sin\psi &amp; \cos\psi &amp; 0 \ 0 &amp; 0 &amp; 1 \end{bmatrix}$$</p>
 </li>
@@ -309,7 +309,7 @@ $$\mathbf{R}_b^n (\mathbf{R}_b^n)^T = (\mathbf{R}_b^n)^T \mathbf{R}_b^n = \mathb
    $$\mathbf{R}_{y,\theta} = \begin{bmatrix} \cos\theta &amp; 0 &amp; \sin\theta \ 0 &amp; 1 &amp; 0 \ -\sin\theta &amp; 0 &amp; \cos\theta \end{bmatrix}$$</p>
 </li>
 <li>
-<p><strong>Rotasi Ketiga: Sudut Roll ($$\phi$$) mengelilingi sumbu bodi $$x'' = x_b$$</strong>:<br />
+<p>*<em>Rotasi Ketiga: Sudut Roll ($$\phi$$) mengelilingi sumbu bodi $$x'' = x_b$$</em>:<br />
    Rotasi ini menghasilkan kerangka bodi akhir $$\mathcal{F}^b$$:<br />
    $$\mathbf{R}_{x,\phi} = \begin{bmatrix} 1 &amp; 0 &amp; 0 \ 0 &amp; \cos\phi &amp; -\sin\phi \ 0 &amp; \sin\phi &amp; \cos\phi \end{bmatrix}$$</p>
 </li>
@@ -344,10 +344,10 @@ $$\mathbf{R}_{x,\phi}^T \begin{bmatrix} 0 \ \dot{\theta} \ 0 \end{bmatrix} = \be
 <p>$$\mathbf{R}<em y_theta="y,\theta">{x,\phi}^T \mathbf{R}</em>^T \begin{bmatrix} 0 \ 0 \ \dot{\psi} \end{bmatrix} = \begin{bmatrix} \cos\theta &amp; 0 &amp; -\sin\theta \ \sin\theta\sin\phi &amp; \cos\phi &amp; \cos\theta\sin\phi \ \sin\theta\cos\phi &amp; -\sin\phi &amp; \cos\theta\cos\phi \end{bmatrix} \begin{bmatrix} 0 \ 0 \ \dot{\psi} \end{bmatrix} = \begin{bmatrix} -\dot{\psi}\sin\theta \ \dot{\psi}\sin\phi\cos\theta \ \dot{\psi}\cos\phi\cos\theta \end{bmatrix}$$</p>
 <p>Menjumlahkan ketiga komponen proyeksi tersebut:<br />
 $$\begin{bmatrix} p \ q \ r \end{bmatrix} = \begin{bmatrix} 1 &amp; 0 &amp; -\sin\theta \ 0 &amp; \cos\phi &amp; \sin\phi\cos\theta \ 0 &amp; -\sin\phi &amp; \cos\phi\cos\theta \end{bmatrix} \begin{bmatrix} \dot{\phi} \ \dot{\theta} \ \dot{\psi} \end{bmatrix} \iff \boldsymbol{\nu}<em>2 = \mathbf{T}</em>\Theta^{-1}(\boldsymbol{\eta}_2)\dot{\boldsymbol{\eta}}_2$$</p>
-<p>Untuk memperoleh relasi maju $$\dot{\boldsymbol{\eta}}<em>2 = \mathbf{T}</em>\Theta(\boldsymbol{\eta}<em>2)\boldsymbol{\nu}_2$$, matriks $$\mathbf{B} = \mathbf{T}</em>\Theta^{-1}$$ harus dibalik. Inversi analitis dilakukan secara rigor langkah demi langkah menggunakan metode matriks kofaktor dan adjoin (<em>cofactor-adjugate method</em>) [7]:</p>
+<p>Untuk memperoleh relasi maju $$\dot{\boldsymbol{\eta}}<em>2 = \mathbf{T}</em>\Theta(\boldsymbol{\eta}<em>2)\boldsymbol{\nu}_2$$, matriks $$\mathbf{B} = \mathbf{T}</em>\Theta^{-1}$$ harus dibalik. Inversi analitis dilakukan secara rigor langkah demi langkah menggunakan metode matriks kofaktor dan adjoin (cofactor-adjugate method) [7]:</p>
 <ol>
 <li>
-<p><strong>Perhitungan Determinan $$\det(\mathbf{B})$$</strong>:<br />
+<p><em>Perhitungan Determinan $$\det(\mathbf{B})$$</em>*:<br />
    Ekspansi Laplace sepanjang baris pertama:<br />
    $$\det(\mathbf{B}) = 1 \cdot (\cos\phi \cdot \cos\phi\cos\theta - \sin\phi\cos\theta \cdot (-\sin\phi)) - 0 - \sin\theta \cdot 0$$<br />
    $$\det(\mathbf{B}) = \cos^2\phi\cos\theta + \sin^2\phi\cos\theta = (\cos^2\phi + \sin^2\phi)\cos\theta = \cos\theta$$</p>
@@ -375,7 +375,7 @@ $$\begin{bmatrix} p \ q \ r \end{bmatrix} = \begin{bmatrix} 1 &amp; 0 &amp; -\si
    $$\text{adj}(\mathbf{B}) = \begin{bmatrix} \cos\theta &amp; \sin\phi\sin\theta &amp; \cos\phi\sin\theta \ 0 &amp; \cos\phi\cos\theta &amp; -\sin\phi\cos\theta \ 0 &amp; \sin\phi &amp; \cos\phi \end{bmatrix}$$</p>
 </li>
 <li>
-<p><strong>Pembagian dengan Determinan $$\cos\theta$$</strong>:<br />
+<p>*<em>Pembagian dengan Determinan $$\cos\theta$$</em>:<br />
    $$\mathbf{T}_\Theta(\boldsymbol{\eta}_2) = \frac{1}{\det(\mathbf{B})} \text{adj}(\mathbf{B}) = \frac{1}{\cos\theta} \begin{bmatrix} \cos\theta &amp; \sin\phi\sin\theta &amp; \cos\phi\sin\theta \ 0 &amp; \cos\phi\cos\theta &amp; -\sin\phi\cos\theta \ 0 &amp; \sin\phi &amp; \cos\phi \end{bmatrix}$$</p>
 </li>
 </ol>
@@ -385,16 +385,16 @@ $$\begin{bmatrix} p \ q \ r \end{bmatrix} = \begin{bmatrix} 1 &amp; 0 &amp; -\si
 $$\dot{\phi} = p + q(\sin\phi\tan\theta) + r(\cos\phi\tan\theta)$$<br />
 $$\dot{\theta} = q(\cos\phi) - r(\sin\phi)$$<br />
 $$\dot{\psi} = q\left(\frac{\sin\phi}{\cos\theta}\right) + r\left(\frac{\cos\phi}{\cos\theta}\right)$$</p>
-<h3 id="233-singularitas-representasi-gimbal-lock-dan-formulasi-unit-quaternion">2.3.3 Singularitas Representasi (<em>Gimbal Lock</em>) dan Formulasi Unit Quaternion</h3>
-<p>Dari rumusan matematis matriks $$\mathbf{T}_\Theta(\boldsymbol{\eta}_2)$$, terlihat jelas bahwa ketika sudut <em>pitch</em> mendekati tegak lurus:<br />
+<h3 id="233-singularitas-representasi-gimbal-lock-dan-formulasi-unit-quaternion">2.3.3 Singularitas Representasi (Gimbal Lock*) dan Formulasi Unit Quaternion</h3>
+<p>Dari rumusan matematis matriks $$\mathbf{T}_\Theta(\boldsymbol{\eta}_2)$$, terlihat jelas bahwa ketika sudut *pitch mendekati tegak lurus:<br />
 $$\theta \to \pm 90^\circ \iff \cos\theta \to 0 \implies \tan\theta \to \pm\infty, \quad \frac{1}{\cos\theta} \to \infty$$</p>
-<p>Kondisi hilangnya satu derajat kebebasan rotasi ini dikenal sebagai <strong>Gimbal Lock</strong> (singularitas representasi koordinat Euler). Pada manuver inspeksi bawah air yang melibatkan <em>pitch-angle holding</em> hingga sudut vertikal ekstrim ($$\pm 90^\circ$$), integrasi numerik sudut Euler akan mengalami <em>overflow</em> komputasi tak berhingga [7], [27].</p>
-<p>Untuk mengatasi singularitas ini, orientasi wahana direpresentasikan menggunakan <strong>unit quaternion</strong> empat dimensi $$\mathbf{q} \in \mathcal{S}^3$$ [7], [27]:<br />
+<p>Kondisi hilangnya satu derajat kebebasan rotasi ini dikenal sebagai <em>Gimbal Lock</em> (singularitas representasi koordinat Euler). Pada manuver inspeksi bawah air yang melibatkan pitch-angle holding<em> hingga sudut vertikal ekstrim ($$\pm 90^\circ$$), integrasi numerik sudut Euler akan mengalami </em>overflow komputasi tak berhingga [7], [27].</p>
+<p>Untuk mengatasi singularitas ini, orientasi wahana direpresentasikan menggunakan <em>unit quaternion</em>* empat dimensi $$\mathbf{q} \in \mathcal{S}^3$$ [7], [27]:<br />
 $$\mathbf{q} = \begin{bmatrix} \eta \ \epsilon_1 \ \epsilon_2 \ \epsilon_3 \end{bmatrix} = \begin{bmatrix} \eta \ \boldsymbol{\epsilon} \end{bmatrix} \in \mathbb{R}^4, \qquad \eta^2 + \boldsymbol{\epsilon}^T\boldsymbol{\epsilon} = \eta^2 + \epsilon_1^2 + \epsilon_2^2 + \epsilon_3^2 = 1$$<br />
 di mana $$\eta = \cos(\beta/2)$$ adalah bagian skalar, dan $$\boldsymbol{\epsilon} = \mathbf{n}\sin(\beta/2)$$ adalah bagian vektor kuaternion yang merepresentasikan rotasi sebesar sudut $$\beta$$ mengelilingi sumbu satuan $$\mathbf{n}$$.</p>
-<p>Dinamika diferensial kinematika unit kuaternion bersifat linier terhadap kecepatan sudut bodi $$\boldsymbol{\nu}<em 3="3" _times="\times">2$$ dan sepenuhnya <strong>bebas singularitas</strong> di semua sudut orientasi [7], [27]:<br />
-$$\begin{bmatrix} \dot{\eta} \ \dot{\boldsymbol{\epsilon}} \end{bmatrix} = \frac{1}{2} \begin{bmatrix} -\boldsymbol{\epsilon}^T \ \eta\mathbf{I}</em> + \mathbf{S}(\boldsymbol{\epsilon}) \end{bmatrix} \boldsymbol{\nu}_2 = \frac{1}{2} \mathbf{E}(\mathbf{q}) \boldsymbol{\nu}_2$$<br />
-di mana matriks <em>skew-symmetric cross-product</em> $$\mathbf{S}(\boldsymbol{\epsilon})$$ didefinisikan sebagai:<br />
+<p>Dinamika diferensial kinematika unit kuaternion bersifat linier terhadap kecepatan sudut bodi $$\boldsymbol{\nu}_2$$ dan sepenuhnya <em><em>bebas singularitas</em> di semua sudut orientasi [7], [27]:<br />
+$$\begin{bmatrix} \dot{\eta} \ \dot{\boldsymbol{\epsilon}} \end{bmatrix} = \frac{1}{2} \begin{bmatrix} -\boldsymbol{\epsilon}^T \ \eta\mathbf{I}_{3 \times 3} + \mathbf{S}(\boldsymbol{\epsilon}) \end{bmatrix} \boldsymbol{\nu}_2 = \frac{1}{2} \mathbf{E}(\mathbf{q}) \boldsymbol{\nu}_2$$<br />
+di mana matriks skew-symmetric cross-product</em> $$\mathbf{S}(\boldsymbol{\epsilon})$$ didefinisikan sebagai:<br />
 $$\mathbf{S}(\boldsymbol{\epsilon}) = \begin{bmatrix} 0 &amp; -\epsilon_3 &amp; \epsilon_2 \ \epsilon_3 &amp; 0 &amp; -\epsilon_1 \ -\epsilon_2 &amp; \epsilon_1 &amp; 0 \end{bmatrix}$$</p>
 <p>Matriks rotasi $$\mathbf{R}(\mathbf{q})$$ yang ekuivalen dalam representasi kuaternion dinyatakan oleh formula Rodrigues [7]:<br />
 $$\mathbf{R}(\mathbf{q}) = (\eta^2 - \boldsymbol{\epsilon}^T\boldsymbol{\epsilon})\mathbf{I}_{3 \times 3} + 2\boldsymbol{\epsilon}\boldsymbol{\epsilon}^T + 2\eta\mathbf{S}(\boldsymbol{\epsilon})$$</p>
@@ -428,7 +428,7 @@ di mana $$m$$ adalah massa kering wahana, $$\mathbf{S}(\mathbf{r}_g)$$ adalah ma
 $$\mathbf{S}(\mathbf{r}_g) = \begin{bmatrix} 0 &amp; -z_g &amp; y_g \ z_g &amp; 0 &amp; -x_g \ -y_g &amp; x_g &amp; 0 \end{bmatrix}$$<br />
 dan tensor inersia benda tegar terhadap titik pusat massa CG dinyatakan oleh:<br />
 $$\mathbf{I}_g = \begin{bmatrix} I</em> &amp; -I_{xy} &amp; -I_{xz} \ -I_{xy} &amp; I_{yy} -I_{yz} \ -I_{xz} &amp; -I_{yz} &amp; I_{zz} \end{bmatrix}$$</p>
-<p>Suku teorema sumbu sejajar (<em>parallel-axis theorem</em>) $$-m\mathbf{S}^2(\mathbf{r}_g)$$ dihitung melalui perkalian matriks <em>skew-symmetric</em>:<br />
+<p>Suku teorema sumbu sejajar (<em>parallel-axis theorem</em>) $$-m\mathbf{S}^2(\mathbf{r}_g)$$ dihitung melalui perkalian matriks *skew-symmetric:<br />
 $$-\mathbf{S}^2(\mathbf{r}_g) = \begin{bmatrix} y_g^2 + z_g^2 &amp; -x_g y_g &amp; -x_g z_g \ -x_g y_g &amp; x_g^2 + z_g^2 &amp; -y_g z_g \ -x_g z_g &amp; -y_g z_g &amp; x_g^2 + y_g^2 \end{bmatrix}$$</p>
 <p>Pada arsitektur BlueROV2 Heavy yang dirancang dengan simetri bilateral transversal dan longitudinal ($$x_g \approx 0, y_g \approx 0$$) dan produk inersia silang mendekati nol ($$I_{xy} \approx I_{xz} \approx I_{yz} \approx 0$$) [3], [21], [31]:<br />
 $$\mathbf{M}<em xx="xx">{RB} = \begin{bmatrix} <br />
@@ -442,7 +442,7 @@ m z_g &amp; 0 &amp; 0 &amp; 0 &amp; I_{yy} + m z_g^2 &amp; 0 \ <br />
 <p>Dengan parameter fisik terukur pada platform uji BlueROV2 Heavy: massa kering $$m = 13.5\text{ kg}$$, $$z_g = 0.02\text{ m}$$, dan momen inersia bodi $$I_{xx} = 0.16\text{ kg}\cdot\text{m}^2$$, $$I_{yy} = 0.21\text{ kg}\cdot\text{m}^2$$, $$I_{zz} = 0.245\text{ kg}\cdot\text{m}^2$$ [3], [21], [31]:<br />
 $$\mathbf{M}_{RB} \approx \text{diag}[13.5, 13.5, 13.5, 0.16, 0.21, 0.245]$$</p>
 <h4 id="2-matriks-massa-tambah-hidrodinamika-fluida-mathbfm_a">2. Matriks Massa Tambah Hidrodinamika Fluida $$\mathbf{M}_A$$</h4>
-<p>Ketika wahana bergerak di bawah air, fluida di sekitarnya ikut terakselerasi. Inersia fluida yang terdefleksi ini dimodelkan sebagai <strong>massa tambah hidrodinamika</strong> (<em>hydrodynamic added mass</em>) melalui turunan kestabilan SNAME [7]:<br />
+<p>Ketika wahana bergerak di bawah air, fluida di sekitarnya ikut terakselerasi. Inersia fluida yang terdefleksi ini dimodelkan sebagai <em>massa tambah hidrodinamika</em> (hydrodynamic added mass*) melalui turunan kestabilan SNAME [7]:<br />
 $$\mathbf{M}<em _dot_u="\dot{u">A = -\begin{bmatrix} <br />
 X</em>} &amp; X_{\dot{v}} &amp; X_{\dot{w}} &amp; X_{\dot{p}} &amp; X_{\dot{q}} &amp; X_{\dot{r}} \ <br />
 Y_{\dot{u}} &amp; Y_{\dot{v}} &amp; Y_{\dot{w}} &amp; Y_{\dot{p}} &amp; Y_{\dot{q}} &amp; Y_{\dot{r}} \ <br />
@@ -487,8 +487,8 @@ $$\mathbf{C}<em _dot_w="\dot{w">A(\boldsymbol{\nu}_r) = \begin{bmatrix} <br />
 Z_{\dot{w}}w_r &amp; 0 &amp; -X_{\dot{u}}u_r &amp; N_{\dot{r}}r &amp; 0 &amp; -K_{\dot{p}}p \ <br />
 -Y_{\dot{v}}v_r &amp; X_{\dot{u}}u_r &amp; 0 &amp; -M_{\dot{q}}q &amp; K_{\dot{p}}p &amp; 0 <br />
 \end{bmatrix}$$</p>
-<h3 id="243-analisis-destabilisasi-momen-munk-hidrodinamika-hydrodynamic-munk-moment">2.4.3 Analisis Destabilisasi Momen Munk Hidrodinamika (<em>Hydrodynamic Munk Moment</em>)</h3>
-<p>Fenomena hidrodinamika non-linier yang paling krusial dalam manuver wahana bawah air adalah <strong>momen Munk hidrodinamika</strong> [7], [34]. Momen ini timbul akibat perbedaan (<em>asymmetry</em>) antara massa tambah transversal ($$Y_{\dot{v}}$$) dan massa tambah longitudinal ($$X_{\dot{u}}$$).</p>
+<h3 id="243-analisis-destabilisasi-momen-munk-hidrodinamika-hydrodynamic-munk-moment">2.4.3 Analisis Destabilisasi Momen Munk Hidrodinamika (*Hydrodynamic Munk Moment)</h3>
+<p>Fenomena hidrodinamika non-linier yang paling krusial dalam manuver wahana bawah air adalah <em>momen Munk hidrodinamika</em> [7], [34]. Momen ini timbul akibat perbedaan (asymmetry*) antara massa tambah transversal ($$Y_{\dot{v}}$$) dan massa tambah longitudinal ($$X_{\dot{u}}$$).</p>
 <p>Bukti analitis keberadaan momen Munk diturunkan secara langsung dari evaluasi baris ke-6 (sumbu <em>Yaw</em> $$N$$) pada perkalian matriks Coriolis massa tambah dengan vektor kecepatan relatif $$\mathbf{C}<em _dot_v="\dot{v">A(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r$$ [7]:<br />
 Perhatikan baris ke-6 matriks $$\mathbf{C}_A(\boldsymbol{\nu}_r)$$:<br />
 $$\text{Baris}_6 = \begin{bmatrix} -Y</em>}v_r &amp; X_{\dot{u}}u_r &amp; 0 &amp; -M_{\dot{q}}q &amp; K_{\dot{p}}p &amp; 0 \end{bmatrix}$$<br />
@@ -504,21 +504,21 @@ $$|Y_{\dot{v}}| &gt; |X_{\dot{u}}| \iff -Y_{\dot{v}} &gt; -X_{\dot{u}} \implies 
 - Karena $$(X_{\dot{u}} - Y_{\dot{v}}) &gt; 0$$, maka momen Munk menghasilkan torsi yaw positif:<br />
   $$N_{\text{Munk}} &gt; 0$$<br />
 - Torsi yaw positif ini memutar haluan wahana semakin ke kanan, memperbesar sudut hanyut (<em>drift angle</em>), yang pada gilirannya menaikkan nilai $$v_r$$, sehingga memicu momen destabilisasi yang semakin membesar secara eksponensial!</p>
-<p>Pada wahana <em>underactuated</em> 6-pendorong, fenomena kopling silang momen Munk ini menyebabkan wahana melenceng dari jalur dan tidak mampu mempertahankan orientasi garis lurus saat melaju pada kecepatan jelajah tinggi [7], [31]. Sebaliknya, pada wahana <strong>over-actuated 8-pendorong</strong> yang diteliti dalam tugas akhir ini, sistem kendali alokasi gaya dorong terpadu dapat menghitung torsi kompensasi balik secara seketika melalui umpan balik status dari penapis EKF, sehingga momen Munk dapat diredam secara aktif (<em>active dynamic suppression</em>) [21], [32].</p>
+<p>Pada wahana <em>underactuated 6-pendorong, fenomena kopling silang momen Munk ini menyebabkan wahana melenceng dari jalur dan tidak mampu mempertahankan orientasi garis lurus saat melaju pada kecepatan jelajah tinggi [7], [31]. Sebaliknya, pada wahana </em>over-actuated 8-pendorong<em> yang diteliti dalam tugas akhir ini, sistem kendali alokasi gaya dorong terpadu dapat menghitung torsi kompensasi balik secara seketika melalui umpan balik status dari penapis EKF, sehingga momen Munk dapat diredam secara aktif (active dynamic suppression</em>) [21], [32].</p>
 <h3 id="244-tensor-redaman-hidrodinamika-fluida-mathbfdboldsymbolnu_r">2.4.4 Tensor Redaman Hidrodinamika Fluida $$\mathbf{D}(\boldsymbol{\nu}_r)$$</h3>
-<p>Redaman hidrodinamika fluida pada wahana <em>open-frame</em> berkecepatan rendah dimodelkan sebagai gabungan linier antara disipasi gesekan kulit laminar viskos (<em>skin friction</em>) dan seretan bentuk kuadratik turbulen (<em>cross-flow drag</em>) sesuai formulasi Morison [7], [31]:<br />
+<p>Redaman hidrodinamika fluida pada wahana <em>open-frame</em> berkecepatan rendah dimodelkan sebagai gabungan linier antara disipasi gesekan kulit laminar viskos (<em>skin friction</em>) dan seretan bentuk kuadratik turbulen (*cross-flow drag) sesuai formulasi Morison [7], [31]:<br />
 $$\mathbf{D}(\boldsymbol{\nu}<em NL="NL">r) = \mathbf{D}_L + \mathbf{D}</em>(\boldsymbol{\nu}_r)$$</p>
 <ol>
 <li>
-<p><strong>Matriks Redaman Linier Laminar $$\mathbf{D}_L$$</strong>:<br />
+<p><em>Matriks Redaman Linier Laminar $$\mathbf{D}_L$$</em>*:<br />
    Dominan pada kecepatan sangat rendah ($$U &lt; 0.1\text{ m/s}$$) di mana lapisan batas fluida bersifat laminar:<br />
    $$\mathbf{D}_L = -\text{diag}[X_u, Y_v, Z_w, K_p, M_q, N_r]$$<br />
    Berdasarkan data karakterisasi eksperimental [21], [31]:<br />
    $$\mathbf{D}_L = \text{diag}[13.7, 19.5, 31.8, 0.15, 0.25, 0.40]\text{ N}\cdot\text{s/m, N}\cdot\text{m}\cdot\text{s/rad}$$</p>
 </li>
 <li>
-<p><strong>Matriks Redaman Kuadratik Turbulen $$\mathbf{D}_{NL}(\boldsymbol{\nu}_r)$$</strong>:<br />
-   Dominan pada kecepatan operasi normal ($$U \ge 0.2\text{ m/s}$$), di mana pelepasan pusaran (<em>vortex shedding</em>) di sekitar struktur rangka terbuka dan tabung akrilik menimbulkan seretan kuadratik:<br />
+<p><em><em>Matriks Redaman Kuadratik Turbulen $$\mathbf{D}_{NL}(\boldsymbol{\nu}_r)$$</em>:<br />
+   Dominan pada kecepatan operasi normal ($$U \ge 0.2\text{ m/s}$$), di mana pelepasan pusaran (vortex shedding</em>) di sekitar struktur rangka terbuka dan tabung akrilik menimbulkan seretan kuadratik:<br />
    $$\mathbf{D}<em u_u_="u|u|">{NL}(\boldsymbol{\nu}_r) = -\text{diag}[X</em>|u_r|, Y_{v|v|}|v_r|, Z_{w|w|}|w_r|, K_{p|p|}|p|, M_{q|q|}|q|, N_{r|r|}|r|]$$<br />
    Berdasarkan koefisien seretan empiris BlueROV2 Heavy [21], [31]:<br />
    $$\mathbf{D}_{NL}(\boldsymbol{\nu}_r) = \text{diag}[33.8|u_r|, 54.2|v_r|, 73.2|w_r|, 0.45|p|, 0.65|q|, 1.15|r|]$$</p>
@@ -559,12 +559,12 @@ z_g W \cos\theta\sin\phi \ <br />
 z_g W \sin\theta \ <br />
 0 <br />
 \end{bmatrix}$$</p>
-<p>Persamaan ini menunjukkan bahwa gaya apung netral menghilangkan gaya hidrostatis translasi, sementara tinggi metasentris $$z_g W &gt; 0$$ menyediakan kekakuan pemulih pada sumbu rotasi <em>roll</em> ($$\phi$$) dan <em>pitch</em> ($$\theta$$).</p>
+<p>Persamaan ini menunjukkan bahwa gaya apung netral menghilangkan gaya hidrostatis translasi, sementara tinggi metasentris $$z_g W &gt; 0$$ menyediakan kekakuan pemulih pada sumbu rotasi <em>roll</em> ($$\phi$$) dan *pitch ($$\theta$$).</p>
 <hr />
 <h2 id="25-alokasi-gaya-dorong-sistem-over-actuated-8-pendorong">2.5 Alokasi Gaya Dorong Sistem Over-Actuated 8-Pendorong</h2>
-<p>Salah satu keunggulan mendasar dari arsitektur wahana BlueROV2 Heavy adalah sistem aktuasinya yang bersifat <strong>over-actuated</strong> [3], [21], [32]. Wahana ini dilengkapi dengan 8 unit pendorong elektro-mekanis Brushless DC (Blue Robotics T200) yang disusun secara geometris untuk mengendalikan 6 derajat kebebasan spasial. Karena jumlah aktuator ($$m = 8$$) melebihi jumlah derajat kebebasan yang dikendalikan ($$n = 6$$), sistem memiliki dua derajat redundansi aktuasi ($$m - n = 2$$) [7], [32]. Redundansi ini menghadirkan ruang nol aktuasi (<em>actuator null-space</em>) yang memungkinkan optimasi konsumsi energi listrik, penghindaran saturasi pendorong individual, serta kemampuan rekonfigurasi toleransi kesalahan (<em>fault-tolerant control</em>) [21], [32].</p>
+<p>Salah satu keunggulan mendasar dari arsitektur wahana BlueROV2 Heavy adalah sistem aktuasinya yang bersifat <em>over-actuated</em> [3], [21], [32]. Wahana ini dilengkapi dengan 8 unit pendorong elektro-mekanis Brushless DC (Blue Robotics T200) yang disusun secara geometris untuk mengendalikan 6 derajat kebebasan spasial. Karena jumlah aktuator ($$m = 8$$) melebihi jumlah derajat kebebasan yang dikendalikan ($$n = 6$$), sistem memiliki dua derajat redundansi aktuasi ($$m - n = 2$$) [7], [32]. Redundansi ini menghadirkan ruang nol aktuasi (actuator null-space<em>) yang memungkinkan optimasi konsumsi energi listrik, penghindaran saturasi pendorong individual, serta kemampuan rekonfigurasi toleransi kesalahan (</em>fault-tolerant control*) [21], [32].</p>
 <h3 id="251-karakteristik-dinamika-pendorong-elektro-mekanis-t200">2.5.1 Karakteristik Dinamika Pendorong Elektro-Mekanis T200</h3>
-<p>Setiap unit pendorong T200 terdiri atas motor <em>brushless</em> 3-fase dengan efisiensi tinggi yang terendam langsung di dalam air (<em>flooded motor design</em>) dan dikendalikan oleh <em>Electronic Speed Controller</em> (ESC) berbasis modulasi lebar pulsa (<em>Pulse Width Modulation</em> / PWM). Baling-baling berdiameter $$D_p = 0.076\text{ m}$$ menghasilkan gaya dorong hidrodinamika fluida ($$T_i$$) yang sebanding dengan kuadrat kecepatan putar poros ($$n_i$$ dalam RPM atau rev/s) [3], [7]:<br />
+<p>Setiap unit pendorong T200 terdiri atas motor <em>brushless</em> 3-fase dengan efisiensi tinggi yang terendam langsung di dalam air (<em>flooded motor design</em>) dan dikendalikan oleh <em>Electronic Speed Controller</em> (ESC) berbasis modulasi lebar pulsa (*Pulse Width Modulation / PWM). Baling-baling berdiameter $$D_p = 0.076\text{ m}$$ menghasilkan gaya dorong hidrodinamika fluida ($$T_i$$) yang sebanding dengan kuadrat kecepatan putar poros ($$n_i$$ dalam RPM atau rev/s) [3], [7]:<br />
 $$T_i = K_T \rho D_p^4 n_i |n_i|$$<br />
 di mana:<br />
 - $$K_T$$ adalah koefisien gaya dorong baling-baling non-dimensi ($$K_T \approx 0.11$$ untuk gerak maju dan $$K_T \approx 0.09$$ untuk gerak mundur).<br />
@@ -582,10 +582,10 @@ di mana:<br />
 - Kolom ke-$$i$$ dari matriks alokasi, dinotasikan $$\mathbf{t}_i \in \mathbb{R}^6$$, dibentuk dari vektor satuan arah dorong $$\mathbf{d}_i \in \mathbb{R}^3$$ dan lengan momen posisi pendorong $$\mathbf{r}_i = [x_i, y_i, z_i]^T \in \mathbb{R}^3$$ terhadap titik asal acuan $$O_b$$ [7]:<br />
   $$\mathbf{t}_i = \begin{bmatrix} \mathbf{d}_i \ \mathbf{r}_i \times \mathbf{d}_i \end{bmatrix} \in \mathbb{R}^6$$</p>
 <p>Tata letak fisik 8 pendorong pada arsitektur BlueROV2 Heavy dibagi menjadi dua subsistem independen [3], [21]:<br />
-1. <strong>Subsistem Horizontal (Pendorong 1, 2, 3, 4)</strong>:<br />
-   Empat pendorong dipasang horizontal di bidang $$x_b-y_b$$ membentuk konfigurasi <em>vectored</em> dengan sudut canting $$\alpha = 45^\circ$$ ($$\pi/4\text{ rad}$$) terhadap sumbu longitudinal. Konfigurasi ini menghasilkan gaya translasi gabungan <em>Surge</em> ($$X$$), <em>Sway</em> ($$Y$$), dan momen rotasi <em>Yaw</em> ($$N$$).<br />
-2. <strong>Subsistem Vertikal (Pendorong 5, 6, 7, 8)</strong>:<br />
-   Empat pendorong dipasang vertikal di keempat sudut sasis (<em>port-fore</em>, <em>starboard-fore</em>, <em>port-aft</em>, <em>starboard-aft</em>). Pendorong ini menghasilkan gaya translasi <em>Heave</em> ($$Z$$), serta momen kendali aktif independen pada sumbu <em>Roll</em> ($$K$$) dan sumbu <em>Pitch</em> ($$M$$).</p>
+1. <em>Subsistem Horizontal (Pendorong 1, 2, 3, 4)</em>:<br />
+   Empat pendorong dipasang horizontal di bidang $$x_b-y_b$$ membentuk konfigurasi vectored<em> dengan sudut canting $$\alpha = 45^\circ$$ ($$\pi/4\text{ rad}$$) terhadap sumbu longitudinal. Konfigurasi ini menghasilkan gaya translasi gabungan </em>Surge<em> ($$X$$), </em>Sway<em> ($$Y$$), dan momen rotasi </em>Yaw ($$N$$).<br />
+2. <em>Subsistem Vertikal (Pendorong 5, 6, 7, 8)</em>:<br />
+   Empat pendorong dipasang vertikal di keempat sudut sasis (port-fore<em>, </em>starboard-fore<em>, </em>port-aft<em>, </em>starboard-aft<em>). Pendorong ini menghasilkan gaya translasi </em>Heave<em> ($$Z$$), serta momen kendali aktif independen pada sumbu </em>Roll<em> ($$K$$) dan sumbu </em>Pitch ($$M$$).</p>
 <p>Tabel 2.3 menyajikan koordinat spasial posisi dan vektor satuan arah dorong untuk kedelapan pendorong BlueROV2 Heavy terkalibrasi [3], [21], [31].</p>
 <h3 id="tabel-23-koordinat-spasial-dan-vektor-orientasi-8-pendorong-bluerov2-heavy">Tabel 2.3 Koordinat Spasial dan Vektor Orientasi 8 Pendorong BlueROV2 Heavy</h3>
 <table>
@@ -603,8 +603,8 @@ di mana:<br />
 </thead>
 <tbody>
 <tr>
-<td style="text-align: center;"><strong>1</strong></td>
-<td style="text-align: left;">Horizontal Kiri-Depan (<em>Port-Fore</em>)</td>
+<td style="text-align: center;"><em>1</em></td>
+<td style="text-align: left;">Horizontal Kiri-Depan (Port-Fore)</td>
 <td style="text-align: center;">$$+0.156$$</td>
 <td style="text-align: center;">$$-0.111$$</td>
 <td style="text-align: center;">$$0.000$$</td>
@@ -613,8 +613,8 @@ di mana:<br />
 <td style="text-align: center;">$$0.000$$</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>2</strong></td>
-<td style="text-align: left;">Horizontal Kanan-Depan (<em>Starboard-Fore</em>)</td>
+<td style="text-align: center;"><em>2</em></td>
+<td style="text-align: left;">Horizontal Kanan-Depan (Starboard-Fore)</td>
 <td style="text-align: center;">$$+0.156$$</td>
 <td style="text-align: center;">$$+0.111$$</td>
 <td style="text-align: center;">$$0.000$$</td>
@@ -623,8 +623,8 @@ di mana:<br />
 <td style="text-align: center;">$$0.000$$</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>3</strong></td>
-<td style="text-align: left;">Horizontal Kiri-Belakang (<em>Port-Aft</em>)</td>
+<td style="text-align: center;"><em>3</em></td>
+<td style="text-align: left;">Horizontal Kiri-Belakang (Port-Aft)</td>
 <td style="text-align: center;">$$-0.156$$</td>
 <td style="text-align: center;">$$-0.111$$</td>
 <td style="text-align: center;">$$0.000$$</td>
@@ -633,8 +633,8 @@ di mana:<br />
 <td style="text-align: center;">$$0.000$$</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>4</strong></td>
-<td style="text-align: left;">Horizontal Kanan-Belakang (<em>Starboard-Aft</em>)</td>
+<td style="text-align: center;"><em>4</em></td>
+<td style="text-align: left;">Horizontal Kanan-Belakang (Starboard-Aft)</td>
 <td style="text-align: center;">$$-0.156$$</td>
 <td style="text-align: center;">$$+0.111$$</td>
 <td style="text-align: center;">$$0.000$$</td>
@@ -643,8 +643,8 @@ di mana:<br />
 <td style="text-align: center;">$$0.000$$</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>5</strong></td>
-<td style="text-align: left;">Vertikal Kiri-Depan (<em>Port-Fore Vertical</em>)</td>
+<td style="text-align: center;"><em>5</em></td>
+<td style="text-align: left;">Vertikal Kiri-Depan (Port-Fore Vertical)</td>
 <td style="text-align: center;">$$+0.120$$</td>
 <td style="text-align: center;">$$-0.218$$</td>
 <td style="text-align: center;">$$-0.055$$</td>
@@ -653,8 +653,8 @@ di mana:<br />
 <td style="text-align: center;">$$-1.000$$</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>6</strong></td>
-<td style="text-align: left;">Vertikal Kanan-Depan (<em>Starboard-Fore Vertical</em>)</td>
+<td style="text-align: center;"><em>6</em></td>
+<td style="text-align: left;">Vertikal Kanan-Depan (Starboard-Fore Vertical)</td>
 <td style="text-align: center;">$$+0.120$$</td>
 <td style="text-align: center;">$$+0.218$$</td>
 <td style="text-align: center;">$$-0.055$$</td>
@@ -663,8 +663,8 @@ di mana:<br />
 <td style="text-align: center;">$$-1.000$$</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>7</strong></td>
-<td style="text-align: left;">Vertikal Kiri-Belakang (<em>Port-Aft Vertical</em>)</td>
+<td style="text-align: center;"><em>7</em></td>
+<td style="text-align: left;">Vertikal Kiri-Belakang (Port-Aft Vertical)</td>
 <td style="text-align: center;">$$-0.120$$</td>
 <td style="text-align: center;">$$-0.218$$</td>
 <td style="text-align: center;">$$-0.055$$</td>
@@ -673,8 +673,8 @@ di mana:<br />
 <td style="text-align: center;">$$-1.000$$</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>8</strong></td>
-<td style="text-align: left;">Vertikal Kanan-Belakang (<em>Starboard-Aft Vertical</em>)</td>
+<td style="text-align: center;"><em>8</em></td>
+<td style="text-align: left;">Vertikal Kanan-Belakang (Starboard-Aft Vertical*)</td>
 <td style="text-align: center;">$$-0.120$$</td>
 <td style="text-align: center;">$$+0.218$$</td>
 <td style="text-align: center;">$$-0.055$$</td>
@@ -684,20 +684,20 @@ di mana:<br />
 </tr>
 </tbody>
 </table>
-<p><em>Catatan: Nilai $$\cos(45^\circ) = \sin(45^\circ) = \frac{\sqrt{2}}{2} \approx 0.7071$$.</em></p>
+<p>*Catatan: Nilai $$\cos(45^\circ) = \sin(45^\circ) = \frac{\sqrt{2}}{2} \approx 0.7071$$.</p>
 <p>Perhitungan lengan momen rotasi $$\mathbf{r}<em z_i="z,i">i \times \mathbf{d}_i$$ untuk masing-masing pendorong dievaluasi sebagai berikut [7]:<br />
 $$\mathbf{r}_i \times \mathbf{d}_i = \begin{bmatrix} y_i d</em> - z_i d_{y,i} \ z_i d_{x,i} - x_i d_{z,i} \ x_i d_{y,i} - y_i d_{x,i} \end{bmatrix}$$</p>
 <ol>
 <li>
-<p><strong>Untuk Pendorong Horizontal ($$i = 1, 2, 3, 4$$)</strong>:<br />
-   Karena $$z_i = 0$$ dan $$d_{z,i} = 0$$, maka komponen momen putar <em>roll</em> ($$K$$) dan <em>pitch</em> ($$M$$) bernilai nol. Komponen momen <em>yaw</em> ($$N$$) adalah:<br />
+<p><em>Untuk Pendorong Horizontal ($$i = 1, 2, 3, 4$$)</em>:<br />
+   Karena $$z_i = 0$$ dan $$d_{z,i} = 0$$, maka komponen momen putar roll<em> ($$K$$) dan </em>pitch<em> ($$M$$) bernilai nol. Komponen momen </em>yaw ($$N$$) adalah:<br />
    - $$N_1 = x_1 d_{y,1} - y_1 d_{x,1} = (0.156)(0.7071) - (-0.111)(0.7071) = (0.156 + 0.111)(0.7071) = 0.267 \cdot 0.7071 \approx +0.1888\text{ m}$$<br />
    - $$N_2 = x_2 d_{y,2} - y_2 d_{x,2} = (0.156)(-0.7071) - (0.111)(0.7071) = -(0.156 + 0.111)(0.7071) \approx -0.1888\text{ m}$$<br />
    - $$N_3 = x_3 d_{y,3} - y_3 d_{x,3} = (-0.156)(0.7071) - (-0.111)(-0.7071) = -0.1103 - 0.0785 \approx -0.1888\text{ m}$$<br />
    - $$N_4 = x_4 d_{y,4} - y_4 d_{x,4} = (-0.156)(-0.7071) - (0.111)(-0.7071) = +0.1103 + 0.0785 \approx +0.1888\text{ m}$$</p>
 </li>
 <li>
-<p><strong>Untuk Pendorong Vertikal ($$i = 5, 6, 7, 8$$)</strong>:<br />
+<p><em>Untuk Pendorong Vertikal ($$i = 5, 6, 7, 8$$)</em>*:<br />
    Karena $$d_{x,i} = 0, d_{y,i} = 0, d_{z,i} = -1$$, maka gaya translasi murni bekerja pada sumbu heave ($$Z = -1$$). Komponen momen putar adalah:<br />
    - $$K_i = y_i d_{z,i} - z_i d_{y,i} = -y_i$$ (momen roll)<br />
    - $$M_i = z_i d_{x,i} - x_i d_{z,i} = x_i$$ (momen pitch)<br />
@@ -709,7 +709,7 @@ $$\mathbf{r}_i \times \mathbf{d}_i = \begin{bmatrix} y_i d</em> - z_i d_{y,i} \ 
    - Motor 6 (Stbd-Fore): $$K_6 = -(+0.218) = -0.218\text{ m}$$, $$M_6 = +0.120\text{ m}$$<br />
    - Motor 7 (Port-Aft): $$K_7 = -(-0.218) = +0.218\text{ m}$$, $$M_7 = -0.120\text{ m}$$<br />
    - Motor 8 (Stbd-Aft): $$K_8 = -(+0.218) = -0.218\text{ m}$$, $$M_8 = -0.120\text{ m}$$</p>
-<p>Menyusun kedelapan vektor kolom $$\mathbf{t}<em 6="6" 8="8" _times="\times">1, \dots, \mathbf{t}_8$$ menghasilkan <strong>Matriks Konfigurasi Alokasi Gaya Dorong 6x8</strong> eksplisit [21], [32]:<br />
+<p>Menyusun kedelapan vektor kolom $$\mathbf{t}<em 6="6" 8="8" _times="\times">1, \dots, \mathbf{t}_8$$ menghasilkan *<em>Matriks Konfigurasi Alokasi Gaya Dorong 6x8</em> eksplisit [21], [32]:<br />
 $$\mathbf{T}</em> = \begin{bmatrix} <br />
 c &amp; c &amp; -c &amp; -c &amp; 0 &amp; 0 &amp; 0 &amp; 0 \ <br />
 c &amp; -c &amp; c &amp; -c &amp; 0 &amp; 0 &amp; 0 &amp; 0 \ <br />
@@ -731,9 +731,9 @@ $$\mathbf{T}_{6 \times 8} = \begin{bmatrix} <br />
 - Baris 1, 2, dan 6 (Surge, Sway, Yaw) sepenuhnya dikendalikan oleh motor horizontal 1–4.<br />
 - Baris 3, 4, dan 5 (Heave, Roll, Pitch) sepenuhnya dikendalikan oleh motor vertikal 5–8.</p>
 <h3 id="253-penyelesaian-alokasi-berbasis-moore-penrose-pseudo-inverse">2.5.3 Penyelesaian Alokasi Berbasis Moore-Penrose Pseudo-Inverse</h3>
-<p>Karena sistem bersifat <em>over-actuated</em>, persamaan alokasi $$\boldsymbol{\tau} = \mathbf{T}<em _mathbf_f="\mathbf{f">{6 \times 8} \mathbf{f}$$ memiliki solusi tak terhingga banyaknya. Untuk memilih satu solusi optimal yang meminimalkan total konsumsi energi listrik dan menghindari beban berlebih pada pendorong tertentu, masalah alokasi diformulasikan sebagai optimasi kuadratik terkonstrain (<em>constrained quadratic optimization</em>) [7], [32]:<br />
-$$\min</em>} J(\mathbf{f}) = \frac{1}{2} \mathbf{f}^T \mathbf{W} \mathbf{f} \quad \text{dengan kendala} \quad \mathbf{T}<em 8="8" _times="\times">{6 \times 8}\mathbf{f} = \boldsymbol{\tau}$$<br />
-di mana $$\mathbf{W} \in \mathbb{R}^{8 \times 8}$$ adalah matriks bobot simetris definit positif ($$\mathbf{W} = \mathbf{W}^T \succ 0$$). Jika seluruh pendorong diasumsikan memiliki karakteristik identik, maka $$\mathbf{W} = \mathbf{I}</em>$$, yang merepresentasikan minimasi gaya dorong kuadrat minimum (<em>minimum Euclidean norm</em> $$|\mathbf{f}|^2$$).</p>
+<p>Karena sistem bersifat over-actuated<em>, persamaan alokasi $$\boldsymbol{\tau} = \mathbf{T}_{6 \times 8} \mathbf{f}$$ memiliki solusi tak terhingga banyaknya. Untuk memilih satu solusi optimal yang meminimalkan total konsumsi energi listrik dan menghindari beban berlebih pada pendorong tertentu, masalah alokasi diformulasikan sebagai optimasi kuadratik terkonstrain (</em>constrained quadratic optimization<em>) [7], [32]:<br />
+$$\min_{\mathbf{f}} J(\mathbf{f}) = \frac{1}{2} \mathbf{f}^T \mathbf{W} \mathbf{f} \quad \text{dengan kendala} \quad \mathbf{T}<em 8="8" _times="\times">{6 \times 8}\mathbf{f} = \boldsymbol{\tau}$$<br />
+di mana $$\mathbf{W} \in \mathbb{R}^{8 \times 8}$$ adalah matriks bobot simetris definit positif ($$\mathbf{W} = \mathbf{W}^T \succ 0$$). Jika seluruh pendorong diasumsikan memiliki karakteristik identik, maka $$\mathbf{W} = \mathbf{I}</em>$$, yang merepresentasikan minimasi gaya dorong kuadrat minimum (</em>minimum Euclidean norm* $$|\mathbf{f}|^2$$).</p>
 <p>Fungsi Lagrangian dari problem optimasi ini dinyatakan oleh:<br />
 $$\mathcal{L}(\mathbf{f}, \boldsymbol{\lambda}) = \frac{1}{2} \mathbf{f}^T \mathbf{W} \mathbf{f} + \boldsymbol{\lambda}^T (\boldsymbol{\tau} - \mathbf{T}_{6 \times 8}\mathbf{f})$$<br />
 di mana $$\boldsymbol{\lambda} \in \mathbb{R}^6$$ adalah vektor pengali Lagrange (<em>Lagrange multiplier vector</em>).</p>
@@ -746,22 +746,22 @@ $$\left( \mathbf{T}</em> \mathbf{W}^{-1} \mathbf{T}_{6 \times 8}^T \right) \bold
 $$\boldsymbol{\lambda} = \left( \mathbf{T}<em 6="6" 8="8" _times="\times">{6 \times 8} \mathbf{W}^{-1} \mathbf{T}</em>^T \right)^{-1} \boldsymbol{\tau}$$</p>
 <p>Substitusikan kembali vektor pengali Lagrange $$\boldsymbol{\lambda}$$ ke persamaan $$\mathbf{f}$$:<br />
 $$\mathbf{f} = \mathbf{W}^{-1} \mathbf{T}<em 6="6" 8="8" _times="\times">{6 \times 8}^T \left( \mathbf{T}</em> \mathbf{W}^{-1} \mathbf{T}_{6 \times 8}^T \right)^{-1} \boldsymbol{\tau}$$</p>
-<p>Untuk kasus pembobotan seragam $$\mathbf{W} = \mathbf{I}<em 6="6" 8="8" _times="\times">{8 \times 8}$$, solusi alokasi gaya dorong optimal tertutup (<em>closed-form optimal solution</em>) direduksi secara elegan menjadi rumus <strong>Moore-Penrose Pseudo-Inverse kanan</strong> [7], [32]:<br />
+<p>Untuk kasus pembobotan seragam $$\mathbf{W} = \mathbf{I}<em 6="6" 8="8" _times="\times">{8 \times 8}$$, solusi alokasi gaya dorong optimal tertutup (<em>closed-form optimal solution) direduksi secara elegan menjadi rumus </em>Moore-Penrose Pseudo-Inverse kanan* [7], [32]:<br />
 $$\mathbf{f} = \mathbf{T}</em>^+ \boldsymbol{\tau} = \mathbf{T}<em 6="6" 8="8" _times="\times">{6 \times 8}^T (\mathbf{T}</em> \mathbf{T}_{6 \times 8}^T)^{-1} \boldsymbol{\tau}$$</p>
-<p>Algoritma ini diimplementasikan secara komputasional pada <em>firmware</em> ArduSub <code>-f *vectored_6dof*</code> di dalam mikrokontroler Pixhawk 2.4.8 pada frekuensi loop kendali 50 Hz, dilengkapi dengan logika <em>thrust clipping and scaling</em> untuk mencegah saturasi batas fisik motor T200 ($$f_{\min} \le f_i \le f_{\max}$$) [3], [21].</p>
+<p>Algoritma ini diimplementasikan secara komputasional pada firmware<em> ArduSub <code>-f *vectored_6dof*</code> di dalam mikrokontroler Pixhawk 2.4.8 pada frekuensi loop kendali 50 Hz, dilengkapi dengan logika </em>thrust clipping and scaling* untuk mencegah saturasi batas fisik motor T200 ($$f_{\min} \le f_i \le f_{\max}$$) [3], [21].</p>
 <hr />
 <h2 id="26-teori-dan-formulasi-optimal-kalman-filter-suite">2.6 Teori dan Formulasi Optimal Kalman Filter Suite</h2>
-<p>Operasi otonom AUV di lingkungan laut menghadapi ketidakpastian lingkungan yang tinggi (<em>environmental stochasticity</em>), derau sensor frekuensi tinggi, serta penurunan kualitas visual bawah air [2], [14], [16]. Untuk menjamin estimasi keadaan spasial dan pelacakan objek yang andal dan kokoh, penelitian ini merancang dan memformulasikan <strong>Suite Optimal Kalman Filter</strong> yang terdiri dari dua tingkatan terpadu [16], [17], [25], [29]:<br />
-1. <strong>Topside/Onboard Visual Target Kalman Filter (<code>AUVVisualKalmanFilter</code>)</strong>: Penapis Kalman linier diskrit 8-dimensi untuk melacak kotak pembatas (<em>bounding box</em>) target visual deteksi YOLO monokuler pada laju 30 FPS.<br />
-2. <strong>Subsea Hydrodynamic Extended Kalman Filter (<code>AUVDynamicsKalmanFilter</code>)</strong>: Penapis Kalman non-linier terperluas (EKF) untuk melakukan fusi sensor IMU dan kedalaman berbasis persamaan dinamika Fossen 6-DOF serta mengestimasi gangguan arus laut pada laju 50 Hz.</p>
+<p>Operasi otonom AUV di lingkungan laut menghadapi ketidakpastian lingkungan yang tinggi (<em>environmental stochasticity), derau sensor frekuensi tinggi, serta penurunan kualitas visual bawah air [2], [14], [16]. Untuk menjamin estimasi keadaan spasial dan pelacakan objek yang andal dan kokoh, penelitian ini merancang dan memformulasikan </em>Suite Optimal Kalman Filter<strong> yang terdiri dari dua tingkatan terpadu [16], [17], [25], [29]:<br />
+1. </strong>Topside/Onboard Visual Target Kalman Filter (<code>AUVVisualKalmanFilter</code>)<em>: Penapis Kalman linier diskrit 8-dimensi untuk melacak kotak pembatas (bounding box) target visual deteksi YOLO monokuler pada laju 30 FPS.<br />
+2. </em>Subsea Hydrodynamic Extended Kalman Filter (<code>AUVDynamicsKalmanFilter</code>)*: Penapis Kalman non-linier terperluas (EKF) untuk melakukan fusi sensor IMU dan kedalaman berbasis persamaan dinamika Fossen 6-DOF serta mengestimasi gangguan arus laut pada laju 50 Hz.</p>
 <h3 id="261-dasar-teori-estimasi-keadaan-stokastik-dan-kriteria-mmse">2.6.1 Dasar Teori Estimasi Keadaan Stokastik dan Kriteria MMSE</h3>
 <p>Tinjau suatu ruang probabilitas lengkap yang didefinisikan oleh tripel $$(\Omega, \mathcal{F}, \mathbb{P})$$, di mana $$\Omega$$ adalah ruang sampel peristiwa fisik, $$\mathcal{F}$$ adalah $$\sigma$$-aljabar himpunan bagian peristiwa terukur, dan $$\mathbb{P}$$ adalah ukuran probabilitas [25].</p>
 <p>Misalkan keadaan wahana pada suatu waktu dimodelkan sebagai vektor acak berdimensi-$$n$$ bernilai riil:<br />
 $$\mathbf{x}: \Omega \to \mathbb{R}^n$$<br />
-Nilai Harapan Matematis (<em>Mathematical Expectation</em>) atau momen statistik orde pertama dari $$\mathbf{x}$$ dinyatakan oleh integral Lebesgue:<br />
+Nilai Harapan Matematis (Mathematical Expectation<em>) atau momen statistik orde pertama dari $$\mathbf{x}$$ dinyatakan oleh integral Lebesgue:<br />
 $$\boldsymbol{\mu}<em _mathbb_R="\mathbb{R">{\mathbf{x}} = \mathbb{E}[\mathbf{x}] = \int</em>^n} \mathbf{x} p(\mathbf{x}) \, d\mathbf{x}$$<br />
-di mana $$p(\mathbf{x}): \mathbb{R}^n \to [0, \infty)$$ adalah fungsi kepekatan probabilitas bersama (<em>joint probability density function</em> / PDF).</p>
-<p>Matriks Kovariansi Galat (<em>Error Covariance Matrix</em>) atau momen statistik sentral orde kedua didefinisikan sebagai [25]:<br />
+di mana $$p(\mathbf{x}): \mathbb{R}^n \to [0, \infty)$$ adalah fungsi kepekatan probabilitas bersama (</em>joint probability density function* / PDF).</p>
+<p>Matriks Kovariansi Galat (*Error Covariance Matrix) atau momen statistik sentral orde kedua didefinisikan sebagai [25]:<br />
 $$\mathbf{P}<em _mathbf_x="\mathbf{x">{\mathbf{x}} = \text{Cov}(\mathbf{x}) = \mathbb{E}\left[ (\mathbf{x} - \boldsymbol{\mu}</em>})(\mathbf{x} - \boldsymbol{\mu}<em _mathbb_R="\mathbb{R">{\mathbf{x}})^T \right] = \int</em>^n} (\mathbf{x} - \boldsymbol{\mu}<em _mathbf_x="\mathbf{x">{\mathbf{x}})(\mathbf{x} - \boldsymbol{\mu}</em>})^T p(\mathbf{x}) \, d\mathbf{x}$$<br />
 Matriks $$\mathbf{P}<em _mathbf_x="\mathbf{x">{\mathbf{x}} \in \mathbb{R}^{n \times n}$$ selalu bersifat simetris ($$\mathbf{P}</em>} = \mathbf{P}<em _mathbf_x="\mathbf{x">{\mathbf{x}}^T$$) dan semi-definit positif ($$\mathbf{z}^T \mathbf{P}</em>} \mathbf{z} \ge 0, \forall \mathbf{z} \in \mathbb{R}^n$$).</p>
 <p>Vektor acak $$\mathbf{x}$$ mengikuti distribusi Gaussian multivariat, dinotasikan $$\mathbf{x} \sim \mathcal{N}(\boldsymbol{\mu}, \mathbf{P})$$, jika PDF bersamanya dinyatakan oleh [25]:<br />
@@ -769,11 +769,11 @@ $$p(\mathbf{x}) = \frac{1}{(2\pi)^{n/2} \det(\mathbf{P})^{1/2}} \exp\left( -\fra
 <h4 id="teorema-invarian-linearitas-gaussian">Teorema Invarian Linearitas Gaussian:</h4>
 <p>Jika $$\mathbf{x} \sim \mathcal{N}(\boldsymbol{\mu}<em _mathbf_x="\mathbf{x">{\mathbf{x}}, \mathbf{P}</em>})$$ adalah vektor acak Gaussian dan $$\mathbf{y} \in \mathbb{R}^m$$ diperoleh melalui transformasi linier affine:<br />
 $$\mathbf{y} = \mathbf{A}\mathbf{x} + \mathbf{b}$$<br />
-di mana $$\mathbf{A} \in \mathbb{R}^{m \times n}$$ dan $$\mathbf{b} \in \mathbb{R}^m$$ adalah matriks dan vektor deterministik, maka $$\mathbf{y}$$ <strong>selalu terdistribusi Gaussian secara eksak</strong> [25]:<br />
+di mana $$\mathbf{A} \in \mathbb{R}^{m \times n}$$ dan $$\mathbf{b} \in \mathbb{R}^m$$ adalah matriks dan vektor deterministik, maka $$\mathbf{y}$$ <em>selalu terdistribusi Gaussian secara eksak</em> [25]:<br />
 $$\mathbf{y} \sim \mathcal{N}(\boldsymbol{\mu}<em _mathbf_y="\mathbf{y">{\mathbf{y}}, \mathbf{P}</em>})$$<br />
 dengan:<br />
 $$\boldsymbol{\mu}<em _mathbf_x="\mathbf{x">{\mathbf{y}} = \mathbf{A}\boldsymbol{\mu}</em>} + \mathbf{b}, \qquad \mathbf{P}<em _mathbf_x="\mathbf{x">{\mathbf{y}} = \mathbf{A} \mathbf{P}</em>} \mathbf{A}^T$$</p>
-<p>Sifat penutupan (<em>closure property</em>) ini menjadi jaminan matematis bahwa pada sistem dinamika linier berderau Gaussian, estimasi keadaan posterior optimal selalu dapat dihitung secara rekursif hanya dengan mempropagasi vektor rata-rata (<em>mean</em>) dan matriks kovariansi [16], [25].</p>
+<p>Sifat penutupan (closure property<em>) ini menjadi jaminan matematis bahwa pada sistem dinamika linier berderau Gaussian, estimasi keadaan posterior optimal selalu dapat dihitung secara rekursif hanya dengan mempropagasi vektor rata-rata (</em>mean) dan matriks kovariansi [16], [25].</p>
 <h4 id="pembuktian-kriteria-minimum-mean-square-error-mmse">Pembuktian Kriteria Minimum Mean-Square Error (MMSE):</h4>
 <p>Misalkan kumpulan seluruh riwayat pengukuran sensor hingga langkah waktu ke-$$k$$ dinotasikan sebagai himpunan filtrasi $$\mathbf{Z}^k = {\mathbf{z}_1, \mathbf{z}_2, \dots, \mathbf{z}_k}$$. Kita mencari sebuah penaksir keadaan optimal $$\hat{\mathbf{x}}(\mathbf{Z}^k)$$ yang meminimalkan ekspektasi penalti kesalahan kuadratik skalar [25]:<br />
 $$J = \mathbb{E}\left[ |\mathbf{x} - \hat{\mathbf{x}}|^2 \mid \mathbf{Z}^k \right] = \text{Tr}\left( \mathbb{E}\left[ (\mathbf{x} - \hat{\mathbf{x}})(\mathbf{x} - \hat{\mathbf{x}})^T \mid \mathbf{Z}^k \right] \right)$$</p>
@@ -789,17 +789,17 @@ $$\mathbb{E}\left[ \mathbf{x} - \mathbb{E}[\mathbf{x} \mid \mathbf{Z}^k] \mid \m
 $$\mathbb{E}\left[ |\mathbf{x} - \hat{\mathbf{x}}|^2 \mid \mathbf{Z}^k \right] = \mathbb{E}\left[ |\mathbf{x} - \mathbb{E}[\mathbf{x} \mid \mathbf{Z}^k]|^2 \mid \mathbf{Z}^k \right] + |\mathbb{E}[\mathbf{x} \mid \mathbf{Z}^k] - \hat{\mathbf{x}}|^2$$<br />
 Suku pertama sepenuhnya independen terhadap penaksir $$\hat{\mathbf{x}}$$. Suku kedua selalu non-negatif dan bernilai minimum nol jika dan hanya jika [25]:<br />
 $$\hat{\mathbf{x}}_{\text{MMSE}} = \mathbb{E}[\mathbf{x} \mid \mathbf{Z}^k]$$</p>
-<p>Dengan demikian terbukti bahwa <strong>penaksir MMSE optimal identik secara matematis dengan nilai ekspektasi bersyarat keadaan terhadap seluruh riwayat pengukuran</strong>.</p>
+<p>Dengan demikian terbukti bahwa <em>penaksir MMSE optimal identik secara matematis dengan nilai ekspektasi bersyarat keadaan terhadap seluruh riwayat pengukuran</em>.</p>
 <h3 id="262-derivasi-lengkap-discrete-kalman-filter-dkf-dan-bentuk-kovariansi-joseph">2.6.2 Derivasi Lengkap Discrete Kalman Filter (DKF) dan Bentuk Kovariansi Joseph</h3>
 <p>Model ruang keadaan linier waktu diskrit diformulasikan sebagai berikut [16], [25]:<br />
 $$\mathbf{x}<em k-1="k-1">k = \mathbf{A}</em>\mathbf{x}<em k-1="k-1">{k-1} + \mathbf{B}</em>\mathbf{u}<em k-1="k-1">{k-1} + \mathbf{w}</em>$$<br />
 $$\mathbf{z}<em k-1="k-1">k = \mathbf{H}_k\mathbf{x}_k + \mathbf{v}_k$$<br />
 di mana:<br />
-- $$\mathbf{A}</em> \in \mathbb{R}^{n \times n}$$: Matriks transisi keadaan (<em>state transition matrix</em>).<br />
+- $$\mathbf{A}</em> \in \mathbb{R}^{n \times n}$$: Matriks transisi keadaan (state transition matrix<em>).<br />
 - $$\mathbf{B}<em k-1="k-1">{k-1} \in \mathbb{R}^{n \times p}$$: Matriks input kendali.<br />
 - $$\mathbf{H}_k \in \mathbb{R}^{m \times n}$$: Matriks model pengukuran sensor.<br />
-- $$\mathbf{w}</em> \sim \mathcal{N}(\mathbf{0}, \mathbf{Q}<em k-1="k-1">{k-1})$$: Derau proses (<em>process noise</em>) putih Gaussian dengan kovariansi $$\mathbf{Q}</em> \succeq 0$$.<br />
-- $$\mathbf{v}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{R}_k)$$: Derau pengukuran (<em>measurement noise</em>) putih Gaussian dengan kovariansi $$\mathbf{R}_k \succ 0$$.<br />
+- $$\mathbf{w}</em> \sim \mathcal{N}(\mathbf{0}, \mathbf{Q}_{k-1})$$: Derau proses (</em>process noise<em>) putih Gaussian dengan kovariansi $$\mathbf{Q}_{k-1} \succeq 0$$.<br />
+- $$\mathbf{v}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{R}_k)$$: Derau pengukuran (</em>measurement noise*) putih Gaussian dengan kovariansi $$\mathbf{R}_k \succ 0$$.<br />
 - Kedua derau diasumsikan saling bebas: $$\mathbb{E}[\mathbf{w}_i \mathbf{v}_j^T] = \mathbf{0}, \forall i, j$$.</p>
 <p>Siklus rekursif Kalman Filter terdiri dari dua langkah utama [25]:</p>
 <h4 id="1-tahap-prediksi-time-update-prior-step">1. Tahap Prediksi (<em>Time Update / Prior Step</em>)</h4>
@@ -822,17 +822,17 @@ $$\hat{\mathbf{x}}_k^+ = \hat{\mathbf{x}}_k^- + \mathbf{K}_k \tilde{\mathbf{y}}_
 $$\mathbf{e}_k^+ = \mathbf{x}_k - \hat{\mathbf{x}}_k^+ = \mathbf{x}_k - (\hat{\mathbf{x}}_k^- + \mathbf{K}_k (\mathbf{H}_k \mathbf{x}_k + \mathbf{v}_k - \mathbf{H}_k \hat{\mathbf{x}}_k^-)) = (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k)\mathbf{e}_k^- - \mathbf{K}_k \mathbf{v}_k$$</p>
 <p>Matriks kovariansi galat <em>posterior</em> $$\mathbf{P}_k^+$$ dievaluasi untuk sebarang gain $$\mathbf{K}_k$$:<br />
 $$\mathbf{P}_k^+ = \mathbb{E}[ \mathbf{e}_k^+ (\mathbf{e}_k^+)^T ] = \mathbb{E}[ ((\mathbf{I} - \mathbf{K}_k \mathbf{H}_k)\mathbf{e}_k^- - \mathbf{K}_k \mathbf{v}_k) ((\mathbf{I} - \mathbf{K}_k \mathbf{H}_k)\mathbf{e}_k^- - \mathbf{K}_k \mathbf{v}_k)^T ]$$<br />
-Karena derau sensor $$\mathbf{v}_k$$ saling bebas terhadap galat <em>prior</em> $$\mathbf{e}_k^-$$, maka diperoleh <strong>Bentuk Kovariansi Joseph</strong> (<em>Joseph Form Covariance</em>) [25]:<br />
+Karena derau sensor $$\mathbf{v}_k$$ saling bebas terhadap galat <em>prior $$\mathbf{e}_k^-$$, maka diperoleh </em>Bentuk Kovariansi Joseph<em> (Joseph Form Covariance</em>) [25]:<br />
 $$\mathbf{P}_k^+ = (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k) \mathbf{P}_k^- (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k)^T + \mathbf{K}_k \mathbf{R}_k \mathbf{K}_k^T$$<br />
 Bentuk Joseph ini secara komputasional menjamin bahwa matriks kovariansi $$\mathbf{P}_k^+$$ selalu simetris dan definit positif, bahkan di bawah galat pembulatan aritmatika komputer berpresisi terbatas (<em>numerical round-off errors</em>).</p>
 <h4 id="3-penurunan-penguatan-optimal-kalman-optimal-kalman-gain">3. Penurunan Penguatan Optimal Kalman (<em>Optimal Kalman Gain</em>)</h4>
-<p>Untuk meminimalkan jejak matriks kovariansi galat <em>posterior</em> $$J = \text{Tr}(\mathbf{P}_k^+)$$, lakukan diferensiasi matriks terhadap $$\mathbf{K}_k$$:<br />
+<p>Untuk meminimalkan jejak matriks kovariansi galat <em>posterior $$J = \text{Tr}(\mathbf{P}_k^+)$$, lakukan diferensiasi matriks terhadap $$\mathbf{K}_k$$:<br />
 Ekspansi bentuk Joseph:<br />
 $$\mathbf{P}_k^+ = \mathbf{P}_k^- - \mathbf{K}_k \mathbf{H}_k \mathbf{P}_k^- - \mathbf{P}_k^- \mathbf{H}_k^T \mathbf{K}_k^T + \mathbf{K}_k (\mathbf{H}_k \mathbf{P}_k^- \mathbf{H}_k^T + \mathbf{R}_k) \mathbf{K}_k^T$$<br />
 Mengambil turunan trace parsial $$\frac{\partial \text{Tr}(\mathbf{P}_k^+)}{\partial \mathbf{K}_k} = \mathbf{0}$$:<br />
 $$\frac{\partial \text{Tr}(\mathbf{P}_k^+)}{\partial \mathbf{K}_k} = -2 (\mathbf{P}_k^- \mathbf{H}_k^T)^T + 2 \mathbf{K}_k (\mathbf{H}_k \mathbf{P}_k^- \mathbf{H}_k^T + \mathbf{R}_k) = \mathbf{0}$$<br />
 $$\mathbf{K}_k (\mathbf{H}_k \mathbf{P}_k^- \mathbf{H}_k^T + \mathbf{R}_k) = \mathbf{P}_k^- \mathbf{H}_k^T$$<br />
-Karena $$\mathbf{S}_k = (\mathbf{H}_k \mathbf{P}_k^- \mathbf{H}_k^T + \mathbf{R}_k)$$ bernilai definit positif (dijamin oleh $$\mathbf{R}_k \succ 0$$), maka inversnya selalu ada, menghasilkan <strong>Optimal Kalman Gain</strong> [16], [25]:<br />
+Karena $$\mathbf{S}_k = (\mathbf{H}_k \mathbf{P}_k^- \mathbf{H}_k^T + \mathbf{R}_k)$$ bernilai definit positif (dijamin oleh $$\mathbf{R}_k \succ 0$$), maka inversnya selalu ada, menghasilkan </em>Optimal Kalman Gain* [16], [25]:<br />
 $$\mathbf{K}_k = \mathbf{P}_k^- \mathbf{H}_k^T \left( \mathbf{H}_k \mathbf{P}_k^- \mathbf{H}_k^T + \mathbf{R}_k \right)^{-1} = \mathbf{P}_k^- \mathbf{H}_k^T \mathbf{S}_k^{-1}$$</p>
 <p>Jika penguatan optimal $$\mathbf{K}_k$$ disubstitusikan ke dalam bentuk Joseph, persamaan kovariansi posterior tereduksi menjadi bentuk kanonikal:<br />
 $$\mathbf{P}_k^+ = (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k) \mathbf{P}_k^-$$</p>
@@ -840,8 +840,8 @@ $$\mathbf{P}_k^+ = (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k) \mathbf{P}_k^-$$</p>
 <p>Pada kenyataannya, dinamika wahana laut Fossen dan proyeksi optik kamera bersifat sangat non-linier [7], [25]:<br />
 $$\mathbf{x}<em k-1="k-1">k = \mathbf{f}(\mathbf{x}</em>, \mathbf{u}<em k-1="k-1">{k-1}) + \mathbf{w}</em>$$<br />
 $$\mathbf{z}_k = \mathbf{h}(\mathbf{x}_k) + \mathbf{v}_k$$<br />
-di mana $$\mathbf{f}: \mathbb{R}^n \times \mathbb{R}^p \to \mathbb{R}^n$$ dan $$\mathbf{h}: \mathbb{R}^n \to \mathbb{R}^m$$ adalah fungsi-fungsi non-linier yang terdiferensialkan mulus (<em>smooth $$C^1$$ mappings</em>).</p>
-<p>Dalam sistem non-linier, transformasi fungsi non-linier merusak sifat Gaussianitas distribusi probabilitas (<em>breakdown of Gaussianity</em>). EKF menyelesaikan masalah ini dengan melakukan <strong>linearisasi deret Taylor orde pertama</strong> secara adaptif di sekitar titik operasi estimasi terbaik saat ini [25]:<br />
+di mana $$\mathbf{f}: \mathbb{R}^n \times \mathbb{R}^p \to \mathbb{R}^n$$ dan $$\mathbf{h}: \mathbb{R}^n \to \mathbb{R}^m$$ adalah fungsi-fungsi non-linier yang terdiferensialkan mulus (smooth $$C^1$$ mappings*).</p>
+<p>Dalam sistem non-linier, transformasi fungsi non-linier merusak sifat Gaussianitas distribusi probabilitas (<em>breakdown of Gaussianity). EKF menyelesaikan masalah ini dengan melakukan </em>linearisasi deret Taylor orde pertama** secara adaptif di sekitar titik operasi estimasi terbaik saat ini [25]:<br />
 $$\mathbf{f}(\mathbf{x}<em k-1="k-1">{k-1}) \approx \mathbf{f}(\hat{\mathbf{x}}</em>^+) + \mathbf{F}<em k-1="k-1">{k-1} (\mathbf{x}</em> - \hat{\mathbf{x}}<em k-1="k-1">{k-1}^+)$$<br />
 $$\mathbf{h}(\mathbf{x}_k) \approx \mathbf{h}(\hat{\mathbf{x}}_k^-) + \mathbf{H}_k (\mathbf{x}_k - \hat{\mathbf{x}}_k^-)$$<br />
 di mana matriks Jacobian sistem dinamis $$\mathbf{F}</em>$$ dan Jacobian pengukuran $$\mathbf{H}<em k-1="k-1">k$$ dievaluasi melalui turunan parsial multivariabel:<br />
@@ -853,11 +853,11 @@ $$\mathbf{F}</em> = \left. \frac{\partial \mathbf{f}}{\partial \mathbf{x}} \righ
 4. <strong>Kovariansi Inovasi</strong>: $$\mathbf{S}_k = \mathbf{H}_k \mathbf{P}_k^- \mathbf{H}_k^T + \mathbf{R}_k$$<br />
 5. <strong>Optimal Kalman Gain</strong>: $$\mathbf{K}_k = \mathbf{P}_k^- \mathbf{H}_k^T \mathbf{S}_k^{-1}$$<br />
 6. <strong>Pembaruan Keadaan</strong>: $$\hat{\mathbf{x}}_k^+ = \hat{\mathbf{x}}_k^- + \mathbf{K}_k \tilde{\mathbf{y}}_k$$<br />
-7. <strong>Pembaruan Kovariansi</strong>: $$\mathbf{P}_k^+ = (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k) \mathbf{P}_k^- (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k)^T + \mathbf{K}_k \mathbf{R}_k \mathbf{K}_k^T$$</p>
+7. *<em>Pembaruan Kovariansi</em>: $$\mathbf{P}_k^+ = (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k) \mathbf{P}_k^- (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k)^T + \mathbf{K}_k \mathbf{R}_k \mathbf{K}_k^T$$</p>
 <hr />
 <h3 id="264-topsideonboard-visual-target-kalman-filter-auvvisualkalmanfilter">2.6.4 Topside/Onboard Visual Target Kalman Filter (<code>AUVVisualKalmanFilter</code>)</h3>
-<p>Persepsi visual bawah air yang diperoleh dari kamera monokuler rentan terhadap distorsi optik, turbiditas air, hamburan cahaya, partikel tersuspensi (<em>marine snow</em>), serta bayangan dinamis [2], [14]. Arsitektur <em>deep learning</em> YOLO yang dijalankan pada komputer pendamping memprediksi koordinat kotak pembatas (<em>bounding box</em>) target secara <em>frame-by-frame</em>. Namun, deteksi visual mentah ini menghasilkan sentroid yang bergetar (<em>centroid jitter</em>), fluktuasi skala, deteksi palsu (<em>false positives</em>), dan kehilangan deteksi sesaat saat target terhalang (<em>temporary visual occlusion</em>) [2], [16], [17].</p>
-<p>Untuk mengatasi degradasi optik ini, dirancang modul <strong>Topside/Onboard Visual Target Kalman Filter (<code>AUVVisualKalmanFilter</code>)</strong> berbasis model kinematika stokastik <em>Continuous White Noise Acceleration</em> (CWNA) [16], [25].</p>
+<p>Persepsi visual bawah air yang diperoleh dari kamera monokuler rentan terhadap distorsi optik, turbiditas air, hamburan cahaya, partikel tersuspensi (marine snow<em>), serta bayangan dinamis [2], [14]. Arsitektur </em>deep learning<em> YOLO yang dijalankan pada komputer pendamping memprediksi koordinat kotak pembatas (</em>bounding box<em>) target secara </em>frame-by-frame<em>. Namun, deteksi visual mentah ini menghasilkan sentroid yang bergetar (</em>centroid jitter<em>), fluktuasi skala, deteksi palsu (</em>false positives<em>), dan kehilangan deteksi sesaat saat target terhalang (</em>temporary visual occlusion) [2], [16], [17].</p>
+<p>Untuk mengatasi degradasi optik ini, dirancang modul <em>Topside/Onboard Visual Target Kalman Filter (<code>AUVVisualKalmanFilter</code>)</em> berbasis model kinematika stokastik Continuous White Noise Acceleration* (CWNA) [16], [25].</p>
 <h4 id="1-formulasi-vektor-ruang-keadaan-8-dimensi">1. Formulasi Vektor Ruang Keadaan 8-Dimensi</h4>
 <p>Vektor keadaan penjejakan visual diformulasikan dalam ruang koordinat citra piksel berdimensi delapan:<br />
 $$\mathbf{x}_k = \begin{bmatrix} x_k \ y_k \ s_k \ r_k \ \dot{x}_k \ \dot{y}_k \ \dot{s}_k \ \dot{r}_k \end{bmatrix} \in \mathbb{R}^8$$<br />
@@ -896,17 +896,17 @@ $$\mathbf{Q}(\Delta t) = \int_0^{\Delta t} \begin{bmatrix} \tau^2 \tilde{\mathbf
 <h4 id="5-kovariansi-pengukuran-adaptif-berbobot-konfidensi-yolo-mathbfrtextconf">5. Kovariansi Pengukuran Adaptif Berbobot Konfidensi YOLO $$\mathbf{R}(\text{conf})$$</h4>
 <p>Model pengukuran sensor visual menghubungkan vektor keadaan 8D dengan 4 parameter observasi kotak pembatas dari detektor YOLO:<br />
 $$\mathbf{z}<em 4="4" _times="\times">k = \begin{bmatrix} z_x \ z_y \ z_s \ z_r \end{bmatrix}_k = \mathbf{H} \mathbf{x}_k + \mathbf{v}_k, \qquad \mathbf{H} = \begin{bmatrix} \mathbf{I}</em> &amp; \mathbf{0}_{4 \times 4} \end{bmatrix} \in \mathbb{R}^{4 \times 8}$$</p>
-<p>Setiap keluaran bounding box dari jaringan syaraf YOLO menyertakan skor keyakinan (<em>confidence score</em>) $$\text{conf}<em _text_conf="\text{conf">k \in [0, 1]$$. Pada kondisi air keruh, deteksi dengan nilai keyakinan rendah mengandung variansi derau spasial yang jauh lebih besar. Untuk mengakomodasi fenomena ini secara stokastik, dikembangkan formulasi <strong>kovariansi pengukuran adaptif non-linier</strong> [16], [17]:<br />
-$$\mathbf{R}_k(\text{conf}_k) = \mathbf{R}_0 \cdot \left[ 1 + \alpha</em>} \left( \frac{1 - \text{conf}<em z_x="z,x">k}{\text{conf}_k + \epsilon} \right)^2 \right]$$<br />
+<p>Setiap keluaran bounding box dari jaringan syaraf YOLO menyertakan skor keyakinan (<em>confidence score) $$\text{conf}_k \in [0, 1]$$. Pada kondisi air keruh, deteksi dengan nilai keyakinan rendah mengandung variansi derau spasial yang jauh lebih besar. Untuk mengakomodasi fenomena ini secara stokastik, dikembangkan formulasi </em>kovariansi pengukuran adaptif non-linier* [16], [17]:<br />
+$$\mathbf{R}<em _text_conf="\text{conf">k(\text{conf}_k) = \mathbf{R}_0 \cdot \left[ 1 + \alpha</em>} \left( \frac{1 - \text{conf}<em z_x="z,x">k}{\text{conf}_k + \epsilon} \right)^2 \right]$$<br />
 di mana:<br />
 - $$\mathbf{R}_0 = \text{diag}[\sigma</em>^2, \sigma_{z,y}^2, \sigma_{z,s}^2, \sigma_{z,r}^2]$$ adalah kovariansi nominal saat deteksi sempurna ($$\text{conf}<em _text_conf="\text{conf">k \to 1.0$$).<br />
 - $$\alpha</em>} \ge 1.0$$ adalah faktor skala penalti ketidakpastian deteksi visual.<br />
 - $$\epsilon = 10^{-4}$$ adalah konstanta regularisasi untuk mencegah pembagian dengan nol.</p>
 <p>Dinamika adaptif ini memberikan efek kendali estimasi yang sangat elegan:<br />
 - Saat deteksi target sangat jelas dan tajam ($$\text{conf}_k \approx 0.95$$), suku penalti mendekati nol sehingga $$\mathbf{R}_k \approx \mathbf{R}_0$$. Penguatan Kalman $$\mathbf{K}_k$$ membesar, mempercepat pembaruan estimasi keadaan terhadap pengukuran baru.<br />
-- Saat deteksi target terdistorsi oleh gelembung air atau partikel keruh ($$\text{conf}_k \approx 0.3$$), nilai $$\mathbf{R}_k$$ melonjak secara kuadratik. Hal ini menyebabkan penguatan Kalman mengecil secara drastis ($$\mathbf{K}_k \to \mathbf{0}$$), sehingga filter secara otomatis menolak (<em>reject</em>) derau pengukuran yang tidak akurat dan lebih mempercayai prediksi model kinematika internalnya!</p>
+- Saat deteksi target terdistorsi oleh gelembung air atau partikel keruh ($$\text{conf}_k \approx 0.3$$), nilai $$\mathbf{R}_k$$ melonjak secara kuadratik. Hal ini menyebabkan penguatan Kalman mengecil secara drastis ($$\mathbf{K}_k \to \mathbf{0}$$), sehingga filter secara otomatis menolak (reject*) derau pengukuran yang tidak akurat dan lebih mempercayai prediksi model kinematika internalnya!</p>
 <h4 id="6-outlier-innovation-gating-berbasis-jarak-mahalanobis">6. Outlier Innovation Gating Berbasis Jarak Mahalanobis</h4>
-<p>Untuk mencegah penapis terganggu oleh deteksi salah (<em>false positive clutter</em>), residu inovasi $$\tilde{\mathbf{y}}_k = \mathbf{z}_k - \mathbf{H}\hat{\mathbf{x}}_k^-$$ divalidasi menggunakan uji hipotesis kuadratik <strong>Jarak Mahalanobis</strong> (<em>Mahalanobis distance</em>) [25]:<br />
+<p>Untuk mencegah penapis terganggu oleh deteksi salah (<em>false positive clutter), residu inovasi $$\tilde{\mathbf{y}}_k = \mathbf{z}_k - \mathbf{H}\hat{\mathbf{x}}_k^-$$ divalidasi menggunakan uji hipotesis kuadratik </em>Jarak Mahalanobis<em> (Mahalanobis distance</em>) [25]:<br />
 $$D_M^2 = \tilde{\mathbf{y}}_k^T \mathbf{S}_k^{-1} \tilde{\mathbf{y}}_k = \tilde{\mathbf{y}}_k^T \left( \mathbf{H}\mathbf{P}_k^-\mathbf{H}^T + \mathbf{R}_k \right)^{-1} \tilde{\mathbf{y}}_k$$</p>
 <p>Di bawah hipotesis nol (pengukuran target benar terdistribusi Gaussian), besaran skalar $$D_M^2$$ mengikuti distribusi Chi-kuadrat dengan derajat kebebasan sama dengan dimensi pengukuran ($$m = 4$$):<br />
 $$D_M^2 \sim \chi^2(4)$$</p>
@@ -918,19 +918,19 @@ $$\begin{cases} <br />
 \text{Ditolak (Outlier)}: &amp; D_M^2 &gt; \gamma_{\text{gate}} \implies \text{Abaikan pengukuran, lakukan propagasi dead-reckoning} <br />
 \end{cases}$$</p>
 <h4 id="7-penanganan-oklusi-visual-dan-propagasi-dead-reckoning">7. Penanganan Oklusi Visual dan Propagasi Dead-Reckoning</h4>
-<p>Ketika target visual terhalang total oleh struktur bawah air atau keluar dari medan pandang kamera (<em>field of view</em>) selama beberapa detik ($$\mathbf{z}<em k-1="k-1">k = \emptyset$$), modul penapis Kalman beralih ke mode <strong>dead-reckoning murni</strong> [16], [25]:<br />
-$$\hat{\mathbf{x}}_k^+ = \hat{\mathbf{x}}_k^- = \mathbf{A}(\Delta t)\hat{\mathbf{x}}</em>^+$$<br />
+<p>Ketika target visual terhalang total oleh struktur bawah air atau keluar dari medan pandang kamera (<em>field of view) selama beberapa detik ($$\mathbf{z}_k = \emptyset$$), modul penapis Kalman beralih ke mode </em>dead-reckoning murni* [16], [25]:<br />
+$$\hat{\mathbf{x}}<em k-1="k-1">k^+ = \hat{\mathbf{x}}_k^- = \mathbf{A}(\Delta t)\hat{\mathbf{x}}</em>^+$$<br />
 $$\mathbf{P}<em k-1="k-1">k^+ = \mathbf{P}_k^- = \mathbf{A}(\Delta t)\mathbf{P}</em>^+\mathbf{A}^T(\Delta t) + \mathbf{Q}(\Delta t)$$</p>
-<p>Pada fase ini, estimasi kecepatan visual ($$\dot{x}, \dot{y}, \dot{s}$$) yang telah tersaring secara mulus digunakan untuk mengekstrapolasi lintasan target secara proyektif. Matriks kovariansi $$\mathbf{P}_k$$ bertumbuh secara bertahap, merefleksikan akumulasi ketidakpastian posisi seiring bertambahnya durasi oklusi, sehingga saat target muncul kembali, filter dapat langsung menangkapnya kembali tanpa fenomena lonjakan keadaan (<em>state transient jump</em>).</p>
+<p>Pada fase ini, estimasi kecepatan visual ($$\dot{x}, \dot{y}, \dot{s}$$) yang telah tersaring secara mulus digunakan untuk mengekstrapolasi lintasan target secara proyektif. Matriks kovariansi $$\mathbf{P}_k$$ bertumbuh secara bertahap, merefleksikan akumulasi ketidakpastian posisi seiring bertambahnya durasi oklusi, sehingga saat target muncul kembali, filter dapat langsung menangkapnya kembali tanpa fenomena lonjakan keadaan (state transient jump*).</p>
 <hr />
 <h3 id="265-subsea-hydrodynamic-dynamics-extended-kalman-filter-auvdynamicskalmanfilter">2.6.5 Subsea Hydrodynamic Dynamics Extended Kalman Filter (<code>AUVDynamicsKalmanFilter</code>)</h3>
-<p>Di sisi wahana bawah laut, estimasi status dinamika hidrodinamika 6-DOF dieksekusi secara <em>real-time</em> oleh <strong>Subsea Hydrodynamic Extended Kalman Filter (<code>AUVDynamicsKalmanFilter</code>)</strong> yang berjalan pada komputer pendamping Raspberry Pi 4B berkomunikasi dengan Pixhawk 2.4.8 melalui protokol MAVLink pada frekuensi 50 Hz [14], [21], [29].</p>
+<p>Di sisi wahana bawah laut, estimasi status dinamika hidrodinamika 6-DOF dieksekusi secara <em>real-time oleh </em>Subsea Hydrodynamic Extended Kalman Filter (<code>AUVDynamicsKalmanFilter</code>)* yang berjalan pada komputer pendamping Raspberry Pi 4B berkomunikasi dengan Pixhawk 2.4.8 melalui protokol MAVLink pada frekuensi 50 Hz [14], [21], [29].</p>
 <h4 id="1-formulasi-model-ruang-keadaan-non-linier-dinamika-6-dof">1. Formulasi Model Ruang Keadaan Non-Linier Dinamika 6-DOF</h4>
 <p>Berdasarkan persamaan gerak Fossen (2021) yang diturunkan pada Subbab 2.4, turunan percepatan relatif bodi wahana dinyatakan oleh sistem persamaan diferensial non-linier [7]:<br />
 $$\dot{\boldsymbol{\nu}}<em RB="RB">r = \mathbf{M}^{-1} \left[ \boldsymbol{\tau} - \mathbf{C}</em>(\boldsymbol{\nu})\boldsymbol{\nu} - \mathbf{C}_A(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r - \mathbf{D}(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r - \mathbf{g}(\boldsymbol{\eta}) \right] = \mathbf{f}_d(\boldsymbol{\nu}_r, \boldsymbol{\eta}, \boldsymbol{\tau})$$</p>
 <p>Vektor keadaan kontinu penapis dinamika mencakup kecepatan bodi dan estimasi kecepatan arus laut pada kerangka bodi:<br />
 $$\mathbf{x}_{\text{dyn}} = \begin{bmatrix} \boldsymbol{\nu}_r \ \boldsymbol{\nu}_c \end{bmatrix} \in \mathbb{R}^{12}$$<br />
-Arus laut dimodelkan sebagai proses acak Markov orde pertama yang bervariasi sangat lambat (<em>slowly varying random walk</em>) [7], [29]:<br />
+Arus laut dimodelkan sebagai proses acak Markov orde pertama yang bervariasi sangat lambat (slowly varying random walk) [7], [29]:<br />
 $$\dot{\boldsymbol{\nu}}_c = -\mathbf{S}(\boldsymbol{\nu}_2)\boldsymbol{\nu}_c + \mathbf{w}_c$$</p>
 <h4 id="2-penurunan-analitis-matriks-jacobian-kontinu-mathbff-in-mathbbr6-times-6">2. Penurunan Analitis Matriks Jacobian Kontinu $$\mathbf{F} \in \mathbb{R}^{6 \times 6}$$</h4>
 <p>Untuk mengeksekusi EKF, matriks Jacobian transisi kontinu $$\mathbf{F}(t)$$ diturunkan melalui diferensiasi analitis parsial terhadap vektor kecepatan relatif $$\boldsymbol{\nu}<em _hat_boldsymbol_nu="\hat{\boldsymbol{\nu">r$$ [7], [25]:<br />
@@ -954,60 +954,60 @@ $$\mathbf{F}(t) = -\mathbf{M}^{-1} \left( \mathbf{C}^<em>(\hat{\boldsymbol{\nu}}
 <h4 id="3-diskritisasi-cayley-hamilton-deret-taylor-orde-pertama">3. Diskritisasi Cayley-Hamilton / Deret Taylor Orde Pertama</h4>
 <p>Diskritisasi matriks transisi keadaan pada periode pencuplikan telemetri MAVLink ($$\Delta t = 1/50\text{ s} = 0.02\text{ s}$$) dihitung melalui pendekatan deret Taylor orde pertama (atau teorema Cayley-Hamilton) [25], [29]:<br />
 $$\boldsymbol{\Phi}<em 6="6" _times="\times">k = e^{\mathbf{F}(t_k) \Delta t} \approx \mathbf{I}</em> + \mathbf{F}(t_k) \Delta t$$<br />
-Pendekatan orde pertama ini sangat efisien secara komputasional dan memiliki galat truncasi lokal orde $$O(\Delta t^2) = O(0.0004)$$, yang sangat aman untuk dieksekusi secara <strong>real-time</strong> di lingkungan prosesor Raspberry Pi 4B tanpa menimbulkan latensi siklus [21], [29].</p>
+Pendekatan orde pertama ini sangat efisien secara komputasional dan memiliki galat truncasi lokal orde $$O(\Delta t^2) = O(0.0004)$$, yang sangat aman untuk dieksekusi secara <em>real-time</em>* di lingkungan prosesor Raspberry Pi 4B tanpa menimbulkan latensi siklus [21], [29].</p>
 <h4 id="4-model-pengukuran-sensor-dan-pengamat-arus-laut">4. Model Pengukuran Sensor dan Pengamat Arus Laut</h4>
 <p>Sistem instrumen fisik wahana menyediakan pengukuran berkala yang masuk ke dalam modul EKF:<br />
 1. <strong>IMU 6-Sumbu (Pixhawk 2.4.8)</strong>: Mengukur percepatan spesifik tiga sumbu ($$a_x, a_y, a_z$$) dan kecepatan sudut tiga sumbu ($$p, q, r$$) pada frekuensi 50 Hz.<br />
 2. <strong>Sensor Tekanan MS5837-02BA</strong>: Mengukur tekanan hidrostatis air laut yang dikonversikan secara presisi menjadi kedalaman vertikal ($$z_{\text{depth}} = (P - P_{\text{atm}})/(\rho g)$$) pada frekuensi 10–20 Hz.<br />
-3. <strong>Sensor Kecepatan DVL / Model Estimasi Samping</strong>: Mengukur kecepatan linier wahana terhadap dasar laut (<em>bottom tracking</em>).</p>
+3. <em><em>Sensor Kecepatan DVL / Model Estimasi Samping</em>: Mengukur kecepatan linier wahana terhadap dasar laut (bottom tracking</em>).</p>
 <p>Persamaan pembaruan pengukuran EKF memadukan inovasi sensor inersia dan hidrodinamika Fossen:<br />
 $$\mathbf{z}<em _text_dyn="\text{dyn">{k,\text{dyn}} = \mathbf{H}</em>} \mathbf{x}<em _text_dyn="\text{dyn">{\text{dyn},k} + \mathbf{v}</em>,k}$$<br />
 Kovariansi inovasi dan penguatan Kalman EKF dievaluasi secara dinamis untuk mengoreksi bias kecepatan wahana dan merekonstruksi vektor arus laut lingkungan [7], [18], [29].</p>
-<p>Hasil estimasi kecepatan bodi tersaring $$\hat{\boldsymbol{\nu}}$$ dan orientasi wahana diumpankan balik secara tertutup (<em>closed-loop </em>feedback<em><em>) ke modul alokasi gaya dorong Moore-Penrose pseudo-inverse ($$\mathbf{T}_{6 \times 8}^+$$) di ArduSub, mewujudkan kendali orientasi aktif (</em>active </em>attitude<em> hold</em>) dan peredaman aktif terhadap momen Munk hidrodinamika yang tidak stabil [21], [32].</p>
+<p>Hasil estimasi kecepatan bodi tersaring $$\hat{\boldsymbol{\nu}}$$ dan orientasi wahana diumpankan balik secara tertutup (<em>closed-loop feedback</em>) ke modul alokasi gaya dorong Moore-Penrose pseudo-inverse ($$\mathbf{T}_{6 \times 8}^+$$) di ArduSub, mewujudkan kendali orientasi aktif (<em>active </em>attitude* hold) dan peredaman aktif terhadap momen Munk hidrodinamika yang tidak stabil [21], [32].</p>
 <hr />
 <h2 id="daftar-pustaka-bab-ii">Daftar Pustaka (Bab II)</h2>
 <ul>
-<li><strong>[1]</strong> Ahmed, F., Xiang, X., Jiang, C., &amp; Wang, Y. (2023). <em>Survey on Traditional and AI-Based Estimation Techniques for Hydrodynamic Coefficients of Autonomous Underwater Vehicle</em>. Ocean Engineering, 268, 113300. https://doi.org/10.1016/j.oceaneng.2023.113300</li>
-<li><strong>[2]</strong> Alinei-Poiană, T., Rețe, D., Martinovici, D., Maer, V. M., &amp; Bușoniu, L. (2024). <em>A BlueROV2-Based Platform for Underwater Mapping Experiments</em>. IFAC-PapersOnLine, 58(20), 470–475. https://doi.org/10.1016/j.ifacol.2024.10.098</li>
-<li><strong>[3]</strong> Blue Robotics (2024). <em>BlueROV2 Heavy Configuration Retrofit Operating Guide and Technical Specifications</em>. Blue Robotics Inc., Torrance, CA, USA.</li>
-<li><strong>[4]</strong> de Moraes, C. C., Faltinsen, O. M., Esperança, P. T. T., Sphaier, S. H., &amp; Lugni, C. (2025). <em>Free-Surface Interaction of a Fully Appendaged AUV: An Experimental Study Using the Planar Motion Mechanism Method for Calculating Hydrodynamic Coefficients</em>. Ocean Engineering, 324, 120562. https://doi.org/10.1016/j.oceaneng.2025.120562</li>
-<li><strong>[5]</strong> Det Norske Veritas (DNV) (2021). <em>Environmental Conditions and Environmental Loads / Modelling and Analysis of Marine Operations</em>. Recommended Practice DNVGL-RP-N103, Oslo, Norway.</li>
-<li><strong>[6]</strong> Fan, Y., Dong, H., Zhao, X., &amp; Denissenko, P. (2024). <em>Path-Following Control of Unmanned Underwater Vehicle Based on an Improved TD3 Deep Reinforcement Learning</em>. IEEE Transactions on Control Systems Technology, 32(5), 1904–1919. https://doi.org/10.1109/TCST.2024.3382741</li>
-<li><strong>[7]</strong> Fossen, T. I. (2021). <em>Handbook of Marine Craft Hydrodynamics and Motion Control</em>. John Wiley &amp; Sons, 2nd Edition, Hoboken, NJ, USA.</li>
-<li><strong>[8]</strong> Franchi, M., Ridolfi, A., &amp; Allotta, B. (2022). <em>Tethered Multi-Robot Systems in Marine Environments: A Review</em>. Current Robotics Reports, 3(4), 229–239. https://doi.org/10.1007/s43154-022-00091-x</li>
-<li><strong>[9]</strong> Gaggero, P., Corradini, F., &amp; Fossen, T. I. (2024). <em>Tracking Data of a Remotely Operated Vehicle and Its Tether Using a Motion Capture System and a Tension Sensor</em>. Scientific Data, 11, 482. https://doi.org/10.1038/s41597-024-03297-7</li>
-<li><strong>[10]</strong> Ge, Z., Yang, F., Lu, W., Wei, P., Ying, Y., &amp; Peng, C. (2025). <em>A Navigation System for ROV's Inspection on Fish Net Cage</em>. IFAC-PapersOnLine, arXiv:2503.00482.</li>
-<li><strong>[11]</strong> Gieraths, M., Kuchelmeister, F., &amp; Albiez, J. (2023). <em>Modular Hardware Architecture for the Development of Underwater Vehicles Based on Systems Engineering</em>. Sensors, 23(17), 7481. https://doi.org/10.3390/s23177481</li>
-<li><strong>[12]</strong> Hong, L., Wang, X., &amp; Zhang, D. (2024). <em>CFD-Based Hydrodynamic Performance Investigation of Autonomous Underwater Vehicles: A Survey</em>. Ocean Engineering, 305, 117911. https://doi.org/10.1016/j.oceaneng.2024.117911</li>
-<li><strong>[13]</strong> Huang, Z., Shen, Y., Du, Y., Yang, C., &amp; Wang, H. (2026). <em>Event-Triggered Control for UUV Trajectory Tracking Based on Grey Wolf Optimized Disturbance Observation and Adaptive Sliding Mode</em>. Ocean Engineering, 345, 123102. https://doi.org/10.1016/j.oceaneng.2026.123102</li>
-<li><strong>[14]</strong> Ismail, W. M., Hassan, A. E., Abdelhady, N. M., Hassan, N. A., Maged, S. A., &amp; Abdulhasieb, H. M. (2021). <em>Design of Affordable Hybrid Underwater Vehicle Platform Using ArduSub &amp; Robot Operating System (ROS) for Marine Robotics Research</em>. In Proceedings of the 5th IUGRC International Undergraduate Research Conference, Cairo, Egypt, pp. 96–102.</li>
-<li><strong>[15]</strong> Karras, A. A., Charalampous, K., &amp; Kyriakopoulos, K. J. (2024). <em>From Virtual Waters to Real Oceans: A Simulation-Driven Approach to ROV Control System Design</em>. Journal of Marine Science and Engineering, 12(11), 1957. https://doi.org/10.3390/jmse12111957</li>
-<li><strong>[16]</strong> Khalid, A., Sarwat, A., &amp; Riggs, H. (Eds.). (2024). <em>Applications and Optimizations of Kalman Filter and Their Variants</em>. IntechOpen, London, UK. https://doi.org/10.5772/intechopen.109154</li>
-<li><strong>[17]</strong> Kim, Y. V. (Ed.). (2023). <em>Kalman Filter - Engineering Applications</em>. IntechOpen, London, UK. https://doi.org/10.5772/intechopen.100722</li>
-<li><strong>[18]</strong> Llorente-Vidrio, D., Chavez-Galaviz, J., Fuentes-Aguilar, R. Q., Chairez, I., &amp; Mahmoudian, N. (2025). <em>Robust Sliding-Mode Control of an Underwater ROV via Neural Differential Identification of Model Uncertainties</em>. Ocean Engineering, 341, 122728. https://doi.org/10.1016/j.oceaneng.2025.122728</li>
-<li><strong>[19]</strong> Mari, Z., Nawaf, M. M., &amp; Drap, P. (2026). <em>Deep Reinforcement Learning for Autonomous Underwater Navigation: A Comparative Study with DWA and Digital Twin Validation</em>. Sensors, 26(2), 512. https://doi.org/10.3390/s26020512</li>
-<li><strong>[20]</strong> McIvor, E., Sklivanitis, G., &amp; Pados, D. A. (2024). <em>A Generalizable Entity-Component-System Architecture for Underwater ROV Control</em>. In IEEE/OES OCEANS 2024 - Singapore, pp. 1–7. https://doi.org/10.1109/OCEANS51537.2024.10682121</li>
-<li><strong>[21]</strong> Ng, P., &amp; Krieg, M. (2024). <em>Modifications to ArduSub That Improve BlueROV SITL Accuracy and Design of Hybrid Autopilot</em>. Applied Sciences, 14(17), 7453. https://doi.org/10.3390/app14177453</li>
-<li><strong>[22]</strong> Pandian, R. S., Sakthivel, P., &amp; Palanisamy, V. (2023). <em>Path Planning and Obstacle Avoidance for AUV: A Review</em>. Ocean Engineering, 285, 115456. https://doi.org/10.1016/j.oceaneng.2023.115456</li>
-<li><strong>[23]</strong> Rusu, C., Radu, V., &amp; Costanzi, R. (2023). <em>Small Modular AUV Based on 3D Printing Technology: Design, Implementation and Experimental Validation</em>. Sensors, 23(14), 6331. https://doi.org/10.3390/s23146331</li>
-<li><strong>[24]</strong> Saad, A., Akram, W., &amp; Hussain, I. (2026). <em>AquaChat++: LLM-Assisted Multi-ROV Inspection for Aquaculture Net Pens with Integrated Battery Management and Thruster Fault Tolerance</em>. Ocean Engineering, 343, 122950. https://doi.org/10.1016/j.oceaneng.2026.122950</li>
-<li><strong>[25]</strong> Särkkä, S., &amp; Svensson, L. (2023). <em>Bayesian Filtering and Smoothing</em>. Cambridge University Press, 2nd Edition, Cambridge, UK. https://doi.org/10.1017/9781108910002</li>
-<li><strong>[26]</strong> Song, P., Wei, Z., Zhang, J., &amp; Wang, X. (2023). <em>Multi-Objective Shape Optimization of Autonomous Underwater Vehicle by Coupling CFD Simulation with Genetic Algorithm</em>. Ocean Engineering, 280, 114686. https://doi.org/10.1016/j.oceaneng.2023.114686</li>
-<li><strong>[27]</strong> Suárez, Á. E. Z., Palacios, F. M., Cruz, S. S., Leal, R. L., &amp; Zamora-Justo, J. A. (2024). <em>Dynamic Modeling and Robust Control for Underwater Vehicles by Using Dual Quaternions</em>. Ocean Engineering, 313, 119475. https://doi.org/10.1016/j.oceaneng.2024.119475</li>
-<li><strong>[28]</strong> Sun, Y., Wang, X., Zhang, Y., &amp; Chen, G. (2022). <em>Nonlinear Dynamics of Novel Flight-Style Autonomous Underwater Vehicle with Bow Wings, Part I: ASE and CFD Based Estimations of Hydrodynamic Coefficients; Part II: Nonlinear Dynamic Modeling and Experimental Validations</em>. Ocean Engineering, 266, 112836. https://doi.org/10.1016/j.oceaneng.2022.112836</li>
-<li><strong>[29]</strong> Ulin-Avila, E., &amp; Ponce-Hernandez, J. (2021). <em>Kalman Filter Estimation and Its Implementation</em>. In <em>Adaptive Filtering - Recent Advances and Practical Implementation</em>, IntechOpen, London, UK. https://doi.org/10.5772/intechopen.97406</li>
-<li><strong>[30]</strong> Vögele, C., Schilling, M., &amp; Hildebrandt, M. (2022). <em>Modularis: Modular Underwater Robot for Rapid Development and Validation of Autonomous Systems</em>. In 2022 IEEE International Conference on Robotics and Biomimetics (ROBIO), pp. 2004–2010. https://doi.org/10.1109/ROBIO54168.2022.10011985</li>
-<li><strong>[31]</strong> von Benzon, M., Sørensen, F. F., Uth, E., Jouffroy, J., Liniger, J., &amp; Pedersen, S. (2022). <em>An Open-Source Benchmark Simulator: Control of a BlueROV2 Underwater Robot</em>. Journal of Marine Science and Engineering, 10(12), 1898. https://doi.org/10.3390/jmse10121898</li>
-<li><strong>[32]</strong> Vu, M. T., Le, T. H., Thanh, H. L. N. N., Huynh, T. T., Van, M., Hoang, Q. D., &amp; Do, T. D. (2021). <em>Robust Position Control of an Over-Actuated Underwater Vehicle Under Model Uncertainties and Ocean Current Effects Using Dynamic Sliding Mode Surface and Optimal Allocation Control</em>. Sensors, 21(3), 747. https://doi.org/10.3390/s21030747</li>
-<li><strong>[33]</strong> Wang, D., Wang, Y., Liu, J., &amp; Zhang, Y. (2023). <em>An Integrated Dynamic Modeling Method for Underwater Vehicle with Hull, Propeller and Rudder</em>. Ocean Engineering, 282, 115036. https://doi.org/10.1016/j.oceaneng.2023.115036</li>
-<li><strong>[34]</strong> Wei, X., Du, H., Yan, T., &amp; He, B. (2025). <em>A Solution Method for Hydrodynamic Coefficients of Autonomous Underwater Vehicle Using Multi-Degree-of-Freedom Coupled Motion Data</em>. Ocean Engineering, 341, 122653. https://doi.org/10.1016/j.oceaneng.2025.122653</li>
-<li><strong>[35]</strong> Westman, E., Kaess, M., &amp; Hollinger, G. A. (2021). <em>Towards Modular and Accessible AUV Systems</em>. In 2021 IEEE Aerospace Conference (50100), pp. 1–10. https://doi.org/10.1109/AERO50100.2021.9438312</li>
-<li><strong>[36]</strong> Widhalm, D., Ohnsted, C., Knutson, C., Kutzke, D., Singh, S., Mukherjee, R., Schwidder, G., Wu, Y.-K., &amp; Sattar, J. (2025). <em>Design and Development of the MeCO Open-Source Autonomous Underwater Vehicle</em>. In IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS).</li>
-<li><strong>[37]</strong> Xia, T., Liu, S., Wang, T., Li, J., Lin, W., Zhang, B., Cai, Y., &amp; Xu, W. (2025). <em>Experimental and Numerical Analysis on Two-Way Hull–Propeller Coupled Effect of a Fully-Actuated AUV</em>. Ocean Engineering, 321, 120288. https://doi.org/10.1016/j.oceaneng.2025.120288</li>
-<li><strong>[38]</strong> Yang, Y., Xiao, Y., &amp; Li, T. (2021). <em>A Survey of Autonomous Underwater Vehicle Formation: Performance, Formation Control, and Communication Capability</em>. IEEE Communications Surveys &amp; Tutorials, 23(2), 1270–1304. https://doi.org/10.1109/COMST.2021.3059418</li>
-<li><strong>[39]</strong> Zhang, B., Ji, D., Liu, S., Zhu, X., &amp; Xu, W. (2023). <em>Autonomous Underwater Vehicle Navigation: A Review</em>. Ocean Engineering, 273, 113861. https://doi.org/10.1016/j.oceaneng.2023.113861</li>
-<li><strong>[40]</strong> Zhang, Y., Zhang, J., Guo, Z., Zhang, L., &amp; Shang, Y. (2025). <em>An Adaptive NMPC for ROVs Trajectory Tracking with Environmental Disturbances and Model Uncertainties</em>. Brodogradnja, 76(1), 1–25. https://doi.org/10.21278/brod76101</li>
-<li><strong>[41]</strong> Zuluaga, C. A., Aristizábal, L. M., Rúa, S., Franco, D. A., Osorio, D. A., &amp; Vásquez, R. E. (2022). <em>Development of a Modular Software Architecture for Underwater Vehicles Using Systems Engineering</em>. Journal of Marine Science and Engineering, 10(9), 1276. https://doi.org/10.3390/jmse10091276</li>
+<li><em>[1]</em> Ahmed, F., Xiang, X., Jiang, C., &amp; Wang, Y. (2023). Survey on Traditional and AI-Based Estimation Techniques for Hydrodynamic Coefficients of Autonomous Underwater Vehicle. Ocean Engineering, 268, 113300. https://doi.org/10.1016/j.oceaneng.2023.113300</li>
+<li><em>[2]</em> Alinei-Poiană, T., Rețe, D., Martinovici, D., Maer, V. M., &amp; Bușoniu, L. (2024). A BlueROV2-Based Platform for Underwater Mapping Experiments. IFAC-PapersOnLine, 58(20), 470–475. https://doi.org/10.1016/j.ifacol.2024.10.098</li>
+<li><em>[3]</em> Blue Robotics (2024). BlueROV2 Heavy Configuration Retrofit Operating Guide and Technical Specifications. Blue Robotics Inc., Torrance, CA, USA.</li>
+<li><em>[4]</em> de Moraes, C. C., Faltinsen, O. M., Esperança, P. T. T., Sphaier, S. H., &amp; Lugni, C. (2025). Free-Surface Interaction of a Fully Appendaged AUV: An Experimental Study Using the Planar Motion Mechanism Method for Calculating Hydrodynamic Coefficients. Ocean Engineering, 324, 120562. https://doi.org/10.1016/j.oceaneng.2025.120562</li>
+<li><em>[5]</em> Det Norske Veritas (DNV) (2021). Environmental Conditions and Environmental Loads / Modelling and Analysis of Marine Operations. Recommended Practice DNVGL-RP-N103, Oslo, Norway.</li>
+<li><em>[6]</em> Fan, Y., Dong, H., Zhao, X., &amp; Denissenko, P. (2024). Path-Following Control of Unmanned Underwater Vehicle Based on an Improved TD3 Deep Reinforcement Learning. IEEE Transactions on Control Systems Technology, 32(5), 1904–1919. https://doi.org/10.1109/TCST.2024.3382741</li>
+<li><em>[7]</em> Fossen, T. I. (2021). Handbook of Marine Craft Hydrodynamics and Motion Control. John Wiley &amp; Sons, 2nd Edition, Hoboken, NJ, USA.</li>
+<li><em>[8]</em> Franchi, M., Ridolfi, A., &amp; Allotta, B. (2022). Tethered Multi-Robot Systems in Marine Environments: A Review. Current Robotics Reports, 3(4), 229–239. https://doi.org/10.1007/s43154-022-00091-x</li>
+<li><em>[9]</em> Gaggero, P., Corradini, F., &amp; Fossen, T. I. (2024). Tracking Data of a Remotely Operated Vehicle and Its Tether Using a Motion Capture System and a Tension Sensor. Scientific Data, 11, 482. https://doi.org/10.1038/s41597-024-03297-7</li>
+<li><em>[10]</em> Ge, Z., Yang, F., Lu, W., Wei, P., Ying, Y., &amp; Peng, C. (2025). A Navigation System for ROV's Inspection on Fish Net Cage. IFAC-PapersOnLine, arXiv:2503.00482.</li>
+<li><em>[11]</em> Gieraths, M., Kuchelmeister, F., &amp; Albiez, J. (2023). Modular Hardware Architecture for the Development of Underwater Vehicles Based on Systems Engineering. Sensors, 23(17), 7481. https://doi.org/10.3390/s23177481</li>
+<li><em>[12]</em> Hong, L., Wang, X., &amp; Zhang, D. (2024). CFD-Based Hydrodynamic Performance Investigation of Autonomous Underwater Vehicles: A Survey. Ocean Engineering, 305, 117911. https://doi.org/10.1016/j.oceaneng.2024.117911</li>
+<li><em>[13]</em> Huang, Z., Shen, Y., Du, Y., Yang, C., &amp; Wang, H. (2026). Event-Triggered Control for UUV Trajectory Tracking Based on Grey Wolf Optimized Disturbance Observation and Adaptive Sliding Mode. Ocean Engineering, 345, 123102. https://doi.org/10.1016/j.oceaneng.2026.123102</li>
+<li><em>[14]</em> Ismail, W. M., Hassan, A. E., Abdelhady, N. M., Hassan, N. A., Maged, S. A., &amp; Abdulhasieb, H. M. (2021). Design of Affordable Hybrid Underwater Vehicle Platform Using ArduSub &amp; Robot Operating System (ROS) for Marine Robotics Research. In Proceedings of the 5th IUGRC International Undergraduate Research Conference, Cairo, Egypt, pp. 96–102.</li>
+<li><em>[15]</em> Karras, A. A., Charalampous, K., &amp; Kyriakopoulos, K. J. (2024). From Virtual Waters to Real Oceans: A Simulation-Driven Approach to ROV Control System Design. Journal of Marine Science and Engineering, 12(11), 1957. https://doi.org/10.3390/jmse12111957</li>
+<li><em>[16]</em> Khalid, A., Sarwat, A., &amp; Riggs, H. (Eds.). (2024). Applications and Optimizations of Kalman Filter and Their Variants. IntechOpen, London, UK. https://doi.org/10.5772/intechopen.109154</li>
+<li><em>[17]</em> Kim, Y. V. (Ed.). (2023). Kalman Filter - Engineering Applications. IntechOpen, London, UK. https://doi.org/10.5772/intechopen.100722</li>
+<li><em>[18]</em> Llorente-Vidrio, D., Chavez-Galaviz, J., Fuentes-Aguilar, R. Q., Chairez, I., &amp; Mahmoudian, N. (2025). Robust Sliding-Mode Control of an Underwater ROV via Neural Differential Identification of Model Uncertainties. Ocean Engineering, 341, 122728. https://doi.org/10.1016/j.oceaneng.2025.122728</li>
+<li><em>[19]</em> Mari, Z., Nawaf, M. M., &amp; Drap, P. (2026). Deep Reinforcement Learning for Autonomous Underwater Navigation: A Comparative Study with DWA and Digital Twin Validation. Sensors, 26(2), 512. https://doi.org/10.3390/s26020512</li>
+<li><em>[20]</em> McIvor, E., Sklivanitis, G., &amp; Pados, D. A. (2024). A Generalizable Entity-Component-System Architecture for Underwater ROV Control. In IEEE/OES OCEANS 2024 - Singapore, pp. 1–7. https://doi.org/10.1109/OCEANS51537.2024.10682121</li>
+<li><em>[21]</em> Ng, P., &amp; Krieg, M. (2024). Modifications to ArduSub That Improve BlueROV SITL Accuracy and Design of Hybrid Autopilot. Applied Sciences, 14(17), 7453. https://doi.org/10.3390/app14177453</li>
+<li><em>[22]</em> Pandian, R. S., Sakthivel, P., &amp; Palanisamy, V. (2023). Path Planning and Obstacle Avoidance for AUV: A Review. Ocean Engineering, 285, 115456. https://doi.org/10.1016/j.oceaneng.2023.115456</li>
+<li><em>[23]</em> Rusu, C., Radu, V., &amp; Costanzi, R. (2023). Small Modular AUV Based on 3D Printing Technology: Design, Implementation and Experimental Validation. Sensors, 23(14), 6331. https://doi.org/10.3390/s23146331</li>
+<li><em>[24]</em> Saad, A., Akram, W., &amp; Hussain, I. (2026). AquaChat++: LLM-Assisted Multi-ROV Inspection for Aquaculture Net Pens with Integrated Battery Management and Thruster Fault Tolerance. Ocean Engineering, 343, 122950. https://doi.org/10.1016/j.oceaneng.2026.122950</li>
+<li><em>[25]</em> Särkkä, S., &amp; Svensson, L. (2023). Bayesian Filtering and Smoothing. Cambridge University Press, 2nd Edition, Cambridge, UK. https://doi.org/10.1017/9781108910002</li>
+<li><em>[26]</em> Song, P., Wei, Z., Zhang, J., &amp; Wang, X. (2023). Multi-Objective Shape Optimization of Autonomous Underwater Vehicle by Coupling CFD Simulation with Genetic Algorithm. Ocean Engineering, 280, 114686. https://doi.org/10.1016/j.oceaneng.2023.114686</li>
+<li><em>[27]</em> Suárez, Á. E. Z., Palacios, F. M., Cruz, S. S., Leal, R. L., &amp; Zamora-Justo, J. A. (2024). Dynamic Modeling and Robust Control for Underwater Vehicles by Using Dual Quaternions. Ocean Engineering, 313, 119475. https://doi.org/10.1016/j.oceaneng.2024.119475</li>
+<li><em>[28]</em> Sun, Y., Wang, X., Zhang, Y., &amp; Chen, G. (2022). Nonlinear Dynamics of Novel Flight-Style Autonomous Underwater Vehicle with Bow Wings, Part I: ASE and CFD Based Estimations of Hydrodynamic Coefficients; Part II: Nonlinear Dynamic Modeling and Experimental Validations. Ocean Engineering, 266, 112836. https://doi.org/10.1016/j.oceaneng.2022.112836</li>
+<li><em>[29]</em> Ulin-Avila, E., &amp; Ponce-Hernandez, J. (2021). Kalman Filter Estimation and Its Implementation<em>. In </em>Adaptive Filtering - Recent Advances and Practical Implementation, IntechOpen, London, UK. https://doi.org/10.5772/intechopen.97406</li>
+<li><em>[30]</em> Vögele, C., Schilling, M., &amp; Hildebrandt, M. (2022). Modularis: Modular Underwater Robot for Rapid Development and Validation of Autonomous Systems. In 2022 IEEE International Conference on Robotics and Biomimetics (ROBIO), pp. 2004–2010. https://doi.org/10.1109/ROBIO54168.2022.10011985</li>
+<li><em>[31]</em> von Benzon, M., Sørensen, F. F., Uth, E., Jouffroy, J., Liniger, J., &amp; Pedersen, S. (2022). An Open-Source Benchmark Simulator: Control of a BlueROV2 Underwater Robot. Journal of Marine Science and Engineering, 10(12), 1898. https://doi.org/10.3390/jmse10121898</li>
+<li><em>[32]</em> Vu, M. T., Le, T. H., Thanh, H. L. N. N., Huynh, T. T., Van, M., Hoang, Q. D., &amp; Do, T. D. (2021). Robust Position Control of an Over-Actuated Underwater Vehicle Under Model Uncertainties and Ocean Current Effects Using Dynamic Sliding Mode Surface and Optimal Allocation Control. Sensors, 21(3), 747. https://doi.org/10.3390/s21030747</li>
+<li><em>[33]</em> Wang, D., Wang, Y., Liu, J., &amp; Zhang, Y. (2023). An Integrated Dynamic Modeling Method for Underwater Vehicle with Hull, Propeller and Rudder. Ocean Engineering, 282, 115036. https://doi.org/10.1016/j.oceaneng.2023.115036</li>
+<li><em>[34]</em> Wei, X., Du, H., Yan, T., &amp; He, B. (2025). A Solution Method for Hydrodynamic Coefficients of Autonomous Underwater Vehicle Using Multi-Degree-of-Freedom Coupled Motion Data. Ocean Engineering, 341, 122653. https://doi.org/10.1016/j.oceaneng.2025.122653</li>
+<li><em>[35]</em> Westman, E., Kaess, M., &amp; Hollinger, G. A. (2021). Towards Modular and Accessible AUV Systems. In 2021 IEEE Aerospace Conference (50100), pp. 1–10. https://doi.org/10.1109/AERO50100.2021.9438312</li>
+<li><em>[36]</em> Widhalm, D., Ohnsted, C., Knutson, C., Kutzke, D., Singh, S., Mukherjee, R., Schwidder, G., Wu, Y.-K., &amp; Sattar, J. (2025). Design and Development of the MeCO Open-Source Autonomous Underwater Vehicle. In IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS).</li>
+<li><em>[37]</em> Xia, T., Liu, S., Wang, T., Li, J., Lin, W., Zhang, B., Cai, Y., &amp; Xu, W. (2025). Experimental and Numerical Analysis on Two-Way Hull–Propeller Coupled Effect of a Fully-Actuated AUV. Ocean Engineering, 321, 120288. https://doi.org/10.1016/j.oceaneng.2025.120288</li>
+<li><em>[38]</em> Yang, Y., Xiao, Y., &amp; Li, T. (2021). A Survey of Autonomous Underwater Vehicle Formation: Performance, Formation Control, and Communication Capability. IEEE Communications Surveys &amp; Tutorials, 23(2), 1270–1304. https://doi.org/10.1109/COMST.2021.3059418</li>
+<li><em>[39]</em> Zhang, B., Ji, D., Liu, S., Zhu, X., &amp; Xu, W. (2023). Autonomous Underwater Vehicle Navigation: A Review. Ocean Engineering, 273, 113861. https://doi.org/10.1016/j.oceaneng.2023.113861</li>
+<li><em>[40]</em> Zhang, Y., Zhang, J., Guo, Z., Zhang, L., &amp; Shang, Y. (2025). An Adaptive NMPC for ROVs Trajectory Tracking with Environmental Disturbances and Model Uncertainties. Brodogradnja, 76(1), 1–25. https://doi.org/10.21278/brod76101</li>
+<li><em>[41]</em> Zuluaga, C. A., Aristizábal, L. M., Rúa, S., Franco, D. A., Osorio, D. A., &amp; Vásquez, R. E. (2022). Development of a Modular Software Architecture for Underwater Vehicles Using Systems Engineering*. Journal of Marine Science and Engineering, 10(9), 1276. https://doi.org/10.3390/jmse10091276</li>
 </ul>
 </body>
 </html>
