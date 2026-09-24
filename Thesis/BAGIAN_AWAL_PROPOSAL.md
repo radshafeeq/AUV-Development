@@ -448,14 +448,8 @@ Halaman vii
     <td style="border:none; padding-left:20px;">1.5 Manfaat Penelitian</td>
     <td style="border:none; text-align:right;">8</td>
   </tr>
-  <tr>
-    <td style="border:none; padding-left:20px;">1.6 Sistematika Penulisan</td>
-    <td style="border:none; text-align:right;">9</td>
-  </tr>
-  <tr>
-    <td style="border:none; padding-left:20px;">Daftar Pustaka (Bab I)</td>
-    <td style="border:none; text-align:right;">10</td>
-  </tr>
+
+
   <tr>
     <td colspan="2" style="border:none;"><br></td>
   </tr>
@@ -487,10 +481,7 @@ Halaman vii
     <td style="border:none; padding-left:20px;">2.6 Teori dan Formulasi Optimal *Kalman Filter* Suite</td>
     <td style="border:none; text-align:right;">44</td>
   </tr>
-  <tr>
-    <td style="border:none; padding-left:20px;">Daftar Pustaka (Bab II)</td>
-    <td style="border:none; text-align:right;">56</td>
-  </tr>
+
   <tr>
     <td colspan="2" style="border:none;"><br></td>
   </tr>
@@ -522,15 +513,12 @@ Halaman vii
     <td style="border:none; padding-left:20px;">3.6 Prosedur Pengujian dan Evaluasi Kinerja</td>
     <td style="border:none; text-align:right;">74</td>
   </tr>
-  <tr>
-    <td style="border:none; padding-left:20px;">Daftar Pustaka (Bab III)</td>
-    <td style="border:none; text-align:right;">78</td>
-  </tr>
+
   <tr>
     <td colspan="2" style="border:none;"><hr style="border-top:1px solid #000;"></td>
   </tr>
   <tr>
-    <td style="border:none;"><strong>DAFTAR PUSTAKA INDUK (MASTER BIBLIOGRAPHY)</strong></td>
+    <td style="border:none;"><strong>DAFTAR PUSTAKA</strong></td>
     <td style="border:none; text-align:right;"><strong>80</strong></td>
   </tr>
   <tr>
@@ -580,7 +568,7 @@ Halaman vii
   </tr>
   <tr>
     <td style="border:none;">Tabel 2.3</td>
-    <td style="border:none;">Parameter Fisik dan Inersia Bodi Rigid BlueROV2 Heavy</td>
+    <td style="border:none;">Parameter Fisik dan Inersia Bodi Rigid Over-Actuated 8-Pendorong</td>
     <td style="border:none; text-align:right;">29</td>
   </tr>
   <tr>
@@ -595,7 +583,7 @@ Halaman vii
   </tr>
   <tr>
     <td style="border:none;">Tabel 2.6</td>
-    <td style="border:none;">Koordinat Spasial dan Vektor Orientasi Unit 8 Pendorong T200</td>
+    <td style="border:none;">Koordinat Spasial dan Vektor Orientasi Unit 8 Pendorong BLDC Underwater Thruster</td>
     <td style="border:none; text-align:right;">39</td>
   </tr>
   <tr>
@@ -650,7 +638,7 @@ Halaman vii
   </tr>
   <tr>
     <td style="border:none;">Gambar 2.4</td>
-    <td style="border:none;">Konfigurasi Vektor Geometris 8 Pendorong T200 pada Rangka BlueROV2 Heavy</td>
+    <td style="border:none;">Konfigurasi Vektor Geometris 8 Pendorong BLDC Underwater Thruster pada Rangka Over-Actuated 8-Pendorong</td>
     <td style="border:none; text-align:right;">40</td>
   </tr>
   <tr>

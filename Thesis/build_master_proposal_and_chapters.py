@@ -585,7 +585,6 @@ def build_front_matter(doc):
     add_leader_line(doc, "1.3 Tujuan Penelitian", "6", indent_mm=5)
     add_leader_line(doc, "1.4 Batasan Masalah", "7", indent_mm=5)
     add_leader_line(doc, "1.5 Manfaat Penelitian", "7", indent_mm=5)
-    add_leader_line(doc, "1.6 Sistematika Penulisan", "8", indent_mm=5)
 
     add_leader_line(doc, "BAB II: TINJAUAN PUSTAKA", "9", bold=True, space_after=4)
     add_leader_line(doc, "2.1 Tinjauan Pustaka Terkait", "9", indent_mm=5)
@@ -627,14 +626,13 @@ def build_front_matter(doc):
         ("Tabel 1.1", "Perbandingan Konfigurasi AUV Underactuated vs Over-Actuated", "5"),
         ("Tabel 2.1", "Ringkasan Penelitian Terkait Pemodelan, Estimasi, dan Kendali Robot Bawah Air", "14"),
         ("Tabel 2.2", "Notasi SNAME (1950) untuk Kinematika dan Dinamika Wahana Bawah Air 6-DOF", "17"),
-        ("Tabel 2.3", "Parameter Redaman Linier dan Non-Linier BlueROV2 Heavy", "24"),
-        ("Tabel 2.4", "Posisi dan Sudut Pemasangan 8 Motor Pendorong T200 pada Rangka Wahana", "26"),
-        ("Tabel 3.1", "Jadwal dan Rencana Waktu Pelaksanaan Tahapan Penelitian", "39"),
-        ("Tabel 3.2", "Parameter Fisik dan Inersia Benda Tegar AUV BlueROV2 Heavy", "42"),
-        ("Tabel 3.3", "Matriks Massa Tambah Hidrodinamika Fluida (Added Mass Matrix)", "43"),
-        ("Tabel 3.4", "Matriks Koefisien Redaman Kuadratik dan Linier Fluida", "44"),
-        ("Tabel 3.5", "Spesifikasi Komponen Perangkat Keras Arsitektur HITL", "49"),
-        ("Tabel 3.6", "Konfigurasi Parameter Variansi Derau Filter Visual dan Hidrodinamika", "52")
+        ("Tabel 2.3", "Parameter Redaman Linier dan Non-Linier Wahana Over-Actuated", "24"),
+        ("Tabel 2.4", "Posisi dan Sudut Pemasangan 8 Motor Pendorong BLDC pada Rangka Wahana", "26"),
+        ("Tabel 3.1", "Parameter Fisik dan Properti Benda Tegar Wahana Over-Actuated 8-Pendorong", "40"),
+        ("Tabel 3.2", "Koefisien Derivatif Massa Tambah Hidrodinamika Wahana", "42"),
+        ("Tabel 3.3", "Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana", "43"),
+        ("Tabel 3.4", "Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Bervektor", "45"),
+        ("Tabel 3.5", "Spesifikasi Komponen Perangkat Keras Arsitektur HITL", "49")
     ]
 
     for num, title, pg in tables_info:
@@ -663,12 +661,16 @@ def build_front_matter(doc):
         ("Gambar 2.1", "Sistem Kerangka Acuan Inersia Bumi (Fn - NED) dan Kerangka Acuan Bodi (Fb - FRD)", "18"),
         ("Gambar 2.2", "Konvensi Rotasi Intrinsik Sudut Euler Yaw-Pitch-Roll (z-y-x)", "21"),
         ("Gambar 2.3", "Kopling Momen Hidrodinamika Munk pada Bidang Horizontal", "23"),
-        ("Gambar 2.4", "Konfigurasi Vektor Geometris 8 Pendorong T200 pada Rangka BlueROV2 Heavy", "26"),
+        ("Gambar 2.4", "Konfigurasi Vektor Geometris 8 Pendorong pada Rangka Wahana Over-Actuated", "26"),
         ("Gambar 2.5", "Struktur Rekursif Predict-Update pada Discrete Kalman Filter dan EKF", "30"),
         ("Gambar 2.6", "Model Ruang Keadaan 8D Penjejakan Bounding Box Kamera Monokuler", "34"),
         ("Gambar 3.1", "Diagram Alir Tahapan Penelitian Komprehensif", "40"),
-        ("Gambar 3.2", "Arsitektur Software-In-The-Loop (SITL) Gazebo Harmonic dan ArduSub", "47"),
-        ("Gambar 3.3", "Arsitektur Hardware-In-The-Loop (HITL) Komunikasi MAVLink Subsea-Topside", "51")
+        ("Gambar 3.2", "Rangka (Frame) dan Lambung Tekanan Kustom AUV 8-Pendorong", "47"),
+        ("Gambar 3.3", "Papan Pengendali Penerbangan (Flight Controller) Pixhawk 2.4.8", "48"),
+        ("Gambar 3.4", "Komputer Pendamping (Companion Computer) Raspberry Pi 4B", "49"),
+        ("Gambar 3.5", "Modul Pengendali Kecepatan Elektronik (ESC EMAX BLHeli 30A)", "50"),
+        ("Gambar 3.6", "Motor Pendorong Bawah Air (BLDC Underwater Thruster)", "51"),
+        ("Gambar 3.7", "Sumber Daya Baterai Li-Po 4S 14.8V 6000 mAh dan Pengisi Daya SKYRC IMAX B6AC V2", "52")
     ]
 
     for num, title, pg in figures_info:
@@ -902,8 +904,10 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
                                 r = p.add_run(t_val)
                                 r.font.name = 'Arial'
                                 r.font.size = Pt(8.5)
-                                if r_idx == 0 or t_type == 'bold':
+                                if r_idx == 0:
                                     r.bold = True
+                                else:
+                                    r.bold = False
                                 if t_type == 'italic':
                                     r.italic = True
                     table_rows = []
@@ -1005,13 +1009,16 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
             p.paragraph_format.left_indent = Mm(10)
             p.paragraph_format.first_line_indent = Mm(-5)
             p.paragraph_format.space_after = Pt(3)
-            p.add_run("•  ").font.name = 'Arial'
+            p.paragraph_format.line_spacing = 1.15
+            r_b = p.add_run("•  ")
+            r_b.font.name = 'Arial'
+            r_b.font.size = Pt(10)
+            r_b.bold = False
             for t_type, t_val in parse_inline_runs(item_text):
                 r = p.add_run(t_val)
                 r.font.name = 'Arial'
                 r.font.size = Pt(10)
-                if t_type == 'bold':
-                    r.bold = True
+                r.bold = False
                 if t_type == 'italic':
                     r.italic = True
                 if t_type == 'code':
@@ -1027,13 +1034,16 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
             p.paragraph_format.left_indent = Mm(10)
             p.paragraph_format.first_line_indent = Mm(-6)
             p.paragraph_format.space_after = Pt(3)
-            p.add_run(m_num.group(1) + "  ").bold = True
+            p.paragraph_format.line_spacing = 1.15
+            r_num = p.add_run(m_num.group(1) + "  ")
+            r_num.font.name = 'Arial'
+            r_num.font.size = Pt(10)
+            r_num.bold = False
             for t_type, t_val in parse_inline_runs(m_num.group(2)):
                 r = p.add_run(t_val)
                 r.font.name = 'Arial'
                 r.font.size = Pt(10)
-                if t_type == 'bold':
-                    r.bold = True
+                r.bold = False
                 if t_type == 'italic':
                     r.italic = True
                 if t_type == 'code':
@@ -1047,13 +1057,13 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
             p = doc.add_paragraph()
             p.paragraph_format.left_indent = Mm(12)
             p.paragraph_format.space_after = Pt(4)
+            p.paragraph_format.line_spacing = 1.15
             for t_type, t_val in parse_inline_runs(stripped[2:].strip()):
                 r = p.add_run(t_val)
                 r.font.name = 'Arial'
                 r.font.size = Pt(9.5)
                 r.italic = True
-                if t_type == 'bold':
-                    r.bold = True
+                r.bold = False
             i += 1
             continue
 
@@ -1080,13 +1090,30 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
             p_tt = doc.add_paragraph()
             p_tt.paragraph_format.space_before = Pt(8)
             p_tt.paragraph_format.space_after = Pt(3)
-            for t_type, t_val in parse_inline_runs(stripped):
-                r_tt = p_tt.add_run(t_val)
-                r_tt.font.name = 'Arial'
-                r_tt.font.size = Pt(9.5)
-                r_tt.bold = True
-                if t_type == 'italic':
-                    r_tt.italic = True
+            p_tt.paragraph_format.line_spacing = 1.15
+            m_tcap = re.match(r'^(\*?\*?Tabel\s+[\d\.]+\*?\*?)\s*(.*)', stripped)
+            if m_tcap:
+                prefix = m_tcap.group(1).replace('*', '').replace('#', '')
+                title_part = m_tcap.group(2).strip()
+                r1 = p_tt.add_run(prefix + " ")
+                r1.font.name = 'Arial'
+                r1.font.size = Pt(9.5)
+                r1.bold = True
+                for t_type, t_val in parse_inline_runs(title_part):
+                    r2 = p_tt.add_run(t_val)
+                    r2.font.name = 'Arial'
+                    r2.font.size = Pt(9.5)
+                    r2.bold = False
+                    if t_type == 'italic':
+                        r2.italic = True
+            else:
+                for t_type, t_val in parse_inline_runs(stripped):
+                    r_tt = p_tt.add_run(t_val)
+                    r_tt.font.name = 'Arial'
+                    r_tt.font.size = Pt(9.5)
+                    r_tt.bold = False
+                    if t_type == 'italic':
+                        r_tt.italic = True
             i += 1
             continue
 
@@ -1096,13 +1123,30 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
             p_fc.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p_fc.paragraph_format.space_before = Pt(4)
             p_fc.paragraph_format.space_after = Pt(8)
-            for t_type, t_val in parse_inline_runs(stripped):
-                r_fc = p_fc.add_run(t_val)
-                r_fc.font.name = 'Arial'
-                r_fc.font.size = Pt(9.5)
-                r_fc.bold = True
-                if t_type == 'italic':
-                    r_fc.italic = True
+            p_fc.paragraph_format.line_spacing = 1.15
+            m_fcap = re.match(r'^(\*?\*?Gambar\s+[\d\.]+\*?\*?)\s*(.*)', stripped)
+            if m_fcap:
+                prefix = m_fcap.group(1).replace('*', '').replace('#', '')
+                title_part = m_fcap.group(2).strip()
+                r1 = p_fc.add_run(prefix + " ")
+                r1.font.name = 'Arial'
+                r1.font.size = Pt(9.5)
+                r1.bold = True
+                for t_type, t_val in parse_inline_runs(title_part):
+                    r2 = p_fc.add_run(t_val)
+                    r2.font.name = 'Arial'
+                    r2.font.size = Pt(9.5)
+                    r2.bold = False
+                    if t_type == 'italic':
+                        r2.italic = True
+            else:
+                for t_type, t_val in parse_inline_runs(stripped):
+                    r_fc = p_fc.add_run(t_val)
+                    r_fc.font.name = 'Arial'
+                    r_fc.font.size = Pt(9.5)
+                    r_fc.bold = False
+                    if t_type == 'italic':
+                        r_fc.italic = True
             i += 1
             continue
 

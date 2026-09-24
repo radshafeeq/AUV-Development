@@ -50,13 +50,12 @@ blockquote {
 <h2 id="analisis-kinematika-dinamika-dan-estimasi-keadaan-optimal-kalman-filter-untuk-vision-based-tracking-pada-over-actuated-8-thruster-6-dof-vectored-auv">ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL <em>KALMAN FILTER</em> UNTUK <em>VISION-BASED TRACKING</em> PADA *OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV</h2>
 <hr />
 <blockquote>
-<p><em>Penulis</em><em>: Radhi Shafeeq<br />
-</em><em>NIM</em><em>: D021201000<br />
-</em><em>Program Studi</em><em>: Sarjana (S1) Departemen Teknik Mesin<br />
-</em><em>Fakultas</em><em>: Fakultas Teknik, Universitas Hasanuddin<br />
-</em><em>Format Penulisan</em>: Sesuai dengan Pedoman Tugas Akhir Mahasiswa Fakultas Teknik Universitas Hasanuddin<br />
-<em>Standar Notasi</em><em>: Society of Naval Architects and Marine Engineers (SNAME, 1950) &amp; Fossen (2021)<br />
-</em><em>Format Matematis</em>: Seluruh persamaan dan variabel skalar/vektor/matriks diformat secara ketat menggunakan delimitasi <code>$$...$$</code> untuk kompatibilitas penuh dengan pengaya Google Docs Auto-LaTeX Equations*.</p>
+<p>Penulis: MUH. RADHI SYAFIQ GHANIM. S<br />
+NIM: D021201006<br />
+Departemen: Departemen Teknik Mesin, Fakultas Teknik, Universitas Hasanuddin<br />
+Format Penulisan: Sesuai dengan Pedoman Tugas Akhir Mahasiswa Sarjana (S1) Universitas Hasanuddin<br />
+Standar Notasi: Society of Naval Architects and Marine Engineers (SNAME, 1950) &amp; Fossen (2021)<br />
+Format Matematis: Seluruh persamaan dan simbol variabel diformat menggunakan delimitasi <code>$$...$$</code> untuk Google Docs Auto-LaTeX Equations.</p>
 </blockquote>
 <hr />
 <h2 id="31-tempat-dan-waktu-penelitian">3.1 Tempat dan Waktu Penelitian</h2>
@@ -65,16 +64,16 @@ blockquote {
 1. </em>Laboratorium Mekatronika dan Robotika<em>, Departemen Teknik Mesin, Fakultas Teknik, Universitas Hasanuddin, Kampus Terpadu Fakultas Teknik Unhas, Gowa, Sulawesi Selatan. Fasilitas laboratorium digunakan untuk pengembangan modul komputasi tepi (companion computer</em> Raspberry Pi 4B), integrasi sensor inersia dan sensor tekanan subsea pada <em>flight controller</em> Pixhawk 2.4.8, perakitan kabel komunikasi <em>tether</em> Ethernet Fathom-X, serta pengujian <em>Hardware-In-The-Loop (HITL).<br />
 2. </em>Fasilitas Komputasi GPU dan Simulasi Topside<em>, digunakan untuk eksekusi simulasi lingkungan hidrodinamika virtual Software-In-The-Loop</em> (SITL) berbasis robotik Gazebo Harmonic dan ROS 2 Jazzy Jalisco, akselerasi jaringan syaraf tiruan <em>deep learning</em> YOLO26 / YOLO-World, serta komputasi penapis *8D Visual Target Kalman Filter.</p>
 <h3 id="312-waktu-pelaksanaan-penelitian">3.1.2 Waktu Pelaksanaan Penelitian</h3>
-<p>Pelaksanaan penelitian berlangsung selama kurun waktu enam bulan pada Tahun Akademik 2024/2025 (September 2024 hingga Februari 2025). Tahapan penelitian dijadwalkan secara runtut meliputi:<br />
-- <em>Bulan 1</em>: Studi literatur komprehensif, perumusan persamaan gerak 6-DOF (kinematics and dynamics), dan identifikasi parameter fisik serta hidrodinamika BlueROV2 Heavy retrofit.<br />
-- <em>Bulan 2</em><em>: Perancangan algoritma stokastik </em>Dual Kalman Filter (penapis penjejak visual 8D berbasis CWNA dan penapis penaksir dinamika EKF 6-DOF).<br />
-- Bulan 3<strong>: Pembangunan lingkungan simulasi <em>Software-In-The-Loop</em> (SITL) mengintegrasikan Gazebo Harmonic, ArduSub <em>vectored_6dof, dan jembatan data ROS 2.<br />
-- </em>Bulan 4<em>: Pengembangan integrasi Hardware-In-The-Loop</em> (HITL) antara stasiun permukaan (<em>topside workstation</em> RTX GPU), <em>companion computer</em> Raspberry Pi 4B (BlueOS), dan <em>flight controller Pixhawk 2.4.8 melalui protokol MAVLink dan REST API.<br />
-- </em>Bulan 5</strong>: Pelaksanaan protokol eksperimen komparatif (uji penjejakan target visual, penolakan derau deteksi, simulasi oklusi visual, dan rekonstruksi kecepatan bodi di bawah gangguan arus laut).<br />
-- *<em>Bulan 6</em>: Analisis data kuantitatif, komputasi metrik evaluasi galat (Root Mean Square Error / RMSE), penyusunan laporan naskah skripsi, dan penyiapan publikasi ilmiah.</p>
+<p>Pelaksanaan penelitian tugas akhir ini dijadwalkan berlangsung selama kurun waktu enam bulan pada Tahun Akademik 2026/2027 (September 2026 hingga Februari 2027). Rincian tahapan pelaksanaan penelitian disusun ke dalam jadwal kerja bulanan sebagai berikut:<br />
+- Bulan 1 (September 2026): Studi literatur komprehensif, perumusan formulasi matematis kinematika dan dinamika 6-DOF, serta perancangan geometri kerangka wahana.<br />
+- Bulan 2 (Oktober 2026): Fabrikasi kerangka kustom (<em>custom frame</em>), perakitan tabung lambung silinder akrilik kedap air (<em>custom hull</em>), instalasi 8 motor pendorong BLDC, 8 unit ESC EMAX BLHeli 30A, dan kalibrasi sensor kedalaman MS5837.<br />
+- Bulan 3 (November 2026): Perancangan dan integrasi arsitektur komputasi perangkat keras <em>companion computer</em> Raspberry Pi 4B, <em>flight controller</em> Pixhawk 2.4.8 (ArduSub <code>vectored_6dof</code>), serta pengujian jalur <em>tether</em> Ethernet.<br />
+- Bulan 4 (Desember 2026): Pengembangan algoritma <em>Dual Kalman Filter</em> (<em>Topside Visual Kalman Filter</em> 8D pada laptop berakselerasi GPU NVIDIA dan <em>Subsea AUVDynamicsKalmanFilter</em> 6-DOF pada RPi 4B) serta simulasi <em>Software-In-The-Loop</em> (SITL) Gazebo Harmonic.<br />
+- Bulan 5 (Januari 2027): Pengujian eksperimental terpadu <em>Hardware-In-The-Loop</em> (HITL) di tangki uji perairan Laboratorium Mekatronika dan Robotika, evaluasi ketahanan pelacakan target visual (<em>tracking</em> YOLO), dan analisis penolakan gangguan arus laut.<br />
+- Bulan 6 (Februari 2027): Analisis data kuantitatif komprehensif, kalkulasi metrik evaluasi galat (RMSE dan MAE), penyusunan laporan naskah skripsi, dan penyelesaian administrasi tugas akhir.</p>
 <h3 id="313-batasan-dan-asumsi-penelitian">3.1.3 Batasan dan Asumsi Penelitian</h3>
 <p>Untuk menjaga fokus analisis teknik mesin pada sistem wahana otonom dan memastikan ketercapaian target ilmiah, ditetapkan batasan dan asumsi penelitian sebagai berikut:<br />
-1. <em>Model Wahana</em>: Wahana yang diteliti menggunakan geometri kerangka retrofit<em> BlueROV2 Heavy [3], [21]. Sistem propulsi terdiri atas 8 unit pendorong elektro-mekanis tanpa sikat (</em>brushless DC thrusters) Blue Robotics T200, yang dikonfigurasikan menjadi 4 pendorong horizontal bersudut vektor $$45^\circ$$ dan 4 pendorong vertikal independen pada empat sudut kerangka.<br />
+1. Model Wahana: Wahana yang diteliti menggunakan kerangka kustom dan lambung silinder akrilik (<em>custom-made AUV hull and frame</em>) untuk sistem <em>Over-Actuated 8-Thruster 6-DOF Vectored AUV</em>. Sistem propulsi terdiri atas 8 unit motor pendorong tanpa sikat bawah air (<em>BLDC underwater thrusters</em>) 12–24V yang dikonfigurasikan menjadi 4 pendorong horizontal bersudut vektor $$45^\circ$$ dan 4 pendorong vertikal independen pada empat sudut kerangka. Motor pendorong komersial ini dipilih karena ketersediaannya di pasar Indonesia, menggantikan motor Blue Robotics BLDC Underwater Thruster yang tidak tersedia di dalam negeri [3], [21].<br />
 2. <em>Karakteristik Fluida Kerja</em>: Media fluida diasumsikan sebagai fluida inkompresibel tak terbatas (unbounded incompressible fluid) homogen dengan densitas air tawar nominal $$<br />
 ho = 1000   ext{ kg/m}^3$$ untuk uji laboratorium simulasi dan air laut nominal $$<br />
 ho = 1025   ext{ kg/m}^3$$ untuk uji kondisi subsea penuh [5], [7].<br />
@@ -146,20 +145,20 @@ u}| \le 1.5 ext{ m/s}$$), di mana gelombang permukaan dan efek batas dinding dap
 </code></pre>
 <h3 id="penjelasan-rinci-setiap-tahapan-diagram-alir">Penjelasan Rinci Setiap Tahapan Diagram Alir:</h3>
 <ol>
-<li><em>Fase I (Studi Pendahuluan)</em><em>: Mengidentifikasi keterbatasan mendasar pada wahana konvensional </em><em>underactuated</em><em> 6-pendorong, khususnya fenomena kopling silang momen Munk hidrodinamika yang mendestabilisasi gerak </em><em>yaw</em><em> dan ketidakmampuan manuver </em><em>pitch-hold</em><em> aktif [7], [6], [32], [40], [34]. Studi literatur dipusatkan pada publikasi mutakhir ($$\ge 2021$$) di bidang estimasi parameter hidrodinamika [1], penapis Bayesian [25], dan kendali wahana </em><em>over-actuated</em>* [21], [32].</li>
-<li><strong>Fase II (Pemodelan Matematis Rigorous)</strong>: Menurunkan model analitis lengkap gerak wahana bawah air 6-DOF berdasarkan standar SNAME (1950) dan Fossen (2021) [7]. Formulasi meliputi transformasi rotasi $$SO(3)$$, perumusan kinematika kuaternion bebas <strong>gimbal lock</strong>, pemodelan tensor inersia total $$\mathbf{M}$$, tensor Coriolis $$\mathbf{C}(\boldsymbol{<br />
+<li><em>Fase I (Studi Pendahuluan)</em>: Mengidentifikasi keterbatasan mendasar pada wahana konvensional <em>underactuated</em> 6-pendorong, khususnya fenomena kopling silang momen Munk hidrodinamika yang mendestabilisasi gerak <em>yaw</em> dan ketidakmampuan manuver <em>pitch-hold</em> aktif [7], [6], [32], [40], [34]. Studi literatur dipusatkan pada publikasi mutakhir ($$\ge 2021$$) di bidang estimasi parameter hidrodinamika [1], penapis Bayesian [25], dan kendali wahana <em>over-actuated</em> [21], [32].</li>
+<li><em>Fase II (Pemodelan Matematis Rigorous)</em>: Menurunkan model analitis lengkap gerak wahana bawah air 6-DOF berdasarkan standar SNAME (1950) dan Fossen (2021) [7]. Formulasi meliputi transformasi rotasi $$SO(3)$$, perumusan kinematika kuaternion bebas <em>gimbal lock</em>, pemodelan tensor inersia total $$\mathbf{M}$$, tensor Coriolis $$\mathbf{C}(\boldsymbol{<br />
 u})$$, tensor redaman non-linier $$\mathbf{D}(\boldsymbol{<br />
 u}<em 6="6" 8="8" imes="imes">r)$$, gaya apung/berat hidrostatis $$\mathbf{g}(\boldsymbol{\eta})$$, serta matriks geometri alokasi pendorong $$\mathbf{T}</em>$$ menggunakan invers semu Moore-Penrose [21], [32].</li>
-<li><strong>Fase III (Perancangan Arsitektur Dual Kalman Filter)<em>: Merancang dua modul penapis optimal yang bekerja secara komplementer:<br />
-   - Topside/Onboard Visual Target Kalman Filter</em> (<code>AUVVisualKalmanFilter</code>): Penapis linier diskrit 8-dimensi berbasis model percepatan derau putih kontinu (*Continuous White Noise Acceleration</strong> / CWNA) dengan kovariansi adaptif berbobot skor konfidensi YOLO $$\mathbf{R}_k( ext{conf})$$, validasi jarak inovasi Mahalanobis $$\chi^2(4)$$, dan mekanisme propagasi <strong>dead-reckoning* saat terjadi oklusi visual [16], [17], [25].<br />
-   - Subsea Hydrodynamic Dynamics Extended Kalman Filter</strong> (<code>AUVDynamicsKalmanFilter</code>): Penapis non-linier 6-DOF yang menggabungkan pembacaan sensor inersia Pixhawk dan sensor tekanan kedalaman dengan model kinetika Fossen, dilengkapi pengamat gangguan arus laut (*ocean current disturbance observer) [7], [18], [29].</li>
+<li><em>Fase III (Perancangan Arsitektur Dual Kalman Filter)</em>: Merancang dua modul penapis optimal yang bekerja secara komplementer:<br />
+   - Topside/Onboard Visual Target Kalman Filter<em> (<code>AUVVisualKalmanFilter</code>): Penapis linier diskrit 8-dimensi berbasis model percepatan derau putih kontinu (</em>Continuous White Noise Acceleration<em> / CWNA) dengan kovariansi adaptif berbobot skor konfidensi YOLO $$\mathbf{R}_k(  ext{conf})$$, validasi jarak inovasi Mahalanobis $$\chi^2(4)$$, dan mekanisme propagasi </em>dead-reckoning<em> saat terjadi oklusi visual [16], [17], [25].<br />
+   - Subsea Hydrodynamic Dynamics Extended Kalman Filter</em> (<code>AUVDynamicsKalmanFilter</code>): Penapis non-linier 6-DOF yang menggabungkan pembacaan sensor inersia Pixhawk dan sensor tekanan kedalaman dengan model kinetika Fossen, dilengkapi pengamat gangguan arus laut (*ocean current disturbance observer) [7], [18], [29].</li>
 <li><em>Fase IV (Simulasi Software-In-The-Loop / SITL)</em>: Membangun lingkungan simulasi virtual presisi tinggi memanfaatkan simulator Gazebo Harmonic (<code>gz-sim 8.14</code>) dan Robot Operating System<em> (ROS 2 Jazzy Jalisco) [14], [31]. Wahana BlueROV2 Heavy dimodelkan dalam format </em>Simulation Description Format<em> (SDF) lengkap dengan plugin hidrodinamika dan daya apung. Sistem kendali dieksekusi melalui ArduSub SITL dengan model </em>frame <code>vectored_6dof</code> yang berkomunikasi dua arah via protokol JSON/UDP [21].</li>
-<li><em>Fase V (Integrasi Hardware-In-The-Loop / HITL)</em><em>: Mengintegrasikan perangkat keras fisik wahana ke dalam lingkungan komputasi permukaan melalui kabel tether Ethernet subsea [2], [14]. </em><em>Companion computer</em> Raspberry Pi 4B menjalankan BlueOS untuk mengalirkan citra kamera terkompresi H.264 melalui protokol UDP dan mengekspos telemetri sensor internal Pixhawk 2.4.8 (IMU MPU6000/LSM303D) serta sensor tekanan subsea Bar30 MS5837 melalui BlueOS mavlink2rest<em> REST API pada frekuensi $$50  ext{ Hz}$$ ($$\Delta t = 20 ext{ ms}$$). Komputer permukaan (</em>topside<em>) memproses deteksi objek YOLO26 World dan mengeksekusi penapis visual 8D, lalu mengirimkan setpoint kendali </em>visual servoing kembali ke wahana melalui MAVLink.</li>
+<li><em>Fase V (Integrasi Hardware-In-The-Loop / HITL)</em>: Mengintegrasikan perangkat keras fisik wahana ke dalam lingkungan komputasi permukaan melalui kabel tether Ethernet subsea [2], [14]. <em>Companion computer</em> Raspberry Pi 4B menjalankan BlueOS untuk mengalirkan citra kamera terkompresi H.264 melalui protokol UDP dan mengekspos telemetri sensor internal Pixhawk 2.4.8 (IMU MPU6000/LSM303D) serta sensor tekanan subsea Bar30 MS5837 melalui BlueOS mavlink2rest<em> REST API pada frekuensi $$50    ext{ Hz}$$ ($$\Delta t = 20 ext{ ms}$$). Komputer permukaan (</em>topside<em>) memproses deteksi objek YOLO26 World dan mengeksekusi penapis visual 8D, lalu mengirimkan setpoint kendali </em>visual servoing kembali ke wahana melalui MAVLink.</li>
 <li><em>Fase VI (Pengujian, Validasi, dan Evaluasi Kinerja)</em>: Menjalankan serangkaian eksperimen terukur untuk mengevaluasi akurasi pelacakan visual target, kemampuan penapisan derau frekuensi tinggi, ketahanan terhadap oklusi target temporer, akurasi rekonstruksi kecepatan bodi 6-DOF, mitigasi momen Munk, serta latensi komputasi waktu nyata (real-time execution profiling*).</li>
 </ol>
 <hr />
 <h2 id="33-identifikasi-parameter-fisik-dan-hidrodinamika-wahana">3.3 Identifikasi Parameter Fisik dan Hidrodinamika Wahana</h2>
-<p>Keberhasilan perancangan penapis Kalman dinamika (<em>AUVDynamicsKalmanFilter) dan alokasi gaya dorong </em>over-actuated<em><em> bergantung mutlak pada akurasi parameter fisik dan koefisien hidrodinamika wahana. Sub-bab ini merangkum identifikasi numerik dari parameter benda tegar (</em>rigid-body</em>), massa tambah hidrodinamika (<em>added mass</em>), redaman fluida (<em>hydrodynamic damping</em>), gaya pemulih hidrostatis (<em>restoring forces</em>), serta geometri alokasi pendorong 8-motor BlueROV2 Heavy [1], [3], [7], [34].</p>
+<p>Keberhasilan perancangan penapis Kalman dinamika (<em>AUVDynamicsKalmanFilter) dan alokasi gaya dorong </em>over-actuated<em> bergantung mutlak pada akurasi parameter fisik dan koefisien hidrodinamika wahana. Sub-bab ini merangkum identifikasi numerik dari parameter benda tegar (</em>rigid-body<em>), massa tambah hidrodinamika (</em>added mass<em>), redaman fluida (</em>hydrodynamic damping<em>), gaya pemulih hidrostatis (</em>restoring forces*), serta geometri alokasi pendorong 8-motor BlueROV2 Heavy [1], [3], [7], [34].</p>
 <h3 id="331-parameter-fisik-dan-properti-benda-tegar-rigid-body-properties">3.3.1 Parameter Fisik dan Properti Benda Tegar (Rigid-Body Properties*)</h3>
 <p>Wahana yang digunakan adalah konfigurasi <em>retrofit</em> BlueROV2 Heavy berbahan dasar tabung akrilik tahan tekanan tinggi dengan rangka struktural *High-Density Polyethylene (HDPE) [3]. Parameter massa total, dimensi fisik, dan posisi pusat massa/apung ditabulasikan pada Tabel 3.1.</p>
 <p><em>Tabel 3.1</em> Parameter Fisik dan Properti Benda Tegar Wahana BlueROV2 Heavy<br />
@@ -191,7 +190,7 @@ $$B_{   ext{salt}} = <br />
 ho_{    ext{salt}} g <br />
 abla = 1025.0   imes 9.80665    imes 0.0132 = 132.684   ext{ N}$$</p>
 <p>Selisih gaya hidrostatis neto ($$B - W$$) menghasilkan daya apung positif (<em>positive buoyancy</em>) yang terukur sebesar $$+1.962   ext{ N}$$ (pada air tawar) dan $$+5.198 ext{ N}$$ (pada air laut). Karakteristik <em>positive buoyancy</em> ini merupakan persyaratan keselamatan esensial pada robotika bawah air (*fail-safe design), sehingga wahana akan mengapung secara pasif ke permukaan apabila terjadi kegagalan daya baterai total [3], [7].</p>
-<p>Karena pusat massa ($$z_g = +0.02   ext{ m}$$) terletak di bawah pusat apung ($$z_b = 0.00  ext{ m}$$), jarak metasentrik vertikal bernilai positif ($$\overline{BG} = z_g - z_b = +0.02    ext{ m}$$), yang memberikan stabilitas statis pasif inheren pada sumbu <em>Roll</em><em> ($$\phi$$) dan </em><em>Pitch</em> ($$  heta$$) [7].</p>
+<p>Karena pusat massa ($$z_g = +0.02   ext{ m}$$) terletak di bawah pusat apung ($$z_b = 0.00  ext{ m}$$), jarak metasentrik vertikal bernilai positif ($$\overline{BG} = z_g - z_b = +0.02    ext{ m}$$), yang memberikan stabilitas statis pasif inheren pada sumbu <em>Roll</em> ($$\phi$$) dan <em>Pitch</em> ($$    heta$$) [7].</p>
 <p>Matriks inersia benda tegar $$\mathbf{M}<em RB="RB">{RB} \in \mathbb{R}^{6     imes 6}$$ dihitung menggunakan formulasi Fossen:<br />
 $$\mathbf{M}</em> = \begin{bmatrix} <br />
 m\mathbf{I}_{3  imes 3} &amp; -m\mathbf{S}(\mathbf{r}_g) \ <br />
@@ -209,7 +208,7 @@ m\mathbf{S}(\mathbf{r}_g) &amp; \mathbf{I}_b <br />
 <p>$$\mathbf{M}<em _dot_u="\dot{u">A = -  ext{diag}\left( X</em>}, Y_{\dot{v}}, Z_{\dot{w}}, K_{\dot{p}}, M_{\dot{q}}, N_{\dot{r}} <br />
 ight)$$</p>
 <p>Nilai numerik massa tambah hidrodinamika dirangkum pada Tabel 3.2.</p>
-<p><em>Tabel 3.2</em>* Koefisien Derivatif Massa Tambah Hidrodinamika Wahana<br />
+<p><em>Tabel 3.2</em> Koefisien Derivatif Massa Tambah Hidrodinamika Wahana<br />
 | Derajat Kebebasan (DOF) | Koefisien Notasi SNAME | Nilai Numerik | Satuan SI | Interpretasi Fisis Fluida |<br />
 |---|---|---|---|---|<br />
 | Massa Tambah Surge | $$X_{\dot{u}}$$ | $$-5.50$$ | $$ ext{kg}$$ | Fluida terakselerasi penampang frontal ramping |<br />
@@ -222,7 +221,7 @@ ight)$$</p>
 $$|Y_{\dot{v}}| = 12.70 ext{ kg} &gt; |X_{\dot{u}}| = 5.50 ext{ kg}$$</p>
 <p>Selisih koefisien ini menghasilkan parameter momen Munk hidrodinamika yang sangat signifikan [7], [34]:<br />
 $$X_{\dot{u}} - Y_{\dot{v}} = -5.50 - (-12.70) = +7.20  ext{ kg} &gt; 0$$</p>
-<p>Nilai positif $$+7.20   ext{ kg}$$ ini secara analitis membuktikan bahwa setiap gangguan arus samping atau kecepatan gerak <strong>sway</strong> ($$v_r &gt; 0$$) saat wahana melaju ke depan ($$u_r &gt; 0$$) akan menghasilkan momen putar *<em>yaw</em> destabilisasi sebesar:<br />
+<p>Nilai positif $$+7.20   ext{ kg}$$ ini secara analitis membuktikan bahwa setiap gangguan arus samping atau kecepatan gerak <em>sway</em> ($$v_r &gt; 0$$) saat wahana melaju ke depan ($$u_r &gt; 0$$) akan menghasilkan momen putar <em>yaw</em> destabilisasi sebesar:<br />
 $$N_{   ext{Munk}} = +7.20 \, u_r v_r \quad (   ext{N}\cdot ext{m})$$<br />
 yang harus diredam secara aktif oleh sistem kendali alokasi pendorong 8-motor [21], [32].</p>
 <p>Matriks massa total wahana $$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A$$ adalah:<br />
@@ -246,7 +245,7 @@ $$\mathbf{D}</em>(\boldsymbol{<br />
 u}<em u_u_="u|u|">r) = -   ext{diag}\left( X</em>|u_r|, Y_{v|v|}|v_r|, Z_{w|w|}|w_r|, K_{p|p|}|p|, M_{q|q|}|q|, N_{r|r|}|r| <br />
 ight)$$</p>
 <p>Nilai-nilai koefisien redaman yang digunakan dalam penelitian ini disajikan pada Tabel 3.3 [31], [34].</p>
-<p><em>Tabel 3.3</em>* Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana<br />
+<p><em>Tabel 3.3</em> Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana<br />
 | Sumbu Gerak | Koefisien Linier | Nilai ($$    ext{SI}$$) | Koefisien Kuadratik | Nilai ($$    ext{SI}$$) |<br />
 |---|---|---|---|---|<br />
 | Surge ($$u$$) | $$X_u$$ | $$-4.03 ext{ N}\cdot    ext{s/m}$$ | $$X_{u|u|}$$ | $$-18.18    ext{ N}\cdot    ext{s}^2/   ext{m}^2$$ |<br />
@@ -256,11 +255,11 @@ ight)$$</p>
 | Pitch ($$q$$) | $$M_q$$ | $$-0.07 ext{ N}\cdot    ext{m}\cdot ext{s/rad}$$ | $$M_{q|q|}$$ | $$-1.55   ext{ N}\cdot    ext{m}\cdot ext{s}^2/   ext{rad}^2$$ |<br />
 | Yaw ($$r$$) | $$N_r$$ | $$-0.07   ext{ N}\cdot    ext{m}\cdot ext{s/rad}$$ | $$N_{r|r|}$$ | $$-1.55   ext{ N}\cdot    ext{m}\cdot ext{s}^2/   ext{rad}^2$$ |</p>
 <h3 id="334-konfigurasi-geometri-dan-matriks-alokasi-pendorong-8-motor-mathbft_6-imes-8">3.3.4 Konfigurasi Geometri dan Matriks Alokasi Pendorong 8-Motor ($$\mathbf{T}_{6   imes 8}$$)</h3>
-<p>Konfigurasi pendorong pada BlueROV2 Heavy terdiri dari delapan pendorong T200 [3], [21]:<br />
-1. <strong>Pendorong Horizontal 1–4</strong>: Dipasang pada bidang horizontal ($$xy$$) dengan sudut kemiringan $$\pm 45^\circ$$ ($$\pi/4 ext{ rad}$$) terhadap sumbu longitudinal. Konfigurasi vektor ini menghasilkan gaya dorong terkopling pada sumbu <strong>Surge</strong>, <strong>Sway</strong>, dan torsi <strong>Yaw</strong>.<br />
-2. <strong>Pendorong Vertikal 5–8</strong>: Dipasang tegak lurus searah sumbu $$z$$ pada empat sudut terluar kerangka. Konfigurasi ini menghasilkan gaya dorong murni pada sumbu <strong>Heave</strong>, serta torsi diferensial pada sumbu <strong>Roll</strong> dan <strong>Pitch</strong>.</p>
+<p>Konfigurasi pendorong pada BlueROV2 Heavy terdiri dari delapan motor pendorong BLDC bawah air [3], [21]:<br />
+1. <em>Pendorong Horizontal 1–4</em>: Dipasang pada bidang horizontal ($$xy$$) dengan sudut kemiringan $$\pm 45^\circ$$ ($$\pi/4   ext{ rad}$$) terhadap sumbu longitudinal. Konfigurasi vektor ini menghasilkan gaya dorong terkopling pada sumbu <em>Surge</em>, <em>Sway</em>, dan torsi <em>Yaw</em>.<br />
+2. <em>Pendorong Vertikal 5–8</em>: Dipasang tegak lurus searah sumbu $$z$$ pada empat sudut terluar kerangka. Konfigurasi ini menghasilkan gaya dorong murni pada sumbu <em>Heave</em>, serta torsi diferensial pada sumbu <em>Roll</em> dan <em>Pitch</em>.</p>
 <p>Koordinat posisi pendorong $$\mathbf{r}_i = [x_i, y_i, z_i]^T$$ relatif terhadap titik asal bodi ($$O_b$$) dan vektor arah dorong satuan $$\mathbf{d}_i$$ ditabulasikan pada Tabel 3.4.</p>
-<p><strong>Tabel 3.4</strong> Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong BlueROV2 Heavy<br />
+<p><em>Tabel 3.4</em> Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong BlueROV2 Heavy<br />
 | No. Pendorong | Posisi $$x_i  ext{ (m)}$$ | Posisi $$y_i  ext{ (m)}$$ | Posisi $$z_i  ext{ (m)}$$ | Vektor Arah Gaya Dorong $$\mathbf{d}_i$$ | Aksi Sumbu Utama |<br />
 |---|---|---|---|---|---|<br />
 | Pendorong 1 (Depan-Kanan) | $$+0.156$$ | $$+0.111$$ | $$0.000$$ | $$[\cos 45^\circ, -\sin 45^\circ, 0]^T$$ | Surge (+), Sway (-), Yaw (-) |<br />
@@ -282,12 +281,12 @@ $$\mathbf{T}</em> = \begin{bmatrix} <br />
 0.0000 &amp; 0.0000 &amp; 0.0000 &amp; 0.0000 &amp; -0.1200 &amp; -0.1200 &amp; 0.1200 &amp; 0.1200 \ <br />
 -0.1888 &amp; 0.1888 &amp; 0.1888 &amp; -0.1888 &amp; 0.0000 &amp; 0.0000 &amp; 0.0000 &amp; 0.0000 <br />
 \end{bmatrix}$$</p>
-<p>di mana baris ke-6 (sumbu *<em>Yaw</em>) diperoleh dari:<br />
+<p>di mana baris ke-6 (sumbu <em>Yaw</em>) diperoleh dari:<br />
 $$  au_{N,1} = x_1 d_{y,1} - y_1 d_{x,1} = (0.156)(-0.7071) - (0.111)(0.7071) = -0.1103 - 0.0785 = -0.1888  ext{ m}$$</p>
-<p>Karena jumlah aktuator ($$m = 8$$) melebihi jumlah derajat kebebasan gerak ($$n = 6$$), sistem ini bersifat <strong>over-actuated</strong> dengan derajat redundansi $$m - n = 2$$ [21], [32]. Solusi vektor gaya dorong individual pendorong $$\mathbf{f} = [f_1, f_2, \dots, f_8]^T \in \mathbb{R}^8$$ yang meminimalkan kriteria energi kuadratik total dihitung secara seketika (<em>real-time</em>) melalui operator invers semu Moore-Penrose:<br />
+<p>Karena jumlah aktuator ($$m = 8$$) melebihi jumlah derajat kebebasan gerak ($$n = 6$$), sistem ini bersifat <em>over-actuated</em> dengan derajat redundansi $$m - n = 2$$ [21], [32]. Solusi vektor gaya dorong individual pendorong $$\mathbf{f} = [f_1, f_2, \dots, f_8]^T \in \mathbb{R}^8$$ yang meminimalkan kriteria energi kuadratik total dihitung secara seketika (<em>real-time</em>) melalui operator invers semu Moore-Penrose:<br />
 $$\mathbf{f} = \mathbf{T}<em 6="6" 8="8" imes="imes">{6    imes 8}^\dagger \boldsymbol{    au} = \mathbf{T}</em>^T \left( \mathbf{T}<em 6="6" 8="8" imes="imes">{6  imes 8} \mathbf{T}</em>^T <br />
 ight)^{-1} \boldsymbol{ au}$$</p>
-<p>Setiap komponen gaya dorong $$f_i   ext{ (N)}$$ kemudian dipetakan ke sinyal lebar pulsa servo aktuator PWM ($$1100 - 1900  ext{ }\mu   ext{s}$$) dengan zona mati (deadband) nominal $$1475 - 1525 ext{ }\mu   ext{s}$$ sesuai karakteristik elektro-hidrodinamika ESC pendorong T200 [3]:<br />
+<p>Setiap komponen gaya dorong $$f_i   ext{ (N)}$$ kemudian dipetakan ke sinyal lebar pulsa servo aktuator PWM ($$1100 - 1900  ext{ }\mu   ext{s}$$) dengan zona mati (deadband) nominal $$1475 - 1525 ext{ }\mu   ext{s}$$ sesuai karakteristik elektro-hidrodinamika ESC motor pendorong BLDC bawah air [3]:<br />
 $$  ext{PWM}<em ext_thresh="ext{thresh">i = \begin{cases} <br />
 1500 &amp;  ext{jika } |f_i| &lt; f</em>} \ <br />
 1525 + \left( \frac{f_i}{f_{\max}} <br />
@@ -298,7 +297,7 @@ ight)   imes 375 &amp;  ext{jika } f_i \le -f_{ ext{thresh}} <br />
 dengan batas gaya dorong maksimum $$f_{\max} = 35.0 ext{ N}$$ pada tegangan suplai nominal $$16.0   ext{ V}$$ [3].</p>
 <hr />
 <h2 id="34-perancangan-arsitektur-software-in-the-loop-sitl">3.4 Perancangan Arsitektur Software-In-The-Loop (SITL)</h2>
-<p>Arsitektur <em>Software-In-The-Loop</em><em> (SITL) dibangun untuk memvalidasi algoritma estimasi </em>Dual Kalman Filter dan kinematika/dinamika 6-DOF secara komprehensif di lingkungan simulasi hidrodinamika virtual sebelum diimplementasikan pada perangkat keras fisik, sejalan dengan metodologi <em>simulation-driven dan validasi </em>digital twin* yang dirumuskan oleh Karras dkk. (2024) serta Mari dkk. (2026) [14], [15], [19], [21], [31].</p>
+<p>Arsitektur <em>Software-In-The-Loop</em> (SITL) dibangun untuk memvalidasi algoritma estimasi <em>Dual Kalman Filter dan kinematika/dinamika 6-DOF secara komprehensif di lingkungan simulasi hidrodinamika virtual sebelum diimplementasikan pada perangkat keras fisik, sejalan dengan metodologi </em>simulation-driven dan validasi <em>digital twin</em> yang dirumuskan oleh Karras dkk. (2024) serta Mari dkk. (2026) [14], [15], [19], [21], [31].</p>
 <pre><code>+---------------------------------------------------------------------------------------+
 |                    LINGKUNGAN SIMULASI SOFTWARE-IN-THE-LOOP (SITL)                    |
 +---------------------------------------------------------------------------------------+
@@ -332,8 +331,8 @@ dengan batas gaya dorong maksimum $$f_{\max} = 35.0 ext{ N}$$ pada tegangan supl
 </code></pre>
 <h3 id="341-lingkungan-simulasi-gazebo-harmonic-gz-sim-814">3.4.1 Lingkungan Simulasi Gazebo Harmonic (<code>gz-sim 8.14</code>)</h3>
 <p>Simulasi fisik wahana dijalankan pada Gazebo Harmonic (<code>gz-sim</code> versi 8.14) di bawah sistem operasi Ubuntu 24.04.4 LTS (Noble Numbat) [31]. Wahana BlueROV2 Heavy direpresentasikan dalam berkas deskripsi robotik Simulation Description Format<em> (SDF) yang mendefinisikan geometri visual, geometri tumbukan (</em>collision mesh), properti inersia, serta plugin fisika fluida:<br />
-1. <em>Plugin Daya Apung (<code>gz-sim-buoyancy-system</code>)</em><em>: Menghitung gaya angkat hidrostatis Archimedes secara terdistribusi berdasarkan volume elemen wahana yang tercelup fluida dan gradien tekanan kedalaman [31].<br />
-2. </em><em>Plugin Hidrodinamika (<code>gz-sim-hydrodynamics-system</code>)</em>: Mengimplementasikan model persamaan gerak Fossen (2021) secara langsung di dalam inti mesin fisika (physics engine) Gazebo [7]. Parameter massa tambah ($$X_{\dot{u}}, Y_{\dot{v}}, Z_{\dot{w}}, K_{\dot{p}}, M_{\dot{q}}, N_{\dot{r}}$$) dan koefisien redaman hidrodinamika linier serta kuadratik ($$X_u, X_{u|u|}, Y_v, Y_{v|v|}, \dots$$) dimasukkan sesuai hasil identifikasi pada Sub-bab 3.3.<br />
+1. <em>Plugin Daya Apung (<code>gz-sim-buoyancy-system</code>)</em>: Menghitung gaya angkat hidrostatis Archimedes secara terdistribusi berdasarkan volume elemen wahana yang tercelup fluida dan gradien tekanan kedalaman [31].<br />
+2. <em>Plugin Hidrodinamika (<code>gz-sim-hydrodynamics-system</code>)</em>: Mengimplementasikan model persamaan gerak Fossen (2021) secara langsung di dalam inti mesin fisika (physics engine) Gazebo [7]. Parameter massa tambah ($$X_{\dot{u}}, Y_{\dot{v}}, Z_{\dot{w}}, K_{\dot{p}}, M_{\dot{q}}, N_{\dot{r}}$$) dan koefisien redaman hidrodinamika linier serta kuadratik ($$X_u, X_{u|u|}, Y_v, Y_{v|v|}, \dots$$) dimasukkan sesuai hasil identifikasi pada Sub-bab 3.3.<br />
 3. <em>Plugin <code>ardupilot_gazebo</code></em>: Bertindak sebagai jembatan komunikasi antara model fisik Gazebo dan perangkat lunak autopilot ArduSub [21]. Plugin ini membaca kecepatan putar motor pendorong dari paket JSON ArduSub, menerapkannya sebagai vektor gaya dorong pada model wahana di Gazebo, membaca kembali data sensor virtual (IMU, barometer tekanan kedalaman), dan mengirimkannya kembali ke ArduSub dengan sinkronisasi waktu langkah (lockstep simulation*) pada frekuensi $$200   ext{ Hz}$$.</p>
 <p>Dunia virtual bawah laut dimodelkan dalam berkas <code>bluerov2_heavy_underwater.world</code>, yang memuat media air tawar tenang dengan pencahayaan tereduksi, objek target visual geometris di dasar perairan, serta model gangguan arus laut horizontal konstan maupun dinamis.</p>
 <h3 id="342-autopilot-ardusub-sitl-vectored_6dof">3.4.2 Autopilot ArduSub SITL (<code>vectored_6dof</code>)</h3>
@@ -345,10 +344,10 @@ dengan batas gaya dorong maksimum $$f_{\max} = 35.0 ext{ N}$$ pada tegangan supl
 <p>Untuk memfasilitasi pertukaran data antara simulator Gazebo Harmonic dan ekosistem komputasi robotika, diimplementasikan jembatan komunikasi <em>ros_gz_bridge pada distribusi ROS 2 Jazzy Jalisco [14]:<br />
 1. Topik data odometri wahana <code>/model/bluerov2_heavy/odometry</code> dijembatani menjadi pesan ROS 2 <code>nav_msgs/msg/Odometry</code> untuk merekam koordinat posisi $$(x, y, z)$$, orientasi kuaternion, dan kecepatan linier/sudut wahana sebagai nilai kebenaran dasar (</em>ground truth<em>).<br />
 2. Topik kamera virtual bawah air <code>/camera/image_raw</code> dijembatani menjadi pesan ROS 2 <code>sensor_msgs/msg/Image</code> dengan laju penyegaran $$30   ext{ FPS}$$ pada resolusi $$1280    imes 720$$ piksel.<br />
-3. Node pembaca kecepatan <code>display_velocity.py</code> mengekstraksi kecepatan bodi relatif wahana secara </em><em>real-time</em>* untuk memvalidasi estimasi kecepatan dari penapis dinamika EKF.</p>
+3. Node pembaca kecepatan <code>display_velocity.py</code> mengekstraksi kecepatan bodi relatif wahana secara </em>real-time* untuk memvalidasi estimasi kecepatan dari penapis dinamika EKF.</p>
 <hr />
 <h2 id="35-perancangan-arsitektur-hardware-in-the-loop-hitl">3.5 Perancangan Arsitektur Hardware-In-The-Loop (HITL)</h2>
-<p>Arsitektur <strong>Hardware-In-The-Loop</strong> (HITL) menggabungkan komponen perangkat keras fisik wahana (<em>flight controller</em><em> Pixhawk 2.4.8, </em><em>companion computer</em>* Raspberry Pi 4B, modul kamera monokuler, dan sensor kedalaman Bar30 MS5837) dengan workstation permukaan berakselerasi GPU dalam sebuah loop kendali tertutup waktu nyata melalui jaringan tether Ethernet, mengadopsi prinsip arsitektur modular terdistribusi dan pemodelan dinamika kabel tether [2], [8], [9], [11], [14], [20], [30], [35], [36], [41].</p>
+<p>Arsitektur <em>Hardware-In-The-Loop</em> (HITL) menggabungkan komponen perangkat keras fisik wahana (<em>flight controller</em> Pixhawk 2.4.8, <em>companion computer</em> Raspberry Pi 4B, modul kamera monokuler, dan sensor kedalaman Bar30 MS5837) dengan workstation permukaan berakselerasi GPU dalam sebuah loop kendali tertutup waktu nyata melalui jaringan tether Ethernet, mengadopsi prinsip arsitektur modular terdistribusi dan pemodelan dinamika kabel tether [2], [8], [9], [11], [14], [20], [30], [35], [36], [41].</p>
 <pre><code>+---------------------------------------------------------------------------------------+
 |                    ARSITEKTUR HARDWARE-IN-THE-LOOP (HITL) MEKATRONIKA                 |
 +---------------------------------------------------------------------------------------+
@@ -395,7 +394,7 @@ dengan batas gaya dorong maksimum $$f_{\max} = 35.0 ext{ N}$$ pada tegangan supl
 |                                                                    | +------------+   |
 |                                                                    v PWM 1-8          |
 |                                                           +-----------------------+   |
-|                                                           | 8x ESC &amp; MOTOR T200   |   |
+|                                                           | 8x ESC EMAX 30A &amp; MOTOR BLDC   |   |
 |                                                           | • 4x Horizontal 45 deg|   |
 |                                                           | • 4x Vertikal Sudut   |   |
 |                                                           +-----------------------+   |
@@ -403,77 +402,81 @@ dengan batas gaya dorong maksimum $$f_{\max} = 35.0 ext{ N}$$ pada tegangan supl
 </code></pre>
 <h3 id="351-komponen-perangkat-keras-dan-interkoneksi-fisik">3.5.1 Komponen Perangkat Keras dan Interkoneksi Fisik</h3>
 <p>Spesifikasi perangkat keras mekatronika yang diintegrasikan dalam arsitektur HITL dirangkum pada Tabel 3.5.</p>
-<p><strong>Tabel 3.5</strong> Spesifikasi Komponen Perangkat Keras Arsitektur HITL<br />
+<p>Tabel 3.5 Spesifikasi Komponen Perangkat Keras Arsitektur HITL<br />
 | Modul Sistem | Komponen Spesifik | Antarmuka / Protokol | Fungsi Utama dalam Sistem |<br />
 |---|---|---|---|<br />
-| <strong>Flight Controller</strong> | Pixhawk 2.4.8 (STM32F427 Cortex-M4, 168 MHz) | UART Serial (<code>/dev/ttyAMA0</code>, 921600 baud) | Eksekusi ArduSub, akuisisi IMU internal, loop kendali sikap, alokasi 8 pendorong [14] |<br />
-| <em><em>Companion Computer</em> | Raspberry Pi 4B (Quad-core Cortex-A72 @ 1.5 GHz, 4GB RAM) | Ethernet 10/100/1000 Mbps | Menjalankan sistem operasi BlueOS 1.4.5, kompresi video H.264, jembatan REST telemetri |<br />
-| Sensor Kedalaman | Blue Robotics Bar30 (Sensor Keller MS5837-30BA) | I2C Bus (Alamat <code>0x76</code>) | Pengukuran tekanan absolut fluida (0–30 bar) dan estimasi kedalaman dengan resolusi $$0.2  ext{ mm}$$ |<br />
-| Modul Kamera | Raspberry Pi Camera v1.3 (OmniVision OV5647 5MP) | MIPI CSI-2 Ribbon Cable | Akuisisi citra visual bawah air monokuler $$1280  imes 720$$ piksel @ 30 FPS |<br />
-| Kamera Sekunder | Logitech C922 Pro Stream Webcam | USB 2.0 (Protokol UVC / MJPG) | Kamera uji alternatif resolusi tinggi dengan lensa wide-angle |<br />
-| Komputer Topside | Laptop Asus ROG / Workstation | Tether Ethernet RJ45 | Pemrosesan visi YOLO26 World pada GPU NVIDIA RTX 4070 (8GB VRAM) &amp; penapis 8D Kalman |<br />
-| Sistem Penggerak | 8x Blue Robotics T200 Brushless Motor + Basic ESC | Sinyal PWM ($$1100 - 1900  ext{ }\mu   ext{s}$$) | Aktuasi gaya dorong 6-DOF </em>over-actuated* (maksimum $$\pm 35    ext{ N}$$ per pendorong) [3] |<br />
-| Sistem Daya | Baterai LiPo 4S (14.8V nominal, 10.000 mAh) | Konektor XT90 / Power Sense Module | Pencatu daya utama sistem propulsi dan modul elektronik internal wahana |</p>
+| Rangka &amp; Lambung | Custom-made AUV Hull &amp; Frame (Tabung Akrilik Silinder Kedap Air + Kerangka 8 Pendorong) | Mekanikal / Sealing O-Ring Ganda | Struktur fisik penahan tekanan hidrostatis dan dudukan geometris 8 pendorong bervektor |<br />
+| Flight Controller | Pixhawk 2.4.8 (STM32F427 Cortex-M4, 168 MHz) | UART Serial (<code>/dev/ttyAMA0</code>, 921600 baud) | Eksekusi ArduSub <code>vectored_6dof</code>, akuisisi IMU internal, loop kendali sikap, alokasi 8 pendorong [14] |<br />
+| Companion Computer | Raspberry Pi 4B (Quad-core Cortex-A72 @ 1.5 GHz, 4GB RAM) | Ethernet 10/100/1000 Mbps | Menjalankan sistem operasi BlueOS, kompresi video H.264, jembatan REST telemetri <code>mavlink2rest</code> |<br />
+| Sensor Kedalaman | Sensor Tekanan &amp; Kedalaman Digital Subsea MS5837-30BA | I2C Bus (Alamat <code>0x76</code>) | Pengukuran tekanan absolut fluida (0–30 bar) dan estimasi kedalaman dengan resolusi $$0.2\text{ mm}$$ |<br />
+| Modul Kamera Utama | Raspberry Pi Camera Rev 1.3 (OmniVision OV5647 5MP) | MIPI CSI-2 Ribbon Cable | Akuisisi citra visual bawah air monokuler $$1280 \times 720$$ piksel @ 30 FPS untuk pelacakan target |<br />
+| Kamera Sekunder | Logitech C922 Pro Stream Webcam | USB 2.0 (Protokol UVC / MJPG) | Kamera uji alternatif resolusi tinggi Full HD 1080p / 720p dengan lensa sudut lebar |<br />
+| Komputer Topside | Laptop dengan GPU NVIDIA (CUDA / TensorRT) | Tether Ethernet RJ45 | Pemrosesan visi YOLO pada GPU NVIDIA &amp; penapis Topside Visual Kalman Filter 8D |<br />
+| Pengendali Kecepatan | 8x ESC EMAX BLHeli 30A (Bidirectional Firmware) | Sinyal PWM ($$1100 - 1900\text{ }\mu\text{s}$$) | Pengaturan komutasi dan kecepatan putar dua arah (maju-mundur) 8 motor pendorong BLDC |<br />
+| Sistem Penggerak | 8x BLDC Motor Underwater Thruster (12–24V, 4-Blade Propeller) | Kabel Fasa 3-Kawat ke ESC | Aktuasi gaya dorong 6-DOF <em>over-actuated</em> (gaya dorong nominal 3–5 kgf per motor, putaran CW/CCW) |<br />
+| Sistem Catu Daya | Baterai Li-Po 4S1P 14.8V kapasitas 6000 mAh (88.8 Wh) | Konektor Arus Tinggi XT90 / Power Module | Pencatu daya utama sistem propulsi pendorong dan modul elektronik internal wahana |<br />
+| Pengisi Daya Baterai | SKYRC IMAX B6AC V2 Cerdas Mikroprosesor | Dual Input AC/DC, Port JST-XH Balance | Pengisian daya dan penyeimbangan tegangan tiap sel baterai Li-Po secara presisi dan aman |<br />
+| Kabel Komunikasi | Kabel Tether Ethernet Subsea CAT5e/CAT6 | Antarmuka RJ45 (Bandwidth 100 Mbps) | Transmisi data aliran video H.264 dan komunikasi dua arah telemetri kendali MAVLink |</p>
 <p>Untuk memberikan gambaran yang lebih konkret terkait perangkat yang digunakan, berikut adalah visualisasi perangkat keras utama yang dikonfigurasi pada wahana AUV ini:</p>
-<p><img alt="Gambar 3.2. Rangka (Frame*) dan Lambung Tekanan (*Pressure Hull*) Tipe BlueROV2 Heavy" src="[PATH_FOTO_FRAME_HULL]" /></p>
+<p><img alt="Gambar 3.2. Rangka (*Frame*) dan Lambung Tekanan Kustom (*Custom Pressure Hull*) AUV 8-Pendorong" src="[PATH_FOTO_FRAME_HULL]" /></p>
 <p><img alt="Gambar 3.3. Papan Pengendali Penerbangan (*Flight Controller*) Pixhawk 2.4.8" src="[PATH_FOTO_PIXHAWK]" /></p>
 <p><img alt="Gambar 3.4. Komputer Pendamping (*Companion Computer*) Raspberry Pi 4B" src="[PATH_FOTO_RASPBERRY_PI]" /></p>
-<p><img alt="Gambar 3.5. Modul Pengendali Kecepatan Elektronik (*Basic Electronic Speed Controller* / ESC)" src="[PATH_FOTO_ESC]" /></p>
-<p><img alt="Gambar 3.6. Motor Pendorong (*Thruster*) T200" src="[PATH_FOTO_THRUSTER_T200]" /></p>
-<p><img alt="Gambar 3.7. Sumber Daya Utama Baterai Li-Po 4S 14.8V" src="[PATH_FOTO_BATERAI]" /></p>
+<p><img alt="Gambar 3.5. Modul Pengendali Kecepatan Elektronik (ESC EMAX BLHeli 30A)" src="[PATH_FOTO_ESC]" /></p>
+<p><img alt="Gambar 3.6. Motor Pendorong Bawah Air (*BLDC Underwater Thruster*)" src="[PATH_FOTO_THRUSTER_BLDC Underwater Thruster]" /></p>
+<p><img alt="Gambar 3.7. Sumber Daya Baterai Li-Po 4S 14.8V 6000 mAh dan Pengisi Daya SKYRC IMAX B6AC V2" src="[PATH_FOTO_BATERAI]" /></p>
 <h3 id="352-aliran-data-telemetri-cepat-low-latency-telemetry-bridge">3.5.2 Aliran Data Telemetri Cepat (*Low-Latency Telemetry Bridge)</h3>
 <p>Untuk mengalirkan data sensor dari wahana ke modul estimasi tanpa membebani bus komputasi serial MAVLink secara berlebihan, diimplementasikan jembatan telemetri asinkron berbasis REST API memanfaatkan layanan <code>mavlink2rest</code> yang terintegrasi pada BlueOS (port HTTP <code>6040</code>):<br />
 1. <em>Akuisisi Data IMU dan Tekanan</em>: Modul Python <code>SubseaTelemetryBridge</code> pada berkas <a href="file:///home/radhi/Documents/AUV_GitHub_Upload/auv_dynamics_hil_node.py"><code>auv_dynamics_hil_node.py</code></a> melakukan polling<em> data JSON pada endpoint <code>http://192.168.2.2:6040/mavlink/vehicles/1/components/1/messages</code> dengan batas waktu (</em>timeout) $$0.25   ext{ detik}$$.<br />
-2. <em>Pengekstrakkan Pesan MAVLink</em><em>: Pesan <code>SCALED_IMU2</code> atau <code>RAW_IMU</code> diekstraksi untuk memperoleh percepatan linier tiga sumbu ($$a_x, a_y, a_z$$) dan kecepatan sudut ($$p, q, r$$). Pesan <code>ATTITUDE</code> diekstraksi untuk memperoleh orientasi Euler ($$\phi,  heta, \psi$$). Pesan <code>SCALED_PRESSURE2</code> diekstraksi untuk memperoleh tekanan absolut subsea ($$P_{  ext{fluid}}$$). Pesan <code>SERVO_OUTPUT_RAW</code> diekstraksi untuk merekam sinyal PWM dari delapan pendorong secara simultan.<br />
-3. </em><em>Kalibrasi Tekanan Atmosfer Otomatis</em>*: Saat node diinisialisasi di permukaan air, sistem secara otomatis mengambil sampel baseline tekanan atmosfer sebanyak 10 sampel untuk mengkalibrasi tekanan udara lokal ($$P_{  ext{atm}}$$). Kedalaman subsea dihitung secara langsung menggunakan persamaan hidrostatik:<br />
+2. <em>Pengekstrakkan Pesan MAVLink</em>: Pesan <code>SCALED_IMU2</code> atau <code>RAW_IMU</code> diekstraksi untuk memperoleh percepatan linier tiga sumbu ($$a_x, a_y, a_z$$) dan kecepatan sudut ($$p, q, r$$). Pesan <code>ATTITUDE</code> diekstraksi untuk memperoleh orientasi Euler ($$\phi,   heta, \psi$$). Pesan <code>SCALED_PRESSURE2</code> diekstraksi untuk memperoleh tekanan absolut subsea ($$P_{  ext{fluid}}$$). Pesan <code>SERVO_OUTPUT_RAW</code> diekstraksi untuk merekam sinyal PWM dari delapan pendorong secara simultan.<br />
+3. <em>Kalibrasi Tekanan Atmosfer Otomatis</em>: Saat node diinisialisasi di permukaan air, sistem secara otomatis mengambil sampel baseline tekanan atmosfer sebanyak 10 sampel untuk mengkalibrasi tekanan udara lokal ($$P_{    ext{atm}}$$). Kedalaman subsea dihitung secara langsung menggunakan persamaan hidrostatik:<br />
    $$z_k = \frac{(P_{   ext{fluid}} - P_{   ext{atm}})  imes 100.0}{<br />
 ho g}$$<br />
    dengan konversi tekanan dari hektopaskal (hPa) ke Pascal ($$1    ext{ hPa} = 100.0   ext{ Pa}$$).</p>
 <h3 id="353-pipeline-prapemrosesan-citra-visual-dan-deteksi-objek-yolo">3.5.3 Pipeline Prapemrosesan Citra Visual dan Deteksi Objek YOLO</h3>
 <p>Citra video dialirkan dari kamera Raspberry Pi melalui pipeline GStreamer terakselerasi perangkat keras dengan kompresi H.264 ke port UDP <code>5600</code> (atau port <code>5601</code> untuk kamera USB) pada workstation topside [2]. Tahapan pemrosesan visi diuraikan sebagai berikut:<br />
-1. <em><em>Prapemrosesan Peningkatan Kontras Adaptif (CLAHE)</em>: Citra RGB yang diterima didegradasi oleh partikel air dikonversi ke ruang warna CIE LAB. Saluran kecerahan (Luminance channel</em> $$L$$) ditingkatkan menggunakan operator CLAHE (<em>Contrast Limited Adaptive Histogram Equalization</em>) dengan parameter ambang klip (<em>clip limit</em>) $$2.5$$ dan ukuran kisi ubin (<em>tile grid size</em>) $$8     imes 8$$:<br />
+1. <em>Prapemrosesan Peningkatan Kontras Adaptif (CLAHE)</em>: Citra RGB yang diterima didegradasi oleh partikel air dikonversi ke ruang warna CIE LAB. Saluran kecerahan (Luminance channel<em> $$L$$) ditingkatkan menggunakan operator CLAHE (</em>Contrast Limited Adaptive Histogram Equalization<em>) dengan parameter ambang klip (</em>clip limit<em>) $$2.5$$ dan ukuran kisi ubin (</em>tile grid size<em>) $$8  imes 8$$:<br />
    $$L_{    ext{enhanced}} =    ext{CLAHE}(L,   ext{clipLimit}=2.5,     ext{grid}=(8, 8))$$<br />
-   Saluran $$L_{    ext{enhanced}}$$ kemudian digabungkan kembali dengan saluran krominansi $$a$$ dan $$b$$, lalu dikonversi kembali ke ruang warna BGR. Algoritma ini secara drastis meningkatkan ketajaman tepi (<em>edge sharpness) target bawah air dan menetralkan kabut warna hijau/biru tanpa memperkuat derau latar belakang [2].<br />
-2. </em>Inferensi Deteksi Objek YOLO26 World<em>: Citra yang telah ditingkatkan diumpankan ke arsitektur jaringan syaraf tiruan YOLO26 World</em> (atau model kustom <em>fine-tuned 11 kelas bawah air) pada resolusi spasial $$1024  imes 1024$$ piksel. Model dieksekusi dengan akselerasi perangkat keras GPU NVIDIA RTX 4070 Laptop (CUDA) menggunakan presisi floating point 16-bit (FP16). Keluaran deteksi berupa koordinat kotak pembatas (</em>bounding box*):<br />
+   Saluran $$L_{    ext{enhanced}}$$ kemudian digabungkan kembali dengan saluran krominansi $$a$$ dan $$b$$, lalu dikonversi kembali ke ruang warna BGR. Algoritma ini secara drastis meningkatkan ketajaman tepi (</em>edge sharpness) target bawah air dan menetralkan kabut warna hijau/biru tanpa memperkuat derau latar belakang [2].<br />
+2. <em>Inferensi Deteksi Objek YOLO26 World</em>: Citra yang telah ditingkatkan diumpankan ke arsitektur jaringan syaraf tiruan YOLO26 World<em> (atau model kustom </em>fine-tuned 11 kelas bawah air) pada resolusi spasial $$1024  imes 1024$$ piksel. Model dieksekusi dengan akselerasi perangkat keras GPU NVIDIA RTX 4070 Laptop (CUDA) menggunakan presisi floating point 16-bit (FP16). Keluaran deteksi berupa koordinat kotak pembatas (<em>bounding box</em>):<br />
    $$\mathbf{z}_k = [x_m, y_m, w_m, h_m]^T$$<br />
    beserta skor keyakinan deteksi (detection confidence score) $$   ext{conf}_k \in [0, 1]$$.</p>
 <h3 id="354-algoritma-implementasi-dual-kalman-filter">3.5.4 Algoritma Implementasi Dual Kalman Filter</h3>
 <p>Sistem estimasi keadaan terdiri dari dua penapis Kalman yang beroperasi secara terpisah namun saling menyokong:</p>
 <h4 id="1-topside-visual-target-kalman-filter-auvvisualkalmanfilter">1. Topside Visual Target Kalman Filter (<code>AUVVisualKalmanFilter</code>)</h4>
 <p>Diimplementasikan pada workstation permukaan di dalam berkas <a href="file:///home/radhi/Documents/AUV_GitHub_Upload/kalman_filter.py"><code>kalman_filter.py</code></a> untuk menapis getaran deteksi (<em>jitter</em>), mengatasi oklusi sesaat, dan mengestimasi laju perubahan skala objek:<br />
-- <strong>Vektor Keadaan 8D</strong>:<br />
-  $$\mathbf{x}<em k-1="k-1">{    ext{vis}} = [x, y, s, r, \dot{x}, \dot{y}, \dot{s}, \dot{r}]^T$$<br />
-  di mana $$x, y$$ merepresentasikan koordinat titik pusat <strong>bounding box</strong>, $$s = w    imes h$$ adalah luas area skala target, $$r = w / h$$ adalah rasio aspek, serta $$\dot{x}, \dot{y}, \dot{s}, \dot{r}$$ adalah laju perubahan temporalnya.<br />
-- <strong>Kovariansi Proses Stokastik CWNA</strong>:<br />
+- <em>Vektor Keadaan 8D</em>:<br />
+  $$\mathbf{x}<em ext_gate="ext{gate">{    ext{vis}} = [x, y, s, r, \dot{x}, \dot{y}, \dot{s}, \dot{r}]^T$$<br />
+  di mana $$x, y$$ merepresentasikan koordinat titik pusat <em>bounding box</em>, $$s = w  imes h$$ adalah luas area skala target, $$r = w / h$$ adalah rasio aspek, serta $$\dot{x}, \dot{y}, \dot{s}, \dot{r}$$ adalah laju perubahan temporalnya.<br />
+- <em>Kovariansi Proses Stokastik CWNA</em>:<br />
   Matriks kovariansi proses diskrit dievaluasi secara eksak melalui integrasi analitis model percepatan derau putih kontinu (<em>Continuous White Noise Acceleration</em>):<br />
   $$\mathbf{Q}(\Delta t) = \begin{bmatrix} <br />
   \frac{\Delta t^3}{3}  ilde{\mathbf{Q}} &amp; \frac{\Delta t^2}{2}     ilde{\mathbf{Q}} \ <br />
   \frac{\Delta t^2}{2}  ilde{\mathbf{Q}} &amp; \Delta t     ilde{\mathbf{Q}} <br />
   \end{bmatrix}, \quad  ilde{\mathbf{Q}} =  ext{diag}(q_x, q_y, q_s, q_r)$$<br />
   dengan nilai kerapatan spektral nominal $$q_x = q_y = 0.05$$, $$q_s = 0.08$$, dan $$q_r = 0.01$$.<br />
-- <strong>Kovariansi Pengukuran Adaptif Berbobot Konfidensi</strong>:<br />
+- <em>Kovariansi Pengukuran Adaptif Berbobot Konfidensi</em>:<br />
   $$\mathbf{R}_k(   ext{conf}) = \frac{\mathbf{R}_0}{\max(  ext{conf}_k, 0.15)^2}$$<br />
   Formulasi ini memastikan bahwa saat deteksi YOLO memiliki konfidensi tinggi ($$   ext{conf}   o 1.0$$), penapis mempercayai pengukuran sensor, sedangkan saat konfidensi rendah di air keruh ($$  ext{conf} &lt; 0.4$$), penapis lebih mengandalkan propagasi model internal.<br />
-- <strong>Validasi Inovasi Jarak Mahalanobis (<em>Outlier Gating</em>)<em>:<br />
-  Sebelum pembaruan status dilakukan, residual inovasi $$\mathbf{y}<em ext_gate="ext{gate">k = \mathbf{z}_k - \mathbf{H}\mathbf{x}_k^-$$ diuji terhadap kovariansi inovasi $$\mathbf{S}_k = \mathbf{H}\mathbf{P}_k^-\mathbf{H}^T + \mathbf{R}_k$$:<br />
+- <em>Validasi Inovasi Jarak Mahalanobis (</em>Outlier Gating<em>)</em>:<br />
+  Sebelum pembaruan status dilakukan, residual inovasi $$\mathbf{y}_k = \mathbf{z}_k - \mathbf{H}\mathbf{x}_k^-$$ diuji terhadap kovariansi inovasi $$\mathbf{S}_k = \mathbf{H}\mathbf{P}_k^-\mathbf{H}^T + \mathbf{R}_k$$:<br />
   $$d_M^2 = \mathbf{y}_k^T \mathbf{S}_k^{-1} \mathbf{y}_k \le \gamma</em>}$$<br />
   dengan ambang batas kritis distribusi Chi-Square derajat kebebasan 4 pada interval kepercayaan 95%:<br />
   $$\gamma_{    ext{gate}} = \chi_{0.95}^2(4) = 9.488$$<br />
   Deteksi palsu yang melompat melebihi ambang batas ini secara otomatis ditolak (rejected) untuk mencegah deviasi lintasan.<br />
-- </em>Mekanisme Penjembatan Oklusi (<em>Occlusion Bridging)</em>:<br />
-  Apabila target terhalang oleh partikel sedimen atau struktur selama $$N_{ ext{missed}}$$ frame berturut-turut ($$N_{  ext{missed}} \le 30$$ frame), penapis melewati tahap pembaruan pengukuran ($$\mathbf{K}_k = \mathbf{0}$$) dan mengeksekusi propagasi </strong>dead-reckoning** murni:<br />
-  $$\hat{\mathbf{x}}_k = \mathbf{A}(\Delta t) \hat{\mathbf{x}}</em>$$<br />
+- <em>Mekanisme Penjembatan Oklusi (</em>Occlusion Bridging)<em>:<br />
+  Apabila target terhalang oleh partikel sedimen atau struktur selama $$N_{ ext{missed}}$$ frame berturut-turut ($$N_{  ext{missed}} \le 30$$ frame), penapis melewati tahap pembaruan pengukuran ($$\mathbf{K}_k = \mathbf{0}$$) dan mengeksekusi propagasi </em>dead-reckoning* murni:<br />
+  $$\hat{\mathbf{x}}<em k-1="k-1">k = \mathbf{A}(\Delta t) \hat{\mathbf{x}}</em>$$<br />
   $$\mathbf{P}<em k-1="k-1">k = \mathbf{A}(\Delta t) \mathbf{P}</em> \mathbf{A}^T(\Delta t) + \mathbf{Q}(\Delta t)$$<br />
   sehingga posisi target tetap terlacak dengan mulus saat muncul kembali [25].</p>
 <h4 id="2-subsea-hydrodynamic-dynamics-ekf-auvdynamicskalmanfilter">2. Subsea Hydrodynamic Dynamics EKF (<code>AUVDynamicsKalmanFilter</code>)</h4>
-<p>Dijalankan secara langsung pada frekuensi $$50  ext{ Hz}$$ ($$\Delta t = 20 ext{ ms}$$) pada <strong>companion computer</strong> Raspberry Pi 4B (atau laptop topside melalui jembatan telemetri) di dalam berkas <a href="file:///home/radhi/Documents/AUV_GitHub_Upload/auv_dynamics_hil_node.py"><code>auv_dynamics_hil_node.py</code></a> [18], [29]:<br />
-- <strong>Vektor Keadaan Dinamika 9-Dimensi</strong>:<br />
+<p>Dijalankan secara langsung pada frekuensi $$50  ext{ Hz}$$ ($$\Delta t = 20 ext{ ms}$$) pada <em>companion computer</em> Raspberry Pi 4B (atau laptop topside melalui jembatan telemetri) di dalam berkas <a href="file:///home/radhi/Documents/AUV_GitHub_Upload/auv_dynamics_hil_node.py"><code>auv_dynamics_hil_node.py</code></a> [18], [29]:<br />
+- <em>Vektor Keadaan Dinamika 9-Dimensi</em>:<br />
   $$\mathbf{x}<em ext_dyn="ext{dyn">{    ext{dyn}} = [u_r, v_r, w_r, p, q, r, u_c, v_c, w_c]^T$$<br />
   yang menggabungkan 6-DOF kecepatan bodi relatif wahana terhadap fluida dan 3-DOF komponen kecepatan arus laut lingkungan.<br />
-- <strong>Vektor Pengukuran Multi-Sensor</strong>:<br />
+- <em>Vektor Pengukuran Multi-Sensor</em>:<br />
   $$\mathbf{z}</em>} = [a_x, a_y, a_z, p_{ ext{gyro}}, q_{ ext{gyro}}, r_{ ext{gyro}}, \dot{z}<em _hat_mathbf_x="\hat{\mathbf{x">{   ext{bar30}}]^T$$<br />
   yang diukur langsung dari akselerometer 3-sumbu, giroskop 3-sumbu Pixhawk, dan laju perubahan kedalaman sensor tekanan Bar30 MS5837.<br />
-- <strong>Linearisasi Analitis Matriks Transisi Kontinu $$\mathbf{F}$$</strong>:<br />
+- <em>Linearisasi Analitis Matriks Transisi Kontinu $$\mathbf{F}$$</em>:<br />
   Dievaluasi secara analitis dari persamaan dinamika Fossen 6-DOF:<br />
   $$\mathbf{F}(t) = \left. \frac{\partial \mathbf{f}(\mathbf{x}, \boldsymbol{   au})}{\partial \mathbf{x}} <br />
 ight|</em>}} = \begin{bmatrix} <br />
@@ -489,7 +492,7 @@ u}}<em u_u_="u|u|">r) =    ext{diag}\left( -(X_u + 2 X</em>|\hat{u}<em v_v_="v|v
 ight)$$<br />
   dan suku kopling silang momen Munk terefleksikan pada baris ke-6 matriks $$\mathbf{C}^</em>(\hat{\boldsymbol{<br />
 u}}<em 9="9" imes="imes">r)$$ [7], [34].<br />
-- *<em>Diskritisasi Matriks Fundamental Transisi</em>:<br />
+- <em>Diskritisasi Matriks Fundamental Transisi</em>:<br />
   $$\boldsymbol{\Phi} \approx \mathbf{I}</em> + \mathbf{F} \Delta t$$<br />
   memastikan perambatan kovariansi kesalahan estimasi $$\mathbf{P}<em k-1="k-1">k^- = \boldsymbol{\Phi}\mathbf{P}</em>\boldsymbol{\Phi}^T + \mathbf{Q}_{    ext{dyn}}$$ berjalan sangat cepat tanpa beban faktorisasi matriks eksponensial yang berat pada prosesor embedded ARM Cortex-A72 Raspberry Pi.</p>
 <hr />
@@ -500,25 +503,25 @@ u}}<em 9="9" imes="imes">r)$$ [7], [34].<br />
 - <em>Prosedur Pengujian</em>:<br />
   1. Wahana AUV diposisikan mengapung di depan target visual referensi (misalnya pelampung bawah air underwater buoy atau penanda berstruktur) pada jarak observasi nominal $$1.5 - 3.0 ext{ meter}$$.<br />
   2. Target visual digerakkan secara dinamis mengikuti trajektori spasial acak pada bidang pandang kamera ($$xy$$) dan variasi jarak maju-mundur (perubahan skala area $$s$$).<br />
-  3. <em>Injeksi Derau Pengukuran Sintetis</em><em>: Untuk menguji ketahanan filter terhadap turbiditas dan fluktuasi pencahayaan, sinyal deteksi kotak pembatas YOLO diinjeksikan derau acak Gaussian dengan variansi spasial terkontrol:<br />
+  3. <em>Injeksi Derau Pengukuran Sintetis</em>: Untuk menguji ketahanan filter terhadap turbiditas dan fluktuasi pencahayaan, sinyal deteksi kotak pembatas YOLO diinjeksikan derau acak Gaussian dengan variansi spasial terkontrol:<br />
      $$\mathbf{z}<em ext_noise="ext{noise">{ ext{noisy}, k} = \mathbf{z}_k + \mathcal{N}(\mathbf{0}, \sigma</em>}^2 \mathbf{I}<em ext_noise="ext{noise">4)$$<br />
      dengan variansi derau $$\sigma</em>} \in [5, 25] ext{ piksel}$$.<br />
-  4. </em><em>Simulasi Oklusi Visual Temporer</em>: Selama interval waktu pelacakan detik ke-$$10$$ hingga detik ke-$$11.5$$ (sebanyak $$45$$ frame beruntun), aliran bounding box dari YOLO dihentikan secara artifisial ($$  ext{conf}_k = 0$$) untuk merepresentasikan kondisi target terhalang total oleh awan gelembung atau partikel sedimen pekat.<br />
+  4. <em>Simulasi Oklusi Visual Temporer</em>: Selama interval waktu pelacakan detik ke-$$10$$ hingga detik ke-$$11.5$$ (sebanyak $$45$$ frame beruntun), aliran bounding box dari YOLO dihentikan secara artifisial ($$   ext{conf}_k = 0$$) untuk merepresentasikan kondisi target terhalang total oleh awan gelembung atau partikel sedimen pekat.<br />
   5. Sinyal trajektori hasil penapisan Kalman dibandingkan secara kuantitatif terhadap sinyal koordinat deteksi mentah (raw YOLO detection) dan posisi kebenaran dasar (<em>ground truth</em>).</p>
 <h3 id="362-skenario-2-rekonstruksi-kecepatan-bodi-6-dof-dan-mitigasi-momen-munk">3.6.2 Skenario 2: Rekonstruksi Kecepatan Bodi 6-DOF dan Mitigasi Momen Munk</h3>
 <p>Skenario ini dirancang untuk memvalidasi performa penapis non-linier AUVDynamicsKalmanFilter dalam mengestimasi kecepatan relatif wahana terhadap fluida, mengamati kecepatan arus laut, serta mengevaluasi kompensasi aktif momen Munk hidrodinamika oleh sistem alokasi 8-pendorong [7], [21], [32], [34].<br />
-- <em>Prosedur Pengujian</em><em>:<br />
+- <em>Prosedur Pengujian</em>:<br />
   1. Wahana dioperasikan dalam lingkungan simulasi Gazebo Harmonic dan diarahkan menjalankan serangkaian manuver uji standar:<br />
-     - </em>Uji Akselerasi Lurus (Surge Acceleration)<em>: Wahana dipercepat dari diam hingga mencapai kecepatan jelajah $$u = 1.0 ext{ m/s}$$.<br />
-     - </em>Uji Belok Terkopling (Coupled Turning Circle)<em>: Wahana diberi perintah kecepatan sudut yaw $$r = 0.5    ext{ rad/s}$$ secara simultan dengan kecepatan surge $$u = 0.8  ext{ m/s}$$.<br />
-     - </em>Uji Stabilitas Pitch Aktif (Active Pitch-Hold Tracking)<em>: Wahana diarahkan mempertahankan sudut tukik tertentu ($$  heta = -15^\circ$$) untuk inspeksi dasar perairan sembari bermanuver melintang (</em>swaying).<br />
-  2. <em>Injeksi Gangguan Arus Laut (</em>Ocean Current Disturbance)<em>: Pada detik ke-$$15$$, fluida virtual Gazebo diinjeksikan vektor arus laut konstan:<br />
+     - <em>Uji Akselerasi Lurus (Surge Acceleration)</em>: Wahana dipercepat dari diam hingga mencapai kecepatan jelajah $$u = 1.0 ext{ m/s}$$.<br />
+     - <em>Uji Belok Terkopling (Coupled Turning Circle)</em>: Wahana diberi perintah kecepatan sudut yaw $$r = 0.5    ext{ rad/s}$$ secara simultan dengan kecepatan surge $$u = 0.8  ext{ m/s}$$.<br />
+     - <em>Uji Stabilitas Pitch Aktif (Active Pitch-Hold Tracking)</em>: Wahana diarahkan mempertahankan sudut tukik tertentu ($$  heta = -15^\circ$$) untuk inspeksi dasar perairan sembari bermanuver melintang (<em>swaying).<br />
+  2. </em>Injeksi Gangguan Arus Laut (<em>Ocean Current Disturbance)</em>: Pada detik ke-$$15$$, fluida virtual Gazebo diinjeksikan vektor arus laut konstan:<br />
      $$\mathbf{V}<em ext_Munk="ext{Munk">c^n = [0.30, 0.15, 0.00]^T    ext{ m/s}$$<br />
      yang memicu timbulnya kecepatan geser relatif $$v_r &gt; 0$$ dan membangkitkan momen Munk destabilisasi:<br />
      $$N</em>} = (X_{\dot{u}} - Y_{\dot{v}})u_r v_r = +7.20 \, u_r v_r$$<br />
   3. Modul EKF merekonstruksi estimasi kecepatan bodi $$\hat{\boldsymbol{<br />
 u}}_r$$ dan estimasi arus $$\hat{\mathbf{V}}_c^n$$ secara langsung dari telemetri IMU Pixhawk 2.4.8 dan sensor tekanan Bar30 MS5837.<br />
-  4. Sinyal gaya dorong kompensasi dari alokasi Moore-Penrose dievaluasi untuk membuktikan peredaman momen Munk pada wahana </em><em>over-actuated</em><em> 8-pendorong dibandingkan dengan wahana konvensional </em><em>underactuated</em> 6-pendorong [21], [32].</p>
+  4. Sinyal gaya dorong kompensasi dari alokasi Moore-Penrose dievaluasi untuk membuktikan peredaman momen Munk pada wahana <em>over-actuated</em> 8-pendorong dibandingkan dengan wahana konvensional <em>underactuated</em> 6-pendorong [21], [32].</p>
 <h3 id="363-skenario-3-analisis-waktu-komputasi-dan-latensi-waktu-nyata-real-time-profiling">3.6.3 Skenario 3: Analisis Waktu Komputasi dan Latensi Waktu Nyata (Real-Time Profiling*)</h3>
 <p>Skenario ini bertujuan memverifikasi efisiensi komputasi dari seluruh rangkaian algoritma yang dijalankan pada arsitektur terdistribusi (<em>topside GPU dan </em>companion computer<em> ARM</em>) agar memenuhi standar operasi deterministik tanpa keterlambatan (<em>zero-lag </em>real-time<em> constraint) pada laju penyegaran $$30   ext{ FPS}$$ ($$\Delta t \le 33.3    ext{ ms}$$).<br />
 - </em>Prosedur Pengujian<em>:<br />
@@ -547,40 +550,5 @@ ight)   imes 100\%$$</p>
 <h4 id="4-waktu-pemulihan-oklusi-occlusion-recovery-time-t_-extrec">4. Waktu Pemulihan Oklusi (*Occlusion Recovery Time / $$t_{    ext{rec}}$$)</h4>
 <p>Durasi waktu (dalam milidetik atau jumlah frame) yang dibutuhkan oleh penapis Kalman untuk merekonvergensi estimasi posisi titik pusat target ke nilai kebenaran dasar ($$  ext{galat} &lt; 5  ext{ piksel}$$) sesaat setelah target visual muncul kembali dari oklusi total.</p>
 <hr />
-<h2 id="daftar-pustaka-bab-iii">Daftar Pustaka (Bab III)</h2>
-<ul>
-<li><em>[1]</em> Ahmed, F., Xiang, X., Jiang, C., &amp; Wang, Y. (2023). Survey on Traditional and AI-Based Estimation Techniques for Hydrodynamic Coefficients of Autonomous Underwater Vehicle. Ocean Engineering, 268, 113300. https://doi.org/10.1016/j.oceaneng.2023.113300</li>
-<li><em>[2]</em> Alinei-Poiană, T., Rețe, D., Martinovici, D., Maer, V. M., &amp; Bușoniu, L. (2024). A BlueROV2-Based Platform for Underwater Mapping Experiments. IFAC-PapersOnLine, 58(20), 470–475. https://doi.org/10.1016/j.ifacol.2024.10.098</li>
-<li><em>[3]</em> Blue Robotics (2024). BlueROV2 Heavy Configuration Retrofit Operating Guide and Technical Specifications. Blue Robotics Inc., Torrance, CA, USA.</li>
-<li><em>[4]</em> de Moraes, C. C., Faltinsen, O. M., Esperança, P. T. T., Sphaier, S. H., &amp; Lugni, C. (2025). Free-Surface Interaction of a Fully Appendaged AUV: An Experimental Study Using the Planar Motion Mechanism Method for Calculating Hydrodynamic Coefficients. Ocean Engineering, 324, 120562. https://doi.org/10.1016/j.oceaneng.2025.120562</li>
-<li><em>[5]</em> Det Norske Veritas (DNV) (2021). Environmental Conditions and Environmental Loads / Modelling and Analysis of Marine Operations. Recommended Practice DNVGL-RP-N103, Oslo, Norway.</li>
-<li><em>[6]</em> Fan, Y., Dong, H., Zhao, X., &amp; Denissenko, P. (2024). Path-Following Control of Unmanned Underwater Vehicle Based on an Improved TD3 Deep Reinforcement Learning. IEEE Transactions on Control Systems Technology, 32(5), 1904–1919. https://doi.org/10.1109/TCST.2024.3382741</li>
-<li><em>[7]</em> Fossen, T. I. (2021). Handbook of Marine Craft Hydrodynamics and Motion Control. John Wiley &amp; Sons, 2nd Edition, Hoboken, NJ, USA.</li>
-<li><em>[8]</em> Franchi, M., Ridolfi, A., &amp; Allotta, B. (2022). Tethered Multi-Robot Systems in Marine Environments: A Review. Current Robotics Reports, 3(4), 229–239. https://doi.org/10.1007/s43154-022-00091-x</li>
-<li><em>[9]</em> Gaggero, P., Corradini, F., &amp; Fossen, T. I. (2024). Tracking Data of a Remotely Operated Vehicle and Its Tether Using a Motion Capture System and a Tension Sensor. Scientific Data, 11, 482. https://doi.org/10.1038/s41597-024-03297-7</li>
-<li><em>[11]</em> Gieraths, M., Kuchelmeister, F., &amp; Albiez, J. (2023). Modular Hardware Architecture for the Development of Underwater Vehicles Based on Systems Engineering. Sensors, 23(17), 7481. https://doi.org/10.3390/s23177481</li>
-<li><em>[12]</em> Hong, L., Wang, X., &amp; Zhang, D. (2024). CFD-Based Hydrodynamic Performance Investigation of Autonomous Underwater Vehicles: A Survey. Ocean Engineering, 305, 117911. https://doi.org/10.1016/j.oceaneng.2024.117911</li>
-<li><em>[14]</em> Ismail, W. M., Hassan, A. E., Abdelhady, N. M., Hassan, N. A., Maged, S. A., &amp; Abdulhasieb, H. M. (2021). Design of Affordable Hybrid Underwater Vehicle Platform Using ArduSub &amp; Robot Operating System (ROS) for Marine Robotics Research. In Proceedings of the 5th IUGRC International Undergraduate Research Conference, Cairo, Egypt, pp. 96–102.</li>
-<li><em>[15]</em> Karras, A. A., Charalampous, K., &amp; Kyriakopoulos, K. J. (2024). From Virtual Waters to Real Oceans: A Simulation-Driven Approach to ROV Control System Design. Journal of Marine Science and Engineering, 12(11), 1957. https://doi.org/10.3390/jmse12111957</li>
-<li><em>[16]</em> Khalid, A., Sarwat, A., &amp; Riggs, H. (Eds.). (2024). Applications and Optimizations of Kalman Filter and Their Variants. IntechOpen, London, UK. https://doi.org/10.5772/intechopen.109154</li>
-<li><em>[17]</em> Kim, Y. V. (Ed.). (2023). Kalman Filter - Engineering Applications. IntechOpen, London, UK. https://doi.org/10.5772/intechopen.100722</li>
-<li><em>[18]</em> Llorente-Vidrio, D., Chavez-Galaviz, J., Fuentes-Aguilar, R. Q., Chairez, I., &amp; Mahmoudian, N. (2025). Robust Sliding-Mode Control of an Underwater ROV via Neural Differential Identification of Model Uncertainties. Ocean Engineering, 341, 122728. https://doi.org/10.1016/j.oceaneng.2025.122728</li>
-<li><em>[19]</em> Mari, Z., Nawaf, M. M., &amp; Drap, P. (2026). Deep Reinforcement Learning for Autonomous Underwater Navigation: A Comparative Study with DWA and Digital Twin Validation. Sensors, 26(2), 512. https://doi.org/10.3390/s26020512</li>
-<li><em>[20]</em> McIvor, E., Sklivanitis, G., &amp; Pados, D. A. (2024). A Generalizable Entity-Component-System Architecture for Underwater ROV Control. In IEEE/OES OCEANS 2024 - Singapore, pp. 1–7. https://doi.org/10.1109/OCEANS51537.2024.10682121</li>
-<li><em>[21]</em> Ng, P., &amp; Krieg, M. (2024). Modifications to ArduSub That Improve BlueROV SITL Accuracy and Design of Hybrid Autopilot. Applied Sciences, 14(17), 7453. https://doi.org/10.3390/app14177453</li>
-<li><em>[25]</em> Särkkä, S., &amp; Svensson, L. (2023). Bayesian Filtering and Smoothing. Cambridge University Press, 2nd Edition, Cambridge, UK. https://doi.org/10.1017/9781108910002</li>
-<li><em>[26]</em> Song, P., Wei, Z., Zhang, J., &amp; Wang, X. (2023). Multi-Objective Shape Optimization of Autonomous Underwater Vehicle by Coupling CFD Simulation with Genetic Algorithm. Ocean Engineering, 280, 114686. https://doi.org/10.1016/j.oceaneng.2023.114686</li>
-<li><em>[28]</em> Sun, Y., Wang, X., Zhang, Y., &amp; Chen, G. (2022). Nonlinear Dynamics of Novel Flight-Style Autonomous Underwater Vehicle with Bow Wings, Part I: ASE and CFD Based Estimations of Hydrodynamic Coefficients; Part II: Nonlinear Dynamic Modeling and Experimental Validations. Ocean Engineering, 266, 112836. https://doi.org/10.1016/j.oceaneng.2022.112836</li>
-<li><em>[29]</em> Ulin-Avila, E., &amp; Ponce-Hernandez, J. (2021). Kalman Filter Estimation and Its Implementation<em>. In </em>Adaptive Filtering - Recent Advances and Practical Implementation, IntechOpen, London, UK. https://doi.org/10.5772/intechopen.97406</li>
-<li><em>[30]</em> Vögele, C., Schilling, M., &amp; Hildebrandt, M. (2022). Modularis: Modular Underwater Robot for Rapid Development and Validation of Autonomous Systems. In 2022 IEEE International Conference on Robotics and Biomimetics (ROBIO), pp. 2004–2010. https://doi.org/10.1109/ROBIO54168.2022.10011985</li>
-<li><em>[31]</em> von Benzon, M., Sørensen, F. F., Uth, E., Jouffroy, J., Liniger, J., &amp; Pedersen, S. (2022). An Open-Source Benchmark Simulator: Control of a BlueROV2 Underwater Robot. Journal of Marine Science and Engineering, 10(12), 1898. https://doi.org/10.3390/jmse10121898</li>
-<li><em>[32]</em> Vu, M. T., Le, T. H., Thanh, H. L. N. N., Huynh, T. T., Van, M., Hoang, Q. D., &amp; Do, T. D. (2021). Robust Position Control of an Over-Actuated Underwater Vehicle Under Model Uncertainties and Ocean Current Effects Using Dynamic Sliding Mode Surface and Optimal Allocation Control. Sensors, 21(3), 747. https://doi.org/10.3390/s21030747</li>
-<li><em>[34]</em> Wei, X., Du, H., Yan, T., &amp; He, B. (2025). A Solution Method for Hydrodynamic Coefficients of Autonomous Underwater Vehicle Using Multi-Degree-of-Freedom Coupled Motion Data. Ocean Engineering, 341, 122653. https://doi.org/10.1016/j.oceaneng.2025.122653</li>
-<li><em>[35]</em> Westman, E., Kaess, M., &amp; Hollinger, G. A. (2021). Towards Modular and Accessible AUV Systems. In 2021 IEEE Aerospace Conference (50100), pp. 1–10. https://doi.org/10.1109/AERO50100.2021.9438312</li>
-<li><em>[36]</em> Widhalm, D., Ohnsted, C., Knutson, C., Kutzke, D., Singh, S., Mukherjee, R., Schwidder, G., Wu, Y.-K., &amp; Sattar, J. (2025). Design and Development of the MeCO Open-Source Autonomous Underwater Vehicle. In IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS).</li>
-<li><em>[37]</em> Xia, T., Liu, S., Wang, T., Li, J., Lin, W., Zhang, B., Cai, Y., &amp; Xu, W. (2025). Experimental and Numerical Analysis on Two-Way Hull–Propeller Coupled Effect of a Fully-Actuated AUV. Ocean Engineering, 321, 120288. https://doi.org/10.1016/j.oceaneng.2025.120288</li>
-<li><em>[40]</em> Zhang, Y., Zhang, J., Guo, Z., Zhang, L., &amp; Shang, Y. (2025). An Adaptive NMPC for ROVs Trajectory Tracking with Environmental Disturbances and Model Uncertainties. Brodogradnja, 76(1), 1–25. https://doi.org/10.21278/brod76101</li>
-<li><em>[41]</em> Zuluaga, C. A., Aristizábal, L. M., Rúa, S., Franco, D. A., Osorio, D. A., &amp; Vásquez, R. E. (2022). Development of a Modular Software Architecture for Underwater Vehicles Using Systems Engineering*. Journal of Marine Science and Engineering, 10(9), 1276. https://doi.org/10.3390/jmse10091276</li>
-</ul>
 </body>
 </html>
