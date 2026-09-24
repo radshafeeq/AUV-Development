@@ -3,7 +3,7 @@ import re
 import shutil
 import markdown
 import docx
-from docx.shared import Inches, Pt, RGBColor, Mm
+from docx.shared import Pt, RGBColor, Mm
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT, WD_TAB_LEADER
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.oxml import parse_xml
@@ -29,7 +29,7 @@ PRINTABLE_WIDTH = Mm(131)
 OFFICIAL_TITLE_MD = "ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL *KALMAN FILTER* UNTUK *VISION-BASED TRACKING* PADA *OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV*"
 OFFICIAL_SUBTITLE_EN = "(Analysis of Kinematics, Dynamics, and Optimal Kalman Filter State Estimation for Vision-Based Tracking on an Over-Actuated 8-Thruster 6-DOF Vectored AUV)"
 
-def setup_unhas_section(doc):
+def setup_unhas_section(doc, is_front_matter=False, start_page=1, add_page_number=True):
     sec = doc.sections[0]
     sec.page_width = Mm(176)
     sec.page_height = Mm(250)
@@ -45,6 +45,25 @@ def setup_unhas_section(doc):
     style_normal.paragraph_format.line_spacing = 1.15
     style_normal.paragraph_format.space_after = Pt(4)
     style_normal.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+
+    if add_page_number:
+        sectPr = sec._sectPr
+        if is_front_matter:
+            sec.different_first_page_header_footer = True
+            sectPr.append(parse_xml(f'<w:pgNumType {nsdecls("w")} w:fmt="lowerRoman" w:start="1"/>'))
+        else:
+            sec.different_first_page_header_footer = False
+            sectPr.append(parse_xml(f'<w:pgNumType {nsdecls("w")} w:fmt="decimal" w:start="{start_page}"/>'))
+
+        p_hdr = sec.header.paragraphs[0]
+        p_hdr.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        p_hdr.paragraph_format.space_after = Pt(0)
+        p_hdr.paragraph_format.line_spacing = 1.0
+        r_hdr = p_hdr.add_run()
+        r_hdr.font.name = 'Arial'
+        r_hdr.font.size = Pt(9.5)
+        fld_xml = parse_xml(r'<w:fldSimple %s w:instr="PAGE"/>' % nsdecls('w'))
+        p_hdr._p.append(fld_xml)
 
 def parse_inline_runs(text):
     # Matches $$...$$, **...**, *...*, `...`
@@ -172,13 +191,13 @@ def add_leader_line(doc, left_text, page_str, indent_mm=0, bold=False, space_aft
 def set_cell_borders(cell):
     tcPr = cell._tc.get_or_add_tcPr()
     borders = parse_xml(r'''
-        <w:tcBorders {} >
+        <w:tcBorders %s >
             <w:top w:val="single" w:sz="4" w:space="0" w:color="CCCCCC"/>
             <w:left w:val="single" w:sz="4" w:space="0" w:color="CCCCCC"/>
             <w:bottom w:val="single" w:sz="4" w:space="0" w:color="CCCCCC"/>
             <w:right w:val="single" w:sz="4" w:space="0" w:color="CCCCCC"/>
         </w:tcBorders>
-    '''.format(nsdecls('w')))
+    ''' % nsdecls('w'))
     tcPr.append(borders)
 
 def set_cell_margins(cell, top=80, bottom=80, left=120, right=120):
@@ -194,7 +213,7 @@ def set_cell_margins(cell, top=80, bottom=80, left=120, right=120):
     tcPr.append(tcMar)
 
 def build_front_matter(doc):
-    # 2.1 Cover Page
+    # 2.1 Cover Page (Unnumbered)
     p_cov = doc.add_paragraph()
     p_cov.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_cov.paragraph_format.space_before = Pt(10)
@@ -272,7 +291,7 @@ def build_front_matter(doc):
 
     doc.add_page_break()
 
-    # 2.2 LEMBAR PENGESAHAN
+    # 2.2 LEMBAR PENGESAHAN (Halaman ii)
     add_heading_1(doc, "LEMBAR PENGESAHAN\nPROPOSAL TUGAS AKHIR")
 
     p_app_title = doc.add_paragraph()
@@ -346,12 +365,12 @@ def build_front_matter(doc):
 
     doc.add_page_break()
 
-    # 2.3 PERNYATAAN KEASLIAN
+    # 2.3 PERNYATAAN KEASLIAN (Halaman iii) - Identity strictly moved to the LEFT per user request
     add_heading_1(doc, "PERNYATAAN KEASLIAN PROPOSAL TUGAS AKHIR")
 
     add_styled_paragraph(doc, "Yang bertanda tangan di bawah ini:", first_indent=0, space_after=6)
     t_bio = doc.add_table(rows=4, cols=3)
-    t_bio.alignment = WD_TABLE_ALIGNMENT.CENTER
+    t_bio.alignment = WD_TABLE_ALIGNMENT.LEFT
     bio_data = [
         ("Nama Mahasiswa", ":", "MUH. RADHI SYAFIQ GHANIM. S"),
         ("Nomor Induk Mahasiswa (NIM)", ":", "D021201006"),
@@ -360,12 +379,20 @@ def build_front_matter(doc):
     ]
     for idx, (f1, f2, f3) in enumerate(bio_data):
         row = t_bio.rows[idx]
-        row.cells[0].width = Mm(52)
-        row.cells[1].width = Mm(6)
-        row.cells[2].width = Mm(73)
-        row.cells[0].paragraphs[0].add_run(f1).font.name = 'Arial'
-        row.cells[1].paragraphs[0].add_run(f2).font.name = 'Arial'
-        r_val = row.cells[2].paragraphs[0].add_run(f3)
+        row.cells[0].width = Mm(55)
+        row.cells[1].width = Mm(5)
+        row.cells[2].width = Mm(71)
+        p0 = row.cells[0].paragraphs[0]
+        p0.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        p0.add_run(f1).font.name = 'Arial'
+
+        p1 = row.cells[1].paragraphs[0]
+        p1.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        p1.add_run(f2).font.name = 'Arial'
+
+        p2 = row.cells[2].paragraphs[0]
+        p2.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        r_val = p2.add_run(f3)
         r_val.font.name = 'Arial'
         if idx < 2:
             r_val.bold = True
@@ -402,7 +429,7 @@ def build_front_matter(doc):
 
     doc.add_page_break()
 
-    # 2.4 PRAKATA
+    # 2.4 PRAKATA (Halaman iv)
     add_heading_1(doc, "PRAKATA")
 
     add_styled_paragraph(doc, "Puji dan syukur ke hadirat Tuhan Yang Maha Esa atas limpahan rahmat, taufik, dan hidayah-Nya, sehingga penulis dapat menyelesaikan naskah Proposal Tugas Akhir ini dengan judul *\"Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal Kalman Filter untuk Vision-Based Tracking pada Over-Actuated 8-Thruster 6-DOF Vectored AUV\"*. Naskah ini diajukan sebagai salah satu syarat akademis kurikuler wajib guna mencapai derajat Sarjana Teknik (S.T.) pada Departemen Teknik Mesin, Fakultas Teknik, Universitas Hasanuddin.")
@@ -447,7 +474,7 @@ def build_front_matter(doc):
 
     doc.add_page_break()
 
-    # 2.5 ABSTRAK (INDONESIAN)
+    # 2.5 ABSTRAK (INDONESIAN - Halaman v) - No English abstract per user request
     add_heading_1(doc, "ABSTRAK")
 
     p_abs_title = doc.add_paragraph()
@@ -466,7 +493,7 @@ def build_front_matter(doc):
         "Latar Belakang. Wahana bawah air nirawak *Autonomous Underwater Vehicle* (AUV) konvensional dengan konfigurasi *underactuated* "
         "memiliki keterbatasan kendali orientasi ruang, terutama kopling hidrodinamika antara gerak *surge*, *heave*, dan *pitch*. "
         "Tujuan. Penelitian ini bertujuan merumuskan pemodelan komprehensif kinematika dan dinamika 6 *degrees of freedom* (6-DOF) "
-        "benda tegar bawah air (*rigid-body*) Fossen, merancang matriks alokasi gaya dorong (*thrust allocation*) 8 motor *thruster* *brushless* T200, "
+        "benda tegar bawah air (*rigid-body*) Fossen, merancang matriks alokasi gaya dorong (*thrust allocation*) 8 motor *thruster* *brushless*, "
         "serta menerapkan penapis *Extended Kalman Filter* (EKF) adaptif terdistribusi untuk estimasi keadaan visual dan gerak wahana. "
         "Metode. Pemodelan sistem mengintegrasikan tensor massa inersia dan massa tambah hidrodinamika ($$\\mathbf{M} = \\mathbf{M}_{RB} + \\mathbf{M}_A$$), "
         "matriks redaman linier-kuadratik $$\\mathbf{D}(\\boldsymbol{\\nu}_r)$$, gaya pemulih hidrostatis $$\\mathbf{g}(\\boldsymbol{\\eta})$$, dan alokasi gaya dorong matriks *pseudo-inverse* "
@@ -507,53 +534,7 @@ def build_front_matter(doc):
 
     doc.add_page_break()
 
-    # 2.6 ABSTRACT (ENGLISH)
-    add_heading_1(doc, "ABSTRACT")
-
-    p_en_title = doc.add_paragraph()
-    p_en_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p_en_title.paragraph_format.space_after = Pt(8)
-    p_en_title.paragraph_format.line_spacing = 1.15
-    r_ent = p_en_title.add_run("KINEMATICS, DYNAMICS, AND OPTIMAL KALMAN FILTER STATE ESTIMATION FOR VISION-BASED TRACKING IN AN OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV")
-    r_ent.font.name = 'Arial'
-    r_ent.font.size = Pt(10)
-    r_ent.bold = True
-    r_ent.italic = True
-
-    abstract_en_text = (
-        "Background. Conventional underactuated Autonomous Underwater Vehicles (AUVs) encounter severe cross-coupling dynamics in spatial orientation control, particularly in pitch and heave. "
-        "Objective. This study derives a comprehensive 6-DOF rigid-body hydrodynamic model based on Fossen formulation, synthesizes a Moore-Penrose pseudo-inverse thrust allocation matrix for an 8-thruster vectored configuration, and deploys an optimal distributed Extended Kalman Filter (EKF) suite for real-time visual tracking and spatial state estimation. "
-        "Methodology. Hydrodynamic modeling incorporates rigid-body and added mass tensors ($$\\mathbf{M} = \\mathbf{M}_{RB} + \\mathbf{M}_A$$), coupled nonlinear drag $$\\mathbf{D}(\\boldsymbol{\\nu}_r)$$, hydrostatic restoring moments $$\\mathbf{g}(\\boldsymbol{\\eta})$$, and a $$6 \\times 8$$ mapping matrix $$T^\\dagger$$. Visual estimation implements an 8D Discrete Kalman Filter tracking YOLO bounding box dynamics via Continuous White Noise Acceleration (CWNA) with Mahalanobis outlier rejection ($$D_M^2 \\le 9.488$$), while attitude and velocity states are filtered through a distributed EKF on a companion Raspberry Pi 4B. The framework is validated via Gazebo Harmonic Software-In-The-Loop (SITL) and Pixhawk Hardware-In-The-Loop (HITL) co-simulation. "
-        "Expected Results. This research yields complete mathematical derivations, verified thrust allocation matrices, and robust Kalman estimators that suppress YOLO bounding box jitter and preserve 6-DOF attitude stability (active pitch-holding) in real time. "
-        "Conclusion. Integrating rigorous 6-DOF hydrodynamic modeling with optimal Kalman state estimation establishes a robust theoretical and mechatronic foundation for autonomous subsea inspection missions."
-    )
-
-    p_abs_en_body = doc.add_paragraph()
-    p_abs_en_body.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    p_abs_en_body.paragraph_format.space_after = Pt(8)
-    p_abs_en_body.paragraph_format.line_spacing = 1.0
-    for t_type, t_val in parse_inline_runs(abstract_en_text):
-        r_aeb = p_abs_en_body.add_run(t_val)
-        r_aeb.font.name = 'Arial'
-        r_aeb.font.size = Pt(9.5)
-        r_aeb.italic = True
-
-    p_kwe = doc.add_paragraph()
-    p_kwe.paragraph_format.space_after = Pt(14)
-    p_kwe.paragraph_format.line_spacing = 1.0
-    r_kwe_lbl = p_kwe.add_run("Keywords: ")
-    r_kwe_lbl.bold = True
-    r_kwe_lbl.font.name = 'Arial'
-    r_kwe_lbl.font.size = Pt(9.5)
-    for t_type, t_val in parse_inline_runs("Over-actuated AUV; 6-DOF dynamics; thrust allocation; Extended Kalman Filter; vision-based tracking; Hardware-In-The-Loop."):
-        r_kwe_val = p_kwe.add_run(t_val)
-        r_kwe_val.font.name = 'Arial'
-        r_kwe_val.font.size = Pt(9.5)
-        r_kwe_val.italic = True
-
-    doc.add_page_break()
-
-    # 2.7 DAFTAR ISI
+    # 2.6 DAFTAR ISI (Halaman vi)
     add_heading_1(doc, "DAFTAR ISI")
 
     p_th = doc.add_paragraph()
@@ -573,41 +554,39 @@ def build_front_matter(doc):
     add_leader_line(doc, "PERNYATAAN KEASLIAN PROPOSAL TUGAS AKHIR", "iii", bold=True)
     add_leader_line(doc, "PRAKATA", "iv", bold=True)
     add_leader_line(doc, "ABSTRAK", "v", bold=True)
-    add_leader_line(doc, "ABSTRACT", "vi", bold=True)
-    add_leader_line(doc, "DAFTAR ISI", "vii", bold=True)
-    add_leader_line(doc, "DAFTAR TABEL", "viii", bold=True)
-    add_leader_line(doc, "DAFTAR GAMBAR", "ix", bold=True)
-    add_leader_line(doc, "DAFTAR SINGKATAN, ISTILAH, DAN LAMBANG", "x", bold=True)
+    add_leader_line(doc, "DAFTAR ISI", "vi", bold=True)
+    add_leader_line(doc, "DAFTAR TABEL", "vii", bold=True)
+    add_leader_line(doc, "DAFTAR GAMBAR", "viii", bold=True)
+    add_leader_line(doc, "DAFTAR SINGKATAN, ISTILAH, DAN LAMBANG", "ix", bold=True)
 
     add_leader_line(doc, "BAB I: PENDAHULUAN", "1", bold=True, space_after=4)
     add_leader_line(doc, "1.1 Latar Belakang", "1", indent_mm=5)
-    add_leader_line(doc, "1.2 Rumusan Masalah", "6", indent_mm=5)
+    add_leader_line(doc, "1.2 Rumusan Masalah", "5", indent_mm=5)
     add_leader_line(doc, "1.3 Tujuan Penelitian", "6", indent_mm=5)
     add_leader_line(doc, "1.4 Batasan Masalah", "7", indent_mm=5)
     add_leader_line(doc, "1.5 Manfaat Penelitian", "7", indent_mm=5)
 
     add_leader_line(doc, "BAB II: TINJAUAN PUSTAKA", "9", bold=True, space_after=4)
-    add_leader_line(doc, "2.1 Tinjauan Pustaka Terkait", "9", indent_mm=5)
-    add_leader_line(doc, "2.2 Landasan Teori", "16", indent_mm=5)
-    add_leader_line(doc, "2.2.1 Sistem Koordinat dan Kinematika 6-DOF", "16", indent_mm=10)
-    add_leader_line(doc, "2.2.2 Dinamika Benda Tegar Bawah Air (Fossen Model)", "20", indent_mm=10)
-    add_leader_line(doc, "2.2.3 Konfigurasi Geometri dan Alokasi Gaya Dorong 8 Pendorong", "25", indent_mm=10)
-    add_leader_line(doc, "2.2.4 Teori Estimasi Keadaan dan Kalman Filter Suite", "28", indent_mm=10)
-    add_leader_line(doc, "2.2.5 Deteksi Objek Berbasis Visi dan YOLO Pipeline", "35", indent_mm=10)
+    add_leader_line(doc, "2.1 Tinjauan Pustaka (*State of the Art* Penelitian AUV)", "9", indent_mm=5)
+    add_leader_line(doc, "2.2 Sistem Koordinat dan Konvensi SNAME", "15", indent_mm=5)
+    add_leader_line(doc, "2.3 Penurunan Kinematika 6-DOF dan Matriks Jacobian", "19", indent_mm=5)
+    add_leader_line(doc, "2.4 Penurunan Dinamika Hidrodinamika 6-DOF (Persamaan Fossen)", "25", indent_mm=5)
+    add_leader_line(doc, "2.5 Alokasi Gaya Dorong Sistem *Over-Actuated* 8-Pendorong", "34", indent_mm=5)
+    add_leader_line(doc, "2.6 Teori dan Formulasi Optimal *Kalman Filter* Suite", "39", indent_mm=5)
 
-    add_leader_line(doc, "BAB III: METODOLOGI PENELITIAN", "38", bold=True, space_after=4)
-    add_leader_line(doc, "3.1 Tempat dan Waktu Penelitian", "38", indent_mm=5)
-    add_leader_line(doc, "3.2 Diagram Alir Penelitian", "39", indent_mm=5)
-    add_leader_line(doc, "3.3 Identifikasi Parameter Fisik dan Hidrodinamika Wahana", "41", indent_mm=5)
-    add_leader_line(doc, "3.4 Perancangan Arsitektur Software-In-The-Loop (SITL)", "46", indent_mm=5)
-    add_leader_line(doc, "3.5 Perancangan Arsitektur Hardware-In-The-Loop (HITL)", "48", indent_mm=5)
-    add_leader_line(doc, "3.6 Prosedur Pengujian dan Evaluasi Kinerja", "53", indent_mm=5)
+    add_leader_line(doc, "BAB III: METODOLOGI PENELITIAN", "42", bold=True, space_after=4)
+    add_leader_line(doc, "3.1 Tempat dan Waktu Penelitian", "42", indent_mm=5)
+    add_leader_line(doc, "3.2 Diagram Alir Penelitian", "43", indent_mm=5)
+    add_leader_line(doc, "3.3 Identifikasi Parameter Fisik dan Hidrodinamika Wahana", "45", indent_mm=5)
+    add_leader_line(doc, "3.4 Perancangan Arsitektur *Software-In-The-Loop* (SITL)", "50", indent_mm=5)
+    add_leader_line(doc, "3.5 Perancangan Arsitektur *Hardware-In-The-Loop* (HITL)", "52", indent_mm=5)
+    add_leader_line(doc, "3.6 Prosedur Pengujian dan Evaluasi Kinerja", "57", indent_mm=5)
 
-    add_leader_line(doc, "DAFTAR PUSTAKA", "57", bold=True, space_after=4)
+    add_leader_line(doc, "DAFTAR PUSTAKA", "61", bold=True, space_after=4)
 
     doc.add_page_break()
 
-    # 2.8 DAFTAR TABEL
+    # 2.7 DAFTAR TABEL (Halaman vii) - Exactly matches the 8 actual tables present in the thesis
     add_heading_1(doc, "DAFTAR TABEL")
 
     p_tth = doc.add_paragraph()
@@ -623,16 +602,14 @@ def build_front_matter(doc):
     r_tth2.font.size = Pt(9.5)
 
     tables_info = [
-        ("Tabel 1.1", "Perbandingan Konfigurasi AUV Underactuated vs Over-Actuated", "5"),
-        ("Tabel 2.1", "Ringkasan Penelitian Terkait Pemodelan, Estimasi, dan Kendali Robot Bawah Air", "14"),
-        ("Tabel 2.2", "Notasi SNAME (1950) untuk Kinematika dan Dinamika Wahana Bawah Air 6-DOF", "17"),
-        ("Tabel 2.3", "Parameter Redaman Linier dan Non-Linier Wahana Over-Actuated", "24"),
-        ("Tabel 2.4", "Posisi dan Sudut Pemasangan 8 Motor Pendorong BLDC pada Rangka Wahana", "26"),
-        ("Tabel 3.1", "Parameter Fisik dan Properti Benda Tegar Wahana Over-Actuated 8-Pendorong", "40"),
-        ("Tabel 3.2", "Koefisien Derivatif Massa Tambah Hidrodinamika Wahana", "42"),
-        ("Tabel 3.3", "Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana", "43"),
-        ("Tabel 3.4", "Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Bervektor", "45"),
-        ("Tabel 3.5", "Spesifikasi Komponen Perangkat Keras Arsitektur HITL", "49")
+        ("Tabel 2.1", "Matriks Sintesis Literatur Terkini (2021–2025) Bidang Dinamika dan Kontrol AUV", "13"),
+        ("Tabel 2.2", "Notasi dan Konvensi 6 Derajat Kebebasan SNAME (1950) & Fossen (2021)", "16"),
+        ("Tabel 2.3", "Koordinat Spasial dan Vektor Orientasi 8 Pendorong Wahana Over-Actuated", "35"),
+        ("Tabel 3.1", "Parameter Fisik dan Properti Benda Tegar Wahana Over-Actuated 8-Pendorong", "45"),
+        ("Tabel 3.2", "Koefisien Derivatif Massa Tambah Hidrodinamika Wahana", "47"),
+        ("Tabel 3.3", "Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana", "48"),
+        ("Tabel 3.4", "Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Bervektor", "49"),
+        ("Tabel 3.5", "Spesifikasi Komponen Perangkat Keras Arsitektur HITL", "53")
     ]
 
     for num, title, pg in tables_info:
@@ -640,7 +617,7 @@ def build_front_matter(doc):
 
     doc.add_page_break()
 
-    # 2.9 DAFTAR GAMBAR
+    # 2.8 DAFTAR GAMBAR (Halaman viii) - Exactly matches the 10 actual figures present in the thesis
     add_heading_1(doc, "DAFTAR GAMBAR")
 
     p_fgh = doc.add_paragraph()
@@ -656,21 +633,16 @@ def build_front_matter(doc):
     r_fgh2.font.size = Pt(9.5)
 
     figures_info = [
-        ("Gambar 1.1", "Arsitektur Wahana AUV Vectored 6-DOF Over-Actuated 8-Pendorong", "3"),
-        ("Gambar 1.2", "Topologi Terdistribusi Subsea (Raspberry Pi 4B) dan Topside via Tether Ethernet", "5"),
-        ("Gambar 2.1", "Sistem Kerangka Acuan Inersia Bumi (Fn - NED) dan Kerangka Acuan Bodi (Fb - FRD)", "18"),
-        ("Gambar 2.2", "Konvensi Rotasi Intrinsik Sudut Euler Yaw-Pitch-Roll (z-y-x)", "21"),
-        ("Gambar 2.3", "Kopling Momen Hidrodinamika Munk pada Bidang Horizontal", "23"),
-        ("Gambar 2.4", "Konfigurasi Vektor Geometris 8 Pendorong pada Rangka Wahana Over-Actuated", "26"),
-        ("Gambar 2.5", "Struktur Rekursif Predict-Update pada Discrete Kalman Filter dan EKF", "30"),
-        ("Gambar 2.6", "Model Ruang Keadaan 8D Penjejakan Bounding Box Kamera Monokuler", "34"),
-        ("Gambar 3.1", "Diagram Alir Tahapan Penelitian Komprehensif", "40"),
-        ("Gambar 3.2", "Rangka (Frame) dan Lambung Tekanan Kustom AUV 8-Pendorong", "47"),
-        ("Gambar 3.3", "Papan Pengendali Penerbangan (Flight Controller) Pixhawk 2.4.8", "48"),
-        ("Gambar 3.4", "Komputer Pendamping (Companion Computer) Raspberry Pi 4B", "49"),
-        ("Gambar 3.5", "Modul Pengendali Kecepatan Elektronik (ESC EMAX BLHeli 30A)", "50"),
-        ("Gambar 3.6", "Motor Pendorong Bawah Air (BLDC Underwater Thruster)", "51"),
-        ("Gambar 3.7", "Sumber Daya Baterai Li-Po 4S 14.8V 6000 mAh dan Pengisi Daya SKYRC IMAX B6AC V2", "52")
+        ("Gambar 2.1", "Sistem Kerangka Acuan Inersia Bumi (Fn - NED) dan Kerangka Acuan Bergerak Bodi (Fb - FRD) Konvensi SNAME (1950) dan Fossen (2021)", "15"),
+        ("Gambar 3.1", "Diagram Alir Tahapan Penelitian Komprehensif", "44"),
+        ("Gambar 3.2", "Arsitektur Simulasi Software-In-The-Loop (SITL) Sistem AUV", "50"),
+        ("Gambar 3.3", "Arsitektur Integrasi Hardware-In-The-Loop (HITL) Mekatronika AUV", "52"),
+        ("Gambar 3.4", "Rangka (Frame) dan Lambung Tekanan Kustom AUV 8-Pendorong", "54"),
+        ("Gambar 3.5", "Papan Pengendali Penerbangan (Flight Controller) Pixhawk 2.4.8", "54"),
+        ("Gambar 3.6", "Komputer Pendamping (Companion Computer) Raspberry Pi 4B", "55"),
+        ("Gambar 3.7", "Modul Pengendali Kecepatan Elektronik (ESC EMAX BLHeli 30A)", "55"),
+        ("Gambar 3.8", "Motor Pendorong Bawah Air (BLDC Underwater Thruster)", "56"),
+        ("Gambar 3.9", "Sumber Daya Baterai Li-Po 4S 14.8V 6000 mAh dan Pengisi Daya SKYRC IMAX B6AC V2", "56")
     ]
 
     for num, title, pg in figures_info:
@@ -678,7 +650,7 @@ def build_front_matter(doc):
 
     doc.add_page_break()
 
-    # 2.10 DAFTAR SINGKATAN DAN ISTILAH
+    # 2.9 DAFTAR SINGKATAN DAN ISTILAH (Halaman ix)
     add_heading_1(doc, "DAFTAR SINGKATAN, ISTILAH, DAN LAMBANG")
     add_heading_2(doc, "1. Daftar Singkatan dan Akronim")
 
@@ -739,10 +711,16 @@ def build_front_matter(doc):
         r_de.font.name = 'Arial'
         r_de.font.size = Pt(9)
 
+    for r_idx, row in enumerate(t_abb.rows):
+        trPr = row._tr.get_or_add_trPr()
+        trPr.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
+        if r_idx == 0:
+            trPr.append(parse_xml(f'<w:tblHeader {nsdecls("w")}/>'))
+
     p_gap = doc.add_paragraph()
     p_gap.paragraph_format.space_before = Pt(12)
 
-    # 2.11 DAFTAR LAMBANG DAN SIMBOL MATEMATIKA
+    # 2.10 DAFTAR LAMBANG DAN SIMBOL MATEMATIKA
     add_heading_2(doc, "2. Daftar Lambang dan Simbol Matematika")
 
     symbols_latex = [
@@ -767,7 +745,7 @@ def build_front_matter(doc):
         ("$$GM_T$$", "$$\\text{m}$$", "Tinggi metasentris transversal wahana: $$z_g - z_b$$"),
         ("$$\\mathbf{T}_{6 \\times 8}$$", "$$\\mathbb{R}^{6 \\times 8}$$", "Matriks konfigurasi geometri dan alokasi gaya dorong 8 motor pendorong"),
         ("$$\\mathbf{T}^\\dagger$$", "$$\\mathbb{R}^{8 \\times 6}$$", "Matriks *pseudo-inverse* Moore-Penrose: $$\\mathbf{T}^T(\\mathbf{T}\\mathbf{T}^T)^{-1}$$"),
-        ("$$\\mathbf{f}$$", "$$\\mathbb{R}^8\\text{ (N)}$$", "Vektor gaya dorong individual 8 motor pendorong: $$[f_1, f_2, \\dots, f_8]^T$$"),
+        ("$$\\mathbf{f}$$", "$$\\mathbb{R}^{8}\\text{ (N)}$$", "Vektor gaya dorong individual 8 motor pendorong: $$[f_1, f_2, \\dots, f_8]^T$$"),
         ("$$\\mathbf{x}_k$$", "$$\\mathbb{R}^8\\text{ (px, px/s)}$$", "Vektor keadaan penjejakan visual: $$[x, y, w, h, v_x, v_y, v_w, v_h]^T$$"),
         ("$$\\mathbf{P}_k$$", "$$\\mathbb{R}^{n \\times n}$$", "Matriks kovariansi kesalahan estimasi filter (*error covariance matrix*)"),
         ("$$\\mathbf{K}_k$$", "-", "Matriks penguatan optimal Kalman (*optimal Kalman gain*)"),
@@ -832,6 +810,12 @@ def build_front_matter(doc):
                 r.italic = True
             if t_type == 'bold':
                 r.bold = True
+
+    for r_idx, row in enumerate(t_sym.rows):
+        trPr = row._tr.get_or_add_trPr()
+        trPr.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
+        if r_idx == 0:
+            trPr.append(parse_xml(f'<w:tblHeader {nsdecls("w")}/>'))
 
 def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
     with open(md_filepath, 'r', encoding='utf-8') as f:
@@ -910,6 +894,11 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
                                     r.bold = False
                                 if t_type == 'italic':
                                     r.italic = True
+                    for r_idx, row in enumerate(t.rows):
+                        trPr = row._tr.get_or_add_trPr()
+                        trPr.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
+                        if r_idx == 0:
+                            trPr.append(parse_xml(f'<w:tblHeader {nsdecls("w")}/>'))
                     table_rows = []
                     doc.add_paragraph().paragraph_format.space_after = Pt(4)
             continue
@@ -1067,34 +1056,56 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
             i += 1
             continue
 
-        # Images
+        # Images - Centered alignment
         m_img = re.match(r'^!\[(.*?)\]\((.*?)\)', stripped)
         if m_img:
+            alt_text = m_img.group(1).strip()
+            raw_path = m_img.group(2).strip()
+
+            resolved_path = None
+            candidate_paths = [
+                raw_path,
+                os.path.join(thesis_dir, raw_path),
+                os.path.join(thesis_dir, "figures", os.path.basename(raw_path)),
+                os.path.join("/home/radhi/Documents/AUV Development/Thesis", raw_path),
+                os.path.join("/home/radhi/Documents/AUV Development/Thesis/figures", os.path.basename(raw_path))
+            ]
+            for cp in candidate_paths:
+                if os.path.isfile(cp):
+                    resolved_path = cp
+                    break
+
             p_img = doc.add_paragraph()
             p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p_img.paragraph_format.space_before = Pt(8)
-            p_img.paragraph_format.space_after = Pt(6)
-            p_img.add_run("[").font.name = 'Arial'
-            for t_type, t_val in parse_inline_runs(m_img.group(1)):
-                r_c = p_img.add_run(t_val)
-                r_c.font.name = 'Arial'
-                r_c.font.size = Pt(9.5)
-                r_c.italic = True
-                r_c.bold = True
-            p_img.add_run("]").font.name = 'Arial'
+            p_img.paragraph_format.space_after = Pt(4)
+
+            if resolved_path:
+                r_img = p_img.add_run()
+                r_img.add_picture(resolved_path, width=Mm(128))
+            else:
+                p_img.add_run("[").font.name = 'Arial'
+                for t_type, t_val in parse_inline_runs(alt_text):
+                    r_c = p_img.add_run(t_val)
+                    r_c.font.name = 'Arial'
+                    r_c.font.size = Pt(9.5)
+                    r_c.italic = True
+                    r_c.bold = False
+                p_img.add_run("]").font.name = 'Arial'
             i += 1
             continue
 
-        # Table caption
-        if stripped.startswith('**Tabel ') or stripped.startswith('Tabel '):
+        # Table caption - strictly at TOP, centered, no trailing period
+        if stripped.startswith('**Tabel ') or stripped.startswith('Tabel ') or stripped.startswith('*Tabel '):
             p_tt = doc.add_paragraph()
+            p_tt.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p_tt.paragraph_format.space_before = Pt(8)
             p_tt.paragraph_format.space_after = Pt(3)
             p_tt.paragraph_format.line_spacing = 1.15
             m_tcap = re.match(r'^(\*?\*?Tabel\s+[\d\.]+\*?\*?)\s*(.*)', stripped)
             if m_tcap:
-                prefix = m_tcap.group(1).replace('*', '').replace('#', '')
-                title_part = m_tcap.group(2).strip()
+                prefix = m_tcap.group(1).replace('*', '').replace('#', '').strip()
+                title_part = m_tcap.group(2).strip().rstrip('.')
                 r1 = p_tt.add_run(prefix + " ")
                 r1.font.name = 'Arial'
                 r1.font.size = Pt(9.5)
@@ -1107,7 +1118,7 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
                     if t_type == 'italic':
                         r2.italic = True
             else:
-                for t_type, t_val in parse_inline_runs(stripped):
+                for t_type, t_val in parse_inline_runs(stripped.rstrip('.')):
                     r_tt = p_tt.add_run(t_val)
                     r_tt.font.name = 'Arial'
                     r_tt.font.size = Pt(9.5)
@@ -1117,8 +1128,8 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
             i += 1
             continue
 
-        # Figure caption
-        if stripped.startswith('**Gambar ') or stripped.startswith('Gambar '):
+        # Figure caption - strictly at BOTTOM, centered, no trailing period
+        if stripped.startswith('**Gambar ') or stripped.startswith('Gambar ') or stripped.startswith('*Gambar '):
             p_fc = doc.add_paragraph()
             p_fc.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p_fc.paragraph_format.space_before = Pt(4)
@@ -1126,8 +1137,8 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
             p_fc.paragraph_format.line_spacing = 1.15
             m_fcap = re.match(r'^(\*?\*?Gambar\s+[\d\.]+\*?\*?)\s*(.*)', stripped)
             if m_fcap:
-                prefix = m_fcap.group(1).replace('*', '').replace('#', '')
-                title_part = m_fcap.group(2).strip()
+                prefix = m_fcap.group(1).replace('*', '').replace('#', '').strip()
+                title_part = m_fcap.group(2).strip().rstrip('.')
                 r1 = p_fc.add_run(prefix + " ")
                 r1.font.name = 'Arial'
                 r1.font.size = Pt(9.5)
@@ -1140,7 +1151,7 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
                     if t_type == 'italic':
                         r2.italic = True
             else:
-                for t_type, t_val in parse_inline_runs(stripped):
+                for t_type, t_val in parse_inline_runs(stripped.rstrip('.')):
                     r_fc = p_fc.add_run(t_val)
                     r_fc.font.name = 'Arial'
                     r_fc.font.size = Pt(9.5)
@@ -1168,9 +1179,33 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
 
 print("--- 1. BUILDING MASTER PROPOSAL DOCX ---")
 master_doc = docx.Document()
-setup_unhas_section(master_doc)
+setup_unhas_section(master_doc, is_front_matter=True)
 build_front_matter(master_doc)
-master_doc.add_page_break()
+
+# Add section for main body (Bab I onwards)
+sec_main = master_doc.add_section(docx.enum.section.WD_SECTION_START.NEW_PAGE)
+sec_main.page_width = Mm(176)
+sec_main.page_height = Mm(250)
+sec_main.top_margin = Mm(22.5)
+sec_main.bottom_margin = Mm(22.5)
+sec_main.left_margin = Mm(22.5)
+sec_main.right_margin = Mm(22.5)
+sec_main.header.is_linked_to_previous = False
+sec_main.footer.is_linked_to_previous = False
+sec_main.different_first_page_header_footer = False
+
+sectPr_main = sec_main._sectPr
+sectPr_main.append(parse_xml(f'<w:pgNumType {nsdecls("w")} w:fmt="decimal" w:start="1"/>'))
+
+p_hdr_main = sec_main.header.paragraphs[0]
+p_hdr_main.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+p_hdr_main.paragraph_format.space_after = Pt(0)
+p_hdr_main.paragraph_format.line_spacing = 1.0
+r_hm = p_hdr_main.add_run()
+r_hm.font.name = 'Arial'
+r_hm.font.size = Pt(9.5)
+fld_xml_main = parse_xml(r'<w:fldSimple %s w:instr="PAGE"/>' % nsdecls('w'))
+p_hdr_main._p.append(fld_xml_main)
 
 print("Appending BAB I...")
 process_markdown_chapter(master_doc, os.path.join(thesis_dir, "BAB_1_PENDAHULUAN.md"), "BAB I\nPENDAHULUAN")
@@ -1193,16 +1228,16 @@ print(f"Master docx saved: {master_out} ({os.path.getsize(master_out):,} bytes)"
 
 print("\n--- 2. BUILDING INDIVIDUAL CHAPTER DOCX FILES ---")
 chapters = [
-    ("BAGIAN_AWAL_PROPOSAL.docx", None, build_front_matter),
-    ("BAB_1_PENDAHULUAN.docx", os.path.join(thesis_dir, "BAB_1_PENDAHULUAN.md"), "BAB I\nPENDAHULUAN"),
-    ("BAB_2_LANDASAN_TEORI.docx", os.path.join(thesis_dir, "BAB_2_LANDASAN_TEORI.md"), "BAB II\nTINJAUAN PUSTAKA"),
-    ("BAB_3_METODOLOGI_PENELITIAN.docx", os.path.join(thesis_dir, "BAB_3_METODOLOGI_PENELITIAN.md"), "BAB III\nMETODOLOGI PENELITIAN"),
-    ("MASTER_BIBLIOGRAPHY.docx", os.path.join(thesis_dir, "MASTER_BIBLIOGRAPHY.md"), "DAFTAR PUSTAKA")
+    ("BAGIAN_AWAL_PROPOSAL.docx", None, build_front_matter, True, 1),
+    ("BAB_1_PENDAHULUAN.docx", os.path.join(thesis_dir, "BAB_1_PENDAHULUAN.md"), "BAB I\nPENDAHULUAN", False, 1),
+    ("BAB_2_LANDASAN_TEORI.docx", os.path.join(thesis_dir, "BAB_2_LANDASAN_TEORI.md"), "BAB II\nTINJAUAN PUSTAKA", False, 9),
+    ("BAB_3_METODOLOGI_PENELITIAN.docx", os.path.join(thesis_dir, "BAB_3_METODOLOGI_PENELITIAN.md"), "BAB III\nMETODOLOGI PENELITIAN", False, 42),
+    ("MASTER_BIBLIOGRAPHY.docx", os.path.join(thesis_dir, "MASTER_BIBLIOGRAPHY.md"), "DAFTAR PUSTAKA", False, 61)
 ]
 
-for out_name, md_file, extra in chapters:
+for out_name, md_file, extra, is_fm, start_pg in chapters:
     c_doc = docx.Document()
-    setup_unhas_section(c_doc)
+    setup_unhas_section(c_doc, is_front_matter=is_fm, start_page=start_pg)
     if extra and callable(extra):
         extra(c_doc)
     elif md_file:
@@ -1305,6 +1340,27 @@ for f in os.listdir(html_dir):
     if os.path.isfile(s):
         shutil.copy2(s, d)
 
-shutil.copy2(logo_path, os.path.join(github_thesis_dir, "unhas_logo.png"))
-print("All files synchronized to AUV_GitHub_Upload/Thesis successfully!")
+# Synchronize markdown source files
+for f in os.listdir(thesis_dir):
+    if f.endswith('.md'):
+        s = os.path.join(thesis_dir, f)
+        d = os.path.join(github_thesis_dir, f)
+        shutil.copy2(s, d)
 
+# Synchronize figures directory
+figures_src = os.path.join(thesis_dir, "figures")
+figures_html = os.path.join(html_dir, "figures")
+figures_gh = os.path.join(github_thesis_dir, "figures")
+figures_gh_html = os.path.join(github_html_dir, "figures")
+
+for f_dir in [figures_html, figures_gh, figures_gh_html]:
+    os.makedirs(f_dir, exist_ok=True)
+    if os.path.exists(figures_src):
+        for fig_f in os.listdir(figures_src):
+            s_fig = os.path.join(figures_src, fig_f)
+            d_fig = os.path.join(f_dir, fig_f)
+            if os.path.isfile(s_fig):
+                shutil.copy2(s_fig, d_fig)
+
+shutil.copy2(logo_path, os.path.join(github_thesis_dir, "unhas_logo.png"))
+print("All files and figures synchronized to AUV_GitHub_Upload/Thesis successfully!")

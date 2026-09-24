@@ -103,13 +103,13 @@ Format Matematis: Seluruh persamaan dan simbol variabel diformat menggunakan del
 <p>Keberhasilan perancangan penapis Kalman dinamika (<em>AUVDynamicsKalmanFilter) dan alokasi gaya dorong </em>over-actuated<em> bergantung mutlak pada akurasi parameter fisik dan koefisien hidrodinamika wahana. Sub-bab ini merangkum identifikasi numerik dari parameter benda tegar (</em>rigid-body<em>), massa tambah hidrodinamika (</em>added mass<em>), redaman fluida (</em>hydrodynamic damping<em>), gaya pemulih hidrostatis (</em>restoring forces*), serta geometri alokasi pendorong 8-motor BlueROV2 Heavy [1], [3], [7], [34].</p>
 <h3 id="331-parameter-fisik-dan-properti-benda-tegar-rigid-body-properties">3.3.1 Parameter Fisik dan Properti Benda Tegar (Rigid-Body Properties*)</h3>
 <p>Wahana yang digunakan adalah konfigurasi <em>retrofit</em> BlueROV2 Heavy berbahan dasar tabung akrilik tahan tekanan tinggi dengan rangka struktural *High-Density Polyethylene (HDPE) [3]. Parameter massa total, dimensi fisik, dan posisi pusat massa/apung ditabulasikan pada Tabel 3.1.</p>
-<p><em>Tabel 3.1</em> Parameter Fisik dan Properti Benda Tegar Wahana BlueROV2 Heavy<br />
+<p>Tabel 3.1 Parameter Fisik dan Properti Benda Tegar Wahana Over-Actuated 8-Pendorong<br />
 | Parameter Fisis | Simbol Matematis | Nilai Numerik | Satuan SI | Sumber / Metode Penentuan |<br />
 |---|---|---|---|---|<br />
 | Massa Total Wahana | $$m$$ | $$13.00$$ | $$\text{kg}$$ | Pengukuran timbangan digital presisi [3] |<br />
-| Panjang Total (Length<em>) | $$L$$ | $$0.457$$ | $$\text{m}$$ | Pengukuran fisik geometri kerangka |<br />
-| Lebar Total (</em>Beam/Width<em>) | $$W$$ | $$0.338$$ | $$\text{m}$$ | Pengukuran fisik geometri kerangka |<br />
-| Tinggi Total (</em>Height*) | $$H$$ | $$0.254$$ | $$\text{m}$$ | Pengukuran fisik geometri kerangka |<br />
+| Panjang Total (<em>Length</em>) | $$L$$ | $$0.457$$ | $$\text{m}$$ | Pengukuran fisik geometri kerangka |<br />
+| Lebar Total (<em>Beam/Width</em>) | $$W$$ | $$0.338$$ | $$\text{m}$$ | Pengukuran fisik geometri kerangka |<br />
+| Tinggi Total (<em>Height</em>) | $$H$$ | $$0.254$$ | $$\text{m}$$ | Pengukuran fisik geometri kerangka |<br />
 | Volume Benaman Total | $$\nabla$$ | $$0.0132$$ | $$\text{m}^3$$ | Analisis model CAD 3D &amp; hukum Archimedes |<br />
 | Posisi Pusat Apung (CB) | $$\mathbf{r}<em xx="xx">b = [x_b, y_b, z_b]^T$$ | $$[0.00, 0.00, 0.00]^T$$ | $$\text{m}$$ | Ditetapkan sebagai titik asal bodi ($$O_b$$) [7] |<br />
 | Posisi Pusat Gravitasi (CG) | $$\mathbf{r}_g = [x_g, y_g, z_g]^T$$ | $$[0.00, 0.00, 0.02]^T$$ | $$\text{m}$$ | Analisis distribusi massa ballast bawah [3], [31] |<br />
@@ -142,7 +142,7 @@ m\mathbf{S}(\mathbf{r}_g) &amp; \mathbf{I}_b <br />
 <p>Massa tambah hidrodinamika timbul akibat percepatan massa fluida di sekitar lambung wahana ketika wahana bergerak [1], [7], [34]. Mengingat wahana beroperasi pada kecepatan jelajah moderat dan memiliki bidang simetri ganda (bidang <em>port-starboard</em> dan <em>fore-aft</em> mendekati simetris), suku-suku kopling silang di luar diagonal bernilai sangat kecil dibandingkan suku diagonal utamanya [31], [34]. Derivatif massa tambah hidrodinamika ditentukan berdasarkan hasil identifikasi eksperimental PMM dan analisis komputasi fluida (CFD) yang telah divalidasi oleh pengujian eksperimental *Planar Motion Mechanism (PMM) dan survei literatur wahana kelas BlueROV2 [1], [4], [7], [12], [26], [28], [31], [34], [37]:</p>
 <p>$$\mathbf{M}<em _dot_u="\dot{u">A = -\text{diag}\left( X</em>}, Y_{\dot{v}}, Z_{\dot{w}}, K_{\dot{p}}, M_{\dot{q}}, N_{\dot{r}}  \right)$$</p>
 <p>Nilai numerik massa tambah hidrodinamika dirangkum pada Tabel 3.2.</p>
-<p><em>Tabel 3.2</em> Koefisien Derivatif Massa Tambah Hidrodinamika Wahana<br />
+<p>Tabel 3.2 Koefisien Derivatif Massa Tambah Hidrodinamika Wahana<br />
 | Derajat Kebebasan (DOF) | Koefisien Notasi SNAME | Nilai Numerik | Satuan SI | Interpretasi Fisis Fluida |<br />
 |---|---|---|---|---|<br />
 | Massa Tambah Surge | $$X_{\dot{u}}$$ | $$-5.50$$ | $$\text{kg}$$ | Fluida terakselerasi penampang frontal ramping |<br />
@@ -174,7 +174,7 @@ $$\mathbf{M} = \begin{bmatrix} <br />
 $$\mathbf{D}<em NL="NL">L = -\text{diag}\left( X_u, Y_v, Z_w, K_p, M_q, N_r  \right)$$<br />
 $$\mathbf{D}</em>(\boldsymbol{\nu}<em u_u_="u|u|">r) = -\text{diag}\left( X</em>|u_r|, Y_{v|v|}|v_r|, Z_{w|w|}|w_r|, K_{p|p|}|p|, M_{q|q|}|q|, N_{r|r|}|r|  \right)$$</p>
 <p>Nilai-nilai koefisien redaman yang digunakan dalam penelitian ini disajikan pada Tabel 3.3 [31], [34].</p>
-<p><em>Tabel 3.3</em> Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana<br />
+<p>Tabel 3.3 Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana<br />
 | Sumbu Gerak | Koefisien Linier | Nilai ($$\text{SI}$$) | Koefisien Kuadratik | Nilai ($$\text{SI}$$) |<br />
 |---|---|---|---|---|<br />
 | Surge ($$u$$) | $$X_u$$ | $$-4.03\text{ N}\cdot\text{s/m}$$ | $$X_{u|u|}$$ | $$-18.18\text{ N}\cdot\text{s}^2/\text{m}^2$$ |<br />
@@ -188,7 +188,7 @@ $$\mathbf{D}</em>(\boldsymbol{\nu}<em u_u_="u|u|">r) = -\text{diag}\left( X</em>
 1. <em>Pendorong Horizontal 1–4</em>: Dipasang pada bidang horizontal ($$xy$$) dengan sudut kemiringan $$\pm 45^\circ$$ ($$\pi/4\text{ rad}$$) terhadap sumbu longitudinal. Konfigurasi vektor ini menghasilkan gaya dorong terkopling pada sumbu <em>Surge</em>, <em>Sway</em>, dan torsi <em>Yaw</em>.<br />
 2. <em>Pendorong Vertikal 5–8</em>: Dipasang tegak lurus searah sumbu $$z$$ pada empat sudut terluar kerangka. Konfigurasi ini menghasilkan gaya dorong murni pada sumbu <em>Heave</em>, serta torsi diferensial pada sumbu <em>Roll</em> dan <em>Pitch</em>.</p>
 <p>Koordinat posisi pendorong $$\mathbf{r}_i = [x_i, y_i, z_i]^T$$ relatif terhadap titik asal bodi ($$O_b$$) dan vektor arah dorong satuan $$\mathbf{d}_i$$ ditabulasikan pada Tabel 3.4.</p>
-<p><em>Tabel 3.4</em> Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong BlueROV2 Heavy<br />
+<p>Tabel 3.4 Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Bervektor<br />
 | No. Pendorong | Posisi $$x_i\text{ (m)}$$ | Posisi $$y_i\text{ (m)}$$ | Posisi $$z_i\text{ (m)}$$ | Vektor Arah Gaya Dorong $$\mathbf{d}_i$$ | Aksi Sumbu Utama |<br />
 |---|---|---|---|---|---|<br />
 | Pendorong 1 (Depan-Kanan) | $$+0.156$$ | $$+0.111$$ | $$0.000$$ | $$[\cos 45^\circ, -\sin 45^\circ, 0]^T$$ | Surge (+), Sway (-), Yaw (-) |<br />
@@ -265,17 +265,17 @@ dengan batas gaya dorong maksimum $$f_{\max} = 35.0\text{ N}$$ pada tegangan sup
 | Pengisi Daya Baterai | SKYRC IMAX B6AC V2 Cerdas Mikroprosesor | Dual Input AC/DC, Port JST-XH Balance | Pengisian daya dan penyeimbangan tegangan tiap sel baterai Li-Po secara presisi dan aman |<br />
 | Kabel Komunikasi | Kabel Tether Ethernet Subsea CAT5e/CAT6 | Antarmuka RJ45 (Bandwidth 100 Mbps) | Transmisi data aliran video H.264 dan komunikasi dua arah telemetri kendali MAVLink |</p>
 <p>Untuk memberikan gambaran yang lebih konkret terkait perangkat yang digunakan, berikut adalah visualisasi perangkat keras utama yang dikonfigurasi pada wahana AUV ini:</p>
-<p><img alt="Rangka dan Lambung Tekanan Kustom AUV 8-Pendorong" src="[PATH_FOTO_FRAME_HULL]" /><br />
+<p><img alt="Rangka dan Lambung Tekanan Kustom AUV 8-Pendorong" src="figures/placeholder_frame_hull.png" /><br />
 <em>Gambar 3.4</em> Rangka (<em>frame</em>) dan lambung tekanan kustom (<em>custom pressure hull</em>) AUV 8-pendorong</p>
-<p><img alt="Papan Pengendali Penerbangan Pixhawk 2.4.8" src="[PATH_FOTO_PIXHAWK]" /><br />
+<p><img alt="Papan Pengendali Penerbangan Pixhawk 2.4.8" src="figures/placeholder_pixhawk.png" /><br />
 <em>Gambar 3.5</em> Papan pengendali penerbangan (<em>flight controller</em>) Pixhawk 2.4.8</p>
-<p><img alt="Komputer Pendamping Raspberry Pi 4B" src="[PATH_FOTO_RASPBERRY_PI]" /><br />
+<p><img alt="Komputer Pendamping Raspberry Pi 4B" src="figures/placeholder_rpi4.png" /><br />
 <em>Gambar 3.6</em> Komputer pendamping (<em>companion computer</em>) Raspberry Pi 4B</p>
-<p><img alt="Modul Pengendali Kecepatan Elektronik ESC EMAX BLHeli 30A" src="[PATH_FOTO_ESC]" /><br />
+<p><img alt="Modul Pengendali Kecepatan Elektronik ESC EMAX BLHeli 30A" src="figures/placeholder_esc.png" /><br />
 <em>Gambar 3.7</em> Modul pengendali kecepatan elektronik (ESC EMAX BLHeli 30A)</p>
-<p><img alt="Motor Pendorong Bawah Air BLDC Underwater Thruster" src="[PATH_FOTO_THRUSTER_BLDC Underwater Thruster]" /><br />
+<p><img alt="Motor Pendorong Bawah Air BLDC Underwater Thruster" src="figures/placeholder_thruster.png" /><br />
 <em>Gambar 3.8</em> Motor pendorong bawah air (<em>BLDC underwater thruster</em>)</p>
-<p><img alt="Sumber Daya Baterai Li-Po 4S 14.8V 6000 mAh dan Pengisi Daya SKYRC IMAX B6AC V2" src="[PATH_FOTO_BATERAI]" /><br />
+<p><img alt="Sumber Daya Baterai Li-Po 4S 14.8V 6000 mAh dan Pengisi Daya SKYRC IMAX B6AC V2" src="figures/placeholder_baterai.png" /><br />
 <em>Gambar 3.9</em> Sumber daya baterai Li-Po 4S 14.8V 6000 mAh dan pengisi daya SKYRC IMAX B6AC V2</p>
 <h3 id="352-aliran-data-telemetri-cepat-low-latency-telemetry-bridge">3.5.2 Aliran Data Telemetri Cepat (*Low-Latency Telemetry Bridge)</h3>
 <p>Untuk mengalirkan data sensor dari wahana ke modul estimasi tanpa membebani bus komputasi serial MAVLink secara berlebihan, diimplementasikan jembatan telemetri asinkron berbasis REST API memanfaatkan layanan <code>mavlink2rest</code> yang terintegrasi pada BlueOS (port HTTP <code>6040</code>):<br />

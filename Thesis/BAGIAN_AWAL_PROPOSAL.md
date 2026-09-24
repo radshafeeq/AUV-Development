@@ -331,40 +331,12 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
 ---
 
 <!-- ======================================================================= -->
-<!-- ABSTRACT (BAHASA INGGRIS - HALAMAN vii)                                 -->
+<!-- DAFTAR ISI (TABLE OF CONTENTS - HALAMAN vii)                            -->
 <!-- ======================================================================= -->
 
 <div align="center">
 
-Halaman vii
-
-# ABSTRACT
-
-<br>
-
-*MUH. RADHI SYAFIQ GHANIM. S. Analysis of Kinematics, Dynamics, and Optimal Kalman Filter State Estimation for Vision-Based Tracking in an Over-Actuated 8-Thruster 6-DOF Vectored AUV* (supervised by Andi Amijoyo Mochtar, S.T., M.Sc., Ph.D. and [Co-Supervisor Name]).
-
-</div>
-
-<br>
-
-*Background.** Underwater exploration and subsea infrastructure inspection require highly agile autonomous platforms. Conventional micro-submersibles predominantly operate under underactuated conditions (6 thrusters) lacking active pitch authority and suffering from destabilizing hydrodynamic cross-coupling moments such as the Munk moment. An over-actuated 8-thruster configuration provides full active control across all 6 Degrees of Freedom (6-DOF), but introduces Navier-Stokes hydrodynamic non-linearities and noisy optical feedback caused by subsea water turbidity. **Aim.** This study aims to formulate an unabridged first-principles 6-DOF kinematic and dynamic mathematical model, derive the $$6 \times 8$$ thruster allocation matrix via Moore-Penrose pseudo-inversion, design an optimal Kalman Filter suite for visual target tracking and hydrodynamic state estimation, and validate system stability across Software-In-The-Loop (SITL) and Hardware-In-The-Loop (HITL) platforms. **Methods.* 6-DOF kinematics are derived using $$SO(3)$$ rotation mappings and singularity-free unit quaternions. Non-linear equations of motion are formulated via Fossen’s marine plant model, incorporating total mass tensors ($$\mathbf{M}_{RB} + \mathbf{M}_A$$), Coriolis-centripetal matrices ($$\mathbf{C}_{RB} + \mathbf{C}_A$$), quadratic Morison drag tensors, and hydrostatic restoring moments. Actuator redundancy is solved through minimum-energy pseudo-inverse allocation. Visual tracking is achieved using an 8D discrete Kalman filter based on a Continuous White Noise Acceleration (CWNA) model with Mahalanobis distance outlier gating, while hydrodynamic state estimation is executed via a non-linear Extended Kalman Filter (EKF) hosted on a Raspberry Pi 4B companion computer communicating over MAVLink (50 Hz) with a Pixhawk 2.4.8 autopilot (ArduSub `vectored_6dof`) and Gazebo Harmonic/ROS 2 Jazzy simulation. *Expected Results.* This research yields a validated 6-DOF plant model, an optimal thruster* allocation framework, and a *real-time* Kalman filtering *pipeline* capable of smoothing jittery YOLO detections and maintaining active *attitude hold without capsizing. *Conclusion.** The synthesis of first-principles 6-DOF dynamics with dual-stage optimal Kalman filtering establishes a rigorous theoretical foundation and practical mechatronic architecture for autonomous subsea intervention.
-
-<br>
-
-**Keywords:* Over-actuated* AUV; 6-DOF dynamics; *thruster control allocation; *Extended Kalman Filter*; YOLO visual tracking; *Hardware-In-The-Loop*
-
-<div style="page-break-after: always;"></div>
-
----
-
-<!-- ======================================================================= -->
-<!-- DAFTAR ISI (TABLE OF CONTENTS - HALAMAN viii)                           -->
-<!-- ======================================================================= -->
-
-<div align="center">
-
-*Halaman viii*
+*Halaman vii*
 
 # DAFTAR ISI
 
@@ -398,28 +370,24 @@ Halaman vii
     <td style="border:none; text-align:right;"><strong>vi</strong></td>
   </tr>
   <tr>
-    <td style="border:none;"><strong>ABSTRACT</strong></td>
+    <td style="border:none;"><strong>DAFTAR ISI</strong></td>
     <td style="border:none; text-align:right;"><strong>vii</strong></td>
   </tr>
   <tr>
-    <td style="border:none;"><strong>DAFTAR ISI</strong></td>
+    <td style="border:none;"><strong>DAFTAR TABEL</strong></td>
     <td style="border:none; text-align:right;"><strong>viii</strong></td>
   </tr>
   <tr>
-    <td style="border:none;"><strong>DAFTAR TABEL</strong></td>
+    <td style="border:none;"><strong>DAFTAR GAMBAR</strong></td>
     <td style="border:none; text-align:right;"><strong>ix</strong></td>
   </tr>
   <tr>
-    <td style="border:none;"><strong>DAFTAR GAMBAR</strong></td>
+    <td style="border:none;"><strong>DAFTAR LAMPIRAN</strong></td>
     <td style="border:none; text-align:right;"><strong>x</strong></td>
   </tr>
   <tr>
-    <td style="border:none;"><strong>DAFTAR LAMPIRAN</strong></td>
-    <td style="border:none; text-align:right;"><strong>xi</strong></td>
-  </tr>
-  <tr>
     <td style="border:none;"><strong>DAFTAR SINGKATAN, ISTILAH, DAN LAMBANG</strong></td>
-    <td style="border:none; text-align:right;"><strong>xii</strong></td>
+    <td style="border:none; text-align:right;"><strong>xi</strong></td>
   </tr>
   <tr>
     <td colspan="2" style="border:none;"><hr style="border-top:1px solid #000;"></td>

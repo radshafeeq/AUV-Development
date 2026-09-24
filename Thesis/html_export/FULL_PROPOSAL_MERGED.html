@@ -357,35 +357,12 @@ Halaman v
 
 <hr />
 <!-- ======================================================================= -->
-<!-- ABSTRACT (BAHASA INGGRIS - HALAMAN vii)                                 -->
+<!-- DAFTAR ISI (TABLE OF CONTENTS - HALAMAN vii)                            -->
 <!-- ======================================================================= -->
 
 <div align="center">
 
-Halaman vii
-
-# ABSTRACT
-
-<br>
-
-*MUH. RADHI SYAFIQ GHANIM. S. Analysis of Kinematics, Dynamics, and Optimal Kalman Filter State Estimation for Vision-Based Tracking in an Over-Actuated 8-Thruster 6-DOF Vectored AUV* (supervised by Andi Amijoyo Mochtar, S.T., M.Sc., Ph.D. and [Co-Supervisor Name]).
-
-</div>
-
-<p><br></p>
-<p><em>Background.</em><em> Underwater exploration and subsea infrastructure inspection require highly agile autonomous platforms. Conventional micro-submersibles predominantly operate under underactuated conditions (6 thrusters) lacking active pitch authority and suffering from destabilizing hydrodynamic cross-coupling moments such as the Munk moment. An over-actuated 8-thruster configuration provides full active control across all 6 Degrees of Freedom (6-DOF), but introduces Navier-Stokes hydrodynamic non-linearities and noisy optical feedback caused by subsea water turbidity. </em><em>Aim.</em><em> This study aims to formulate an unabridged first-principles 6-DOF kinematic and dynamic mathematical model, derive the $$6 \times 8$$ thruster allocation matrix via Moore-Penrose pseudo-inversion, design an optimal Kalman Filter suite for visual target tracking and hydrodynamic state estimation, and validate system stability across Software-In-The-Loop (SITL) and Hardware-In-The-Loop (HITL) platforms. </em><em>Methods.</em> 6-DOF kinematics are derived using $$SO(3)$$ rotation mappings and singularity-free unit quaternions. Non-linear equations of motion are formulated via Fossen’s marine plant model, incorporating total mass tensors ($$\mathbf{M}<em RB="RB">{RB} + \mathbf{M}_A$$), Coriolis-centripetal matrices ($$\mathbf{C}</em> + \mathbf{C}_A$$), quadratic Morison drag tensors, and hydrostatic restoring moments. Actuator redundancy is solved through minimum-energy pseudo-inverse allocation. Visual tracking is achieved using an 8D discrete Kalman filter based on a Continuous White Noise Acceleration (CWNA) model with Mahalanobis distance outlier gating, while hydrodynamic state estimation is executed via a non-linear Extended Kalman Filter (EKF) hosted on a Raspberry Pi 4B companion computer communicating over MAVLink (50 Hz) with a Pixhawk 2.4.8 autopilot (ArduSub <code>vectored_6dof</code>) and Gazebo Harmonic/ROS 2 Jazzy simulation. <em>Expected Results.</em> This research yields a validated 6-DOF plant model, an optimal thruster<em> allocation framework, and a </em>real-time<em> Kalman filtering </em>pipeline<em> capable of smoothing jittery YOLO detections and maintaining active </em>attitude hold without capsizing. <em>Conclusion.</em>* The synthesis of first-principles 6-DOF dynamics with dual-stage optimal Kalman filtering establishes a rigorous theoretical foundation and practical mechatronic architecture for autonomous subsea intervention.</p>
-<p><br></p>
-<p><em><em>Keywords:</em> Over-actuated</em> AUV; 6-DOF dynamics; <em>thruster control allocation; </em>Extended Kalman Filter<em>; YOLO visual tracking; </em>Hardware-In-The-Loop*</p>
-<div style="page-break-after: always;"></div>
-
-<hr />
-<!-- ======================================================================= -->
-<!-- DAFTAR ISI (TABLE OF CONTENTS - HALAMAN viii)                           -->
-<!-- ======================================================================= -->
-
-<div align="center">
-
-*Halaman viii*
+*Halaman vii*
 
 # DAFTAR ISI
 
@@ -418,28 +395,24 @@ Halaman vii
     <td style="border:none; text-align:right;"><strong>vi</strong></td>
   </tr>
   <tr>
-    <td style="border:none;"><strong>ABSTRACT</strong></td>
+    <td style="border:none;"><strong>DAFTAR ISI</strong></td>
     <td style="border:none; text-align:right;"><strong>vii</strong></td>
   </tr>
   <tr>
-    <td style="border:none;"><strong>DAFTAR ISI</strong></td>
+    <td style="border:none;"><strong>DAFTAR TABEL</strong></td>
     <td style="border:none; text-align:right;"><strong>viii</strong></td>
   </tr>
   <tr>
-    <td style="border:none;"><strong>DAFTAR TABEL</strong></td>
+    <td style="border:none;"><strong>DAFTAR GAMBAR</strong></td>
     <td style="border:none; text-align:right;"><strong>ix</strong></td>
   </tr>
   <tr>
-    <td style="border:none;"><strong>DAFTAR GAMBAR</strong></td>
+    <td style="border:none;"><strong>DAFTAR LAMPIRAN</strong></td>
     <td style="border:none; text-align:right;"><strong>x</strong></td>
   </tr>
   <tr>
-    <td style="border:none;"><strong>DAFTAR LAMPIRAN</strong></td>
-    <td style="border:none; text-align:right;"><strong>xi</strong></td>
-  </tr>
-  <tr>
     <td style="border:none;"><strong>DAFTAR SINGKATAN, ISTILAH, DAN LAMBANG</strong></td>
-    <td style="border:none; text-align:right;"><strong>xii</strong></td>
+    <td style="border:none; text-align:right;"><strong>xi</strong></td>
   </tr>
   <tr>
     <td colspan="2" style="border:none;"><hr style="border-top:1px solid #000;"></td>
@@ -1075,8 +1048,8 @@ Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal <em>Kalman Filter</e
 <p>Untuk mengatasi keterbatasan tersebut, konfigurasi <em>over-actuated</em> 8-pendorong berbasis BlueROV2 Heavy retrofit frame mulai diteliti secara intensif [3], [21], [6], [32], [40]. Vu dkk. (2021) mengkaji kendali posisi kokoh (<em>robust position control</em>) pada wahana bawah air <em>over-actuated</em> dengan menggabungkan <em>dynamic sliding mode surface</em> dan alokasi kendali optimal berbasis <em>pseudo-inverse</em> dan arsitektur kontrol modular [20] di bawah pengaruh arus laut dan ketidakpastian model [32]. Hasil studi mereka membuktikan bahwa penambahan aktuasi redundan tidak hanya memberikan kendali penuh pada enam derajat kebebasan spasial (6-DOF: <em>Surge</em>, <em>Sway</em>, <em>Heave</em>, <em>Roll</em>, <em>Pitch</em>, <em>Yaw</em>), tetapi juga meningkatkan toleransi kesalahan (<em>fault tolerance</em>) dan efisiensi konsumsi energi <em>thruster</em> [21], [32].</p>
 <p>Di sisi estimasi parameter hidrodinamika, identifikasi koefisien massa tambah (<em>hydrodynamic added mass</em>) dan redaman (<em>damping</em>) menjadi fondasi krusial dalam perancangan model kendali berbasis model (<em>model-based control</em>) [1], [7], [34]. Ahmed dkk. (2023) mempublikasikan survei komprehensif mengenai teknik estimasi parameter hidrodinamika tradisional (metode analitis strip theory, uji Planar Motion Mechanism/PMM) hingga pendekatan berbasis kecerdasan buatan (<em>AI-based estimation</em>) [1]. Lebih lanjut, Wei dkk. (2025) mengajukan metode solusi koefisien hidrodinamika AUV memanfaatkan data gerak terkopling multi-derajat kebebasan (<em>multi-DOF coupled motion data</em>), yang menyoroti betapa dominannya pengaruh kopling silang hidrodinamika non-linier seperti momen Munk hidrodinamika (<em>hydrodynamic Munk moment</em>) pada manuver kecepatan tinggi dan belokan tajam [34].</p>
 <p>Terkait persepsi visual dan penjejakan target bawah air, Alinei-Poiană dkk. (2024) serta Ismail dkk. (2021) menunjukkan bahwa integrasi modul kecerdasan buatan seperti <em>convolutional neural networks</em> (YOLO) pada <em>companion computer</em> (Raspberry Pi / Jetson) rentan terhadap derau pengukuran frekuensi tinggi, <em>detection jitter</em>, dan <em>occlusion</em> sementara [2], [14]. Untuk memitigasi derau tersebut, literatur estimasi mutakhir menyarankan pemanfaatan <em>Kalman Filter</em> optimal dan variannya [16], [17], [25], [29]. Särkkä dan Svensson (2023) dalam buku teks kanonikal <em>Bayesian Filtering and Smoothing</em> merumuskan kerangka stokastik rigorous untuk model <em>Continuous White Noise Acceleration (CWNA) dan penapis non-linier seperti </em>Extended Kalman Filter<em> (EKF) [25]. Khalid dkk. (2024) serta Kim (2023) mendokumentasikan aplikasi </em>Kalman Filter<em> dalam fusi multi-sensor robotika dan pelacakan target dinamis [16], [17]. Di domain bawah laut, integrasi EKF yang memadukan data inersia (IMU), sensor kedalaman, dan persamaan dinamika Fossen 6-DOF terbukti mampu mengestimasi kecepatan relatif wahana sekaligus merekonstruksi gangguan arus laut (</em>ocean current disturbance observer<em>) secara </em>real-time* [7], [18], [29].</p>
-<p>Tabel 2.1 merangkum matriks sintesis literatur terkini (2021–2025) yang menjadi pijakan komparatif dan fondasi kebaruan (<em>novelty</em>) penelitian tugas akhir ini.</p>
-<h3 id="tabel-21-matriks-sintesis-literatur-terkini-20212025-bidang-dinamika-dan-kontrol-auv">Tabel 2.1 Matriks Sintesis Literatur Terkini (2021–2025) Bidang Dinamika dan Kontrol AUV</h3>
+<p>Matriks sintesis literatur terkini (2021–2025) yang menjadi pijakan komparatif dan fondasi kebaruan (<em>novelty</em>) penelitian tugas akhir ini dirangkum pada Tabel 2.1.</p>
+<p>Tabel 2.1 Matriks Sintesis Literatur Terkini (2021–2025) Bidang Dinamika dan Kontrol AUV</p>
 <table>
 <thead>
 <tr>
@@ -1175,23 +1148,9 @@ Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal <em>Kalman Filter</e
 3. </em>Navigasi Bawah Air, Digital Twin, dan Dinamika Tether<em>: Tinjauan mendalam mengenai algoritma penentuan posisi (localization</em>) dan perencanaan jalur (<em>path planning</em>) oleh Zhang dkk. (2023) serta Pandian dkk. (2023) menyoroti pentingnya keandalan estimasi status di lingkungan tanpa GPS [22], [39]. Karras dkk. (2024) membuktikan bahwa metodologi berbasis simulasi (<em>simulation-driven approach</em>) sangat efektif memitigasi risiko transisi dari perairan virtual ke lautan riil [15]. Penggunaan <em>digital twin</em> 3D untuk memvalidasi algoritma pembelajaran penguatan mendalam (<em>Deep Reinforcement Learning</em>) pada platform BlueROV2 dieksplorasi oleh Mari dkk. (2026) [19]. Pengaruh dinamika kabel <em>tether</em> dan sistem multi-wahana dianalisis oleh Franchi dkk. (2022) serta Gaggero dkk. (2024) menggunakan sensor tegangan dan sistem penangkap gerak (<em>motion capture), sementara Ge dkk. (2025) dan Saad dkk. (2026) memvalidasi keandalan navigasi ROV terpadu pada inspeksi jaring budidaya perikanan laut [8], [9], [10], [24].<br />
 4. </em>Kendali Kokoh dan Estimasi Adaptif<em>: Kendali trajektori berbasis pemicu kejadian (event-triggered</em>) dengan <em>grey wolf optimized disturbance observer</em> oleh Huang dkk. (2026) dan kendali formasi AUV oleh Yang dkk. (2021) melengkapi pembuktian analitis bahwa estimasi gangguan arus lingkungan sangat penting untuk mempertahankan stabilitas formasi dan orientasi wahana [13], [38].</p>
 <h2 id="22-sistem-koordinat-dan-konvensi-sname">2.2 Sistem Koordinat dan Konvensi SNAME</h2>
-<p>Analisis kinematika dan kinetika wahana laut didasarkan pada ruang grup Lie Euclidean khusus $$SE(3) = SO(3) \ltimes \mathbb{R}^3$$, yang mencakup translasi tiga dimensi dan rotasi tiga dimensi pada dua sistem kerangka koordinat ortogonal tangan kanan (<em>right-handed Cartesian reference frames</em>) yang dibakukan oleh <em>The Society of Naval Architects and Marine Engineers</em> (SNAME, 1950) dan Fossen (2021) [7]:</p>
-<pre><code class="language-text">       Utara (North) x_n
-           ▲
-           │          KERANGKA ACUAN INERSIA BUMI {n} (NED)
-           │
-           │────────► Timur (East) y_n
-           │
-           ▼ Bawah (Down) z_n (Gravitasi g mengarah tegak lurus ke bawah)
-</code></pre>
-<pre><code class="language-text">       Haluan / Bow (Surge) x_b
-           ▲
-           │          KERANGKA ACUAN BERGERAK BODI {b} (FRD)
-           │
-           │────────► Lambung Kanan / Starboard (Sway) y_b
-           │
-           ▼ Lunas / Keel (Heave) z_b (Tegak lurus menembus bagian bawah bodi)
-</code></pre>
+<p>Analisis kinematika dan kinetika wahana laut didasarkan pada ruang grup Lie Euclidean khusus $$SE(3) = SO(3) \ltimes \mathbb{R}^3$$, yang mencakup translasi tiga dimensi dan rotasi tiga dimensi pada dua sistem kerangka koordinat ortogonal tangan kanan (<em>right-handed Cartesian reference frames</em>) yang dibakukan oleh <em>The Society of Naval Architects and Marine Engineers</em> (SNAME, 1950) dan Fossen (2021) [7]. Visualisasi komprehensif hubungan spasial antara kerangka acuan inersia bumi dan kerangka acuan bergerak bodi wahana diilustrasikan pada Gambar 2.1.</p>
+<p><img alt="Sistem Kerangka Acuan Inersia Bumi NED dan Kerangka Acuan Bodi FRD SNAME" src="figures/sname_fossen_coordinate_system.png" /></p>
+<p><em>Gambar 2.1</em> Sistem kerangka acuan inersia bumi ($$\mathcal{F}^n$$ - NED) dan kerangka acuan bergerak bodi ($$\mathcal{F}^b$$ - FRD) konvensi SNAME (1950) dan Fossen (2021)</p>
 <h3 id="221-kerangka-acuan-inersia-bumi-mathcalfn-o_n-x_n-y_n-z_n">2.2.1 Kerangka Acuan Inersia Bumi $$\mathcal{F}^n = {O_n, x_n, y_n, z_n}$$</h3>
 <p>Kerangka acuan inersia bumi (<em>Earth-Fixed Frame</em> atau <em>North-East-Down / NED) didefinisikan sebagai sistem koordinat stasioner yang terikat pada permukaan bumi:<br />
 - </em>Titik Asal ($$O_n$$)<em>: Ditetapkan pada lokasi referensi geografis di permukaan perairan atau dermaga peluncuran.<br />
@@ -1207,8 +1166,8 @@ $$\frac{a_{\text{centrifugal}}}{g} = \frac{\Omega_E^2 R_E}{g} \approx \frac{(7.2
 - </em>Sumbu Longitudinal ($$x_b$$)<em>: Mengarah maju ke arah haluan wahana (Forward / Bow</em>), mendefinisikan gerak translasi <em>Surge.<br />
 - </em>Sumbu Transversal ($$y_b$$)<em>: Mengarah ke sisi kanan lambung wahana (Starboard</em>), mendefinisikan gerak translasi <em>Sway.<br />
 - </em>Sumbu Normal ($$z_b$$)<em>: Mengarah tegak lurus ke bawah menembus lunas wahana (Down / Keel</em>), mendefinisikan gerak translasi *Heave.</p>
-<p>Tabel 2.2 merinci konvensi formal notasi SNAME (1950) dan Fossen (2021) untuk 6 derajat kebebasan spasial [7].</p>
-<h3 id="tabel-22-notasi-dan-konvensi-6-derajat-kebebasan-sname-1950-fossen-2021">Tabel 2.2 Notasi dan Konvensi 6 Derajat Kebebasan SNAME (1950) &amp; Fossen (2021)</h3>
+<p>Konvensi formal notasi SNAME (1950) dan Fossen (2021) untuk 6 derajat kebebasan spasial dirinci secara komprehensif pada Tabel 2.2 [7].</p>
+<p>Tabel 2.2 Notasi dan Konvensi 6 Derajat Kebebasan SNAME (1950) &amp; Fossen (2021)</p>
 <table>
 <thead>
 <tr>
@@ -1604,8 +1563,8 @@ di mana:<br />
    Empat pendorong dipasang horizontal di bidang $$x_b-y_b$$ membentuk konfigurasi vectored<em> dengan sudut canting $$\alpha = 45^\circ$$ ($$\pi/4\text{ rad}$$) terhadap sumbu longitudinal. Konfigurasi ini menghasilkan gaya translasi gabungan </em>Surge<em> ($$X$$), </em>Sway<em> ($$Y$$), dan momen rotasi </em>Yaw ($$N$$).<br />
 2. <em>Subsistem Vertikal (Pendorong 5, 6, 7, 8)</em>:<br />
    Empat pendorong dipasang vertikal di keempat sudut sasis (port-fore<em>, </em>starboard-fore<em>, </em>port-aft<em>, </em>starboard-aft<em>). Pendorong ini menghasilkan gaya translasi </em>Heave<em> ($$Z$$), serta momen kendali aktif independen pada sumbu </em>Roll<em> ($$K$$) dan sumbu </em>Pitch ($$M$$).</p>
-<p>Tabel 2.3 menyajikan koordinat spasial posisi dan vektor satuan arah dorong untuk kedelapan pendorong BlueROV2 Heavy terkalibrasi [3], [21], [31].</p>
-<h3 id="tabel-23-koordinat-spasial-dan-vektor-orientasi-8-pendorong-bluerov2-heavy">Tabel 2.3 Koordinat Spasial dan Vektor Orientasi 8 Pendorong BlueROV2 Heavy</h3>
+<p>Koordinat spasial posisi dan vektor satuan arah dorong untuk kedelapan motor pendorong wahana <em>over-actuated</em> disajikan pada Tabel 2.3 [3], [21], [31].</p>
+<p>Tabel 2.3 Koordinat Spasial dan Vektor Orientasi 8 Pendorong Wahana Over-Actuated</p>
 <table>
 <thead>
 <tr>
@@ -2039,13 +1998,13 @@ Format Matematis: Seluruh persamaan dan simbol variabel diformat menggunakan del
 <p>Keberhasilan perancangan penapis Kalman dinamika (<em>AUVDynamicsKalmanFilter) dan alokasi gaya dorong </em>over-actuated<em> bergantung mutlak pada akurasi parameter fisik dan koefisien hidrodinamika wahana. Sub-bab ini merangkum identifikasi numerik dari parameter benda tegar (</em>rigid-body<em>), massa tambah hidrodinamika (</em>added mass<em>), redaman fluida (</em>hydrodynamic damping<em>), gaya pemulih hidrostatis (</em>restoring forces*), serta geometri alokasi pendorong 8-motor BlueROV2 Heavy [1], [3], [7], [34].</p>
 <h3 id="331-parameter-fisik-dan-properti-benda-tegar-rigid-body-properties">3.3.1 Parameter Fisik dan Properti Benda Tegar (Rigid-Body Properties*)</h3>
 <p>Wahana yang digunakan adalah konfigurasi <em>retrofit</em> BlueROV2 Heavy berbahan dasar tabung akrilik tahan tekanan tinggi dengan rangka struktural *High-Density Polyethylene (HDPE) [3]. Parameter massa total, dimensi fisik, dan posisi pusat massa/apung ditabulasikan pada Tabel 3.1.</p>
-<p><em>Tabel 3.1</em> Parameter Fisik dan Properti Benda Tegar Wahana BlueROV2 Heavy<br />
+<p>Tabel 3.1 Parameter Fisik dan Properti Benda Tegar Wahana Over-Actuated 8-Pendorong<br />
 | Parameter Fisis | Simbol Matematis | Nilai Numerik | Satuan SI | Sumber / Metode Penentuan |<br />
 |---|---|---|---|---|<br />
 | Massa Total Wahana | $$m$$ | $$13.00$$ | $$\text{kg}$$ | Pengukuran timbangan digital presisi [3] |<br />
-| Panjang Total (Length<em>) | $$L$$ | $$0.457$$ | $$\text{m}$$ | Pengukuran fisik geometri kerangka |<br />
-| Lebar Total (</em>Beam/Width<em>) | $$W$$ | $$0.338$$ | $$\text{m}$$ | Pengukuran fisik geometri kerangka |<br />
-| Tinggi Total (</em>Height*) | $$H$$ | $$0.254$$ | $$\text{m}$$ | Pengukuran fisik geometri kerangka |<br />
+| Panjang Total (<em>Length</em>) | $$L$$ | $$0.457$$ | $$\text{m}$$ | Pengukuran fisik geometri kerangka |<br />
+| Lebar Total (<em>Beam/Width</em>) | $$W$$ | $$0.338$$ | $$\text{m}$$ | Pengukuran fisik geometri kerangka |<br />
+| Tinggi Total (<em>Height</em>) | $$H$$ | $$0.254$$ | $$\text{m}$$ | Pengukuran fisik geometri kerangka |<br />
 | Volume Benaman Total | $$\nabla$$ | $$0.0132$$ | $$\text{m}^3$$ | Analisis model CAD 3D &amp; hukum Archimedes |<br />
 | Posisi Pusat Apung (CB) | $$\mathbf{r}<em xx="xx">b = [x_b, y_b, z_b]^T$$ | $$[0.00, 0.00, 0.00]^T$$ | $$\text{m}$$ | Ditetapkan sebagai titik asal bodi ($$O_b$$) [7] |<br />
 | Posisi Pusat Gravitasi (CG) | $$\mathbf{r}_g = [x_g, y_g, z_g]^T$$ | $$[0.00, 0.00, 0.02]^T$$ | $$\text{m}$$ | Analisis distribusi massa ballast bawah [3], [31] |<br />
@@ -2078,7 +2037,7 @@ m\mathbf{S}(\mathbf{r}_g) &amp; \mathbf{I}_b <br />
 <p>Massa tambah hidrodinamika timbul akibat percepatan massa fluida di sekitar lambung wahana ketika wahana bergerak [1], [7], [34]. Mengingat wahana beroperasi pada kecepatan jelajah moderat dan memiliki bidang simetri ganda (bidang <em>port-starboard</em> dan <em>fore-aft</em> mendekati simetris), suku-suku kopling silang di luar diagonal bernilai sangat kecil dibandingkan suku diagonal utamanya [31], [34]. Derivatif massa tambah hidrodinamika ditentukan berdasarkan hasil identifikasi eksperimental PMM dan analisis komputasi fluida (CFD) yang telah divalidasi oleh pengujian eksperimental *Planar Motion Mechanism (PMM) dan survei literatur wahana kelas BlueROV2 [1], [4], [7], [12], [26], [28], [31], [34], [37]:</p>
 <p>$$\mathbf{M}<em _dot_u="\dot{u">A = -\text{diag}\left( X</em>}, Y_{\dot{v}}, Z_{\dot{w}}, K_{\dot{p}}, M_{\dot{q}}, N_{\dot{r}}  \right)$$</p>
 <p>Nilai numerik massa tambah hidrodinamika dirangkum pada Tabel 3.2.</p>
-<p><em>Tabel 3.2</em> Koefisien Derivatif Massa Tambah Hidrodinamika Wahana<br />
+<p>Tabel 3.2 Koefisien Derivatif Massa Tambah Hidrodinamika Wahana<br />
 | Derajat Kebebasan (DOF) | Koefisien Notasi SNAME | Nilai Numerik | Satuan SI | Interpretasi Fisis Fluida |<br />
 |---|---|---|---|---|<br />
 | Massa Tambah Surge | $$X_{\dot{u}}$$ | $$-5.50$$ | $$\text{kg}$$ | Fluida terakselerasi penampang frontal ramping |<br />
@@ -2110,7 +2069,7 @@ $$\mathbf{M} = \begin{bmatrix} <br />
 $$\mathbf{D}<em NL="NL">L = -\text{diag}\left( X_u, Y_v, Z_w, K_p, M_q, N_r  \right)$$<br />
 $$\mathbf{D}</em>(\boldsymbol{\nu}<em u_u_="u|u|">r) = -\text{diag}\left( X</em>|u_r|, Y_{v|v|}|v_r|, Z_{w|w|}|w_r|, K_{p|p|}|p|, M_{q|q|}|q|, N_{r|r|}|r|  \right)$$</p>
 <p>Nilai-nilai koefisien redaman yang digunakan dalam penelitian ini disajikan pada Tabel 3.3 [31], [34].</p>
-<p><em>Tabel 3.3</em> Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana<br />
+<p>Tabel 3.3 Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana<br />
 | Sumbu Gerak | Koefisien Linier | Nilai ($$\text{SI}$$) | Koefisien Kuadratik | Nilai ($$\text{SI}$$) |<br />
 |---|---|---|---|---|<br />
 | Surge ($$u$$) | $$X_u$$ | $$-4.03\text{ N}\cdot\text{s/m}$$ | $$X_{u|u|}$$ | $$-18.18\text{ N}\cdot\text{s}^2/\text{m}^2$$ |<br />
@@ -2124,7 +2083,7 @@ $$\mathbf{D}</em>(\boldsymbol{\nu}<em u_u_="u|u|">r) = -\text{diag}\left( X</em>
 1. <em>Pendorong Horizontal 1–4</em>: Dipasang pada bidang horizontal ($$xy$$) dengan sudut kemiringan $$\pm 45^\circ$$ ($$\pi/4\text{ rad}$$) terhadap sumbu longitudinal. Konfigurasi vektor ini menghasilkan gaya dorong terkopling pada sumbu <em>Surge</em>, <em>Sway</em>, dan torsi <em>Yaw</em>.<br />
 2. <em>Pendorong Vertikal 5–8</em>: Dipasang tegak lurus searah sumbu $$z$$ pada empat sudut terluar kerangka. Konfigurasi ini menghasilkan gaya dorong murni pada sumbu <em>Heave</em>, serta torsi diferensial pada sumbu <em>Roll</em> dan <em>Pitch</em>.</p>
 <p>Koordinat posisi pendorong $$\mathbf{r}_i = [x_i, y_i, z_i]^T$$ relatif terhadap titik asal bodi ($$O_b$$) dan vektor arah dorong satuan $$\mathbf{d}_i$$ ditabulasikan pada Tabel 3.4.</p>
-<p><em>Tabel 3.4</em> Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong BlueROV2 Heavy<br />
+<p>Tabel 3.4 Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Bervektor<br />
 | No. Pendorong | Posisi $$x_i\text{ (m)}$$ | Posisi $$y_i\text{ (m)}$$ | Posisi $$z_i\text{ (m)}$$ | Vektor Arah Gaya Dorong $$\mathbf{d}_i$$ | Aksi Sumbu Utama |<br />
 |---|---|---|---|---|---|<br />
 | Pendorong 1 (Depan-Kanan) | $$+0.156$$ | $$+0.111$$ | $$0.000$$ | $$[\cos 45^\circ, -\sin 45^\circ, 0]^T$$ | Surge (+), Sway (-), Yaw (-) |<br />
@@ -2201,17 +2160,17 @@ dengan batas gaya dorong maksimum $$f_{\max} = 35.0\text{ N}$$ pada tegangan sup
 | Pengisi Daya Baterai | SKYRC IMAX B6AC V2 Cerdas Mikroprosesor | Dual Input AC/DC, Port JST-XH Balance | Pengisian daya dan penyeimbangan tegangan tiap sel baterai Li-Po secara presisi dan aman |<br />
 | Kabel Komunikasi | Kabel Tether Ethernet Subsea CAT5e/CAT6 | Antarmuka RJ45 (Bandwidth 100 Mbps) | Transmisi data aliran video H.264 dan komunikasi dua arah telemetri kendali MAVLink |</p>
 <p>Untuk memberikan gambaran yang lebih konkret terkait perangkat yang digunakan, berikut adalah visualisasi perangkat keras utama yang dikonfigurasi pada wahana AUV ini:</p>
-<p><img alt="Rangka dan Lambung Tekanan Kustom AUV 8-Pendorong" src="[PATH_FOTO_FRAME_HULL]" /><br />
+<p><img alt="Rangka dan Lambung Tekanan Kustom AUV 8-Pendorong" src="figures/placeholder_frame_hull.png" /><br />
 <em>Gambar 3.4</em> Rangka (<em>frame</em>) dan lambung tekanan kustom (<em>custom pressure hull</em>) AUV 8-pendorong</p>
-<p><img alt="Papan Pengendali Penerbangan Pixhawk 2.4.8" src="[PATH_FOTO_PIXHAWK]" /><br />
+<p><img alt="Papan Pengendali Penerbangan Pixhawk 2.4.8" src="figures/placeholder_pixhawk.png" /><br />
 <em>Gambar 3.5</em> Papan pengendali penerbangan (<em>flight controller</em>) Pixhawk 2.4.8</p>
-<p><img alt="Komputer Pendamping Raspberry Pi 4B" src="[PATH_FOTO_RASPBERRY_PI]" /><br />
+<p><img alt="Komputer Pendamping Raspberry Pi 4B" src="figures/placeholder_rpi4.png" /><br />
 <em>Gambar 3.6</em> Komputer pendamping (<em>companion computer</em>) Raspberry Pi 4B</p>
-<p><img alt="Modul Pengendali Kecepatan Elektronik ESC EMAX BLHeli 30A" src="[PATH_FOTO_ESC]" /><br />
+<p><img alt="Modul Pengendali Kecepatan Elektronik ESC EMAX BLHeli 30A" src="figures/placeholder_esc.png" /><br />
 <em>Gambar 3.7</em> Modul pengendali kecepatan elektronik (ESC EMAX BLHeli 30A)</p>
-<p><img alt="Motor Pendorong Bawah Air BLDC Underwater Thruster" src="[PATH_FOTO_THRUSTER_BLDC Underwater Thruster]" /><br />
+<p><img alt="Motor Pendorong Bawah Air BLDC Underwater Thruster" src="figures/placeholder_thruster.png" /><br />
 <em>Gambar 3.8</em> Motor pendorong bawah air (<em>BLDC underwater thruster</em>)</p>
-<p><img alt="Sumber Daya Baterai Li-Po 4S 14.8V 6000 mAh dan Pengisi Daya SKYRC IMAX B6AC V2" src="[PATH_FOTO_BATERAI]" /><br />
+<p><img alt="Sumber Daya Baterai Li-Po 4S 14.8V 6000 mAh dan Pengisi Daya SKYRC IMAX B6AC V2" src="figures/placeholder_baterai.png" /><br />
 <em>Gambar 3.9</em> Sumber daya baterai Li-Po 4S 14.8V 6000 mAh dan pengisi daya SKYRC IMAX B6AC V2</p>
 <h3 id="352-aliran-data-telemetri-cepat-low-latency-telemetry-bridge">3.5.2 Aliran Data Telemetri Cepat (*Low-Latency Telemetry Bridge)</h3>
 <p>Untuk mengalirkan data sensor dari wahana ke modul estimasi tanpa membebani bus komputasi serial MAVLink secara berlebihan, diimplementasikan jembatan telemetri asinkron berbasis REST API memanfaatkan layanan <code>mavlink2rest</code> yang terintegrasi pada BlueOS (port HTTP <code>6040</code>):<br />

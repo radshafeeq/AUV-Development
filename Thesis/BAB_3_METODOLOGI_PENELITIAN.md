@@ -69,11 +69,11 @@ Keberhasilan perancangan penapis Kalman dinamika (*AUVDynamicsKalmanFilter) dan 
 ### 3.3.1 Parameter Fisik dan Properti Benda Tegar (Rigid-Body Properties*)
 Wahana yang digunakan adalah konfigurasi *retrofit* BlueROV2 Heavy berbahan dasar tabung akrilik tahan tekanan tinggi dengan rangka struktural *High-Density Polyethylene (HDPE) [3]. Parameter massa total, dimensi fisik, dan posisi pusat massa/apung ditabulasikan pada Tabel 3.1.
 
-*Tabel 3.1* Parameter Fisik dan Properti Benda Tegar Wahana BlueROV2 Heavy
+Tabel 3.1 Parameter Fisik dan Properti Benda Tegar Wahana Over-Actuated 8-Pendorong
 | Parameter Fisis | Simbol Matematis | Nilai Numerik | Satuan SI | Sumber / Metode Penentuan |
 |---|---|---|---|---|
 | Massa Total Wahana | $$m$$ | $$13.00$$ | $$\text{kg}$$ | Pengukuran timbangan digital presisi [3] |
-| Panjang Total (Length*) | $$L$$ | $$0.457$$ | $$\text{m}$$ | Pengukuran fisik geometri kerangka |
+| Panjang Total (*Length*) | $$L$$ | $$0.457$$ | $$\text{m}$$ | Pengukuran fisik geometri kerangka |
 | Lebar Total (*Beam/Width*) | $$W$$ | $$0.338$$ | $$\text{m}$$ | Pengukuran fisik geometri kerangka |
 | Tinggi Total (*Height*) | $$H$$ | $$0.254$$ | $$\text{m}$$ | Pengukuran fisik geometri kerangka |
 | Volume Benaman Total | $$\nabla$$ | $$0.0132$$ | $$\text{m}^3$$ | Analisis model CAD 3D & hukum Archimedes |
@@ -117,7 +117,7 @@ $$\mathbf{M}_A = -\text{diag}\left( X_{\dot{u}}, Y_{\dot{v}}, Z_{\dot{w}}, K_{\d
 
 Nilai numerik massa tambah hidrodinamika dirangkum pada Tabel 3.2.
 
-*Tabel 3.2* Koefisien Derivatif Massa Tambah Hidrodinamika Wahana
+Tabel 3.2 Koefisien Derivatif Massa Tambah Hidrodinamika Wahana
 | Derajat Kebebasan (DOF) | Koefisien Notasi SNAME | Nilai Numerik | Satuan SI | Interpretasi Fisis Fluida |
 |---|---|---|---|---|
 | Massa Tambah Surge | $$X_{\dot{u}}$$ | $$-5.50$$ | $$\text{kg}$$ | Fluida terakselerasi penampang frontal ramping |
@@ -158,7 +158,7 @@ $$\mathbf{D}_{NL}(\boldsymbol{\nu}_r) = -\text{diag}\left( X_{u|u|}|u_r|, Y_{v|v
 
 Nilai-nilai koefisien redaman yang digunakan dalam penelitian ini disajikan pada Tabel 3.3 [31], [34].
 
-*Tabel 3.3* Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana
+Tabel 3.3 Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana
 | Sumbu Gerak | Koefisien Linier | Nilai ($$\text{SI}$$) | Koefisien Kuadratik | Nilai ($$\text{SI}$$) |
 |---|---|---|---|---|
 | Surge ($$u$$) | $$X_u$$ | $$-4.03\text{ N}\cdot\text{s/m}$$ | $$X_{u|u|}$$ | $$-18.18\text{ N}\cdot\text{s}^2/\text{m}^2$$ |
@@ -175,7 +175,7 @@ Konfigurasi pendorong pada BlueROV2 Heavy terdiri dari delapan motor pendorong B
 
 Koordinat posisi pendorong $$\mathbf{r}_i = [x_i, y_i, z_i]^T$$ relatif terhadap titik asal bodi ($$O_b$$) dan vektor arah dorong satuan $$\mathbf{d}_i$$ ditabulasikan pada Tabel 3.4.
 
-*Tabel 3.4* Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong BlueROV2 Heavy
+Tabel 3.4 Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Bervektor
 | No. Pendorong | Posisi $$x_i\text{ (m)}$$ | Posisi $$y_i\text{ (m)}$$ | Posisi $$z_i\text{ (m)}$$ | Vektor Arah Gaya Dorong $$\mathbf{d}_i$$ | Aksi Sumbu Utama |
 |---|---|---|---|---|---|
 | Pendorong 1 (Depan-Kanan) | $$+0.156$$ | $$+0.111$$ | $$0.000$$ | $$[\cos 45^\circ, -\sin 45^\circ, 0]^T$$ | Surge (+), Sway (-), Yaw (-) |
@@ -276,22 +276,22 @@ Tabel 3.5 Spesifikasi Komponen Perangkat Keras Arsitektur HITL
 
 Untuk memberikan gambaran yang lebih konkret terkait perangkat yang digunakan, berikut adalah visualisasi perangkat keras utama yang dikonfigurasi pada wahana AUV ini:
 
-![Rangka dan Lambung Tekanan Kustom AUV 8-Pendorong]([PATH_FOTO_FRAME_HULL])
+![Rangka dan Lambung Tekanan Kustom AUV 8-Pendorong](figures/placeholder_frame_hull.png)
 *Gambar 3.4* Rangka (*frame*) dan lambung tekanan kustom (*custom pressure hull*) AUV 8-pendorong
 
-![Papan Pengendali Penerbangan Pixhawk 2.4.8]([PATH_FOTO_PIXHAWK])
+![Papan Pengendali Penerbangan Pixhawk 2.4.8](figures/placeholder_pixhawk.png)
 *Gambar 3.5* Papan pengendali penerbangan (*flight controller*) Pixhawk 2.4.8
 
-![Komputer Pendamping Raspberry Pi 4B]([PATH_FOTO_RASPBERRY_PI])
+![Komputer Pendamping Raspberry Pi 4B](figures/placeholder_rpi4.png)
 *Gambar 3.6* Komputer pendamping (*companion computer*) Raspberry Pi 4B
 
-![Modul Pengendali Kecepatan Elektronik ESC EMAX BLHeli 30A]([PATH_FOTO_ESC])
+![Modul Pengendali Kecepatan Elektronik ESC EMAX BLHeli 30A](figures/placeholder_esc.png)
 *Gambar 3.7* Modul pengendali kecepatan elektronik (ESC EMAX BLHeli 30A)
 
-![Motor Pendorong Bawah Air BLDC Underwater Thruster]([PATH_FOTO_THRUSTER_BLDC Underwater Thruster])
+![Motor Pendorong Bawah Air BLDC Underwater Thruster](figures/placeholder_thruster.png)
 *Gambar 3.8* Motor pendorong bawah air (*BLDC underwater thruster*)
 
-![Sumber Daya Baterai Li-Po 4S 14.8V 6000 mAh dan Pengisi Daya SKYRC IMAX B6AC V2]([PATH_FOTO_BATERAI])
+![Sumber Daya Baterai Li-Po 4S 14.8V 6000 mAh dan Pengisi Daya SKYRC IMAX B6AC V2](figures/placeholder_baterai.png)
 *Gambar 3.9* Sumber daya baterai Li-Po 4S 14.8V 6000 mAh dan pengisi daya SKYRC IMAX B6AC V2
 
 ### 3.5.2 Aliran Data Telemetri Cepat (*Low-Latency Telemetry Bridge)

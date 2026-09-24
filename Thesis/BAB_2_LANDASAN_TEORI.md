@@ -18,9 +18,9 @@ Di sisi estimasi parameter hidrodinamika, identifikasi koefisien massa tambah (*
 
 Terkait persepsi visual dan penjejakan target bawah air, Alinei-Poiană dkk. (2024) serta Ismail dkk. (2021) menunjukkan bahwa integrasi modul kecerdasan buatan seperti *convolutional neural networks* (YOLO) pada *companion computer* (Raspberry Pi / Jetson) rentan terhadap derau pengukuran frekuensi tinggi, *detection jitter*, dan *occlusion* sementara [2], [14]. Untuk memitigasi derau tersebut, literatur estimasi mutakhir menyarankan pemanfaatan *Kalman Filter* optimal dan variannya [16], [17], [25], [29]. Särkkä dan Svensson (2023) dalam buku teks kanonikal *Bayesian Filtering and Smoothing* merumuskan kerangka stokastik rigorous untuk model *Continuous White Noise Acceleration (CWNA) dan penapis non-linier seperti *Extended Kalman Filter* (EKF) [25]. Khalid dkk. (2024) serta Kim (2023) mendokumentasikan aplikasi *Kalman Filter* dalam fusi multi-sensor robotika dan pelacakan target dinamis [16], [17]. Di domain bawah laut, integrasi EKF yang memadukan data inersia (IMU), sensor kedalaman, dan persamaan dinamika Fossen 6-DOF terbukti mampu mengestimasi kecepatan relatif wahana sekaligus merekonstruksi gangguan arus laut (*ocean current disturbance observer*) secara *real-time* [7], [18], [29].
 
-Tabel 2.1 merangkum matriks sintesis literatur terkini (2021–2025) yang menjadi pijakan komparatif dan fondasi kebaruan (*novelty*) penelitian tugas akhir ini.
+Matriks sintesis literatur terkini (2021–2025) yang menjadi pijakan komparatif dan fondasi kebaruan (*novelty*) penelitian tugas akhir ini dirangkum pada Tabel 2.1.
 
-### Tabel 2.1 Matriks Sintesis Literatur Terkini (2021–2025) Bidang Dinamika dan Kontrol AUV
+Tabel 2.1 Matriks Sintesis Literatur Terkini (2021–2025) Bidang Dinamika dan Kontrol AUV
 
 | Peneliti & Tahun | Platform Wahana | Derajat Kebebasan (DOF) | Fokus Metode & Kontribusi Utama | Keterbatasan / Kesenjangan Riset (*Research Gap) |
 | :--- | :--- | :---: | :--- | :--- |
@@ -48,27 +48,11 @@ Pengembangan komputasi dinamika dan arsitektur estimasi wahana *over-actuated in
 
 ## 2.2 Sistem Koordinat dan Konvensi SNAME
 
-Analisis kinematika dan kinetika wahana laut didasarkan pada ruang grup Lie Euclidean khusus $$SE(3) = SO(3) \ltimes \mathbb{R}^3$$, yang mencakup translasi tiga dimensi dan rotasi tiga dimensi pada dua sistem kerangka koordinat ortogonal tangan kanan (*right-handed Cartesian reference frames*) yang dibakukan oleh *The Society of Naval Architects and Marine Engineers* (SNAME, 1950) dan Fossen (2021) [7]:
+Analisis kinematika dan kinetika wahana laut didasarkan pada ruang grup Lie Euclidean khusus $$SE(3) = SO(3) \ltimes \mathbb{R}^3$$, yang mencakup translasi tiga dimensi dan rotasi tiga dimensi pada dua sistem kerangka koordinat ortogonal tangan kanan (*right-handed Cartesian reference frames*) yang dibakukan oleh *The Society of Naval Architects and Marine Engineers* (SNAME, 1950) dan Fossen (2021) [7]. Visualisasi komprehensif hubungan spasial antara kerangka acuan inersia bumi dan kerangka acuan bergerak bodi wahana diilustrasikan pada Gambar 2.1.
 
-```text
-       Utara (North) x_n
-           ▲
-           │          KERANGKA ACUAN INERSIA BUMI {n} (NED)
-           │
-           │────────► Timur (East) y_n
-           │
-           ▼ Bawah (Down) z_n (Gravitasi g mengarah tegak lurus ke bawah)
-```
+![Sistem Kerangka Acuan Inersia Bumi NED dan Kerangka Acuan Bodi FRD SNAME](figures/sname_fossen_coordinate_system.png)
 
-```text
-       Haluan / Bow (Surge) x_b
-           ▲
-           │          KERANGKA ACUAN BERGERAK BODI {b} (FRD)
-           │
-           │────────► Lambung Kanan / Starboard (Sway) y_b
-           │
-           ▼ Lunas / Keel (Heave) z_b (Tegak lurus menembus bagian bawah bodi)
-```
+*Gambar 2.1* Sistem kerangka acuan inersia bumi ($$\mathcal{F}^n$$ - NED) dan kerangka acuan bergerak bodi ($$\mathcal{F}^b$$ - FRD) konvensi SNAME (1950) dan Fossen (2021)
 
 ### 2.2.1 Kerangka Acuan Inersia Bumi $$\mathcal{F}^n = \{O_n, x_n, y_n, z_n\}$$
 Kerangka acuan inersia bumi (*Earth-Fixed Frame* atau *North-East-Down / NED) didefinisikan sebagai sistem koordinat stasioner yang terikat pada permukaan bumi:
@@ -89,9 +73,9 @@ Kerangka acuan bergerak bodi (*Body-Fixed Frame* atau *Forward-Right-Down / FRD)
 - *Sumbu Transversal ($$y_b$$)*: Mengarah ke sisi kanan lambung wahana (Starboard*), mendefinisikan gerak translasi *Sway.
 - *Sumbu Normal ($$z_b$$)*: Mengarah tegak lurus ke bawah menembus lunas wahana (Down / Keel*), mendefinisikan gerak translasi *Heave.
 
-Tabel 2.2 merinci konvensi formal notasi SNAME (1950) dan Fossen (2021) untuk 6 derajat kebebasan spasial [7].
+Konvensi formal notasi SNAME (1950) dan Fossen (2021) untuk 6 derajat kebebasan spasial dirinci secara komprehensif pada Tabel 2.2 [7].
 
-### Tabel 2.2 Notasi dan Konvensi 6 Derajat Kebebasan SNAME (1950) & Fossen (2021)
+Tabel 2.2 Notasi dan Konvensi 6 Derajat Kebebasan SNAME (1950) & Fossen (2021)
 
 | Derajat Kebebasan (DOF) | Gerak Translasi / Rotasi | Gaya & Momen Bodi ($$\boldsymbol{\tau}$$) | Kecepatan Linier & Sudut Bodi ($$\boldsymbol{\nu}$$) | Posisi & Sudut Euler Bumi ($$\boldsymbol{\eta}$$) |
 | :---: | :--- | :---: | :---: | :---: |
@@ -496,9 +480,9 @@ Tata letak fisik 8 pendorong pada arsitektur BlueROV2 Heavy dibagi menjadi dua s
 2. *Subsistem Vertikal (Pendorong 5, 6, 7, 8)*:  
    Empat pendorong dipasang vertikal di keempat sudut sasis (port-fore*, *starboard-fore*, *port-aft*, *starboard-aft*). Pendorong ini menghasilkan gaya translasi *Heave* ($$Z$$), serta momen kendali aktif independen pada sumbu *Roll* ($$K$$) dan sumbu *Pitch ($$M$$).
 
-Tabel 2.3 menyajikan koordinat spasial posisi dan vektor satuan arah dorong untuk kedelapan pendorong BlueROV2 Heavy terkalibrasi [3], [21], [31].
+Koordinat spasial posisi dan vektor satuan arah dorong untuk kedelapan motor pendorong wahana *over-actuated* disajikan pada Tabel 2.3 [3], [21], [31].
 
-### Tabel 2.3 Koordinat Spasial dan Vektor Orientasi 8 Pendorong BlueROV2 Heavy
+Tabel 2.3 Koordinat Spasial dan Vektor Orientasi 8 Pendorong Wahana Over-Actuated
 
 | Indeks ($$i$$) | Penamaan Pendorong | Posisi $$x_i$$ (m) | Posisi $$y_i$$ (m) | Posisi $$z_i$$ (m) | Arah $$d_{x,i}$$ | Arah $$d_{y,i}$$ | Arah $$d_{z,i}$$ |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
