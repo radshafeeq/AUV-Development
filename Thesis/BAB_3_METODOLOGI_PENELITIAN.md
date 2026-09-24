@@ -279,8 +279,11 @@ Untuk memberikan gambaran yang lebih konkret terkait perangkat yang digunakan, b
 ![Motor Pendorong Bawah Air BLDC Underwater Thruster](figures/placeholder_thruster.png)
 *Gambar 3.8* Motor pendorong bawah air (*BLDC underwater thruster*)
 
-![Sumber Daya Baterai Li-Po 4S 14.8V 6000 mAh dan Pengisi Daya SKYRC IMAX B6AC V2](figures/placeholder_baterai.png)
-*Gambar 3.9* Sumber daya baterai Li-Po 4S 14.8V 6000 mAh dan pengisi daya SKYRC IMAX B6AC V2
+![Sumber Daya Utama Baterai Li-Po 4S 14.8V 6000 mAh](figures/placeholder_baterai.png)
+*Gambar 3.9* Sumber daya utama baterai Li-Po 4S 14.8V 6000 mAh
+
+![Modul Kamera Sistem Pelacakan Visual: Raspberry Pi Camera Rev 1.3 dan Webcam Logitech C922 Pro](figures/placeholder_kamera.png)
+*Gambar 3.10* Modul kamera sistem pelacakan visual: Raspberry Pi Camera Rev 1.3 (*subsea*, kiri) dan webcam Logitech C922 Pro (*topside*, kanan)
 
 ### 3.5.2 Aliran Data Telemetri Cepat (*Low-Latency Telemetry Bridge*)
 Untuk mengalirkan data sensor dari wahana ke modul estimasi tanpa membebani bus komputasi serial MAVLink secara berlebihan, diimplementasikan jembatan telemetri asinkron berbasis REST API memanfaatkan layanan `mavlink2rest` yang terintegrasi pada BlueOS (port HTTP `6040`):

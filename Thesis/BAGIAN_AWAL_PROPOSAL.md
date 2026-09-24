@@ -609,8 +609,13 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.9</td>
-    <td style="border:none;">Sumber Daya Baterai Li-Po 4S 14.8V 6000 mAh dan Pengisi Daya SKYRC IMAX B6AC V2</td>
-    <td style="border:none; text-align:right;">67</td>
+    <td style="border:none;">Sumber Daya Utama Baterai Li-Po 4S 14.8V 6000 mAh</td>
+    <td style="border:none; text-align:right;">71</td>
+  </tr>
+  <tr>
+    <td style="border:none;">Gambar 3.10</td>
+    <td style="border:none;">Modul Kamera Sistem Pelacakan Visual: Raspberry Pi Camera Rev 1.3 dan Webcam Logitech C922 Pro</td>
+    <td style="border:none; text-align:right;">72</td>
   </tr>
 </table>
 
