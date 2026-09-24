@@ -1,11 +1,5 @@
 # BAB II: TINJAUAN PUSTAKA DAN LANDASAN TEORI
 
-Judul Proposal Tugas Akhir: ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL *KALMAN FILTER* UNTUK *VISION-BASED TRACKING* PADA *OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV*
-Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal *Kalman Filter* untuk *Vision-Based Tracking* pada Over-Actuated 8-Thruster 6-DOF Vectored AUV*  
-(*Title*: Analysis of Kinematics, Dynamics, and Optimal Kalman Filter State Estimation for Vision-Based Tracking in an Over-Actuated 8-Thruster 6-DOF Vectored AUV*)
-
----
-
 ## 2.1 Tinjauan Pustaka (*State of the Art* Penelitian AUV)
 
 Perkembangan teknologi wahana bawah air tanpa awak (*unmanned underwater vehicles*) dalam lima tahun terakhir (2021–2026) mengalami akselerasi signifikan, terutama didorong oleh kebutuhan inspeksi infrastruktur maritim lepas pantai, pemantauan aset energi bawah laut, dan eksplorasi lingkungan bentik laut dalam [2], [14], [18]. Penelitian terdahulu pada wahana kelas mikro dan inspeksi umumnya bertumpu pada platform *Remotely Operated Vehicle* (ROV) yang dikonversi menjadi *Autonomous Underwater Vehicle* (AUV) atau *Hovering Autonomous Underwater Vehicle* (HAUV) [2], [14], [21], [31]. Namun, tantangan utama yang dihadapi oleh komunitas riset robotika kelautan global adalah keterbatasan derajat kebebasan aktuasi (*underactuation*), non-linearitas hidrodinamika fluida Navier-Stokes yang tinggi, ketidakpastian parameter lingkungan laut, serta degradasi kualitas sensor visual bawah air akibat turbiditas dan atenuasi cahaya [1], [7], [16], [31], [34].

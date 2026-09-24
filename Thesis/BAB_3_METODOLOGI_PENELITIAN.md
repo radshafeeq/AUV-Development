@@ -1,16 +1,4 @@
 # BAB III. METODOLOGI PENELITIAN
-## ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL *KALMAN FILTER* UNTUK *VISION-BASED TRACKING* PADA *OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV
-
----
-
-> Penulis: MUH. RADHI SYAFIQ GHANIM. S  
-> NIM: D021201006  
-> Departemen: Departemen Teknik Mesin, Fakultas Teknik, Universitas Hasanuddin  
-> Format Penulisan: Sesuai dengan Pedoman Tugas Akhir Mahasiswa Sarjana (S1) Universitas Hasanuddin  
-> Standar Notasi: Society of Naval Architects and Marine Engineers (SNAME, 1950) & Fossen (2021)  
-> Format Matematis: Seluruh persamaan dan simbol variabel diformat menggunakan delimitasi `$$...$$` untuk Google Docs Auto-LaTeX Equations.
-
----
 
 ## 3.1 Tempat dan Waktu Penelitian
 

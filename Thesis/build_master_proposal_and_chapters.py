@@ -564,25 +564,25 @@ def build_front_matter(doc):
     add_leader_line(doc, "1.2 Rumusan Masalah", "5", indent_mm=5)
     add_leader_line(doc, "1.3 Tujuan Penelitian", "6", indent_mm=5)
     add_leader_line(doc, "1.4 Batasan Masalah", "7", indent_mm=5)
-    add_leader_line(doc, "1.5 Manfaat Penelitian", "7", indent_mm=5)
+    add_leader_line(doc, "1.5 Manfaat Penelitian", "8", indent_mm=5)
 
-    add_leader_line(doc, "BAB II: TINJAUAN PUSTAKA", "9", bold=True, space_after=4)
-    add_leader_line(doc, "2.1 Tinjauan Pustaka (*State of the Art* Penelitian AUV)", "9", indent_mm=5)
-    add_leader_line(doc, "2.2 Sistem Koordinat dan Konvensi SNAME", "15", indent_mm=5)
-    add_leader_line(doc, "2.3 Penurunan Kinematika 6-DOF dan Matriks Jacobian", "19", indent_mm=5)
-    add_leader_line(doc, "2.4 Penurunan Dinamika Hidrodinamika 6-DOF (Persamaan Fossen)", "25", indent_mm=5)
-    add_leader_line(doc, "2.5 Alokasi Gaya Dorong Sistem *Over-Actuated* 8-Pendorong", "34", indent_mm=5)
-    add_leader_line(doc, "2.6 Teori dan Formulasi Optimal *Kalman Filter* Suite", "39", indent_mm=5)
+    add_leader_line(doc, "BAB II: TINJAUAN PUSTAKA", "10", bold=True, space_after=4)
+    add_leader_line(doc, "2.1 Tinjauan Pustaka (*State of the Art* Penelitian AUV)", "10", indent_mm=5)
+    add_leader_line(doc, "2.2 Sistem Koordinat dan Konvensi SNAME", "13", indent_mm=5)
+    add_leader_line(doc, "2.3 Penurunan Kinematika 6-DOF dan Matriks Jacobian", "18", indent_mm=5)
+    add_leader_line(doc, "2.4 Penurunan Dinamika Hidrodinamika 6-DOF (Persamaan Fossen)", "24", indent_mm=5)
+    add_leader_line(doc, "2.5 Alokasi Gaya Dorong Sistem *Over-Actuated* 8-Pendorong", "32", indent_mm=5)
+    add_leader_line(doc, "2.6 Teori dan Formulasi Optimal *Kalman Filter* Suite", "37", indent_mm=5)
 
-    add_leader_line(doc, "BAB III: METODOLOGI PENELITIAN", "42", bold=True, space_after=4)
-    add_leader_line(doc, "3.1 Tempat dan Waktu Penelitian", "42", indent_mm=5)
-    add_leader_line(doc, "3.2 Diagram Alir Penelitian", "43", indent_mm=5)
-    add_leader_line(doc, "3.3 Identifikasi Parameter Fisik dan Hidrodinamika Wahana", "45", indent_mm=5)
-    add_leader_line(doc, "3.4 Perancangan Arsitektur *Software-In-The-Loop* (SITL)", "50", indent_mm=5)
-    add_leader_line(doc, "3.5 Perancangan Arsitektur *Hardware-In-The-Loop* (HITL)", "52", indent_mm=5)
-    add_leader_line(doc, "3.6 Prosedur Pengujian dan Evaluasi Kinerja", "57", indent_mm=5)
+    add_leader_line(doc, "BAB III: METODOLOGI PENELITIAN", "52", bold=True, space_after=4)
+    add_leader_line(doc, "3.1 Tempat dan Waktu Penelitian", "52", indent_mm=5)
+    add_leader_line(doc, "3.2 Diagram Alir Penelitian", "54", indent_mm=5)
+    add_leader_line(doc, "3.3 Identifikasi Parameter Fisik dan Hidrodinamika Wahana", "56", indent_mm=5)
+    add_leader_line(doc, "3.4 Perancangan Arsitektur *Software-In-The-Loop* (SITL)", "61", indent_mm=5)
+    add_leader_line(doc, "3.5 Perancangan Arsitektur *Hardware-In-The-Loop* (HITL)", "64", indent_mm=5)
+    add_leader_line(doc, "3.6 Prosedur Pengujian dan Evaluasi Kinerja", "71", indent_mm=5)
 
-    add_leader_line(doc, "DAFTAR PUSTAKA", "61", bold=True, space_after=4)
+    add_leader_line(doc, "DAFTAR PUSTAKA", "76", bold=True, space_after=4)
 
     doc.add_page_break()
 
@@ -602,14 +602,14 @@ def build_front_matter(doc):
     r_tth2.font.size = Pt(9.5)
 
     tables_info = [
-        ("Tabel 2.1", "Matriks Sintesis Literatur Terkini (2021–2025) Bidang Dinamika dan Kontrol AUV", "13"),
-        ("Tabel 2.2", "Notasi dan Konvensi 6 Derajat Kebebasan SNAME (1950) & Fossen (2021)", "16"),
-        ("Tabel 2.3", "Koordinat Spasial dan Vektor Orientasi 8 Pendorong Wahana Over-Actuated", "35"),
-        ("Tabel 3.1", "Parameter Fisik dan Properti Benda Tegar Wahana Over-Actuated 8-Pendorong", "45"),
-        ("Tabel 3.2", "Koefisien Derivatif Massa Tambah Hidrodinamika Wahana", "47"),
-        ("Tabel 3.3", "Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana", "48"),
-        ("Tabel 3.4", "Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Bervektor", "49"),
-        ("Tabel 3.5", "Spesifikasi Komponen Perangkat Keras Arsitektur HITL", "53")
+        ("Tabel 2.1", "Matriks Sintesis Literatur Terkini (2021–2025) Bidang Dinamika dan Kontrol AUV", "11"),
+        ("Tabel 2.2", "Notasi dan Konvensi 6 Derajat Kebebasan SNAME (1950) & Fossen (2021)", "15"),
+        ("Tabel 2.3", "Koordinat Spasial dan Vektor Orientasi 8 Pendorong Wahana Over-Actuated", "34"),
+        ("Tabel 3.1", "Parameter Fisik dan Properti Benda Tegar Wahana Over-Actuated 8-Pendorong", "57"),
+        ("Tabel 3.2", "Koefisien Derivatif Massa Tambah Hidrodinamika Wahana", "58"),
+        ("Tabel 3.3", "Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana", "59"),
+        ("Tabel 3.4", "Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Bervektor", "60"),
+        ("Tabel 3.5", "Spesifikasi Komponen Perangkat Keras Arsitektur HITL", "64")
     ]
 
     for num, title, pg in tables_info:
@@ -633,16 +633,16 @@ def build_front_matter(doc):
     r_fgh2.font.size = Pt(9.5)
 
     figures_info = [
-        ("Gambar 2.1", "Sistem Kerangka Acuan Inersia Bumi (Fn - NED) dan Kerangka Acuan Bergerak Bodi (Fb - FRD) Konvensi SNAME (1950) dan Fossen (2021)", "15"),
-        ("Gambar 3.1", "Diagram Alir Tahapan Penelitian Komprehensif", "44"),
-        ("Gambar 3.2", "Arsitektur Simulasi Software-In-The-Loop (SITL) Sistem AUV", "50"),
-        ("Gambar 3.3", "Arsitektur Integrasi Hardware-In-The-Loop (HITL) Mekatronika AUV", "52"),
-        ("Gambar 3.4", "Rangka (Frame) dan Lambung Tekanan Kustom AUV 8-Pendorong", "54"),
-        ("Gambar 3.5", "Papan Pengendali Penerbangan (Flight Controller) Pixhawk 2.4.8", "54"),
-        ("Gambar 3.6", "Komputer Pendamping (Companion Computer) Raspberry Pi 4B", "55"),
-        ("Gambar 3.7", "Modul Pengendali Kecepatan Elektronik (ESC EMAX BLHeli 30A)", "55"),
-        ("Gambar 3.8", "Motor Pendorong Bawah Air (BLDC Underwater Thruster)", "56"),
-        ("Gambar 3.9", "Sumber Daya Baterai Li-Po 4S 14.8V 6000 mAh dan Pengisi Daya SKYRC IMAX B6AC V2", "56")
+        ("Gambar 2.1", "Sistem Kerangka Acuan Inersia Bumi (Fn - NED) dan Kerangka Acuan Bergerak Bodi (Fb - FRD) Konvensi SNAME (1950) dan Fossen (2021)", "13"),
+        ("Gambar 3.1", "Diagram Alir Tahapan Penelitian Komprehensif", "54"),
+        ("Gambar 3.2", "Arsitektur Simulasi Software-In-The-Loop (SITL) Sistem AUV", "62"),
+        ("Gambar 3.3", "Arsitektur Integrasi Hardware-In-The-Loop (HITL) Mekatronika AUV", "64"),
+        ("Gambar 3.4", "Rangka (Frame) dan Lambung Tekanan Kustom AUV 8-Pendorong", "65"),
+        ("Gambar 3.5", "Papan Pengendali Penerbangan (Flight Controller) Pixhawk 2.4.8", "65"),
+        ("Gambar 3.6", "Komputer Pendamping (Companion Computer) Raspberry Pi 4B", "66"),
+        ("Gambar 3.7", "Modul Pengendali Kecepatan Elektronik (ESC EMAX BLHeli 30A)", "66"),
+        ("Gambar 3.8", "Motor Pendorong Bawah Air (BLDC Underwater Thruster)", "67"),
+        ("Gambar 3.9", "Sumber Daya Baterai Li-Po 4S 14.8V 6000 mAh dan Pengisi Daya SKYRC IMAX B6AC V2", "67")
     ]
 
     for num, title, pg in figures_info:
@@ -991,18 +991,26 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
             i += 1
             continue
 
-        # Bullet lists
+        # Bullet lists and citations
         if (stripped.startswith('- ') or stripped.startswith('* ')) and not stripped.startswith('***'):
             item_text = stripped[2:].strip()
             p = doc.add_paragraph()
-            p.paragraph_format.left_indent = Mm(10)
-            p.paragraph_format.first_line_indent = Mm(-5)
             p.paragraph_format.space_after = Pt(3)
             p.paragraph_format.line_spacing = 1.15
-            r_b = p.add_run("•  ")
-            r_b.font.name = 'Arial'
-            r_b.font.size = Pt(10)
-            r_b.bold = False
+
+            # Check if this item is a citation entry (e.g., *[1]*, [1], etc.)
+            m_cite = re.match(r'^\*?\[\d+\]\*?\s*', item_text)
+            if m_cite:
+                p.paragraph_format.left_indent = Mm(10)
+                p.paragraph_format.first_line_indent = Mm(-8)
+            else:
+                p.paragraph_format.left_indent = Mm(10)
+                p.paragraph_format.first_line_indent = Mm(-5)
+                r_b = p.add_run("•  ")
+                r_b.font.name = 'Arial'
+                r_b.font.size = Pt(10)
+                r_b.bold = False
+
             for t_type, t_val in parse_inline_runs(item_text):
                 r = p.add_run(t_val)
                 r.font.name = 'Arial'
@@ -1082,7 +1090,17 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
 
             if resolved_path:
                 r_img = p_img.add_run()
-                r_img.add_picture(resolved_path, width=Mm(128))
+                target_width = Mm(128)
+                try:
+                    from PIL import Image as PILImage
+                    with PILImage.open(resolved_path) as im:
+                        w_px, h_px = im.size
+                        aspect = h_px / w_px
+                        if aspect > 0.8:
+                            target_width = Mm(105)
+                except Exception:
+                    pass
+                r_img.add_picture(resolved_path, width=target_width)
             else:
                 p_img.add_run("[").font.name = 'Arial'
                 for t_type, t_val in parse_inline_runs(alt_text):
@@ -1230,9 +1248,9 @@ print("\n--- 2. BUILDING INDIVIDUAL CHAPTER DOCX FILES ---")
 chapters = [
     ("BAGIAN_AWAL_PROPOSAL.docx", None, build_front_matter, True, 1),
     ("BAB_1_PENDAHULUAN.docx", os.path.join(thesis_dir, "BAB_1_PENDAHULUAN.md"), "BAB I\nPENDAHULUAN", False, 1),
-    ("BAB_2_LANDASAN_TEORI.docx", os.path.join(thesis_dir, "BAB_2_LANDASAN_TEORI.md"), "BAB II\nTINJAUAN PUSTAKA", False, 9),
-    ("BAB_3_METODOLOGI_PENELITIAN.docx", os.path.join(thesis_dir, "BAB_3_METODOLOGI_PENELITIAN.md"), "BAB III\nMETODOLOGI PENELITIAN", False, 42),
-    ("MASTER_BIBLIOGRAPHY.docx", os.path.join(thesis_dir, "MASTER_BIBLIOGRAPHY.md"), "DAFTAR PUSTAKA", False, 61)
+    ("BAB_2_LANDASAN_TEORI.docx", os.path.join(thesis_dir, "BAB_2_LANDASAN_TEORI.md"), "BAB II\nTINJAUAN PUSTAKA", False, 10),
+    ("BAB_3_METODOLOGI_PENELITIAN.docx", os.path.join(thesis_dir, "BAB_3_METODOLOGI_PENELITIAN.md"), "BAB III\nMETODOLOGI PENELITIAN", False, 52),
+    ("MASTER_BIBLIOGRAPHY.docx", os.path.join(thesis_dir, "MASTER_BIBLIOGRAPHY.md"), "DAFTAR PUSTAKA", False, 76)
 ]
 
 for out_name, md_file, extra, is_fm, start_pg in chapters:

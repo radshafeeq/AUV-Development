@@ -1,17 +1,4 @@
-# Master Bibliography Registry (Daftar Pustaka Induk)
-
-Daftar pustaka induk ini berfungsi sebagai register sitasi tunggal yang tersinkronisasi secara global untuk proposal skripsi sarjana:
-**"ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL *KALMAN FILTER* UNTUK *VISION-BASED TRACKING* PADA *OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV*"**  
-*(Analysis of Kinematics, Dynamics, and Optimal Kalman Filter State Estimation for Vision-Based Tracking on an Over-Actuated 8-Thruster 6-DOF Vectored AUV)*  
-Penulis: MUH. RADHI SYAFIQ GHANIM. S (NIM: D021201006) — Departemen Teknik Mesin, Fakultas Teknik, Universitas Hasanuddin  
-
-> [!IMPORTANT]
-> **Aturan Penyusunan Alfabetis dan Publikasi $$\ge 2021$$**:  
-> Seluruh pustaka rujukan disusun secara ketat berdasarkan urutan alfabetis (A–Z) nama belakang penulis utama atau institusi penerbit, serta diterbitkan pada rentang tahun 2021 hingga 2026. Setiap nomor indeks `[i]` bersifat tetap dan tersinkronisasi secara identik di seluruh bab proposal skripsi.
-
----
-
-### Global Synchronized Alphabetical Citation Index ($$\ge 2021$$)
+# DAFTAR PUSTAKA
 
 - *[1]* Ahmed, F., Xiang, X., Jiang, C., & Wang, Y. (2023). Survey on Traditional and AI-Based Estimation Techniques for Hydrodynamic Coefficients of Autonomous Underwater Vehicle. Ocean Engineering, 268, 113300. https://doi.org/10.1016/j.oceaneng.2023.113300
 - *[2]* Alinei-Poiană, T., Rețe, D., Martinovici, D., Maer, V. M., & Bușoniu, L. (2024). A BlueROV2-Based Platform for Underwater Mapping Experiments. IFAC-PapersOnLine, 58(20), 470–475. https://doi.org/10.1016/j.ifacol.2024.10.098
