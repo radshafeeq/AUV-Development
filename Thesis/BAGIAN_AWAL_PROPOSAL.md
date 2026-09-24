@@ -37,8 +37,8 @@
 
 <br><br>
 
-**RADHI SHAFEEQ**  
-**NIM. [Nomor Induk Mahasiswa]**
+**MUH. RADHI SYAFIQ GHANIM. S**  
+**NIM. D021201006**
 
 <br><br>
 
@@ -79,8 +79,8 @@
 
 <br><br><br>
 
-**RADHI SHAFEEQ**  
-**NIM. [Nomor Induk Mahasiswa]**
+**MUH. RADHI SYAFIQ GHANIM. S**  
+**NIM. D021201006**
 
 <br><br><br>
 
@@ -113,8 +113,8 @@
 
 <br><br>
 
-**RADHI SHAFEEQ**  
-**NIM. [Nomor Induk Mahasiswa]**
+**MUH. RADHI SYAFIQ GHANIM. S**  
+**NIM. D021201006**
 
 <br><br><br>
 
@@ -161,8 +161,8 @@ Disusun dan diajukan oleh:
 
 <br>
 
-**RADHI SHAFEEQ**  
-**NIM. [Nomor Induk Mahasiswa]**
+**MUH. RADHI SYAFIQ GHANIM. S**  
+**NIM. D021201006**
 
 <br><br>
 
@@ -248,8 +248,8 @@ Dengan ini saya juga melimpahkan hak cipta (hak ekonomis) dari karya tulis ilmia
       Makassar, ......................... 2026<br>
       Yang membuat pernyataan,<br><br>
       <em>(Materai Rp 10.000,- & Tanda Tangan)</em><br><br><br><br>
-      <strong>RADHI SHAFEEQ</strong><br>
-      NIM. [Nomor Induk Mahasiswa]
+      <strong>MUH. RADHI SYAFIQ GHANIM. S</strong><br>
+      NIM. D021201006
     </td>
   </tr>
 </table>
@@ -296,7 +296,7 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
     <td style="width:50%; border:none; text-align:center;">
       Makassar, ......................... 2026<br><br>
       Penulis,<br><br><br><br>
-      <strong>RADHI SHAFEEQ</strong>
+      <strong>MUH. RADHI SYAFIQ GHANIM. S</strong>
     </td>
   </tr>
 </table>
@@ -317,7 +317,7 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
 
 <br>
 
-**RADHI SHAFEEQ. Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal Kalman Filter untuk Pelacakan Berbasis Visi pada AUV Vectored 6-DOF Over-Actuated 8-Pendorong** *(dibimbing oleh [Nama Pembimbing Utama] dan [Nama Pembimbing Pendamping])*.
+**MUH. RADHI SYAFIQ GHANIM. S. Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal Kalman Filter untuk Pelacakan Berbasis Visi pada AUV Vectored 6-DOF Over-Actuated 8-Pendorong** *(dibimbing oleh Andi Amijoyo Mochtar, S.T., M.Sc., Ph.D. dan [Nama Pembimbing Pendamping])*.
 
 </div>
 
@@ -345,7 +345,7 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
 
 <br>
 
-**RADHI SHAFEEQ. Analysis of Kinematics, Dynamics, and Optimal Kalman Filter State Estimation for Vision-Based Tracking in an Over-Actuated 8-Thruster 6-DOF Vectored AUV** *(supervised by [Primary Supervisor Name] and [Co-Supervisor Name])*.
+**MUH. RADHI SYAFIQ GHANIM. S. Analysis of Kinematics, Dynamics, and Optimal Kalman Filter State Estimation for Vision-Based Tracking in an Over-Actuated 8-Thruster 6-DOF Vectored AUV** *(supervised by Andi Amijoyo Mochtar, S.T., M.Sc., Ph.D. and [Co-Supervisor Name])*.
 
 </div>
 
