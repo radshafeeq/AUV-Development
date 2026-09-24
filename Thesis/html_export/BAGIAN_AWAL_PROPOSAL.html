@@ -1,3 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>BAGIAN_AWAL_PROPOSAL.md</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+    margin: 40px auto;
+    max-width: 900px;
+    padding: 0 20px;
+    color: #111;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 20px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th {
+    background-color: #f2f2f2;
+}
+code {
+    background-color: #f4f4f4;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-family: Consolas, monospace;
+}
+pre {
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    padding: 12px;
+    overflow-x: auto;
+}
+blockquote {
+    border-left: 4px solid #ccc;
+    margin: 1.5em 10px;
+    padding: 0.5em 10px;
+    color: #555;
+}
+</style>
+</head>
+<body>
 <h1 id="bagian-awal-proposal-tugas-akhir-front-matter">BAGIAN AWAL PROPOSAL TUGAS AKHIR (FRONT MATTER)</h1>
 <blockquote>
 <p><strong>Catatan Format Berdasarkan Pedoman Unhas 2023 (SK Rektor No. 10438/UN4.1/KEP/2023)</strong>:<br />
@@ -223,8 +271,8 @@ Fakultas Teknik, Universitas Hasanuddin.
 <strong>“ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL KALMAN FILTER UNTUK PELACAKAN BERBASIS VISI PADA AUV VECTORED 6-DOF OVER-ACTUATED 8-PENDORONG”</strong>
 </div>
 
-<p>adalah benar merupakan karya ilmiah orisinal saya sendiri di bawah arahan dan bimbingan tim pembimbing:
-1. <strong>Pembimbing Utama</strong>: [Nama Lengkap dan Gelar Pembimbing Utama]
+<p>adalah benar merupakan karya ilmiah orisinal saya sendiri di bawah arahan dan bimbingan tim pembimbing:<br />
+1. <strong>Pembimbing Utama</strong>: [Nama Lengkap dan Gelar Pembimbing Utama]<br />
 2. <strong>Pembimbing Pendamping</strong>: [Nama Lengkap dan Gelar Pembimbing Pendamping]</p>
 <p>Karya ilmiah ini belum pernah diajukan dan tidak sedang diajukan dalam bentuk apa pun kepada perguruan tinggi mana pun untuk memperoleh gelar akademik. Semua sumber informasi yang berasal atau dikutip dari karya ilmiah yang diterbitkan maupun tidak diterbitkan dari penulis lain telah dirujuk dan disebutkan dengan benar dalam teks serta dicantumkan dalam Daftar Pustaka naskah ini.</p>
 <p>Apabila di kemudian hari terbukti atau dapat dibuktikan bahwa sebagian atau keseluruhan naskah proposal tugas akhir ini merupakan hasil plagiasi, fabrikasi, atau falsifikasi karya orang lain, maka saya bersedia menerima sanksi akademik yang tegas sesuai dengan peraturan perundang-undangan yang berlaku di lingkungan Universitas Hasanuddin dan Republik Indonesia.</p>
@@ -305,7 +353,7 @@ Fakultas Teknik, Universitas Hasanuddin.
 </div>
 
 <p><br></p>
-<p><strong>Latar belakang.</strong> Eksplorasi dan pemantauan infrastruktur bawah air menuntut wahana otonom dengan manuver tinggi. Sebagian besar AUV mikro konvensional bekerja dalam kondisi <em>underactuated</em> (6 pendorong) yang tidak memiliki kendali aktif pada derajat kebebasan <em>pitch</em> dan rentan terhadap momen kopling hidrodinamika tidak stabil seperti <em>Munk moment</em>. Wahana <em>over-actuated</em> 8-pendorong mampu menyediakan kendali aktif 6 derajat kebebasan (6-DOF) penuh, namun menghadirkan kompleksitas non-linearitas hidrodinamika Navier-Stokes serta degradasi sensor visual akibat turbiditas air. <strong>Tujuan.</strong> Penelitian ini bertujuan memformulasikan model matematis lengkap kinematika dan dinamika 6-DOF, menyusun matriks alokasi gaya dorong $$6 \times 8$$ berbasis <em>pseudo-inverse</em> Moore-Penrose, merancang suite Kalman Filter optimal untuk pelacakan target visual dan estimasi dinamika wahana, serta memvalidasi performa sistem melalui integrasi <em>Software-In-The-Loop</em> (SITL) dan <em>Hardware-In-The-Loop</em> (HITL). <strong>Metode.</strong> Kinematika 6-DOF diturunkan melalui grup rotasi $$SO(3)$$ dan kuaternion unit bebas singularitas. Persamaan dinamika non-linear diturunkan berbasis model Fossen, mencakup tensor massa total ($$\mathbf{M}<em RB="RB">{RB} + \mathbf{M}_A$$), matriks Coriolis-sentripetal ($$\mathbf{C}</em> + \mathbf{C}_A$$), redaman kuadratik Morison, dan vektor pemulih hidrostatis. Redundansi aktuasi diselesaikan melalui alokasi daya dorong minimum. Estimasi keadaan visual menggunakan Kalman Filter diskrit 8D berbasis <em>Continuous White Noise Acceleration</em> (CWNA) dengan <em>Mahalanobis distance gating</em>, sedangkan estimasi dinamika menggunakan <em>Extended Kalman Filter</em> (EKF) pada <em>companion computer</em> Raspberry Pi 4B yang terhubung secara serial MAVLink (50 Hz) dengan <em>flight controller</em> Pixhawk 2.4.8 (ArduSub <code>vectored_6dof</code>) dan simulator Gazebo Harmonic/ROS 2. <strong>Hasil yang diharapkan.</strong> Penelitian ini menghasilkan formulasi matematis lengkap, matriks alokasi gaya dorong terverifikasi, serta algoritma penapis Kalman yang mampu mengeliminasi derau deteksi YOLO dan menjaga stabilitas orientasi 6-DOF (<em>pitch-holding</em>) secara <em>real-time</em>. <strong>Kesimpulan.</strong> Integrasi pemodelan dinamika 6-DOF <em>first-principles</em> dengan estimasi Kalman Filter optimal memberikan landasan teoretis dan arsitektur mekatronika yang kokoh untuk inspeksi otonom bawah air.</p>
+<p><strong>Latar belakang.</strong> Eksplorasi dan pemantauan infrastruktur bawah air menuntut wahana otonom dengan manuver tinggi. Sebagian besar AUV mikro konvensional bekerja dalam kondisi <em>underactuated</em> (6 pendorong) yang tidak memiliki kendali aktif pada derajat kebebasan <em>pitch</em> dan rentan terhadap momen kopling hidrodinamika tidak stabil seperti <em>Munk moment</em>. Wahana <em>over-actuated</em> 8-pendorong mampu menyediakan kendali aktif 6 derajat kebebasan (6-DOF) penuh, namun menghadirkan kompleksitas non-linearitas hidrodinamika Navier-Stokes serta degradasi sensor visual akibat turbiditas air. <strong>Tujuan.</strong> Penelitian ini bertujuan memformulasikan model matematis lengkap kinematika dan dinamika 6-DOF, menyusun matriks alokasi gaya dorong $$6 \times 8$$ berbasis <em>pseudo-inverse</em> Moore-Penrose, merancang suite Kalman Filter optimal untuk pelacakan target visual dan estimasi dinamika wahana, serta memvalidasi performa sistem melalui integrasi <em>Software-In-The-Loop</em> (SITL) dan <em>Hardware-In-The-Loop</em> (HITL). <strong>Metode.</strong> Kinematika 6-DOF diturunkan melalui grup rotasi $$SO(3)$$ dan kuaternion unit bebas singularitas. Persamaan dinamika non-linear diturunkan berbasis model Fossen, mencakup tensor massa total ($$\mathbf{M}<em RB="RB">{RB} + \mathbf{M}_A$$), matriks Coriolis-sentripetal ($$\mathbf{C}</em> + \mathbf{C}_A$$), redaman kuadratik Morison, dan vektor pemulih hidrostatis. Redundansi aktuasi diselesaikan melalui alokasi daya dorong minimum. Estimasi keadaan visual menggunakan Kalman Filter diskrit 8D berbasis <em>Continuous White Noise Acceleration</em> (CWNA) dengan <em>Mahalanobis distance gating</em>, sedangkan estimasi dinamika menggunakan <em>Extended Kalman Filter</em> (EKF) pada <em>companion computer</em> Raspberry Pi 4B yang terhubung secara serial MAVLink (50 Hz) dengan <em>flight controller</em> Pixhawk 2.4.8 (ArduSub <code>*vectored_6dof*</code>) dan simulator Gazebo Harmonic/ROS 2. <strong>Hasil yang diharapkan.</strong> Penelitian ini menghasilkan formulasi matematis lengkap, matriks alokasi gaya dorong terverifikasi, serta algoritma penapis Kalman yang mampu mengeliminasi derau deteksi YOLO dan menjaga stabilitas orientasi 6-DOF (<em>pitch-holding</em>) secara <em>real-time</em>. <strong>Kesimpulan.</strong> Integrasi pemodelan dinamika 6-DOF <em>first-principles</em> dengan estimasi Kalman Filter optimal memberikan landasan teoretis dan arsitektur mekatronika yang kokoh untuk inspeksi otonom bawah air.</p>
 <p><br></p>
 <p><strong>Kata kunci:</strong> AUV over-actuated; dinamika 6-DOF; alokasi gaya dorong; Extended Kalman Filter; pelacakan visual YOLO; Hardware-In-The-Loop</p>
 <div style="page-break-after: always;"></div>
@@ -328,9 +376,9 @@ Fakultas Teknik, Universitas Hasanuddin.
 </div>
 
 <p><br></p>
-<p><strong>Background.</strong> Underwater exploration and subsea infrastructure inspection require highly agile autonomous platforms. Conventional micro-submersibles predominantly operate under underactuated conditions (6 thrusters) lacking active pitch authority and suffering from destabilizing hydrodynamic cross-coupling moments such as the Munk moment. An over-actuated 8-thruster configuration provides full active control across all 6 Degrees of Freedom (6-DOF), but introduces Navier-Stokes hydrodynamic non-linearities and noisy optical feedback caused by subsea water turbidity. <strong>Aim.</strong> This study aims to formulate an unabridged first-principles 6-DOF kinematic and dynamic mathematical model, derive the $$6 \times 8$$ thruster allocation matrix via Moore-Penrose pseudo-inversion, design an optimal Kalman Filter suite for visual target tracking and hydrodynamic state estimation, and validate system stability across Software-In-The-Loop (SITL) and Hardware-In-The-Loop (HITL) platforms. <strong>Methods.</strong> 6-DOF kinematics are derived using $$SO(3)$$ rotation mappings and singularity-free unit quaternions. Non-linear equations of motion are formulated via Fossen’s marine plant model, incorporating total mass tensors ($$\mathbf{M}<em RB="RB">{RB} + \mathbf{M}_A$$), Coriolis-centripetal matrices ($$\mathbf{C}</em> + \mathbf{C}_A$$), quadratic Morison drag tensors, and hydrostatic restoring moments. Actuator redundancy is solved through minimum-energy pseudo-inverse allocation. Visual tracking is achieved using an 8D discrete Kalman filter based on a Continuous White Noise Acceleration (CWNA) model with Mahalanobis distance outlier gating, while hydrodynamic state estimation is executed via a non-linear Extended Kalman Filter (EKF) hosted on a Raspberry Pi 4B companion computer communicating over MAVLink (50 Hz) with a Pixhawk 2.4.8 autopilot (ArduSub <code>vectored_6dof</code>) and Gazebo Harmonic/ROS 2 Jazzy simulation. <strong>Expected Results.</strong> This research yields a validated 6-DOF plant model, an optimal thruster allocation framework, and a real-time Kalman filtering pipeline capable of smoothing jittery YOLO detections and maintaining active attitude hold without capsizing. <strong>Conclusion.</strong> The synthesis of first-principles 6-DOF dynamics with dual-stage optimal Kalman filtering establishes a rigorous theoretical foundation and practical mechatronic architecture for autonomous subsea intervention.</p>
+<p><strong>Background.</strong> Underwater exploration and subsea infrastructure inspection require highly agile autonomous platforms. Conventional micro-submersibles predominantly operate under underactuated conditions (6 thrusters) lacking active pitch authority and suffering from destabilizing hydrodynamic cross-coupling moments such as the Munk moment. An over-actuated 8-thruster configuration provides full active control across all 6 Degrees of Freedom (6-DOF), but introduces Navier-Stokes hydrodynamic non-linearities and noisy optical feedback caused by subsea water turbidity. <strong>Aim.</strong> This study aims to formulate an unabridged first-principles 6-DOF kinematic and dynamic mathematical model, derive the $$6 \times 8$$ thruster allocation matrix via Moore-Penrose pseudo-inversion, design an optimal Kalman Filter suite for visual target tracking and hydrodynamic state estimation, and validate system stability across Software-In-The-Loop (SITL) and Hardware-In-The-Loop (HITL) platforms. <strong>Methods.</strong> 6-DOF kinematics are derived using $$SO(3)$$ rotation mappings and singularity-free unit quaternions. Non-linear equations of motion are formulated via Fossen’s marine plant model, incorporating total mass tensors ($$\mathbf{M}<em RB="RB">{RB} + \mathbf{M}_A$$), Coriolis-centripetal matrices ($$\mathbf{C}</em> + \mathbf{C}_A$$), quadratic Morison drag tensors, and hydrostatic restoring moments. Actuator redundancy is solved through minimum-energy pseudo-inverse allocation. Visual tracking is achieved using an 8D discrete Kalman filter based on a Continuous White Noise Acceleration (CWNA) model with Mahalanobis distance outlier gating, while hydrodynamic state estimation is executed via a non-linear Extended Kalman Filter (EKF) hosted on a Raspberry Pi 4B companion computer communicating over MAVLink (50 Hz) with a Pixhawk 2.4.8 autopilot (ArduSub <code>*vectored_6dof*</code>) and Gazebo Harmonic/ROS 2 Jazzy simulation. <strong>Expected Results.</strong> This research yields a validated 6-DOF plant model, an optimal <em>thruster</em> allocation framework, and a <em>real-time</em> Kalman filtering <em>pipeline</em> capable of smoothing jittery YOLO detections and maintaining active <em>attitude</em> hold without capsizing. <strong>Conclusion.</strong> The synthesis of first-principles 6-DOF dynamics with dual-stage optimal Kalman filtering establishes a rigorous theoretical foundation and practical mechatronic architecture for autonomous subsea intervention.</p>
 <p><br></p>
-<p><strong>Keywords:</strong> Over-actuated AUV; 6-DOF dynamics; thruster control allocation; Extended Kalman Filter; YOLO visual tracking; Hardware-In-The-Loop</p>
+<p><strong>Keywords:</strong> <em>Over-actuated</em> AUV; 6-DOF dynamics; <em>thruster</em> control allocation; <em>Extended Kalman Filter</em>; YOLO visual tracking; <em>Hardware-In-The-Loop</em></p>
 <div style="page-break-after: always;"></div>
 
 <hr />
@@ -455,11 +503,11 @@ Fakultas Teknik, Universitas Hasanuddin.
     <td style="border:none; text-align:right;">28</td>
   </tr>
   <tr>
-    <td style="border:none; padding-left:20px;">2.5 Alokasi Gaya Dorong Sistem Over-Actuated 8-Pendorong</td>
+    <td style="border:none; padding-left:20px;">2.5 Alokasi Gaya Dorong Sistem *Over-Actuated* 8-Pendorong</td>
     <td style="border:none; text-align:right;">38</td>
   </tr>
   <tr>
-    <td style="border:none; padding-left:20px;">2.6 Teori dan Formulasi Optimal Kalman Filter Suite</td>
+    <td style="border:none; padding-left:20px;">2.6 Teori dan Formulasi Optimal *Kalman Filter* Suite</td>
     <td style="border:none; text-align:right;">44</td>
   </tr>
   <tr>
@@ -486,11 +534,11 @@ Fakultas Teknik, Universitas Hasanuddin.
     <td style="border:none; text-align:right;">62</td>
   </tr>
   <tr>
-    <td style="border:none; padding-left:20px;">3.4 Perancangan Arsitektur Software-In-The-Loop (SITL)</td>
+    <td style="border:none; padding-left:20px;">3.4 Perancangan Arsitektur *Software-In-The-Loop* (SITL)</td>
     <td style="border:none; text-align:right;">66</td>
   </tr>
   <tr>
-    <td style="border:none; padding-left:20px;">3.5 Perancangan Arsitektur Hardware-In-The-Loop (HITL)</td>
+    <td style="border:none; padding-left:20px;">3.5 Perancangan Arsitektur *Hardware-In-The-Loop* (HITL)</td>
     <td style="border:none; text-align:right;">70</td>
   </tr>
   <tr>
@@ -538,7 +586,7 @@ Fakultas Teknik, Universitas Hasanuddin.
   </tr>
   <tr>
     <td style="border:none;">Tabel 1.1</td>
-    <td style="border:none;">Perbandingan Karakteristik Wahana Underactuated vs. Over-Actuated</td>
+    <td style="border:none;">Perbandingan Karakteristik Wahana *Underactuated* vs. *Over-Actuated*</td>
     <td style="border:none; text-align:right;">4</td>
   </tr>
   <tr>
@@ -558,7 +606,7 @@ Fakultas Teknik, Universitas Hasanuddin.
   </tr>
   <tr>
     <td style="border:none;">Tabel 2.4</td>
-    <td style="border:none;">Koefisien Massa Tambah Hidrodinamika (Added Mass Derivatives)</td>
+    <td style="border:none;">Koefisien Massa Tambah Hidrodinamika (*Added Mass* Derivatives)</td>
     <td style="border:none; text-align:right;">31</td>
   </tr>
   <tr>
@@ -602,7 +650,7 @@ Fakultas Teknik, Universitas Hasanuddin.
   </tr>
   <tr>
     <td style="border:none;">Gambar 1.2</td>
-    <td style="border:none;">Topologi Terdistribusi Subsea (Raspberry Pi 4B) dan Topside via Tether Ethernet</td>
+    <td style="border:none;">Topologi Terdistribusi Subsea (Raspberry Pi 4B) dan Topside via *Tether* Ethernet</td>
     <td style="border:none; text-align:right;">5</td>
   </tr>
   <tr>
@@ -612,7 +660,7 @@ Fakultas Teknik, Universitas Hasanuddin.
   </tr>
   <tr>
     <td style="border:none;">Gambar 2.2</td>
-    <td style="border:none;">Konvensi Rotasi Intrinsik Sudut Euler Yaw-Pitch-Roll (z-y-x)</td>
+    <td style="border:none;">Konvensi Rotasi Intrinsik Sudut Euler *Yaw*-*Pitch*-*Roll* (z-y-x)</td>
     <td style="border:none; text-align:right;">21</td>
   </tr>
   <tr>
@@ -627,12 +675,12 @@ Fakultas Teknik, Universitas Hasanuddin.
   </tr>
   <tr>
     <td style="border:none;">Gambar 2.5</td>
-    <td style="border:none;">Struktur Rekursif Predict-Update pada Discrete Kalman Filter dan EKF</td>
+    <td style="border:none;">Struktur Rekursif Predict-Update pada *Discrete Kalman Filter* dan EKF</td>
     <td style="border:none; text-align:right;">46</td>
   </tr>
   <tr>
     <td style="border:none;">Gambar 2.6</td>
-    <td style="border:none;">Model Ruang Keadaan 8D Penjejakan Bounding Box Kamera Monokuler</td>
+    <td style="border:none;">Model Ruang Keadaan 8D Penjejakan *Bounding Box* Kamera Monokuler</td>
     <td style="border:none; text-align:right;">51</td>
   </tr>
   <tr>
@@ -642,12 +690,12 @@ Fakultas Teknik, Universitas Hasanuddin.
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.2</td>
-    <td style="border:none;">Arsitektur Software-In-The-Loop (Gazebo Harmonic, ROS 2 Jazzy, ArduSub SITL)</td>
+    <td style="border:none;">Arsitektur *Software-In-The-Loop* (Gazebo Harmonic, ROS 2 Jazzy, ArduSub SITL)</td>
     <td style="border:none; text-align:right;">67</td>
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.3</td>
-    <td style="border:none;">Arsitektur Hardware-In-The-Loop Live Telemetry Bridge (Pixhawk, RPi4, MAVLink)</td>
+    <td style="border:none;">Arsitektur *Hardware-In-The-Loop* Live Telemetry Bridge (Pixhawk, RPi4, MAVLink)</td>
     <td style="border:none; text-align:right;">72</td>
   </tr>
 </table>
@@ -739,7 +787,7 @@ Fakultas Teknik, Universitas Hasanuddin.
 </tr>
 <tr>
 <td style="text-align: left;"><strong>ROS</strong></td>
-<td style="text-align: left;"><em>Robot Operating System</em> (Middleware Komunikasi Robotika)</td>
+<td style="text-align: left;"><em>Robot Operating System</em> (<em>Middleware</em> Komunikasi Robotika)</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>MAVLink</strong></td>
@@ -751,7 +799,7 @@ Fakultas Teknik, Universitas Hasanuddin.
 </tr>
 <tr>
 <td style="text-align: left;"><strong>ESC</strong></td>
-<td style="text-align: left;"><em>Electronic Speed Controller</em> (Pengendali Kecepatan Motor Brushless)</td>
+<td style="text-align: left;"><em>Electronic Speed Controller</em> (Pengendali Kecepatan Motor <em>Brushless</em>)</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>IMU</strong></td>
@@ -916,3 +964,5 @@ Fakultas Teknik, Universitas Hasanuddin.
 </tr>
 </tbody>
 </table>
+</body>
+</html>
