@@ -658,13 +658,43 @@ Halaman vii
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.2</td>
-    <td style="border:none;">Arsitektur *Software-In-The-Loop* (Gazebo Harmonic, ROS 2 Jazzy, ArduSub SITL)</td>
+    <td style="border:none;">Arsitektur Simulasi *Software-In-The-Loop* (SITL) Sistem AUV</td>
     <td style="border:none; text-align:right;">67</td>
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.3</td>
-    <td style="border:none;">Arsitektur *Hardware-In-The-Loop* Live Telemetry Bridge (Pixhawk, RPi4, MAVLink)</td>
+    <td style="border:none;">Arsitektur Integrasi *Hardware-In-The-Loop* (HITL) Mekatronika AUV</td>
     <td style="border:none; text-align:right;">72</td>
+  </tr>
+  <tr>
+    <td style="border:none;">Gambar 3.4</td>
+    <td style="border:none;">Rangka (*Frame*) dan Lambung Tekanan Kustom (*Custom Pressure Hull*) AUV 8-Pendorong</td>
+    <td style="border:none; text-align:right;">74</td>
+  </tr>
+  <tr>
+    <td style="border:none;">Gambar 3.5</td>
+    <td style="border:none;">Papan Pengendali Penerbangan (*Flight Controller*) Pixhawk 2.4.8</td>
+    <td style="border:none; text-align:right;">75</td>
+  </tr>
+  <tr>
+    <td style="border:none;">Gambar 3.6</td>
+    <td style="border:none;">Komputer Pendamping (*Companion Computer*) Raspberry Pi 4B</td>
+    <td style="border:none; text-align:right;">76</td>
+  </tr>
+  <tr>
+    <td style="border:none;">Gambar 3.7</td>
+    <td style="border:none;">Modul Pengendali Kecepatan Elektronik (ESC EMAX BLHeli 30A)</td>
+    <td style="border:none; text-align:right;">77</td>
+  </tr>
+  <tr>
+    <td style="border:none;">Gambar 3.8</td>
+    <td style="border:none;">Motor Pendorong Bawah Air (*BLDC Underwater Thruster*)</td>
+    <td style="border:none; text-align:right;">78</td>
+  </tr>
+  <tr>
+    <td style="border:none;">Gambar 3.9</td>
+    <td style="border:none;">Sumber Daya Baterai Li-Po 4S 14.8V 6000 mAh dan Pengisi Daya SKYRC IMAX B6AC V2</td>
+    <td style="border:none; text-align:right;">79</td>
   </tr>
 </table>
 
