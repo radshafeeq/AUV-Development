@@ -76,7 +76,8 @@ def setup_unhas_section(doc, is_front_matter=False, start_page=1, add_page_numbe
     heading_configs = [
         ('Heading 1', 11, 12, 12, WD_ALIGN_PARAGRAPH.CENTER),
         ('Heading 2', 10, 10, 4, WD_ALIGN_PARAGRAPH.LEFT),
-        ('Heading 3', 10, 8, 2, WD_ALIGN_PARAGRAPH.LEFT)
+        ('Heading 3', 10, 8, 2, WD_ALIGN_PARAGRAPH.LEFT),
+        ('Heading 4', 10, 6, 2, WD_ALIGN_PARAGRAPH.LEFT)
     ]
     for h_name, size, space_b, space_a, align in heading_configs:
         try:
@@ -220,6 +221,24 @@ def add_heading_3(doc, title_text):
     p.paragraph_format.space_after = Pt(2)
     p.paragraph_format.line_spacing = 1.15
     p.paragraph_format.keep_with_next = True
+    tokens = parse_inline_runs(title_text)
+    for t_type, t_val in tokens:
+        run = p.add_run(t_val)
+        run.font.name = 'Arial'
+        run.font.size = Pt(10)
+        run.bold = True
+        if t_type == 'italic':
+            run.italic = True
+    return p
+
+def add_heading_4(doc, title_text):
+    p = doc.add_paragraph(style='Heading 4')
+    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    p.paragraph_format.space_before = Pt(6)
+    p.paragraph_format.space_after = Pt(2)
+    p.paragraph_format.line_spacing = 1.15
+    p.paragraph_format.keep_with_next = True
+    p.paragraph_format.first_line_indent = Mm(0)
     tokens = parse_inline_runs(title_text)
     for t_type, t_val in tokens:
         run = p.add_run(t_val)
@@ -1168,7 +1187,7 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
 
         if stripped.startswith('#### '):
             h_text = stripped[5:].strip()
-            p = doc.add_paragraph(style='Heading 3')
+            p = doc.add_paragraph(style='Heading 4')
             p.alignment = WD_ALIGN_PARAGRAPH.LEFT
             p.paragraph_format.space_before = Pt(6)
             p.paragraph_format.space_after = Pt(2)

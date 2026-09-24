@@ -284,20 +284,30 @@ Untuk memberikan gambaran yang lebih konkret terkait perangkat yang digunakan, b
 
 ### 3.5.2 Aliran Data Telemetri Cepat (*Low-Latency Telemetry Bridge*)
 Untuk mengalirkan data sensor dari wahana ke modul estimasi tanpa membebani bus komputasi serial MAVLink secara berlebihan, diimplementasikan jembatan telemetri asinkron berbasis REST API memanfaatkan layanan `mavlink2rest` yang terintegrasi pada BlueOS (port HTTP `6040`):
-1. *Akuisisi Data IMU dan Tekanan*: Modul Python `SubseaTelemetryBridge` pada berkas [`auv_dynamics_hil_node.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/auv_dynamics_hil_node.py) melakukan polling* data JSON pada endpoint `http://192.168.2.2:6040/mavlink/vehicles/1/components/1/messages` dengan batas waktu (*timeout) $$0.25\text{ detik}$$.
-2. *Pengekstrakkan Pesan MAVLink*: Pesan `SCALED_IMU2` atau `RAW_IMU` diekstraksi untuk memperoleh percepatan linier tiga sumbu ($$a_x, a_y, a_z$$) dan kecepatan sudut ($$p, q, r$$). Pesan `ATTITUDE` diekstraksi untuk memperoleh orientasi Euler ($$\phi, \theta, \psi$$). Pesan `SCALED_PRESSURE2` diekstraksi untuk memperoleh tekanan absolut subsea ($$P_{\text{fluid}}$$). Pesan `SERVO_OUTPUT_RAW` diekstraksi untuk merekam sinyal PWM dari delapan pendorong secara simultan.
-3. *Kalibrasi Tekanan Atmosfer Otomatis*: Saat node diinisialisasi di permukaan air, sistem secara otomatis mengambil sampel baseline tekanan atmosfer sebanyak 10 sampel untuk mengkalibrasi tekanan udara lokal ($$P_{\text{atm}}$$). Kedalaman subsea dihitung secara langsung menggunakan persamaan hidrostatik:
-   $$z_k = \frac{(P_{\text{fluid}} - P_{\text{atm}}) \times 100.0}{\rho g}$$
-   dengan konversi tekanan dari hektopaskal (hPa) ke Pascal ($$1\text{ hPa} = 100.0\text{ Pa}$$).
+
+#### 1. Akuisisi Data IMU dan Tekanan
+Modul Python `SubseaTelemetryBridge` pada berkas [`auv_dynamics_hil_node.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/auv_dynamics_hil_node.py) melakukan *polling* data JSON pada endpoint `http://192.168.2.2:6040/mavlink/vehicles/1/components/1/messages` dengan batas waktu (*timeout*) $$0.25\text{ detik}$$.
+
+#### 2. Pengekstrakkan Pesan MAVLink
+Pesan `SCALED_IMU2` atau `RAW_IMU` diekstraksi untuk memperoleh percepatan linier tiga sumbu ($$a_x, a_y, a_z$$) dan kecepatan sudut ($$p, q, r$$). Pesan `ATTITUDE` diekstraksi untuk memperoleh orientasi Euler ($$\phi, \theta, \psi$$). Pesan `SCALED_PRESSURE2` diekstraksi untuk memperoleh tekanan absolut subsea ($$P_{\text{fluid}}$$). Pesan `SERVO_OUTPUT_RAW` diekstraksi untuk merekam sinyal PWM dari delapan pendorong secara simultan.
+
+#### 3. Kalibrasi Tekanan Atmosfer Otomatis
+Saat node diinisialisasi di permukaan air, sistem secara otomatis mengambil sampel baseline tekanan atmosfer sebanyak 10 sampel untuk mengkalibrasi tekanan udara lokal ($$P_{\text{atm}}$$). Kedalaman subsea dihitung secara langsung menggunakan persamaan hidrostatik:
+$$z_k = \frac{(P_{\text{fluid}} - P_{\text{atm}}) \times 100.0}{\rho g}$$
+dengan konversi tekanan dari hektopaskal (hPa) ke Pascal ($$1\text{ hPa} = 100.0\text{ Pa}$$).
 
 ### 3.5.3 Pipeline Prapemrosesan Citra Visual dan Deteksi Objek YOLO
 Citra video dialirkan dari kamera Raspberry Pi melalui pipeline GStreamer terakselerasi perangkat keras dengan kompresi H.264 ke port UDP `5600` (atau port `5601` untuk kamera USB) pada workstation topside [2]. Tahapan pemrosesan visi diuraikan sebagai berikut:
-1. *Prapemrosesan Peningkatan Kontras Adaptif (CLAHE)*: Citra RGB yang diterima didegradasi oleh partikel air dikonversi ke ruang warna CIE LAB. Saluran kecerahan (*Luminance channel* $$L$$) ditingkatkan menggunakan operator CLAHE (*Contrast Limited Adaptive Histogram Equalization*) dengan parameter ambang klip (*clip limit*) $$2.5$$ dan ukuran kisi ubin (*tile grid size*) $$8 \times 8$$:
-   $$L_{\text{enhanced}} = \text{CLAHE}(L, \text{clipLimit}=2.5, \text{grid}=(8, 8))$$
-   Saluran $$L_{\text{enhanced}}$$ kemudian digabungkan kembali dengan saluran krominansi $$a$$ dan $$b$$, lalu dikonversi kembali ke ruang warna BGR. Algoritma ini secara drastis meningkatkan ketajaman tepi (*edge sharpness*) target bawah air dan menetralkan kabut warna hijau/biru tanpa memperkuat derau latar belakang [2].
-2. *Inferensi Deteksi Objek YOLO26 World*: Citra yang telah ditingkatkan diumpankan ke arsitektur jaringan syaraf tiruan YOLO26 World* (atau model kustom *fine-tuned 11 kelas bawah air) pada resolusi spasial $$1024 \times 1024$$ piksel. Model dieksekusi dengan akselerasi perangkat keras GPU NVIDIA RTX 4070 Laptop (CUDA) menggunakan presisi floating point 16-bit (FP16). Keluaran deteksi berupa koordinat kotak pembatas (*bounding box*):
-   $$\mathbf{z}_k = [x_m, y_m, w_m, h_m]^T$$
-   beserta skor keyakinan deteksi (detection confidence score) $$\text{conf}_k \in [0, 1]$$.
+
+#### 1. Prapemrosesan Peningkatan Kontras Adaptif (CLAHE)
+Citra RGB yang diterima didegradasi oleh partikel air dikonversi ke ruang warna CIE LAB. Saluran kecerahan (*Luminance channel* $$L$$) ditingkatkan menggunakan operator CLAHE (*Contrast Limited Adaptive Histogram Equalization*) dengan parameter ambang klip (*clip limit*) $$2.5$$ dan ukuran kisi ubin (*tile grid size*) $$8 \times 8$$:
+$$L_{\text{enhanced}} = \text{CLAHE}(L, \text{clipLimit}=2.5, \text{grid}=(8, 8))$$
+Saluran $$L_{\text{enhanced}}$$ kemudian digabungkan kembali dengan saluran krominansi $$a$$ dan $$b$$, lalu dikonversi kembali ke ruang warna BGR. Algoritma ini secara drastis meningkatkan ketajaman tepi (*edge sharpness*) target bawah air dan menetralkan kabut warna hijau/biru tanpa memperkuat derau latar belakang [2].
+
+#### 2. Inferensi Deteksi Objek YOLO26 World
+Citra yang telah ditingkatkan diumpankan ke arsitektur jaringan syaraf tiruan *YOLO26 World* (atau model kustom *fine-tuned* 11 kelas bawah air) pada resolusi spasial $$1024 \times 1024$$ piksel. Model dieksekusi dengan akselerasi perangkat keras GPU NVIDIA RTX 4070 Laptop (CUDA) menggunakan presisi *floating point* 16-bit (FP16). Keluaran deteksi berupa koordinat kotak pembatas (*bounding box*):
+$$\mathbf{z}_k = [x_m, y_m, w_m, h_m]^T$$
+beserta skor keyakinan deteksi (*detection confidence score*) $$\text{conf}_k \in [0, 1]$$.
 
 ### 3.5.4 Algoritma Implementasi Dual Kalman Filter
 Sistem estimasi keadaan terdiri dari dua penapis Kalman yang beroperasi secara terpisah namun saling menyokong:
