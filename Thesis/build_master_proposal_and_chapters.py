@@ -29,7 +29,19 @@ PRINTABLE_WIDTH = Mm(131)
 OFFICIAL_TITLE_MD = "ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL *KALMAN FILTER* UNTUK *VISION-BASED TRACKING* PADA *OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV*"
 OFFICIAL_SUBTITLE_EN = "(Analysis of Kinematics, Dynamics, and Optimal Kalman Filter State Estimation for Vision-Based Tracking on an Over-Actuated 8-Thruster 6-DOF Vectored AUV)"
 
+TABLE_WIDTH_CONFIGS = {
+    "Tabel 2.1": [Mm(24), Mm(18), Mm(16), Mm(37), Mm(36)],
+    "Tabel 2.2": [Mm(18), Mm(24), Mm(20), Mm(20), Mm(25), Mm(24)],
+    "Tabel 2.3": [Mm(10), Mm(33), Mm(14), Mm(14), Mm(14), Mm(14), Mm(14), Mm(14)],
+    "Tabel 3.1": [Mm(35), Mm(20), Mm(22), Mm(18), Mm(36)],
+    "Tabel 3.2": [Mm(22), Mm(22), Mm(20), Mm(20), Mm(47)],
+    "Tabel 3.3": [Mm(20), Mm(20), Mm(22), Mm(22), Mm(22), Mm(25)],
+    "Tabel 3.4": [Mm(15), Mm(19), Mm(19), Mm(19), Mm(19), Mm(19), Mm(19)],
+    "Tabel 3.5": [Mm(24), Mm(32), Mm(27), Mm(48)],
+}
+
 def setup_unhas_section(doc, is_front_matter=False, start_page=1, add_page_number=True):
+    # 1. Section dimensions & margins: B5 (176 mm x 250 mm), 22.5 mm all around
     sec = doc.sections[0]
     sec.page_width = Mm(176)
     sec.page_height = Mm(250)
@@ -38,6 +50,16 @@ def setup_unhas_section(doc, is_front_matter=False, start_page=1, add_page_numbe
     sec.left_margin = Mm(22.5)
     sec.right_margin = Mm(22.5)
 
+    # 2. Document-level font defaults in styles.xml (ensures Google Docs always uses Arial)
+    rPr_list = doc.styles.element.xpath('w:docDefaults/w:rPrDefault/w:rPr')
+    if rPr_list:
+        rPr = rPr_list[0]
+        for old_rf in rPr.xpath('w:rFonts'):
+            rPr.remove(old_rf)
+        rFonts = parse_xml(r'<w:rFonts %s w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial" w:eastAsia="Arial"/>' % nsdecls('w'))
+        rPr.append(rFonts)
+
+    # 3. Configure Normal style (Arial 10pt, line spacing 1.15, space after 4pt, justified)
     style_normal = doc.styles['Normal']
     style_normal.font.name = 'Arial'
     style_normal.font.size = Pt(10)
@@ -45,7 +67,37 @@ def setup_unhas_section(doc, is_front_matter=False, start_page=1, add_page_numbe
     style_normal.paragraph_format.line_spacing = 1.15
     style_normal.paragraph_format.space_after = Pt(4)
     style_normal.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    rPr_norm = style_normal.element.get_or_add_rPr()
+    for old_rf in rPr_norm.xpath('w:rFonts'):
+        rPr_norm.remove(old_rf)
+    rPr_norm.append(parse_xml(r'<w:rFonts %s w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial" w:eastAsia="Arial"/>' % nsdecls('w')))
 
+    # 4. Configure Heading 1, 2, 3 styles
+    heading_configs = [
+        ('Heading 1', 11, 12, 12, WD_ALIGN_PARAGRAPH.CENTER),
+        ('Heading 2', 10, 10, 4, WD_ALIGN_PARAGRAPH.LEFT),
+        ('Heading 3', 10, 8, 2, WD_ALIGN_PARAGRAPH.LEFT)
+    ]
+    for h_name, size, space_b, space_a, align in heading_configs:
+        try:
+            h_style = doc.styles[h_name]
+        except KeyError:
+            h_style = doc.styles.add_style(h_name, docx.enum.style.WD_STYLE_TYPE.PARAGRAPH)
+        h_style.font.name = 'Arial'
+        h_style.font.size = Pt(size)
+        h_style.font.bold = True
+        h_style.font.color.rgb = RGBColor(0x11, 0x11, 0x11)
+        h_style.paragraph_format.line_spacing = 1.15
+        h_style.paragraph_format.space_before = Pt(space_b)
+        h_style.paragraph_format.space_after = Pt(space_a)
+        h_style.paragraph_format.keep_with_next = True
+        h_style.paragraph_format.alignment = align
+        h_rPr = h_style.element.get_or_add_rPr()
+        for old_rf in h_rPr.xpath('w:rFonts'):
+            h_rPr.remove(old_rf)
+        h_rPr.append(parse_xml(r'<w:rFonts %s w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial" w:eastAsia="Arial"/>' % nsdecls('w')))
+
+    # 5. Header page numbering (top-right, roman for front matter, decimal for main body)
     if add_page_number:
         sectPr = sec._sectPr
         if is_front_matter:
@@ -66,8 +118,8 @@ def setup_unhas_section(doc, is_front_matter=False, start_page=1, add_page_numbe
         p_hdr._p.append(fld_xml)
 
 def parse_inline_runs(text):
-    # Matches $$...$$, **...**, *...*, `...`
-    pattern = re.compile(r'(\$\$[^\$]+\$\$|\*\*[^\*]+\*\*|\*[^\*]+\*|`[^`]+`)')
+    # Non-greedy pattern for $$, **, *, ` strictly confined within lines
+    pattern = re.compile(r'(\$\$[^\$]+?\$\$|\*\*[^\*\n]+?\*\*|\*[^\*\n]+?\*|\x60[^\x60\n]+?\x60)')
     parts = pattern.split(text)
     runs = []
     for part in parts:
@@ -76,32 +128,44 @@ def parse_inline_runs(text):
         if part.startswith('$$') and part.endswith('$$'):
             runs.append(('math', part))
         elif part.startswith('**') and part.endswith('**'):
-            val = part[2:-2].strip('*#').strip()
+            inner = part[2:-2]
+            l_space = len(inner) - len(inner.lstrip())
+            r_space = len(inner) - len(inner.rstrip())
+            if l_space > 0:
+                runs.append(('text', ' ' * l_space))
+            val = inner.strip()
             if val:
                 runs.append(('bold', val))
+            if r_space > 0:
+                runs.append(('text', ' ' * r_space))
         elif part.startswith('*') and part.endswith('*'):
-            val = part[1:-1].strip('*#').strip()
+            inner = part[1:-1]
+            l_space = len(inner) - len(inner.lstrip())
+            r_space = len(inner) - len(inner.rstrip())
+            if l_space > 0:
+                runs.append(('text', ' ' * l_space))
+            val = inner.strip()
             if val:
                 runs.append(('italic', val))
+            if r_space > 0:
+                runs.append(('text', ' ' * r_space))
         elif part.startswith('`') and part.endswith('`'):
-            val = part[1:-1].strip()
-            if val:
-                runs.append(('code', val))
+            runs.append(('code', part[1:-1]))
         else:
-            # TEXT TOKEN:
-            # Strip any unparsed, stray '*' or '#' markdown markers that are not part of LaTeX math
             clean_text = part.replace('*', '').replace('#', '')
             if clean_text:
                 runs.append(('text', clean_text))
     return runs
 
 def add_styled_paragraph(doc, text, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=4, line_spacing=1.15, first_indent=Mm(10), bold_all=False, italic_all=False, font_size=10):
-    p = doc.add_paragraph()
+    p = doc.add_paragraph(style='Normal')
     p.alignment = align
     p.paragraph_format.space_after = Pt(space_after)
     p.paragraph_format.line_spacing = line_spacing
     if first_indent:
         p.paragraph_format.first_line_indent = first_indent
+    else:
+        p.paragraph_format.first_line_indent = Mm(0)
 
     tokens = parse_inline_runs(text)
     for t_type, t_val in tokens:
@@ -119,11 +183,12 @@ def add_styled_paragraph(doc, text, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_afte
     return p
 
 def add_heading_1(doc, title_text):
-    p = doc.add_paragraph()
+    p = doc.add_paragraph(style='Heading 1')
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p.paragraph_format.space_before = Pt(12)
     p.paragraph_format.space_after = Pt(12)
     p.paragraph_format.line_spacing = 1.15
+    p.paragraph_format.keep_with_next = True
     clean_title = title_text.replace('*', '').replace('#', '')
     run = p.add_run(clean_title)
     run.font.name = 'Arial'
@@ -132,11 +197,12 @@ def add_heading_1(doc, title_text):
     return p
 
 def add_heading_2(doc, title_text):
-    p = doc.add_paragraph()
+    p = doc.add_paragraph(style='Heading 2')
     p.alignment = WD_ALIGN_PARAGRAPH.LEFT
     p.paragraph_format.space_before = Pt(10)
     p.paragraph_format.space_after = Pt(4)
     p.paragraph_format.line_spacing = 1.15
+    p.paragraph_format.keep_with_next = True
     tokens = parse_inline_runs(title_text)
     for t_type, t_val in tokens:
         run = p.add_run(t_val)
@@ -148,11 +214,12 @@ def add_heading_2(doc, title_text):
     return p
 
 def add_heading_3(doc, title_text):
-    p = doc.add_paragraph()
+    p = doc.add_paragraph(style='Heading 3')
     p.alignment = WD_ALIGN_PARAGRAPH.LEFT
     p.paragraph_format.space_before = Pt(8)
     p.paragraph_format.space_after = Pt(2)
     p.paragraph_format.line_spacing = 1.15
+    p.paragraph_format.keep_with_next = True
     tokens = parse_inline_runs(title_text)
     for t_type, t_val in tokens:
         run = p.add_run(t_val)
@@ -163,44 +230,19 @@ def add_heading_3(doc, title_text):
             run.italic = True
     return p
 
-def add_leader_line(doc, left_text, page_str, indent_mm=0, bold=False, space_after=2):
-    p = doc.add_paragraph()
-    p.paragraph_format.tab_stops.add_tab_stop(PRINTABLE_WIDTH, WD_TAB_ALIGNMENT.RIGHT, WD_TAB_LEADER.DOTS)
-    p.paragraph_format.line_spacing = 1.15
-    p.paragraph_format.space_after = Pt(space_after)
-    if indent_mm > 0:
-        p.paragraph_format.left_indent = Mm(indent_mm)
-
-    tokens = parse_inline_runs(left_text)
-    for t_type, t_val in tokens:
-        r1 = p.add_run(t_val)
-        r1.font.name = 'Arial'
-        r1.font.size = Pt(9.5)
-        if bold or t_type == 'bold':
-            r1.bold = True
-        if t_type == 'italic':
-            r1.italic = True
-
-    r2 = p.add_run(f"\t{page_str}")
-    r2.font.name = 'Arial'
-    r2.font.size = Pt(9.5)
-    if bold:
-        r2.bold = True
-    return p
-
-def set_cell_borders(cell):
+def set_cell_borders(cell, border_color="CCCCCC", border_sz="4"):
     tcPr = cell._tc.get_or_add_tcPr()
     borders = parse_xml(r'''
         <w:tcBorders %s >
-            <w:top w:val="single" w:sz="4" w:space="0" w:color="CCCCCC"/>
-            <w:left w:val="single" w:sz="4" w:space="0" w:color="CCCCCC"/>
-            <w:bottom w:val="single" w:sz="4" w:space="0" w:color="CCCCCC"/>
-            <w:right w:val="single" w:sz="4" w:space="0" w:color="CCCCCC"/>
+            <w:top w:val="single" w:sz="%s" w:space="0" w:color="%s"/>
+            <w:left w:val="single" w:sz="%s" w:space="0" w:color="%s"/>
+            <w:bottom w:val="single" w:sz="%s" w:space="0" w:color="%s"/>
+            <w:right w:val="single" w:sz="%s" w:space="0" w:color="%s"/>
         </w:tcBorders>
-    ''' % nsdecls('w'))
+    ''' % (nsdecls('w'), border_sz, border_color, border_sz, border_color, border_sz, border_color, border_sz, border_color))
     tcPr.append(borders)
 
-def set_cell_margins(cell, top=80, bottom=80, left=120, right=120):
+def set_cell_margins(cell, top=60, bottom=60, left=100, right=100):
     tcPr = cell._tc.get_or_add_tcPr()
     tcMar = parse_xml(f'''
         <w:tcMar {nsdecls("w")}>
@@ -212,12 +254,110 @@ def set_cell_margins(cell, top=80, bottom=80, left=120, right=120):
     ''')
     tcPr.append(tcMar)
 
+def create_toc_table(doc):
+    tbl = doc.add_table(rows=0, cols=2)
+    tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+    return tbl
+
+def add_toc_header_row(tbl, left_header, right_header):
+    row = tbl.add_row()
+    trPr = row._tr.get_or_add_trPr()
+    trPr.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
+    trPr.append(parse_xml(f'<w:tblHeader {nsdecls("w")}/>'))
+    c0, c1 = row.cells
+    c0.width = Mm(116)
+    c1.width = Mm(14)
+    for c in (c0, c1):
+        tcPr = c._tc.get_or_add_tcPr()
+        borders = parse_xml(r'''
+            <w:tcBorders %s>
+                <w:top w:val="none"/>
+                <w:left w:val="none"/>
+                <w:bottom w:val="none"/>
+                <w:right w:val="none"/>
+            </w:tcBorders>
+        ''' % nsdecls('w'))
+        tcPr.append(borders)
+        set_cell_margins(c, top=20, bottom=20, left=0, right=0)
+    p0 = c0.paragraphs[0]
+    p0.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    p0.paragraph_format.line_spacing = 1.15
+    p0.paragraph_format.space_after = Pt(6)
+    r0 = p0.add_run(left_header)
+    r0.font.name = 'Arial'
+    r0.font.size = Pt(9.5)
+    r0.bold = True
+
+    p1 = c1.paragraphs[0]
+    p1.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    p1.paragraph_format.line_spacing = 1.15
+    p1.paragraph_format.space_after = Pt(6)
+    r1 = p1.add_run(right_header)
+    r1.font.name = 'Arial'
+    r1.font.size = Pt(9.5)
+    r1.bold = True
+
+def add_toc_row(tbl, left_text, page_str, indent_mm=0, bold=False, space_after=2):
+    row = tbl.add_row()
+    trPr = row._tr.get_or_add_trPr()
+    trPr.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
+
+    c0, c1 = row.cells
+    c0.width = Mm(116)
+    c1.width = Mm(14)
+
+    for c in (c0, c1):
+        tcPr = c._tc.get_or_add_tcPr()
+        borders = parse_xml(r'''
+            <w:tcBorders %s>
+                <w:top w:val="none"/>
+                <w:left w:val="none"/>
+                <w:bottom w:val="none"/>
+                <w:right w:val="none"/>
+            </w:tcBorders>
+        ''' % nsdecls('w'))
+        tcPr.append(borders)
+        set_cell_margins(c, top=20, bottom=20, left=0, right=0)
+
+    p0 = c0.paragraphs[0]
+    p0.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    p0.paragraph_format.line_spacing = 1.15
+    p0.paragraph_format.space_after = Pt(space_after)
+    if indent_mm > 0:
+        p0.paragraph_format.left_indent = Mm(indent_mm)
+    p0.paragraph_format.tab_stops.add_tab_stop(Mm(114), WD_TAB_ALIGNMENT.RIGHT, WD_TAB_LEADER.DOTS)
+
+    tokens = parse_inline_runs(left_text)
+    for t_type, t_val in tokens:
+        r = p0.add_run(t_val)
+        r.font.name = 'Arial'
+        r.font.size = Pt(9.5)
+        if bold or t_type == 'bold':
+            r.bold = True
+        if t_type == 'italic':
+            r.italic = True
+
+    r_tab = p0.add_run('\t')
+    r_tab.font.name = 'Arial'
+    r_tab.font.size = Pt(9.5)
+
+    p1 = c1.paragraphs[0]
+    p1.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    p1.paragraph_format.line_spacing = 1.15
+    p1.paragraph_format.space_after = Pt(space_after)
+    r_pg = p1.add_run(str(page_str))
+    r_pg.font.name = 'Arial'
+    r_pg.font.size = Pt(9.5)
+    if bold:
+        r_pg.bold = True
+
 def build_front_matter(doc):
     # 2.1 Cover Page (Unnumbered)
     p_cov = doc.add_paragraph()
     p_cov.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_cov.paragraph_format.space_before = Pt(10)
     p_cov.paragraph_format.space_after = Pt(18)
+    p_cov.paragraph_format.first_line_indent = Mm(0)
     r = p_cov.add_run("PROPOSAL TUGAS AKHIR")
     r.font.name = 'Arial'
     r.font.size = Pt(11)
@@ -227,6 +367,7 @@ def build_front_matter(doc):
     p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_title.paragraph_format.space_after = Pt(8)
     p_title.paragraph_format.line_spacing = 1.15
+    p_title.paragraph_format.first_line_indent = Mm(0)
     for t_type, t_val in parse_inline_runs(OFFICIAL_TITLE_MD):
         r_t = p_title.add_run(t_val)
         r_t.font.name = 'Arial'
@@ -238,6 +379,7 @@ def build_front_matter(doc):
     p_subtitle = doc.add_paragraph()
     p_subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_subtitle.paragraph_format.space_after = Pt(24)
+    p_subtitle.paragraph_format.first_line_indent = Mm(0)
     r_sub = p_subtitle.add_run(OFFICIAL_SUBTITLE_EN)
     r_sub.font.name = 'Arial'
     r_sub.font.size = Pt(9.5)
@@ -247,6 +389,7 @@ def build_front_matter(doc):
         p_logo = doc.add_paragraph()
         p_logo.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p_logo.paragraph_format.space_after = Pt(28)
+        p_logo.paragraph_format.first_line_indent = Mm(0)
         p_logo.add_run().add_picture(logo_path, width=Mm(28), height=Mm(35))
     else:
         doc.add_paragraph()
@@ -254,6 +397,7 @@ def build_front_matter(doc):
     p_author_lbl = doc.add_paragraph()
     p_author_lbl.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_author_lbl.paragraph_format.space_after = Pt(2)
+    p_author_lbl.paragraph_format.first_line_indent = Mm(0)
     r_by = p_author_lbl.add_run("Disusun oleh:")
     r_by.font.name = 'Arial'
     r_by.font.size = Pt(10)
@@ -261,6 +405,7 @@ def build_front_matter(doc):
     p_author = doc.add_paragraph()
     p_author.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_author.paragraph_format.space_after = Pt(2)
+    p_author.paragraph_format.first_line_indent = Mm(0)
     r_name = p_author.add_run("MUH. RADHI SYAFIQ GHANIM. S")
     r_name.font.name = 'Arial'
     r_name.font.size = Pt(10)
@@ -269,6 +414,7 @@ def build_front_matter(doc):
     p_nim = doc.add_paragraph()
     p_nim.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_nim.paragraph_format.space_after = Pt(36)
+    p_nim.paragraph_format.first_line_indent = Mm(0)
     r_nim = p_nim.add_run("NIM. D021201006")
     r_nim.font.name = 'Arial'
     r_nim.font.size = Pt(10)
@@ -278,6 +424,7 @@ def build_front_matter(doc):
     p_inst.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_inst.paragraph_format.space_after = Pt(0)
     p_inst.paragraph_format.line_spacing = 1.15
+    p_inst.paragraph_format.first_line_indent = Mm(0)
     r_inst = p_inst.add_run(
         "DEPARTEMEN TEKNIK MESIN\n"
         "FAKULTAS TEKNIK\n"
@@ -298,6 +445,7 @@ def build_front_matter(doc):
     p_app_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_app_title.paragraph_format.space_after = Pt(14)
     p_app_title.paragraph_format.line_spacing = 1.15
+    p_app_title.paragraph_format.first_line_indent = Mm(0)
     for t_type, t_val in parse_inline_runs(OFFICIAL_TITLE_MD):
         r_at = p_app_title.add_run(t_val)
         r_at.font.name = 'Arial'
@@ -309,6 +457,7 @@ def build_front_matter(doc):
     p_disusun = doc.add_paragraph()
     p_disusun.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_disusun.paragraph_format.space_after = Pt(4)
+    p_disusun.paragraph_format.first_line_indent = Mm(0)
     r_d = p_disusun.add_run("Disusun dan diajukan oleh:")
     r_d.font.name = 'Arial'
     r_d.font.size = Pt(10)
@@ -316,6 +465,7 @@ def build_front_matter(doc):
     p_stud_info = doc.add_paragraph()
     p_stud_info.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_stud_info.paragraph_format.space_after = Pt(14)
+    p_stud_info.paragraph_format.first_line_indent = Mm(0)
     r_si = p_stud_info.add_run("MUH. RADHI SYAFIQ GHANIM. S\nNIM. D021201006")
     r_si.font.name = 'Arial'
     r_si.font.size = Pt(10)
@@ -324,19 +474,33 @@ def build_front_matter(doc):
     p_app_intro = doc.add_paragraph()
     p_app_intro.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_app_intro.paragraph_format.space_after = Pt(16)
+    p_app_intro.paragraph_format.first_line_indent = Mm(0)
     r_ai = p_app_intro.add_run("Telah diperiksa dan disetujui untuk diseminarkan pada:\nDepartemen Teknik Mesin, Fakultas Teknik, Universitas Hasanuddin")
     r_ai.font.name = 'Arial'
     r_ai.font.size = Pt(10)
 
     table_sup = doc.add_table(rows=1, cols=2)
     table_sup.alignment = WD_TABLE_ALIGNMENT.CENTER
-    for row in table_sup.rows:
-        for cell in row.cells:
-            cell.width = Mm(65)
+    trPr_sup = table_sup.rows[0]._tr.get_or_add_trPr()
+    trPr_sup.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
+    for cell in table_sup.rows[0].cells:
+        cell.width = Mm(65)
+        tcPr = cell._tc.get_or_add_tcPr()
+        borders = parse_xml(r'''
+            <w:tcBorders %s>
+                <w:top w:val="none"/>
+                <w:left w:val="none"/>
+                <w:bottom w:val="none"/>
+                <w:right w:val="none"/>
+            </w:tcBorders>
+        ''' % nsdecls('w'))
+        tcPr.append(borders)
+
     cell_l, cell_r = table_sup.rows[0].cells
     p_l = cell_l.paragraphs[0]
     p_l.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_l.paragraph_format.line_spacing = 1.15
+    p_l.paragraph_format.first_line_indent = Mm(0)
     p_l.add_run("Pembimbing Utama,\n\n\n\n\n").font.name = 'Arial'
     r_p1 = p_l.add_run("Andi Amijoyo Mochtar, S.T., M.Sc., Ph.D.\n")
     r_p1.bold = True
@@ -346,6 +510,7 @@ def build_front_matter(doc):
     p_r = cell_r.paragraphs[0]
     p_r.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_r.paragraph_format.line_spacing = 1.15
+    p_r.paragraph_format.first_line_indent = Mm(0)
     p_r.add_run("Pembimbing Pendamping,\n\n\n\n\n").font.name = 'Arial'
     r_p2 = p_r.add_run("......................................................\n")
     r_p2.bold = True
@@ -357,6 +522,7 @@ def build_front_matter(doc):
     p_mid.paragraph_format.space_before = Pt(24)
     p_mid.paragraph_format.space_after = Pt(10)
     p_mid.paragraph_format.line_spacing = 1.15
+    p_mid.paragraph_format.first_line_indent = Mm(0)
     p_mid.add_run("Mengetahui,\nKetua Departemen Teknik Mesin Fakultas Teknik\nUniversitas Hasanuddin,\n\n\n\n").font.name = 'Arial'
     r_hod = p_mid.add_run("Dr. Muhammad Syahid, S.T., M.T.\n")
     r_hod.bold = True
@@ -365,10 +531,10 @@ def build_front_matter(doc):
 
     doc.add_page_break()
 
-    # 2.3 PERNYATAAN KEASLIAN (Halaman iii) - Identity strictly moved to the LEFT per user request
+    # 2.3 PERNYATAAN KEASLIAN (Halaman iii) - Identity strictly aligned to LEFT per user request
     add_heading_1(doc, "PERNYATAAN KEASLIAN PROPOSAL TUGAS AKHIR")
 
-    add_styled_paragraph(doc, "Yang bertanda tangan di bawah ini:", first_indent=0, space_after=6)
+    add_styled_paragraph(doc, "Yang bertanda tangan di bawah ini:", first_indent=Mm(0), space_after=6)
     t_bio = doc.add_table(rows=4, cols=3)
     t_bio.alignment = WD_TABLE_ALIGNMENT.LEFT
     bio_data = [
@@ -379,19 +545,37 @@ def build_front_matter(doc):
     ]
     for idx, (f1, f2, f3) in enumerate(bio_data):
         row = t_bio.rows[idx]
+        trPr_b = row._tr.get_or_add_trPr()
+        trPr_b.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
+        for cell in row.cells:
+            tcPr = cell._tc.get_or_add_tcPr()
+            borders = parse_xml(r'''
+                <w:tcBorders %s>
+                    <w:top w:val="none"/>
+                    <w:left w:val="none"/>
+                    <w:bottom w:val="none"/>
+                    <w:right w:val="none"/>
+                </w:tcBorders>
+            ''' % nsdecls('w'))
+            tcPr.append(borders)
+            set_cell_margins(cell, top=20, bottom=20, left=0, right=40)
+
         row.cells[0].width = Mm(55)
         row.cells[1].width = Mm(5)
         row.cells[2].width = Mm(71)
         p0 = row.cells[0].paragraphs[0]
         p0.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        p0.paragraph_format.first_line_indent = Mm(0)
         p0.add_run(f1).font.name = 'Arial'
 
         p1 = row.cells[1].paragraphs[0]
         p1.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        p1.paragraph_format.first_line_indent = Mm(0)
         p1.add_run(f2).font.name = 'Arial'
 
         p2 = row.cells[2].paragraphs[0]
         p2.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        p2.paragraph_format.first_line_indent = Mm(0)
         r_val = p2.add_run(f3)
         r_val.font.name = 'Arial'
         if idx < 2:
@@ -399,11 +583,12 @@ def build_front_matter(doc):
 
     doc.add_paragraph().paragraph_format.space_after = Pt(6)
 
-    add_styled_paragraph(doc, "Menyatakan dengan sesungguhnya dan penuh kesadaran bahwa Naskah Proposal Tugas Akhir yang berjudul:")
+    add_styled_paragraph(doc, "Menyatakan dengan sesungguhnya dan penuh kesadaran bahwa Naskah Proposal Tugas Akhir yang berjudul:", first_indent=Mm(0))
     p_prop_t = doc.add_paragraph()
     p_prop_t.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_prop_t.paragraph_format.space_after = Pt(8)
     p_prop_t.paragraph_format.space_before = Pt(4)
+    p_prop_t.paragraph_format.first_line_indent = Mm(0)
     p_prop_t.add_run('"').font.name = 'Arial'
     for t_type, t_val in parse_inline_runs(OFFICIAL_TITLE_MD):
         r_pt = p_prop_t.add_run(t_val)
@@ -414,13 +599,14 @@ def build_front_matter(doc):
             r_pt.italic = True
     p_prop_t.add_run('"').font.name = 'Arial'
 
-    add_styled_paragraph(doc, "adalah benar-benar merupakan hasil karya ilmiah mandiri saya sendiri di bawah bimbingan komisi pembimbing yang telah ditunjuk, dan bukan merupakan karya penjiplakan (plagiasi), duplikasi, maupun saduran tanpa mencantumkan rujukan yang sah dari karya orang lain.")
-    add_styled_paragraph(doc, "Apabila di kemudian hari terbukti atau dapat dibuktikan bahwa sebagian maupun keseluruhan isi naskah proposal ini mengandung unsur plagiarisme atau melanggar etika integritas akademik, maka saya bersedia menerima sanksi akademik yang tegas sesuai dengan peraturan perundang-undangan dan ketentuan hukum yang berlaku di Universitas Hasanuddin.")
+    add_styled_paragraph(doc, "adalah benar-benar merupakan hasil karya ilmiah mandiri saya sendiri di bawah bimbingan komisi pembimbing yang telah ditunjuk, dan bukan merupakan karya penjiplakan (plagiasi), duplikasi, maupun saduran tanpa mencantumkan rujukan yang sah dari karya orang lain.", first_indent=Mm(10))
+    add_styled_paragraph(doc, "Apabila di kemudian hari terbukti atau dapat dibuktikan bahwa sebagian maupun keseluruhan isi naskah proposal ini mengandung unsur plagiarisme atau melanggar etika integritas akademik, maka saya bersedia menerima sanksi akademik yang tegas sesuai dengan peraturan perundang-undangan dan ketentuan hukum yang berlaku di Universitas Hasanuddin.", first_indent=Mm(10))
 
     p_sig = doc.add_paragraph()
     p_sig.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     p_sig.paragraph_format.space_before = Pt(20)
     p_sig.paragraph_format.line_spacing = 1.15
+    p_sig.paragraph_format.first_line_indent = Mm(0)
     p_sig.add_run("Makassar, 24 September 2026\nYang membuat pernyataan,\n\n\n\n\n").font.name = 'Arial'
     r_sname = p_sig.add_run("MUH. RADHI SYAFIQ GHANIM. S\n")
     r_sname.bold = True
@@ -432,8 +618,8 @@ def build_front_matter(doc):
     # 2.4 PRAKATA (Halaman iv)
     add_heading_1(doc, "PRAKATA")
 
-    add_styled_paragraph(doc, "Puji dan syukur ke hadirat Tuhan Yang Maha Esa atas limpahan rahmat, taufik, dan hidayah-Nya, sehingga penulis dapat menyelesaikan naskah Proposal Tugas Akhir ini dengan judul *\"Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal Kalman Filter untuk Vision-Based Tracking pada Over-Actuated 8-Thruster 6-DOF Vectored AUV\"*. Naskah ini diajukan sebagai salah satu syarat akademis kurikuler wajib guna mencapai derajat Sarjana Teknik (S.T.) pada Departemen Teknik Mesin, Fakultas Teknik, Universitas Hasanuddin.")
-    add_styled_paragraph(doc, "Penulis menyadari sepenuhnya bahwa kelancaran dan keterwujudan penyusunan proposal ini tidak lepas dari bimbingan, arahan saintifik, motivasi, serta bantuan moril maupun materil dari berbagai pihak. Oleh karena itu, dengan kerendahan hati penulis menyampaikan apresiasi dan ucapan terima kasih yang setinggi-tingginya kepada:")
+    add_styled_paragraph(doc, "Puji dan syukur ke hadirat Tuhan Yang Maha Esa atas limpahan rahmat, taufik, dan hidayah-Nya, sehingga penulis dapat menyelesaikan naskah Proposal Tugas Akhir ini dengan judul *\"Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal Kalman Filter untuk Vision-Based Tracking pada Over-Actuated 8-Thruster 6-DOF Vectored AUV\"*. Naskah ini diajukan sebagai salah satu syarat akademis kurikuler wajib guna mencapai derajat Sarjana Teknik (S.T.) pada Departemen Teknik Mesin, Fakultas Teknik, Universitas Hasanuddin.", first_indent=Mm(0))
+    add_styled_paragraph(doc, "Penulis menyadari sepenuhnya bahwa kelancaran dan keterwujudan penyusunan proposal ini tidak lepas dari bimbingan, arahan saintifik, motivasi, serta bantuan moril maupun materil dari berbagai pihak. Oleh karena itu, dengan kerendahan hati penulis menyampaikan apresiasi dan ucapan terima kasih yang setinggi-tingginya kepada:", first_indent=Mm(10))
 
     ack_list = [
         ("1.", "Bapak Dr. Muhammad Syahid, S.T., M.T., selaku Ketua Departemen Teknik Mesin Fakultas Teknik Universitas Hasanuddin atas segala dukungan akademis, legalitas administrasi, dan penyediaan atmosfer penelitian mekatronika yang unggul."),
@@ -461,12 +647,13 @@ def build_front_matter(doc):
             if t_type == 'bold':
                 r_tx.bold = True
 
-    add_styled_paragraph(doc, "Penulis menyadari bahwa naskah proposal ini masih memiliki keterbatasan. Kritik dan saran yang membangun sangat penulis harapkan guna penyempurnaan implementasi penelitian di masa mendatang.")
+    add_styled_paragraph(doc, "Penulis menyadari bahwa naskah proposal ini masih memiliki keterbatasan. Kritik dan saran yang membangun sangat penulis harapkan guna penyempurnaan implementasi penelitian di masa mendatang.", first_indent=Mm(10))
 
     p_sig2 = doc.add_paragraph()
     p_sig2.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     p_sig2.paragraph_format.space_before = Pt(16)
     p_sig2.paragraph_format.line_spacing = 1.15
+    p_sig2.paragraph_format.first_line_indent = Mm(0)
     p_sig2.add_run("Makassar, 24 September 2026\n\n\n").font.name = 'Arial'
     r_pn = p_sig2.add_run("Penulis")
     r_pn.bold = True
@@ -474,13 +661,14 @@ def build_front_matter(doc):
 
     doc.add_page_break()
 
-    # 2.5 ABSTRAK (INDONESIAN - Halaman v) - No English abstract per user request
+    # 2.5 ABSTRAK (INDONESIAN - Halaman v) - Single Indonesian abstract per user request
     add_heading_1(doc, "ABSTRAK")
 
     p_abs_title = doc.add_paragraph()
     p_abs_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_abs_title.paragraph_format.space_after = Pt(8)
     p_abs_title.paragraph_format.line_spacing = 1.15
+    p_abs_title.paragraph_format.first_line_indent = Mm(0)
     for t_type, t_val in parse_inline_runs(OFFICIAL_TITLE_MD):
         r_at = p_abs_title.add_run(t_val)
         r_at.font.name = 'Arial'
@@ -509,6 +697,7 @@ def build_front_matter(doc):
     p_abs_body.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     p_abs_body.paragraph_format.space_after = Pt(8)
     p_abs_body.paragraph_format.line_spacing = 1.0
+    p_abs_body.paragraph_format.first_line_indent = Mm(0)
     for t_type, t_val in parse_inline_runs(abstract_id_text):
         r_ab = p_abs_body.add_run(t_val)
         r_ab.font.name = 'Arial'
@@ -521,6 +710,7 @@ def build_front_matter(doc):
     p_kwi = doc.add_paragraph()
     p_kwi.paragraph_format.space_after = Pt(14)
     p_kwi.paragraph_format.line_spacing = 1.0
+    p_kwi.paragraph_format.first_line_indent = Mm(0)
     r_kwi_lbl = p_kwi.add_run("Kata Kunci: ")
     r_kwi_lbl.bold = True
     r_kwi_lbl.font.name = 'Arial'
@@ -534,72 +724,52 @@ def build_front_matter(doc):
 
     doc.add_page_break()
 
-    # 2.6 DAFTAR ISI (Halaman vi)
+    # 2.6 DAFTAR ISI (Halaman vi) - Robust Borderless Table
     add_heading_1(doc, "DAFTAR ISI")
+    tbl_toc = create_toc_table(doc)
+    add_toc_header_row(tbl_toc, "Judul", "Halaman")
 
-    p_th = doc.add_paragraph()
-    p_th.paragraph_format.tab_stops.add_tab_stop(PRINTABLE_WIDTH, WD_TAB_ALIGNMENT.RIGHT)
-    p_th.paragraph_format.space_after = Pt(8)
-    r_th1 = p_th.add_run("Judul")
-    r_th1.bold = True
-    r_th1.font.name = 'Arial'
-    r_th1.font.size = Pt(9.5)
-    r_th2 = p_th.add_run("\tHalaman")
-    r_th2.bold = True
-    r_th2.font.name = 'Arial'
-    r_th2.font.size = Pt(9.5)
+    add_toc_row(tbl_toc, "HALAMAN SAMPUL DEPAN", "i", bold=True)
+    add_toc_row(tbl_toc, "LEMBAR PENGESAHAN PROPOSAL TUGAS AKHIR", "ii", bold=True)
+    add_toc_row(tbl_toc, "PERNYATAAN KEASLIAN PROPOSAL TUGAS AKHIR", "iii", bold=True)
+    add_toc_row(tbl_toc, "PRAKATA", "iv", bold=True)
+    add_toc_row(tbl_toc, "ABSTRAK", "v", bold=True)
+    add_toc_row(tbl_toc, "DAFTAR ISI", "vi", bold=True)
+    add_toc_row(tbl_toc, "DAFTAR TABEL", "vii", bold=True)
+    add_toc_row(tbl_toc, "DAFTAR GAMBAR", "viii", bold=True)
+    add_toc_row(tbl_toc, "DAFTAR SINGKATAN, ISTILAH, DAN LAMBANG", "ix", bold=True)
 
-    add_leader_line(doc, "HALAMAN SAMPUL DEPAN", "i", bold=True)
-    add_leader_line(doc, "LEMBAR PENGESAHAN PROPOSAL TUGAS AKHIR", "ii", bold=True)
-    add_leader_line(doc, "PERNYATAAN KEASLIAN PROPOSAL TUGAS AKHIR", "iii", bold=True)
-    add_leader_line(doc, "PRAKATA", "iv", bold=True)
-    add_leader_line(doc, "ABSTRAK", "v", bold=True)
-    add_leader_line(doc, "DAFTAR ISI", "vi", bold=True)
-    add_leader_line(doc, "DAFTAR TABEL", "vii", bold=True)
-    add_leader_line(doc, "DAFTAR GAMBAR", "viii", bold=True)
-    add_leader_line(doc, "DAFTAR SINGKATAN, ISTILAH, DAN LAMBANG", "ix", bold=True)
+    add_toc_row(tbl_toc, "BAB I: PENDAHULUAN", "1", bold=True, space_after=4)
+    add_toc_row(tbl_toc, "1.1 Latar Belakang", "1", indent_mm=5)
+    add_toc_row(tbl_toc, "1.2 Rumusan Masalah", "5", indent_mm=5)
+    add_toc_row(tbl_toc, "1.3 Tujuan Penelitian", "6", indent_mm=5)
+    add_toc_row(tbl_toc, "1.4 Batasan Masalah", "7", indent_mm=5)
+    add_toc_row(tbl_toc, "1.5 Manfaat Penelitian", "8", indent_mm=5)
 
-    add_leader_line(doc, "BAB I: PENDAHULUAN", "1", bold=True, space_after=4)
-    add_leader_line(doc, "1.1 Latar Belakang", "1", indent_mm=5)
-    add_leader_line(doc, "1.2 Rumusan Masalah", "5", indent_mm=5)
-    add_leader_line(doc, "1.3 Tujuan Penelitian", "6", indent_mm=5)
-    add_leader_line(doc, "1.4 Batasan Masalah", "7", indent_mm=5)
-    add_leader_line(doc, "1.5 Manfaat Penelitian", "8", indent_mm=5)
+    add_toc_row(tbl_toc, "BAB II: TINJAUAN PUSTAKA", "10", bold=True, space_after=4)
+    add_toc_row(tbl_toc, "2.1 Tinjauan Pustaka (*State of the Art* Penelitian AUV)", "10", indent_mm=5)
+    add_toc_row(tbl_toc, "2.2 Sistem Koordinat dan Konvensi SNAME", "13", indent_mm=5)
+    add_toc_row(tbl_toc, "2.3 Penurunan Kinematika 6-DOF dan Matriks Jacobian", "18", indent_mm=5)
+    add_toc_row(tbl_toc, "2.4 Penurunan Dinamika Hidrodinamika 6-DOF (Persamaan Fossen)", "24", indent_mm=5)
+    add_toc_row(tbl_toc, "2.5 Alokasi Gaya Dorong Sistem *Over-Actuated* 8-Pendorong", "32", indent_mm=5)
+    add_toc_row(tbl_toc, "2.6 Teori dan Formulasi Optimal *Kalman Filter* Suite", "37", indent_mm=5)
 
-    add_leader_line(doc, "BAB II: TINJAUAN PUSTAKA", "10", bold=True, space_after=4)
-    add_leader_line(doc, "2.1 Tinjauan Pustaka (*State of the Art* Penelitian AUV)", "10", indent_mm=5)
-    add_leader_line(doc, "2.2 Sistem Koordinat dan Konvensi SNAME", "13", indent_mm=5)
-    add_leader_line(doc, "2.3 Penurunan Kinematika 6-DOF dan Matriks Jacobian", "18", indent_mm=5)
-    add_leader_line(doc, "2.4 Penurunan Dinamika Hidrodinamika 6-DOF (Persamaan Fossen)", "24", indent_mm=5)
-    add_leader_line(doc, "2.5 Alokasi Gaya Dorong Sistem *Over-Actuated* 8-Pendorong", "32", indent_mm=5)
-    add_leader_line(doc, "2.6 Teori dan Formulasi Optimal *Kalman Filter* Suite", "37", indent_mm=5)
+    add_toc_row(tbl_toc, "BAB III: METODOLOGI PENELITIAN", "52", bold=True, space_after=4)
+    add_toc_row(tbl_toc, "3.1 Tempat dan Waktu Penelitian", "52", indent_mm=5)
+    add_toc_row(tbl_toc, "3.2 Diagram Alir Penelitian", "54", indent_mm=5)
+    add_toc_row(tbl_toc, "3.3 Identifikasi Parameter Fisik dan Hidrodinamika Wahana", "56", indent_mm=5)
+    add_toc_row(tbl_toc, "3.4 Perancangan Arsitektur *Software-In-The-Loop* (SITL)", "61", indent_mm=5)
+    add_toc_row(tbl_toc, "3.5 Perancangan Arsitektur *Hardware-In-The-Loop* (HITL)", "64", indent_mm=5)
+    add_toc_row(tbl_toc, "3.6 Prosedur Pengujian dan Evaluasi Kinerja", "71", indent_mm=5)
 
-    add_leader_line(doc, "BAB III: METODOLOGI PENELITIAN", "52", bold=True, space_after=4)
-    add_leader_line(doc, "3.1 Tempat dan Waktu Penelitian", "52", indent_mm=5)
-    add_leader_line(doc, "3.2 Diagram Alir Penelitian", "54", indent_mm=5)
-    add_leader_line(doc, "3.3 Identifikasi Parameter Fisik dan Hidrodinamika Wahana", "56", indent_mm=5)
-    add_leader_line(doc, "3.4 Perancangan Arsitektur *Software-In-The-Loop* (SITL)", "61", indent_mm=5)
-    add_leader_line(doc, "3.5 Perancangan Arsitektur *Hardware-In-The-Loop* (HITL)", "64", indent_mm=5)
-    add_leader_line(doc, "3.6 Prosedur Pengujian dan Evaluasi Kinerja", "71", indent_mm=5)
-
-    add_leader_line(doc, "DAFTAR PUSTAKA", "76", bold=True, space_after=4)
+    add_toc_row(tbl_toc, "DAFTAR PUSTAKA", "76", bold=True, space_after=4)
 
     doc.add_page_break()
 
     # 2.7 DAFTAR TABEL (Halaman vii) - Exactly matches the 8 actual tables present in the thesis
     add_heading_1(doc, "DAFTAR TABEL")
-
-    p_tth = doc.add_paragraph()
-    p_tth.paragraph_format.tab_stops.add_tab_stop(PRINTABLE_WIDTH, WD_TAB_ALIGNMENT.RIGHT)
-    p_tth.paragraph_format.space_after = Pt(8)
-    r_tth1 = p_tth.add_run("Nomor Urut dan Judul Tabel")
-    r_tth1.bold = True
-    r_tth1.font.name = 'Arial'
-    r_tth1.font.size = Pt(9.5)
-    r_tth2 = p_tth.add_run("\tHalaman")
-    r_tth2.bold = True
-    r_tth2.font.name = 'Arial'
-    r_tth2.font.size = Pt(9.5)
+    tbl_tab = create_toc_table(doc)
+    add_toc_header_row(tbl_tab, "Nomor Urut dan Judul Tabel", "Halaman")
 
     tables_info = [
         ("Tabel 2.1", "Matriks Sintesis Literatur Terkini (2021–2025) Bidang Dinamika dan Kontrol AUV", "11"),
@@ -613,24 +783,14 @@ def build_front_matter(doc):
     ]
 
     for num, title, pg in tables_info:
-        add_leader_line(doc, f"{num}  {title}", pg, space_after=3)
+        add_toc_row(tbl_tab, f"{num}  {title}", pg, space_after=3)
 
     doc.add_page_break()
 
     # 2.8 DAFTAR GAMBAR (Halaman viii) - Exactly matches the 10 actual figures present in the thesis
     add_heading_1(doc, "DAFTAR GAMBAR")
-
-    p_fgh = doc.add_paragraph()
-    p_fgh.paragraph_format.tab_stops.add_tab_stop(PRINTABLE_WIDTH, WD_TAB_ALIGNMENT.RIGHT)
-    p_fgh.paragraph_format.space_after = Pt(8)
-    r_fgh1 = p_fgh.add_run("Nomor Urut dan Judul Gambar")
-    r_fgh1.bold = True
-    r_fgh1.font.name = 'Arial'
-    r_fgh1.font.size = Pt(9.5)
-    r_fgh2 = p_fgh.add_run("\tHalaman")
-    r_fgh2.bold = True
-    r_fgh2.font.name = 'Arial'
-    r_fgh2.font.size = Pt(9.5)
+    tbl_fig = create_toc_table(doc)
+    add_toc_header_row(tbl_fig, "Nomor Urut dan Judul Gambar", "Halaman")
 
     figures_info = [
         ("Gambar 2.1", "Sistem Kerangka Acuan Inersia Bumi (Fn - NED) dan Kerangka Acuan Bergerak Bodi (Fb - FRD) Konvensi SNAME (1950) dan Fossen (2021)", "13"),
@@ -646,7 +806,7 @@ def build_front_matter(doc):
     ]
 
     for num, title, pg in figures_info:
-        add_leader_line(doc, f"{num}  {title}", pg, space_after=3)
+        add_toc_row(tbl_fig, f"{num}  {title}", pg, space_after=3)
 
     doc.add_page_break()
 
@@ -699,17 +859,24 @@ def build_front_matter(doc):
         p0 = row_cells[0].paragraphs[0]
         p0.paragraph_format.line_spacing = 1.0
         p0.paragraph_format.space_after = Pt(2)
-        r_ab = p0.add_run(abbr)
-        r_ab.font.name = 'Arial'
-        r_ab.font.size = Pt(9)
-        r_ab.bold = True
+        p0.paragraph_format.first_line_indent = Mm(0)
+        r0 = p0.add_run(abbr)
+        r0.font.name = 'Arial'
+        r0.font.size = Pt(9)
+        r0.bold = True
 
         p1 = row_cells[1].paragraphs[0]
         p1.paragraph_format.line_spacing = 1.0
         p1.paragraph_format.space_after = Pt(2)
-        r_de = p1.add_run(desc)
-        r_de.font.name = 'Arial'
-        r_de.font.size = Pt(9)
+        p1.paragraph_format.first_line_indent = Mm(0)
+        for t_type, t_val in parse_inline_runs(desc):
+            r1 = p1.add_run(t_val)
+            r1.font.name = 'Arial'
+            r1.font.size = Pt(9)
+            if t_type == 'italic':
+                r1.italic = True
+            if t_type == 'bold':
+                r1.bold = True
 
     for r_idx, row in enumerate(t_abb.rows):
         trPr = row._tr.get_or_add_trPr()
@@ -717,36 +884,28 @@ def build_front_matter(doc):
         if r_idx == 0:
             trPr.append(parse_xml(f'<w:tblHeader {nsdecls("w")}/>'))
 
-    p_gap = doc.add_paragraph()
-    p_gap.paragraph_format.space_before = Pt(12)
+    doc.add_paragraph().paragraph_format.space_after = Pt(8)
 
-    # 2.10 DAFTAR LAMBANG DAN SIMBOL MATEMATIKA
-    add_heading_2(doc, "2. Daftar Lambang dan Simbol Matematika")
+    add_heading_2(doc, "2. Daftar Lambang dan Simbol Matematis")
 
     symbols_latex = [
-        ("$$\\mathcal{F}^n$$", "-", "Kerangka Acuan Inersia Bumi (*Earth-Fixed NED Frame*) $$\\{O_n, x_n, y_n, z_n\\}$$"),
-        ("$$\\mathcal{F}^b$$", "-", "Kerangka Acuan Bergerak Bodi (*Body-Fixed Frame*) $$\\{O_b, x_b, y_b, z_b\\}$$"),
-        ("$$\\boldsymbol{\\eta}$$", "$$\\mathbb{R}^6\\text{ (m, rad)}$$", "Vektor posisi dan orientasi spasial di $$\\mathcal{F}^n$$: $$[x, y, z, \\phi, \\theta, \\psi]^T$$"),
-        ("$$\\boldsymbol{\\nu}$$", "$$\\mathbb{R}^6\\text{ (m/s, rad/s)}$$", "Vektor kecepatan linier dan sudut di $$\\mathcal{F}^b$$: $$[u, v, w, p, q, r]^T$$"),
-        ("$$\\boldsymbol{\\tau}$$", "$$\\mathbb{R}^6\\text{ (N, N}\\cdot\\text{m)}$$", "Vektor gaya dan momen generalisasi di $$\\mathcal{F}^b$$: $$[X, Y, Z, K, M, N]^T$$"),
-        ("$$\\boldsymbol{\\nu}_c$$", "$$\\mathbb{R}^6\\text{ (m/s)}$$", "Vektor kecepatan arus laut fluida pada kerangka bodi: $$[u_c, v_c, w_c, 0, 0, 0]^T$$"),
-        ("$$\\boldsymbol{\\nu}_r$$", "$$\\mathbb{R}^6\\text{ (m/s, rad/s)}$$", "Vektor kecepatan relatif wahana terhadap fluida: $$\\boldsymbol{\\nu}_r = \\boldsymbol{\\nu} - \\boldsymbol{\\nu}_c$$"),
-        ("$$\\mathbf{R}_b^n(\\boldsymbol{\\eta}_2)$$", "$$SO(3)$$", "Matriks transformasi rotasi ortogonal dari $$\\mathcal{F}^b$$ ke $$\\mathcal{F}^n$$"),
-        ("$$\\mathbf{T}_\\Theta(\\boldsymbol{\\eta}_2)$$", "$$\\mathbb{R}^{3 \\times 3}$$", "Matriks transformasi kecepatan sudut Euler: $$\\dot{\\boldsymbol{\\eta}}_2 = \\mathbf{T}_\\Theta \\boldsymbol{\\nu}_2$$"),
-        ("$$\\mathbf{J}(\\boldsymbol{\\eta}_2)$$", "$$\\mathbb{R}^{6 \\times 6}$$", "Matriks Jacobian kinematika gabungan: $$\\text{diag}[\\mathbf{R}_b^n, \\mathbf{T}_\\Theta]$$"),
-        ("$$\\mathbf{q}$$", "$$S^3$$", "Kuaternion unit orientasi empat-dimensi: $$[\\eta, \\epsilon_1, \\epsilon_2, \\epsilon_3]^T$$"),
-        ("$$\\mathbf{M}_{RB}$$", "$$\\mathbb{R}^{6 \\times 6}\\text{ (kg, kg}\\cdot\\text{m}^2)$$", "Tensor massa inersia bodi kaku (*rigid-body mass matrix*)"),
-        ("$$\\mathbf{M}_A$$", "$$\\mathbb{R}^{6 \\times 6}\\text{ (kg, kg}\\cdot\\text{m}^2)$$", "Tensor massa tambah hidrodinamika fluida (*hydrodynamic added mass*)"),
-        ("$$\\mathbf{M}$$", "$$\\mathbb{R}^{6 \\times 6}\\text{ (kg, kg}\\cdot\\text{m}^2)$$", "Tensor massa sistem total gabungan: $$\\mathbf{M} = \\mathbf{M}_{RB} + \\mathbf{M}_A$$"),
-        ("$$\\mathbf{C}_{RB}(\\boldsymbol{\\nu})$$", "$$\\mathbb{R}^{6 \\times 6}\\text{ (N}\\cdot\\text{s/m, N}\\cdot\\text{s}\\cdot\\text{m)}$$", "Matriks gaya Coriolis dan sentripetal bodi kaku"),
-        ("$$\\mathbf{C}_A(\\boldsymbol{\\nu}_r)$$", "$$\\mathbb{R}^{6 \\times 6}\\text{ (N}\\cdot\\text{s/m, N}\\cdot\\text{s}\\cdot\\text{m)}$$", "Matriks Coriolis dan sentripetal massa tambah hidrodinamika"),
-        ("$$\\mathbf{D}(\\boldsymbol{\\nu}_r)$$", "$$\\mathbb{R}^{6 \\times 6}\\text{ (N}\\cdot\\text{s/m, N}\\cdot\\text{s}^2/\\text{m}^2)$$", "Tensor redaman hidrodinamika gabungan (linier $$\\mathbf{D}_L$$ + kuadratik $$\\mathbf{D}_{NL}$$)"),
-        ("$$\\mathbf{g}(\\boldsymbol{\\eta})$$", "$$\\mathbb{R}^6\\text{ (N, N}\\cdot\\text{m)}$$", "Vektor gaya dan momen pemulih hidrostatis (gravitasi dan gaya apung)"),
-        ("$$GM_T$$", "$$\\text{m}$$", "Tinggi metasentris transversal wahana: $$z_g - z_b$$"),
-        ("$$\\mathbf{T}_{6 \\times 8}$$", "$$\\mathbb{R}^{6 \\times 8}$$", "Matriks konfigurasi geometri dan alokasi gaya dorong 8 motor pendorong"),
-        ("$$\\mathbf{T}^\\dagger$$", "$$\\mathbb{R}^{8 \\times 6}$$", "Matriks *pseudo-inverse* Moore-Penrose: $$\\mathbf{T}^T(\\mathbf{T}\\mathbf{T}^T)^{-1}$$"),
-        ("$$\\mathbf{f}$$", "$$\\mathbb{R}^{8}\\text{ (N)}$$", "Vektor gaya dorong individual 8 motor pendorong: $$[f_1, f_2, \\dots, f_8]^T$$"),
-        ("$$\\mathbf{x}_k$$", "$$\\mathbb{R}^8\\text{ (px, px/s)}$$", "Vektor keadaan penjejakan visual: $$[x, y, w, h, v_x, v_y, v_w, v_h]^T$$"),
+        ("$$\\mathcal{F}^n$$", "-", "Kerangka acuan inersia bumi (*North-East-Down* / NED)"),
+        ("$$\\mathcal{F}^b$$", "-", "Kerangka acuan bergerak bodi wahana (*Forward-Right-Down* / FRD)"),
+        ("$$\\boldsymbol{\\eta}$$", "$$\\mathbb{R}^6$$", "Vektor posisi spasial dan sudut orientasi Euler dalam $$\\mathcal{F}^n$$ ($$\\boldsymbol{\\eta} = [\\mathbf{p}^n, \\boldsymbol{\\Theta}]^T$$)"),
+        ("$$\\boldsymbol{\\nu}$$", "$$\\mathbb{R}^6$$", "Vektor kecepatan linier dan kecepatan sudut bodi dalam $$\\mathcal{F}^b$$ ($$\\boldsymbol{\\nu} = [\\mathbf{v}_o^b, \\boldsymbol{\\omega}_{b/n}^b]^T$$)"),
+        ("$$\\boldsymbol{\\tau}$$", "$$\\mathbb{R}^6$$", "Vektor gaya kendali dan momen propulsi representasi 6-DOF ($$\\boldsymbol{\\tau} = [X, Y, Z, K, M, N]^T$$)"),
+        ("$$\\mathbf{R}_b^n$$", "$$SO(3)$$", "Matriks transformasi rotasi ortogonal dari bodi $$\\mathcal{F}^b$$ ke inersia $$\\mathcal{F}^n$$"),
+        ("$$\\mathbf{T}_\\Theta$$", "$$\\mathbb{R}^{3 \\times 3}$$", "Matriks transformasi kecepatan sudut bodi terhadap laju perubahan sudut Euler"),
+        ("$$\\mathbf{J}(\\boldsymbol{\\eta}_2)$$", "$$\\mathbb{R}^{6 \\times 6}$$", "Matriks transformasi Jacobian kinematika wahana 6-DOF lengkap"),
+        ("$$\\mathbf{M}_{RB}$$", "$$\\text{kg, kg}\\cdot\\text{m}^2$$", "Matriks tensor massa inersia benda tegar (*rigid-body mass matrix*)"),
+        ("$$\\mathbf{M}_A$$", "$$\\text{kg, kg}\\cdot\\text{m}^2$$", "Matriks massa tambah hidrodinamika fluida (*hydrodynamic added mass matrix*)"),
+        ("$$\\mathbf{C}_{RB}(\\boldsymbol{\\nu})$$", "$$\\text{N}\\cdot\\text{s/m, N}\\cdot\\text{s}$$", "Matriks Coriolis dan sentripetal benda tegar"),
+        ("$$\\mathbf{C}_A(\\boldsymbol{\\nu}_r)$$", "$$\\text{N}\\cdot\\text{s/m, N}\\cdot\\text{s}$$", "Matriks Coriolis dan sentripetal massa tambah hidrodinamika"),
+        ("$$\\mathbf{D}(\\boldsymbol{\\nu}_r)$$", "$$\\text{N}\\cdot\\text{s/m, N}\\cdot\\text{s}^2/\\text{m}^2$$", "Matriks redaman hidrodinamika fluida (komponen linier dan kuadratik)"),
+        ("$$\\mathbf{g}(\\boldsymbol{\\eta})$$", "$$\\text{N, N}\\cdot\\text{m}$$", "Vektor gaya dan momen pemulih gravitasi serta daya apung hidrostatis"),
+        ("$$\\mathbf{T}_{6 \\times 8}$$", "-", "Matriks konfigurasi alokasi gaya dorong geometris 8 pendorong"),
+        ("$$\\mathbf{T}_{6 \\times 8}^\\dagger$$", "-", "Matriks invers semu Moore-Penrose (*pseudo-inverse*) alokasi gaya dorong"),
+        ("$$\\mathbf{f}$$", "$$\\text{N}$$", "Vektor gaya dorong 8 unit pendorong individual ($$\\mathbf{f} \\in \\mathbb{R}^8$$)"),
         ("$$\\mathbf{P}_k$$", "$$\\mathbb{R}^{n \\times n}$$", "Matriks kovariansi kesalahan estimasi filter (*error covariance matrix*)"),
         ("$$\\mathbf{K}_k$$", "-", "Matriks penguatan optimal Kalman (*optimal Kalman gain*)"),
         ("$$\\mathbf{Q}$$", "$$\\text{px}^2/\\text{s}^3$$", "Matriks kovariansi derau proses (*process noise covariance matrix*)"),
@@ -785,6 +944,7 @@ def build_front_matter(doc):
         p0 = row_cells[0].paragraphs[0]
         p0.paragraph_format.line_spacing = 1.0
         p0.paragraph_format.space_after = Pt(2)
+        p0.paragraph_format.first_line_indent = Mm(0)
         for t_type, t_val in parse_inline_runs(sym):
             r = p0.add_run(t_val)
             r.font.name = 'Arial'
@@ -794,6 +954,7 @@ def build_front_matter(doc):
         p1 = row_cells[1].paragraphs[0]
         p1.paragraph_format.line_spacing = 1.0
         p1.paragraph_format.space_after = Pt(2)
+        p1.paragraph_format.first_line_indent = Mm(0)
         for t_type, t_val in parse_inline_runs(dim):
             r = p1.add_run(t_val)
             r.font.name = 'Arial'
@@ -802,6 +963,7 @@ def build_front_matter(doc):
         p2 = row_cells[2].paragraphs[0]
         p2.paragraph_format.line_spacing = 1.0
         p2.paragraph_format.space_after = Pt(2)
+        p2.paragraph_format.first_line_indent = Mm(0)
         for t_type, t_val in parse_inline_runs(defn):
             r = p2.add_run(t_val)
             r.font.name = 'Arial'
@@ -825,6 +987,8 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
     in_code_block = False
     code_lines = []
     first_h1_handled = False
+    is_first_paragraph_after_heading = True
+    last_table_id = None
 
     i = 0
     while i < len(lines):
@@ -840,6 +1004,7 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
                 if code_lines:
                     p = doc.add_paragraph()
                     p.paragraph_format.left_indent = Mm(10)
+                    p.paragraph_format.first_line_indent = Mm(0)
                     p.paragraph_format.space_after = Pt(6)
                     p.paragraph_format.line_spacing = 1.0
                     r = p.add_run('\n'.join(code_lines))
@@ -869,13 +1034,20 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
                     t = doc.add_table(rows=len(table_rows), cols=n_cols)
                     t.alignment = WD_TABLE_ALIGNMENT.CENTER
 
-                    col_w = PRINTABLE_WIDTH / n_cols
+                    # Assign optimal column widths
+                    if last_table_id and last_table_id in TABLE_WIDTH_CONFIGS and len(TABLE_WIDTH_CONFIGS[last_table_id]) == n_cols:
+                        col_widths = TABLE_WIDTH_CONFIGS[last_table_id]
+                    else:
+                        col_max_lens = [max(len(r[c]) if c < len(r) else 1 for r in table_rows) for c in range(n_cols)]
+                        total_len = max(1, sum(col_max_lens))
+                        col_widths = [Mm(max(12, 131 * (l / total_len))) for l in col_max_lens]
+
                     for r_idx, r_data in enumerate(table_rows):
                         for c_idx in range(n_cols):
                             cell = t.rows[r_idx].cells[c_idx]
-                            cell.width = col_w
+                            cell.width = col_widths[c_idx]
                             set_cell_borders(cell)
-                            set_cell_margins(cell, top=60, bottom=60, left=100, right=100)
+                            set_cell_margins(cell, top=60, bottom=60, left=80, right=80)
                             val = r_data[c_idx] if c_idx < len(r_data) else ""
                             if r_idx == 0:
                                 shd = parse_xml(f'<w:shd {nsdecls("w")} w:fill="EAEFF5"/>')
@@ -883,6 +1055,7 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
                             p = cell.paragraphs[0]
                             p.paragraph_format.line_spacing = 1.0
                             p.paragraph_format.space_after = Pt(2)
+                            p.paragraph_format.first_line_indent = Mm(0)
                             tokens = parse_inline_runs(val)
                             for t_type, t_val in tokens:
                                 r = p.add_run(t_val)
@@ -900,7 +1073,10 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
                         if r_idx == 0:
                             trPr.append(parse_xml(f'<w:tblHeader {nsdecls("w")}/>'))
                     table_rows = []
-                    doc.add_paragraph().paragraph_format.space_after = Pt(4)
+                    last_table_id = None
+                    p_spacer = doc.add_paragraph()
+                    p_spacer.paragraph_format.space_after = Pt(4)
+                    p_spacer.paragraph_format.first_line_indent = Mm(0)
             continue
 
         if not stripped:
@@ -925,10 +1101,14 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
         # Headings
         if stripped.startswith('# '):
             h_text = stripped[2:].strip()
-            p = doc.add_paragraph()
+            p = doc.add_paragraph(style='Heading 1')
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p.paragraph_format.space_before = Pt(12)
             p.paragraph_format.space_after = Pt(12)
+            p.paragraph_format.line_spacing = 1.15
+            p.paragraph_format.keep_with_next = True
+            p.paragraph_format.first_line_indent = Mm(0)
+            is_first_paragraph_after_heading = True
             if not first_h1_handled and chapter_title_override:
                 r = p.add_run(chapter_title_override)
                 r.bold = True
@@ -948,9 +1128,14 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
 
         if stripped.startswith('## '):
             h_text = stripped[3:].strip()
-            p = doc.add_paragraph()
+            p = doc.add_paragraph(style='Heading 2')
+            p.alignment = WD_ALIGN_PARAGRAPH.LEFT
             p.paragraph_format.space_before = Pt(10)
             p.paragraph_format.space_after = Pt(4)
+            p.paragraph_format.line_spacing = 1.15
+            p.paragraph_format.keep_with_next = True
+            p.paragraph_format.first_line_indent = Mm(0)
+            is_first_paragraph_after_heading = True
             for t_type, t_val in parse_inline_runs(h_text):
                 r = p.add_run(t_val)
                 r.font.name = 'Arial'
@@ -963,9 +1148,14 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
 
         if stripped.startswith('### '):
             h_text = stripped[4:].strip()
-            p = doc.add_paragraph()
+            p = doc.add_paragraph(style='Heading 3')
+            p.alignment = WD_ALIGN_PARAGRAPH.LEFT
             p.paragraph_format.space_before = Pt(8)
             p.paragraph_format.space_after = Pt(2)
+            p.paragraph_format.line_spacing = 1.15
+            p.paragraph_format.keep_with_next = True
+            p.paragraph_format.first_line_indent = Mm(0)
+            is_first_paragraph_after_heading = True
             for t_type, t_val in parse_inline_runs(h_text):
                 r = p.add_run(t_val)
                 r.font.name = 'Arial'
@@ -978,9 +1168,14 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
 
         if stripped.startswith('#### '):
             h_text = stripped[5:].strip()
-            p = doc.add_paragraph()
+            p = doc.add_paragraph(style='Heading 3')
+            p.alignment = WD_ALIGN_PARAGRAPH.LEFT
             p.paragraph_format.space_before = Pt(6)
             p.paragraph_format.space_after = Pt(2)
+            p.paragraph_format.line_spacing = 1.15
+            p.paragraph_format.keep_with_next = True
+            p.paragraph_format.first_line_indent = Mm(0)
+            is_first_paragraph_after_heading = True
             for t_type, t_val in parse_inline_runs(h_text):
                 r = p.add_run(t_val)
                 r.font.name = 'Arial'
@@ -998,7 +1193,7 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
             p.paragraph_format.space_after = Pt(3)
             p.paragraph_format.line_spacing = 1.15
 
-            # Check if this item is a citation entry (e.g., *[1]*, [1], etc.)
+            # Citation entries (e.g. *[1]*, [1]) get hanging indent without bullets
             m_cite = re.match(r'^\*?\[\d+\]\*?\s*', item_text)
             if m_cite:
                 p.paragraph_format.left_indent = Mm(10)
@@ -1053,6 +1248,7 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
         if stripped.startswith('> '):
             p = doc.add_paragraph()
             p.paragraph_format.left_indent = Mm(12)
+            p.paragraph_format.first_line_indent = Mm(0)
             p.paragraph_format.space_after = Pt(4)
             p.paragraph_format.line_spacing = 1.15
             for t_type, t_val in parse_inline_runs(stripped[2:].strip()):
@@ -1064,7 +1260,7 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
             i += 1
             continue
 
-        # Images - Centered alignment
+        # Images - Centered alignment, keep_with_next to stay with caption
         m_img = re.match(r'^!\[(.*?)\]\((.*?)\)', stripped)
         if m_img:
             alt_text = m_img.group(1).strip()
@@ -1087,6 +1283,8 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
             p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p_img.paragraph_format.space_before = Pt(8)
             p_img.paragraph_format.space_after = Pt(4)
+            p_img.paragraph_format.first_line_indent = Mm(0)
+            p_img.paragraph_format.keep_with_next = True
 
             if resolved_path:
                 r_img = p_img.add_run()
@@ -1113,16 +1311,19 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
             i += 1
             continue
 
-        # Table caption - strictly at TOP, centered, no trailing period
+        # Table caption - strictly at TOP, centered, keep_with_next to stay with table
         if stripped.startswith('**Tabel ') or stripped.startswith('Tabel ') or stripped.startswith('*Tabel '):
             p_tt = doc.add_paragraph()
             p_tt.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p_tt.paragraph_format.space_before = Pt(8)
             p_tt.paragraph_format.space_after = Pt(3)
             p_tt.paragraph_format.line_spacing = 1.15
+            p_tt.paragraph_format.first_line_indent = Mm(0)
+            p_tt.paragraph_format.keep_with_next = True
             m_tcap = re.match(r'^(\*?\*?Tabel\s+[\d\.]+\*?\*?)\s*(.*)', stripped)
             if m_tcap:
                 prefix = m_tcap.group(1).replace('*', '').replace('#', '').strip()
+                last_table_id = prefix
                 title_part = m_tcap.group(2).strip().rstrip('.')
                 r1 = p_tt.add_run(prefix + " ")
                 r1.font.name = 'Arial'
@@ -1153,6 +1354,7 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
             p_fc.paragraph_format.space_before = Pt(4)
             p_fc.paragraph_format.space_after = Pt(8)
             p_fc.paragraph_format.line_spacing = 1.15
+            p_fc.paragraph_format.first_line_indent = Mm(0)
             m_fcap = re.match(r'^(\*?\*?Gambar\s+[\d\.]+\*?\*?)\s*(.*)', stripped)
             if m_fcap:
                 prefix = m_fcap.group(1).replace('*', '').replace('#', '').strip()
@@ -1179,20 +1381,23 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
             i += 1
             continue
 
-        # Centered display equations
+        # Centered display equations (strict double-dollar LaTeX delimiters)
         if stripped.startswith('$$') and stripped.endswith('$$') and len(stripped) > 4:
             p_m = doc.add_paragraph()
             p_m.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p_m.paragraph_format.space_before = Pt(6)
             p_m.paragraph_format.space_after = Pt(6)
+            p_m.paragraph_format.first_line_indent = Mm(0)
             r_m = p_m.add_run(stripped)
             r_m.font.name = 'Arial'
             r_m.font.size = Pt(10)
             i += 1
             continue
 
-        # Regular text paragraph
-        add_styled_paragraph(doc, stripped)
+        # Regular text paragraph (First paragraph after heading gets 0 indent, subsequent get 10mm indent)
+        indent = Mm(0) if is_first_paragraph_after_heading else Mm(10)
+        add_styled_paragraph(doc, stripped, first_indent=indent)
+        is_first_paragraph_after_heading = False
         i += 1
 
 print("--- 1. BUILDING MASTER PROPOSAL DOCX ---")
@@ -1380,5 +1585,6 @@ for f_dir in [figures_html, figures_gh, figures_gh_html]:
             if os.path.isfile(s_fig):
                 shutil.copy2(s_fig, d_fig)
 
-shutil.copy2(logo_path, os.path.join(github_thesis_dir, "unhas_logo.png"))
+if os.path.exists(logo_path):
+    shutil.copy2(logo_path, os.path.join(github_thesis_dir, "unhas_logo.png"))
 print("All files and figures synchronized to AUV_GitHub_Upload/Thesis successfully!")

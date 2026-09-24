@@ -1,6 +1,6 @@
 # BAGIAN AWAL PROPOSAL TUGAS AKHIR (FRONT MATTER)
 
-> **Catatan Format Berdasarkan Pedoman Unhas 2023 (SK Rektor No. 10438/UN4.1/KEP/2023)*:  
+> **Catatan Format Berdasarkan Pedoman Unhas 2023 (SK Rektor No. 10438/UN4.1/KEP/2023)**:  
 > Seluruh bagian awal naskah proposal diberi nomor halaman dengan angka romawi kecil (i, ii, iii, iv, v, dst.*) yang diletakkan pada sembir kanan atas. Naskah dicetak pada kertas format B5 (176 mm x 250 mm) atau A4 (disesuaikan dengan kebutuhan seminar proposal di departemen), font utama Arial 10 pt (spasi 1,15), dan judul/subjudul Arial 11 pt ditebalkan (*bold).
 
 ---
@@ -19,11 +19,11 @@
 
 <br>
 
-(ANALYSIS OF KINEMATICS, DYNAMICS, AND OPTIMAL KALMAN FILTER STATE ESTIMATION FOR VISION-BASED TRACKING IN AN OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV)*
+*(Analysis of Kinematics, Dynamics, and Optimal Kalman Filter State Estimation for Vision-Based Tracking on an Over-Actuated 8-Thruster 6-DOF Vectored AUV)*
 
 <br><br>
 
-*(Ilustrasi / Desain Grafis Model 3D AUV 8-Pendorong)  
+*(Ilustrasi / Desain Grafis Model 3D AUV 8-Pendorong)*  
 ```text
                [ V5 (Port-Fore) ]      [ V6 (Stbd-Fore) ]
                        \                /
@@ -37,7 +37,7 @@
 
 <br><br>
 
-*MUH. RADHI SYAFIQ GHANIM. S**  
+**MUH. RADHI SYAFIQ GHANIM. S**  
 **NIM. D021201006**
 
 <br><br>
@@ -50,7 +50,7 @@
 **FAKULTAS TEKNIK**  
 **UNIVERSITAS HASANUDDIN**  
 **MAKASSAR**  
-**2026*
+**2026**
 
 </div>
 
@@ -78,7 +78,7 @@ ANALYSIS OF KINEMATICS, DYNAMICS, AND OPTIMAL KALMAN FILTER STATE ESTIMATION FOR
 
 <br><br><br>
 
-*MUH. RADHI SYAFIQ GHANIM. S**  
+**MUH. RADHI SYAFIQ GHANIM. S**  
 **NIM. D021201006**
 
 <br><br><br>
@@ -91,7 +91,7 @@ ANALYSIS OF KINEMATICS, DYNAMICS, AND OPTIMAL KALMAN FILTER STATE ESTIMATION FOR
 **FAKULTAS TEKNIK**  
 **UNIVERSITAS HASANUDDIN**  
 **MAKASSAR**  
-**2026*
+**2026**
 
 </div>
 
@@ -107,7 +107,7 @@ ANALYSIS OF KINEMATICS, DYNAMICS, AND OPTIMAL KALMAN FILTER STATE ESTIMATION FOR
 
 Halaman ii (Dihitung, tidak dicetak)
 
-### *ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL *KALMAN FILTER* UNTUK *VISION-BASED TRACKING* PADA OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV**
+### **ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL *KALMAN FILTER* UNTUK *VISION-BASED TRACKING* PADA *OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV***
 
 <br><br>
 
@@ -130,7 +130,7 @@ pada
 **FAKULTAS TEKNIK**  
 **UNIVERSITAS HASANUDDIN**  
 **MAKASSAR**  
-**2026*
+**2026**
 
 </div>
 
@@ -150,7 +150,7 @@ Halaman iii (Dihitung, tidak dicetak)
 
 <br>
 
-### *ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL *KALMAN FILTER* UNTUK *VISION-BASED TRACKING* PADA OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV**
+### **ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL *KALMAN FILTER* UNTUK *VISION-BASED TRACKING* PADA *OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV***
 
 <br>
 
@@ -159,7 +159,7 @@ Disusun dan diajukan oleh:
 <br>
 
 **MUH. RADHI SYAFIQ GHANIM. S**  
-**NIM. D021201006*
+**NIM. D021201006**
 
 <br><br>
 
@@ -224,7 +224,7 @@ Fakultas Teknik, Universitas Hasanuddin.
 Dengan ini saya menyatakan bahwa proposal tugas akhir yang berjudul:
 
 <div align="center">
-<strong>“ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL *KALMAN FILTER* UNTUK *VISION-BASED TRACKING* PADA *OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV”</strong>
+<strong>“ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL <em>KALMAN FILTER</em> UNTUK <em>VISION-BASED TRACKING</em> PADA <em>OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV</em>”</strong>
 </div>
 
 adalah benar merupakan karya ilmiah orisinal saya sendiri di bawah arahan dan bimbingan tim pembimbing:
@@ -265,7 +265,7 @@ Dengan ini saya juga melimpahkan hak cipta (hak ekonomis) dari karya tulis ilmia
 
 <br>
 
-Puji dan syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas berkat, rahmat, dan karunia-Nya yang melimpah, sehingga penyusunan naskah proposal tugas akhir yang berjudul *"Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal *Kalman Filter* untuk *Vision-Based Tracking* pada *Over-Actuated 8-Thruster 6-DOF Vectored AUV"* ini dapat diselesaikan dengan baik. Naskah proposal ini disusun sebagai salah satu persyaratan kurikulum akademik untuk memperoleh gelar Sarjana Teknik (S.T.) pada Program Studi Teknik Mesin, Departemen Teknik Mesin, Fakultas Teknik, Universitas Hasanuddin.
+Puji dan syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa atas berkat, rahmat, dan karunia-Nya yang melimpah, sehingga penyusunan naskah proposal tugas akhir yang berjudul *"Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal Kalman Filter untuk Vision-Based Tracking pada Over-Actuated 8-Thruster 6-DOF Vectored AUV"* ini dapat diselesaikan dengan baik. Naskah proposal ini disusun sebagai salah satu persyaratan kurikulum akademik untuk memperoleh gelar Sarjana Teknik (S.T.) pada Program Studi Teknik Mesin, Departemen Teknik Mesin, Fakultas Teknik, Universitas Hasanuddin.
 
 Penyelesaian naskah proposal tugas akhir ini tidak lepas dari bimbingan, arahan, dorongan motivasi, serta bantuan berharga dari berbagai pihak. Oleh karena itu, dengan penuh rasa hormat dan kerendahan hati, penulis menyampaikan terima kasih dan penghargaan yang setinggi-tingginya kepada:
 
