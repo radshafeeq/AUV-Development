@@ -1,26 +1,67 @@
 # Over-Actuated 6-DOF 8-Motor AUV Simulation & Autonomous Control
-This repository contains the simulation files, mathematical derivations, state estimators, and autonomous control suite for an **Over-Actuated 6-DOF, 8-Motor Autonomous Underwater Vehicle (AUV)** based on the BlueROV2 Heavy frame architecture. This project is being developed as part of an undergraduate Mechatronics Engineering thesis at Hasanuddin University.
 
-The platform features 8x T200 brushless thrusters (4 horizontal vectored at $$45^\circ$$ + 4 vertical corner thrusters), providing full active 6-DOF authority (Surge, Sway, Heave, Roll, Pitch, Yaw) via ArduSub's `vectored_6dof` motor mixer.
+> **Official Thesis Title**: *ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL KALMAN FILTER UNTUK VISION-BASED TRACKING PADA OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV*  
+> **Author**: Muh. Radhi Syafiq Ghanim. S (NIM: D021201006)  
+> **Affiliation**: Hasanuddin University — Department of Mechatronics Engineering, Faculty of Engineering  
+> **GitHub Repository**: [radshafeeq/AUV-Development](https://github.com/radshafeeq/AUV-Development)
+
+---
+
+## 📌 Prototype Development & Hardware Status
+> [!NOTE]
+> **Active Assembly & Experimental Parameter Identification**:
+> The physical hardware prototype of the 8-motor 6-DOF AUV is currently undergoing active mechanical fabrication and electronic assembly.
+> - The numerical physical parameters utilized in the simulation models and baseline tables (mass $$m = 13.00\text{ kg}$$, moments of inertia, and hydrodynamic coefficients) are **nominal baseline design estimates** derived from 3D CAD models and the BlueROV2 Heavy reference architecture for *Software-in-the-Loop* (SITL) simulation.
+> - Definitive empirical identification of final dry mass, displaced buoyancy volume, exact Center of Gravity (CG), and hydrodynamic damping/added mass derivatives will be experimentally measured and calibrated directly in the laboratory testing tank post-assembly as part of the thesis experimental methodology.
+
+---
+
+## 🎓 Mathematical & Theoretical Foundations (Undergraduate Guide)
+This repository provides full theoretical derivations formulated to be intuitive and accessible for undergraduate engineering students and academic examiners:
+
+1. **6-DOF Kinematics ($$SO(3)$$ & Quaternions)**:
+   - Translates vehicle velocities in the moving body frame ($$\boldsymbol{\nu} = [u, v, w, p, q, r]^T$$) to position and orientation in the inertial Earth-fixed North-East-Down (NED) world ($$\boldsymbol{\eta} = [x, y, z, \phi, \theta, \psi]^T$$) via the rotation matrix $$\mathbf{R}_b^n \in SO(3)$$ and angle rate matrix $$\mathbf{T}_\Theta$$.
+   - Formulates 4D unit quaternions ($$\mathbf{q} \in \mathcal{S}^3$$) to mathematically eliminate the *Gimbal Lock* singularity ($$\theta = \pm 90^\circ$$) encountered when an AUV performs steep vertical pitch inspections.
+
+2. **Fossen 6-DOF Hydrodynamic Kinetics**:
+   - The governing equation of motion is:
+     $$\mathbf{M}\dot{\boldsymbol{\nu}} + \mathbf{C}(\boldsymbol{\nu})\boldsymbol{\nu} + \mathbf{D}(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r + \mathbf{g}(\boldsymbol{\eta}) = \boldsymbol{\tau} + \boldsymbol{\tau}_{\text{ext}}$$
+   - **Total Mass ($$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A$$)**: Combines vehicle rigid-body mass with *hydrodynamic added mass*—the entrained layer of water that the vehicle physically pushes and accelerates as it moves.
+   - **Coriolis & Centripetal Matrix ($$\mathbf{C}(\boldsymbol{\nu})$$)**: Accounts for apparent fictitious forces arising from expressing motion in a body-fixed rotating coordinate frame.
+   - **Hydrodynamic Damping ($$\mathbf{D}(\boldsymbol{\nu}_r)$$**): Models fluid resistance as a combination of linear skin friction at creeping speeds and quadratic form drag caused by turbulent vortex shedding at cruise speeds.
+   - **Hydrostatic Restoring ($$\mathbf{g}(\boldsymbol{\eta})$$)**: Acts like an underwater pendulum—by placing the Center of Gravity ($$z_g$$) below the Center of Buoyancy ($$z_b$$), gravitational and buoyant forces generate a natural righting torque in roll and pitch.
+   - **Munk Moment Destabilization**: Proves that because lateral added mass exceeds longitudinal added mass ($$|Y_{\dot{v}}| > |X_{\dot{u}}|$$), any oblique crossflow generates a destabilizing yaw torque $$N_{\text{Munk}} = (X_{\dot{u}} - Y_{\dot{v}}) u_r v_r$$ that tries to turn the AUV broadside into the flow, requiring active thruster counter-torque.
+
+3. **Over-Actuated 8-Motor Control Allocation**:
+   - Maps 8 individual thruster forces $$\mathbf{f} \in \mathbb{R}^8$$ to the 6-DOF generalized force vector $$\boldsymbol{\tau} \in \mathbb{R}^6$$ via the geometric matrix $$\mathbf{T}_{6 \times 8}$$.
+   - Solves the redundant allocation via the **Moore-Penrose Pseudo-Inverse**:
+     $$\mathbf{f} = \mathbf{T}_{6 \times 8}^\dagger \boldsymbol{\tau} = \mathbf{T}_{6 \times 8}^T (\mathbf{T}_{6 \times 8} \mathbf{T}_{6 \times 8}^T)^{-1} \boldsymbol{\tau}$$
+     which mathematically guarantees minimum electrical energy expenditure ($$\min \|\mathbf{f}\|^2$$).
+
+4. **Optimal Dual Kalman Filter Suite**:
+   - **Topside Visual Kalman Filter (`AUVVisualKalmanFilter`)**: 8D state vector $$\mathbf{x} = [x, y, w, h, v_x, v_y, v_w, v_h]^T$$ based on Continuous White Noise Acceleration (CWNA). Adapts measurement noise covariance $$\mathbf{R}_k(\text{conf})$$ using YOLO detection confidence, filters false positives using Mahalanobis distance gating ($$\chi^2_{4, 0.95} = 9.488$$), and bridges visual target dropouts with dead-reckoning.
+   - **Subsea Hydrodynamic EKF (`AUVDynamicsKalmanFilter`)**: Runs at 50 Hz on Raspberry Pi 4B, fusing IMU gyroscopes/accelerometers and Bar30 depth readings with Fossen's kinetics model to estimate true velocities and reconstruct ocean current disturbances.
+
+---
 
 ## Architecture Overview
 The simulation and autonomous control framework is split across three cooperating tiers:
 
-1. **Gazebo Sim (Harmonic v8.14):** Simulates 3D underwater graphics, fluid dynamics, hydrodynamic added mass ($\mathbf{M}_A$), linear/quadratic drag ($\mathbf{D}(\boldsymbol{\nu})$), buoyancy, and thruster physics for the 8-motor 6-DOF vehicle.
+1. **Gazebo Sim (Harmonic v8.14):** Simulates 3D underwater graphics, fluid dynamics, hydrodynamic added mass ($$\mathbf{M}_A$$), linear/quadratic drag ($$\mathbf{D}(\boldsymbol{\nu})$$), buoyancy, and thruster physics for the 8-motor 6-DOF vehicle.
 2. **ArduSub SITL (`vectored_6dof`):** Acts as the autopilot "brain". It executes ArduSub 4.6 firmware with 6-DOF motor allocation, high-rate EKF3 attitude estimation, and provides a MAVLink interface via MAVProxy on UDP port 14550.
-3. **Subsea Companion Computer (Raspberry Pi 4B):** Executes the 6-DOF Hydrodynamic Extended Kalman Filter (`AUVDynamicsKalmanFilter`) at 50 Hz, estimating true vehicle velocities ($u, v, w, p, q, r$) and subsea ocean current disturbances ($d_u, d_v$).
+3. **Subsea Companion Computer (Raspberry Pi 4B):** Executes the 6-DOF Hydrodynamic Extended Kalman Filter (`AUVDynamicsKalmanFilter`) at 50 Hz, estimating true vehicle velocities ($$u, v, w, p, q, r$$) and subsea ocean current disturbances ($$d_u, d_v$$).
 4. **Topside Workstation (Laptop GPU):** Runs real-time YOLO26 World visual object detection and the 8D Visual Target Kalman Filter (`AUVVisualKalmanFilter`) for closed-loop visual servoing.
 
 ## 📚 Master Academic Reference Monographs (Thesis Documentation)
-This repository includes two publication-grade theoretical monographs grounded in the master research library:
+This repository includes publication-grade theoretical monographs grounded in the master research library:
 - **Monograph 1 — Visual Servoing & State Estimation**: [`AUV_Kalman_Filter_Comprehensive_Explanation.md`](AUV_Kalman_Filter_Comprehensive_Explanation.md)  
-  *Exhaustive theoretical derivation of discrete Kalman filtering (DKF, EKF, UKF), CWNA process noise covariance discretization ($\mathbf{Q}$), dual-filter architecture (`AUVVisualKalmanFilter` on Topside Laptop + `AUVDynamicsKalmanFilter` on Raspberry Pi 4B), zero-allocation optimization, Fossen (2021) 6-DOF hydrodynamic plant model ($13.0\text{ kg}$), subsea current disturbance observer, and Hardware-in-the-Loop (HIL) dry bench test methodology.*
+  *Exhaustive theoretical derivation of discrete Kalman filtering (DKF, EKF, UKF), CWNA process noise covariance discretization ($$\mathbf{Q}$$), dual-filter architecture (`AUVVisualKalmanFilter` on Topside Laptop + `AUVDynamicsKalmanFilter` on Raspberry Pi 4B), zero-allocation optimization, Fossen (2021) 6-DOF hydrodynamic plant model ($$13.0\text{ kg}$$ baseline), subsea current disturbance observer, and Hardware-in-the-Loop (HIL) dry bench test methodology.*
 - **Monograph 2 — Kinematic and Dynamic Modeling**: [`AUV_Kinematics_and_Dynamics_Comprehensive_Derivation.md`](AUV_Kinematics_and_Dynamics_Comprehensive_Derivation.md)  
-  *Exhaustive first-principles derivation of 6-DOF kinematics ($SO(3)$ rotation matrix $\mathbf{R}_b^n$, $\mathbf{T}_\Theta$ matrix inversion, quaternions), Fossen's 6-DOF kinetics plant model (mass, Coriolis, damping, hydrostatics, 8-thruster allocation $\mathbf{T}_{6\times 8}$), comparative variable-by-variable analysis, and the first-principles proof of the destabilizing hydrodynamic Munk Moment.*
+  *Exhaustive first-principles derivation of 6-DOF kinematics ($$SO(3)$$ rotation matrix $$\mathbf{R}_b^n$$, $$\mathbf{T}_\Theta$$ matrix inversion, quaternions), Fossen's 6-DOF kinetics plant model (mass, Coriolis, damping, hydrostatics, 8-thruster allocation $$\mathbf{T}_{6\times 8}$$), comparative variable-by-variable analysis, and the first-principles proof of the destabilizing hydrodynamic Munk Moment.*
 - **Monograph 3 — 6-DOF Multi-Sensor Telemetry & Dynamic Analyzer**: [`auv_kinematics_dynamics_analyzer.py`](auv_kinematics_dynamics_analyzer.py)  
   *Real-time multi-sensor telemetry ingestion engine and Fossen hydrodynamic force balance evaluator. Ingests Pixhawk IMU (gyros, accelerometers, compass), Bar30 subsea pressure depth, and 8-motor PWM feedback to compute the kinematic Jacobian $$\mathbf{J}(\boldsymbol{\eta})$$, commanded thrust $$\boldsymbol{\tau} = \mathbf{T}_{6\times 8}\mathbf{f}$$, damping drag $$\mathbf{D}(\boldsymbol{\nu})\boldsymbol{\nu}$$, and ocean current disturbances $$\hat{\mathbf{d}}$$. Generates publication figures [`figure1_6dof_kinematics.png`](figure1_6dof_kinematics.png), [`figure2_6dof_velocities.png`](figure2_6dof_velocities.png), [`figure3_hydrodynamic_forces_disturbances.png`](figure3_hydrodynamic_forces_disturbances.png), and [`figure4_8motor_thruster_allocation.png`](figure4_8motor_thruster_allocation.png).*
 - **Undergraduate Thesis Monographs & Proposal**: [`Thesis/`](Thesis/)  
-  *Full Indonesian-language thesis chapters and methodology monographs adhering to Hasanuddin University guidelines (`BAB_1_PENDAHULUAN.md`, `BAB_2_LANDASAN_TEORI.md`, `BAB_3_METODOLOGI_PENELITIAN.md`, `BAB_3_METODOLOGI_KINEMATIKA_DINAMIKA_SENSOR_FUSION.md`, and `MASTER_BIBLIOGRAPHY.md` citing $\ge 2021$ literature).*
+  *Full Indonesian-language thesis chapters and methodology monographs adhering to Hasanuddin University guidelines (`BAB_1_PENDAHULUAN.md`, `BAB_2_LANDASAN_TEORI.md`, `BAB_3_METODOLOGI_PENELITIAN.md`, `BAB_3_METODOLOGI_KINEMATIKA_DINAMIKA_SENSOR_FUSION.md`, and `MASTER_BIBLIOGRAPHY.md` citing $$\ge 2021$$ literature).*
 
 ## How to Run the Simulation
 

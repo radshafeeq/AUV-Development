@@ -510,37 +510,37 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
   <tr>
     <td style="border:none;">Tabel 2.2</td>
     <td style="border:none;">Notasi dan Konvensi 6 Derajat Kebebasan SNAME (1950) & Fossen (2021)</td>
-    <td style="border:none; text-align:right;">12</td>
+    <td style="border:none; text-align:right;">14</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 2.3</td>
     <td style="border:none;">Koordinat Spasial dan Vektor Orientasi 8 Pendorong Wahana Over-Actuated</td>
-    <td style="border:none; text-align:right;">27</td>
+    <td style="border:none; text-align:right;">26</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 3.1</td>
     <td style="border:none;">Parameter Fisik dan Properti Benda Tegar Wahana Over-Actuated 8-Pendorong</td>
-    <td style="border:none; text-align:right;">46</td>
+    <td style="border:none; text-align:right;">43</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 3.2</td>
     <td style="border:none;">Koefisien Derivatif Massa Tambah Hidrodinamika Wahana</td>
-    <td style="border:none; text-align:right;">47</td>
+    <td style="border:none; text-align:right;">44</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 3.3</td>
     <td style="border:none;">Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana</td>
-    <td style="border:none; text-align:right;">49</td>
+    <td style="border:none; text-align:right;">46</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 3.4</td>
     <td style="border:none;">Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Bervektor</td>
-    <td style="border:none; text-align:right;">49</td>
+    <td style="border:none; text-align:right;">47</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 3.5</td>
     <td style="border:none;">Spesifikasi Komponen Perangkat Keras Arsitektur HITL</td>
-    <td style="border:none; text-align:right;">53</td>
+    <td style="border:none; text-align:right;">50</td>
   </tr>
 </table>
 

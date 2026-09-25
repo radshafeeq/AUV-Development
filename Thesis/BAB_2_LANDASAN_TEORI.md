@@ -48,7 +48,7 @@ Analisis kinematika dan kinetika wahana laut didasarkan pada ruang grup Lie Eucl
 
 *Gambar 2.1* Sistem kerangka acuan inersia bumi ($$\mathcal{F}^n$$ - NED) dan kerangka acuan bergerak bodi ($$\mathcal{F}^b$$ - FRD) konvensi SNAME (1950) dan Fossen (2021)
 
-### 2.2.1 Kerangka Acuan Inersia Bumi $$\mathcal{F}^n = \{O_n, x_n, y_n, z_n\}$$
+### 2.2.1 Kerangka Acuan Inersia Bumi (Earth-Fixed NED Frame)
 Kerangka acuan inersia bumi (*Earth-Fixed Frame* atau *North-East-Down* / NED) didefinisikan sebagai sistem koordinat stasioner yang terikat pada permukaan bumi:
 - *Titik Asal ($$O_n$$)*: Ditetapkan pada lokasi referensi geografis di permukaan perairan atau dermaga peluncuran.
 - *Sumbu $$x_n$$*: Mengarah horizontal ke arah Utara sejati (true North).
@@ -60,7 +60,7 @@ $$\frac{a_{\text{centrifugal}}}{g} = \frac{\Omega_E^2 R_E}{g} \approx \frac{(7.2
 
 Oleh karena itu, percepatan rotasi bumi dan efek Coriolis bumi dapat diabaikan secara analitis, sehingga kerangka acuan $$\mathcal{F}^n$$ diperlakukan secara valid sebagai kerangka inersia Newtonian sejati [7].
 
-### 2.2.2 Kerangka Acuan Bergerak Bodi Wahana $$\mathcal{F}^b = \{O_b, x_b, y_b, z_b\}$$
+### 2.2.2 Kerangka Acuan Bergerak Bodi Wahana (Body-Fixed Frame)
 Kerangka acuan bergerak bodi (*Body-Fixed Frame* atau *Forward-Right-Down* / FRD) didefinisikan sebagai sistem koordinat ortogonal yang melekat secara permanen pada struktur fisik wahana AUV dan bergerak bersama wahana:
 - *Titik Asal Bodi ($$O_b$$)*: Ditetapkan pada Pusat Geometris Wahana (Center of Origin* / CO), yang bertepatan dengan pusat geometris tabung tekanan akrilik utama (*electronic enclosure).
 - *Sumbu Longitudinal ($$x_b$$)*: Mengarah maju ke arah haluan wahana (*Forward / Bow*), mendefinisikan gerak translasi *Surge*.
@@ -137,7 +137,7 @@ Meskipun kekakuan metasentris ini menjaga orientasi wahana tetap datar secara pa
 Kinematika wahana laut mendefinisikan pemetaan geometris murni antara vektor kecepatan bodi $$\boldsymbol{\nu} \in \mathbb{R}^6$$ dengan laju perubahan posisi dan orientasi wahana di kerangka bumi $$\dot{\boldsymbol{\eta}} \in \mathbb{R}^6$$, tanpa melibatkan gaya dan massa penyebab gerak [7]:
 $$\dot{\boldsymbol{\eta}} = \mathbf{J}(\boldsymbol{\eta}_2)\boldsymbol{\nu} \iff \begin{bmatrix} \dot{\boldsymbol{\eta}}_1 \\ \dot{\boldsymbol{\eta}}_2 \end{bmatrix} = \begin{bmatrix} \mathbf{R}_b^n(\boldsymbol{\eta}_2) & \mathbf{0}_{3 \times 3} \\ \mathbf{0}_{3 \times 3} & \mathbf{T}_\Theta(\boldsymbol{\eta}_2) \end{bmatrix} \begin{bmatrix} \boldsymbol{\nu}_1 \\ \boldsymbol{\nu}_2 \end{bmatrix}$$
 
-### 2.3.1 Penurunan Langkah Demi Langkah Matriks Transformasi Rotasi Linier $$\mathbf{R}_b^n \in SO(3)$$
+### 2.3.1 Penurunan Langkah Demi Langkah Matriks Transformasi Rotasi Linier SO(3)
 Matriks rotasi $$\mathbf{R}_b^n(\boldsymbol{\eta}_2)$$ mentransformasikan kecepatan linier dari kerangka bodi $$\mathcal{F}^b$$ ke kerangka bumi $$\mathcal{F}^n$$. Matriks ini merupakan elemen dari grup ortogonal khusus berdimensi tiga, dinotasikan $$\mathbf{R}_b^n \in SO(3)$$, yang memenuhi sifat fundamental:
 $$\mathbf{R}_b^n (\mathbf{R}_b^n)^T = (\mathbf{R}_b^n)^T \mathbf{R}_b^n = \mathbf{I}_{3 \times 3}, \qquad \det(\mathbf{R}_b^n) = +1$$
 
@@ -175,7 +175,7 @@ $$\dot{x} = u(\cos\psi\cos\theta) + v(-\sin\psi\cos\phi + \cos\psi\sin\theta\sin
 $$\dot{y} = u(\sin\psi\cos\theta) + v(\cos\psi\cos\phi + \sin\psi\sin\theta\sin\phi) + w(-\cos\psi\sin\phi + \sin\psi\sin\theta\cos\phi)$$
 $$\dot{z} = u(-\sin\theta) + v(\cos\theta\sin\phi) + w(\cos\theta\cos\phi)$$
 
-### 2.3.2 Penurunan Matriks Transformasi Sudut Euler $$\mathbf{T}_\Theta$$ dan Invers Kofaktor-Adjoin
+### 2.3.2 Penurunan Matriks Transformasi Sudut Euler dan Invers Kofaktor-Adjoin
 Kecepatan sudut bodi wahana $$\boldsymbol{\nu}_2 = [p, q, r]^T$$ merepresentasikan proyeksi dari laju perubahan sudut Euler $$\dot{\boldsymbol{\eta}}_2 = [\dot{\phi}, \dot{\theta}, \dot{\psi}]^T$$ ke sumbu-sumbu bodi yang bergerak. Proyeksi ini diturunkan dengan memperhatikan orientasi masing-masing sumbu putar rotasi bertingkat [7]:
 $$\boldsymbol{\nu}_2 = \begin{bmatrix} p \\\ q \\\ r \end{bmatrix} = \begin{bmatrix} \dot{\phi} \\\ 0 \\\ 0 \end{bmatrix} + \mathbf{R}_{x,\phi}^T \begin{bmatrix} 0 \\ \dot{\theta} \\\ 0 \end{bmatrix} + \mathbf{R}_{x,\phi}^T \mathbf{R}_{y,\theta}^T \begin{bmatrix} 0 \\\ 0 \\ \dot{\psi} \end{bmatrix}$$
 
@@ -228,7 +228,7 @@ $$\dot{\psi} = q\left(\frac{\sin\phi}{\cos\theta}\right) + r\left(\frac{\cos\phi
 Dari rumusan matematis matriks $$\mathbf{T}_\Theta(\boldsymbol{\eta}_2)$$, terlihat jelas bahwa ketika sudut *pitch* mendekati tegak lurus:
 $$\theta \to \pm 90^\circ \iff \cos\theta \to 0 \implies \tan\theta \to \pm\infty, \quad \frac{1}{\cos\theta} \to \infty$$
 
-Kondisi hilangnya satu derajat kebebasan rotasi ini dikenal sebagai *Gimbal Lock* (singularitas representasi koordinat Euler). Pada manuver inspeksi bawah air yang melibatkan pitch-angle holding* hingga sudut vertikal ekstrim ($$\pm 90^\circ$$), integrasi numerik sudut Euler akan mengalami *overflow komputasi tak berhingga [7], [27].
+Kondisi hilangnya satu derajat kebebasan rotasi ini dikenal sebagai *Gimbal Lock* (singularitas representasi koordinat Euler). Pada manuver inspeksi bawah air yang melibatkan *pitch-angle holding* hingga sudut vertikal ekstrim ($$\pm 90^\circ$$), integrasi numerik sudut Euler akan mengalami *overflow* komputasi tak berhingga [7], [27].
 
 Untuk mengatasi singularitas ini, orientasi wahana direpresentasikan menggunakan *unit quaternion* empat dimensi $$\mathbf{q} \in \mathcal{S}^3$$ [7], [27]:
 $$\mathbf{q} = \begin{bmatrix} \eta \\ \epsilon_1 \\ \epsilon_2 \\ \epsilon_3 \end{bmatrix} = \begin{bmatrix} \eta \\ \boldsymbol{\epsilon} \end{bmatrix} \in \mathbb{R}^4, \qquad \eta^2 + \boldsymbol{\epsilon}^T\boldsymbol{\epsilon} = \eta^2 + \epsilon_1^2 + \epsilon_2^2 + \epsilon_3^2 = 1$$
@@ -242,7 +242,7 @@ $$\mathbf{S}(\boldsymbol{\epsilon}) = \begin{bmatrix} 0 & -\epsilon_3 & \epsilon
 Matriks rotasi $$\mathbf{R}(\mathbf{q})$$ yang ekuivalen dalam representasi kuaternion dinyatakan oleh formula Rodrigues [7]:
 $$\mathbf{R}(\mathbf{q}) = (\eta^2 - \boldsymbol{\epsilon}^T\boldsymbol{\epsilon})\mathbf{I}_{3 \times 3} + 2\boldsymbol{\epsilon}\boldsymbol{\epsilon}^T + 2\eta\mathbf{S}(\boldsymbol{\epsilon})$$
 
-### 2.3.4 Matriks Jacobian Kinematika Gabungan $$6 \times 6$$
+### 2.3.4 Matriks Jacobian Kinematika Gabungan 6x6
 Menggabungkan transformasi translasi linier dan transformasi sudut Euler menghasilkan matriks Jacobian kinematika 6-DOF terpadu $$\mathbf{J}(\boldsymbol{\eta}_2) \in \mathbb{R}^{6 \times 6}$$ [7]:
 $$\begin{bmatrix} \dot{x} \\ \dot{y} \\ \dot{z} \\ \dot{\phi} \\ \dot{\theta} \\ \dot{\psi} \end{bmatrix} = \begin{bmatrix} \cos\psi\cos\theta & -\sin\psi\cos\phi + \cos\psi\sin\theta\sin\phi & \sin\psi\sin\phi + \cos\psi\sin\theta\cos\phi & 0 & 0 & 0 \\\ \sin\psi\cos\theta & \cos\psi\cos\phi + \sin\psi\sin\theta\sin\phi & -\cos\psi\sin\phi + \sin\psi\sin\theta\cos\phi & 0 & 0 & 0 \\\ -\sin\theta & \cos\theta\sin\phi & \cos\theta\cos\phi & 0 & 0 & 0 \\\ 0 & 0 & 0 & 1 & \sin\phi\tan\theta & \cos\phi\tan\theta \\\ 0 & 0 & 0 & 0 & \cos\phi & -\sin\phi \\\ 0 & 0 & 0 & 0 & \frac{\sin\phi}{\cos\theta} & \frac{\cos\phi}{\cos\theta} \end{bmatrix} \begin{bmatrix} u \\\ v \\\ w \\\ p \\\ q \\\ r \end{bmatrix}$$
 
@@ -262,7 +262,7 @@ di mana:
 - $$\boldsymbol{\tau} \in \mathbb{R}^6$$: Vektor gaya dan momen kontrol generalisasi yang dihasilkan oleh sistem 8 pendorong.
 - $$\boldsymbol{\tau}_{\text{ext}} \in \mathbb{R}^6$$: Vektor gangguan lingkungan tak termodelkan (gelombang internal, tabrakan, reaksi manipulator).
 
-### 2.4.1 Tensor Massa Total Sistem $$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A$$
+### 2.4.1 Tensor Massa Total Sistem Bodi Kaku dan Massa Tambah
 
 #### 1. Matriks Massa Inersia Bodi Kaku $$\mathbf{M}_{RB}$$
 Berdasarkan hukum kedua Newton dan persamaan momentum angular Euler, matriks inersia benda tegar 6-DOF yang dirumuskan terhadap titik acuan geometris $$O_b$$ dengan *offset* pusat massa $$\mathbf{r}_g = [x_g, y_g, z_g]^T$$ dinyatakan sebagai [7]:
@@ -299,7 +299,7 @@ $$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A = \text{diag}[m - X_{\dot{u}}, m -
 Substitusi nilai parameter fisik menghasilkan nilai kuantitatif:
 $$\mathbf{M} = \text{diag}[19.86\text{ kg}, 20.62\text{ kg}, 32.18\text{ kg}, 0.175\text{ kg}\cdot\text{m}^2, 0.290\text{ kg}\cdot\text{m}^2, 0.490\text{ kg}\cdot\text{m}^2]$$
 
-### 2.4.2 Matriks Coriolis dan Sentripetal $$\mathbf{C}_{RB}(\boldsymbol{\nu})$$ dan $$\mathbf{C}_A(\boldsymbol{\nu}_r)$$
+### 2.4.2 Matriks Coriolis dan Sentripetal Bodi Kaku dan Massa Tambah
 
 #### 1. Matriks Coriolis Bodi Kaku $$\mathbf{C}_{RB}(\boldsymbol{\nu})$$
 Matriks Coriolis-sentripetal bodi kaku merepresentasikan gaya semu inersia yang muncul akibat gerak wahana di dalam kerangka referensi bodi yang berotasi. Menggunakan representasi *skew-symmetric* Kirchhoff [7]:
@@ -335,7 +335,7 @@ Konsekuensi fisis dari hubungan ini sangat fatal pada wahana yang tidak memiliki
   $$N_{\text{Munk}} > 0$$
 - Torsi yaw positif ini memutar haluan wahana semakin ke kanan, memperbesar sudut hanyut (*drift angle*), yang pada gilirannya menaikkan nilai $$v_r$$, sehingga memicu momen destabilisasi yang semakin membesar secara eksponensial!
 
-Pada wahana *underactuated 6-pendorong, fenomena kopling silang momen Munk ini menyebabkan wahana melenceng dari jalur dan tidak mampu mempertahankan orientasi garis lurus saat melaju pada kecepatan jelajah tinggi [7], [31]. Sebaliknya, pada wahana *over-actuated 8-pendorong* yang diteliti dalam tugas akhir ini, sistem kendali alokasi gaya dorong terpadu dapat menghitung torsi kompensasi balik secara seketika melalui umpan balik status dari penapis EKF, sehingga momen Munk dapat diredam secara aktif (active dynamic suppression*) [21], [32].
+Pada wahana *underactuated* 6-pendorong, fenomena kopling silang momen Munk ini menyebabkan wahana melenceng dari jalur dan tidak mampu mempertahankan orientasi garis lurus saat melaju pada kecepatan jelajah tinggi [7], [31]. Sebaliknya, pada wahana *over-actuated* 8-pendorong yang diteliti dalam tugas akhir ini, sistem kendali alokasi gaya dorong terpadu dapat menghitung torsi kompensasi balik secara seketika melalui umpan balik status dari penapis EKF, sehingga momen Munk dapat diredam secara aktif (*active dynamic suppression*) [21], [32].
 
 ### 2.4.4 Tensor Redaman Hidrodinamika Fluida $$\mathbf{D}(\boldsymbol{\nu}_r)$$
 Redaman hidrodinamika fluida pada wahana *open-frame* berkecepatan rendah dimodelkan sebagai gabungan linier antara disipasi gesekan kulit laminar viskos (*skin friction*) dan seretan bentuk kuadratik turbulen (*cross-flow drag*) sesuai formulasi Morison [7], [31]:
@@ -396,7 +396,7 @@ Dinamika respons elektrik dan hidrodinamika pendorong dimodelkan sebagai sistem 
 $$\dot{f}_i(t) = \frac{1}{\tau_m} \left( f_{i,\text{cmd}}(t) - f_i(t) \right)$$
 di mana $$f_{i,\text{cmd}}$$ adalah perintah gaya dorong yang diminta oleh algoritma kontrol alokasi, dan $$f_i$$ adalah gaya dorong aktual yang dihasilkan oleh pendorong ke-$$i$$.
 
-### 2.5.2 Formulasi Geometris Matriks Alokasi Gaya Dorong $$6 \times 8$$ ($$\mathbf{T}_{6 \times 8}$$)
+### 2.5.2 Formulasi Geometris Matriks Alokasi Gaya Dorong 6x8 (T_6x8)
 Gaya dan torsi generalisasi total $$\boldsymbol{\tau} \in \mathbb{R}^6$$ yang bekerja pada kerangka bodi wahana merupakan superposisi linier dari kontribusi gaya translasi dan momen putar dari kedelapan motor pendorong [7], [32]:
 $$\boldsymbol{\tau} = \sum_{i=1}^8 \mathbf{t}_i f_i = \mathbf{T}_{6 \times 8} \mathbf{f}$$
 di mana:
@@ -518,7 +518,7 @@ $$\mathbf{y} \sim \mathcal{N}(\boldsymbol{\mu}_{\mathbf{y}}, \mathbf{P}_{\mathbf
 dengan:
 $$\boldsymbol{\mu}_{\mathbf{y}} = \mathbf{A}\boldsymbol{\mu}_{\mathbf{x}} + \mathbf{b}, \qquad \mathbf{P}_{\mathbf{y}} = \mathbf{A} \mathbf{P}_{\mathbf{x}} \mathbf{A}^T$$
 
-Sifat penutupan (closure property*) ini menjadi jaminan matematis bahwa pada sistem dinamika linier berderau Gaussian, estimasi keadaan posterior optimal selalu dapat dihitung secara rekursif hanya dengan mempropagasi vektor rata-rata (*mean) dan matriks kovariansi [16], [25].
+Sifat penutupan (*closure property*) ini menjadi jaminan matematis bahwa pada sistem dinamika linier berderau Gaussian, estimasi keadaan posterior optimal selalu dapat dihitung secara rekursif hanya dengan mempropagasi vektor rata-rata (*mean*) dan matriks kovariansi [16], [25].
 
 #### Pembuktian Kriteria Minimum Mean-Square Error (MMSE):
 Misalkan kumpulan seluruh riwayat pengukuran sensor hingga langkah waktu ke-$$k$$ dinotasikan sebagai himpunan filtrasi $$\mathbf{Z}^k = \{\mathbf{z}_1, \mathbf{z}_2, \dots, \mathbf{z}_k\}$$. Kita mencari sebuah penaksir keadaan optimal $$\hat{\mathbf{x}}(\mathbf{Z}^k)$$ yang meminimalkan ekspektasi penalti kesalahan kuadratik skalar [25]:
@@ -581,7 +581,7 @@ $$\mathbf{e}_k^+ = \mathbf{x}_k - \hat{\mathbf{x}}_k^+ = \mathbf{x}_k - (\hat{\m
 
 Matriks kovariansi galat *posterior* $$\mathbf{P}_k^+$$ dievaluasi untuk sebarang gain $$\mathbf{K}_k$$:
 $$\mathbf{P}_k^+ = \mathbb{E}[ \mathbf{e}_k^+ (\mathbf{e}_k^+)^T ] = \mathbb{E}[ ((\mathbf{I} - \mathbf{K}_k \mathbf{H}_k)\mathbf{e}_k^- - \mathbf{K}_k \mathbf{v}_k) ((\mathbf{I} - \mathbf{K}_k \mathbf{H}_k)\mathbf{e}_k^- - \mathbf{K}_k \mathbf{v}_k)^T ]$$
-Karena derau sensor $$\mathbf{v}_k$$ saling bebas terhadap galat *prior $$\mathbf{e}_k^-$$, maka diperoleh *Bentuk Kovariansi Joseph* (Joseph Form Covariance*) [25]:
+Karena derau sensor $$\mathbf{v}_k$$ saling bebas terhadap galat *prior* $$\mathbf{e}_k^-$$, maka diperoleh *Bentuk Kovariansi Joseph* (*Joseph Form Covariance*) [25]:
 $$\mathbf{P}_k^+ = (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k) \mathbf{P}_k^- (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k)^T + \mathbf{K}_k \mathbf{R}_k \mathbf{K}_k^T$$
 Bentuk Joseph ini secara komputasional menjamin bahwa matriks kovariansi $$\mathbf{P}_k^+$$ selalu simetris dan definit positif, bahkan di bawah galat pembulatan aritmatika komputer berpresisi terbatas (*numerical round-off errors*).
 
@@ -623,7 +623,7 @@ Struktur persamaan rekursif EKF diskrit dinyatakan oleh [25], [29]:
 
 ### 2.6.4 Topside/Onboard Visual Target Kalman Filter (`AUVVisualKalmanFilter`)
 
-Persepsi visual bawah air yang diperoleh dari kamera monokuler rentan terhadap distorsi optik, turbiditas air, hamburan cahaya, partikel tersuspensi (marine snow*), serta bayangan dinamis [2], [14]. Arsitektur *deep learning* YOLO yang dijalankan pada komputer pendamping memprediksi koordinat kotak pembatas (*bounding box*) target secara *frame-by-frame*. Namun, deteksi visual mentah ini menghasilkan sentroid yang bergetar (*centroid jitter*), fluktuasi skala, deteksi palsu (*false positives*), dan kehilangan deteksi sesaat saat target terhalang (*temporary visual occlusion) [2], [16], [17].
+Persepsi visual bawah air yang diperoleh dari kamera monokuler rentan terhadap distorsi optik, turbiditas air, hamburan cahaya, partikel tersuspensi (*marine snow*), serta bayangan dinamis [2], [14]. Arsitektur *deep learning* YOLO yang dijalankan pada komputer pendamping memprediksi koordinat kotak pembatas (*bounding box*) target secara *frame-by-frame*. Namun, deteksi visual mentah ini menghasilkan sentroid yang bergetar (*centroid jitter*), fluktuasi skala, deteksi palsu (*false positives*), dan kehilangan deteksi sesaat saat target terhalang (*temporary visual occlusion*) [2], [16], [17].
 
 Untuk mengatasi degradasi optik ini, dirancang modul *Topside/Onboard Visual Target Kalman Filter (`AUVVisualKalmanFilter`)* berbasis model kinematika stokastik *Continuous White Noise Acceleration* (CWNA) [16], [25].
 
@@ -645,13 +645,13 @@ Bentuk diferensial ruang keadaan kontinu dinyatakan oleh:
 $$\dot{\mathbf{x}}(t) = \mathbf{F}_c \mathbf{x}(t) + \mathbf{L}_c \mathbf{w}(t)$$
 $$\mathbf{F}_c = \begin{bmatrix} \mathbf{0}_{4 \times 4} & \mathbf{I}_{4 \times 4} \\ \mathbf{0}_{4 \times 4} & \mathbf{0}_{4 \times 4} \end{bmatrix} \in \mathbb{R}^{8 \times 8}, \qquad \mathbf{L}_c = \begin{bmatrix} \mathbf{0}_{4 \times 4} \\ \mathbf{I}_{4 \times 4} \end{bmatrix} \in \mathbb{R}^{8 \times 4}$$
 
-#### 3. Diskritisasi Eksak Matriks Transisi Keadaan $$\mathbf{A}(\Delta t)$$
+#### 3. Diskritisasi Eksak Matriks Transisi Keadaan
 Solusi analitis persamaan keadaan kontinu pada selang waktu pencuplikan $$\Delta t$$ (di mana $$\Delta t = 1/30\text{ s} \approx 0.0333\text{ s}$$ untuk kamera 30 FPS) dievaluasi melalui deret matriks eksponensial:
 $$\mathbf{A}(\Delta t) = e^{\mathbf{F}_c \Delta t} = \mathbf{I}_{8 \times 8} + \mathbf{F}_c \Delta t + \frac{1}{2!} \mathbf{F}_c^2 \Delta t^2 + \dots$$
 Karena $$\mathbf{F}_c^2 = \mathbf{0}_{8 \times 8}$$ (bersifat nilpoten orde 2), deret Taylor terputus secara eksak:
 $$\mathbf{A}(\Delta t) = \begin{bmatrix} \mathbf{I}_{4 \times 4} & \Delta t \mathbf{I}_{4 \times 4} \\ \mathbf{0}_{4 \times 4} & \mathbf{I}_{4 \times 4} \end{bmatrix} = \begin{bmatrix} 1 & 0 & 0 & 0 & \Delta t & 0 & 0 & 0 \\\ 0 & 1 & 0 & 0 & 0 & \Delta t & 0 & 0 \\\ 0 & 0 & 1 & 0 & 0 & 0 & \Delta t & 0 \\\ 0 & 0 & 0 & 1 & 0 & 0 & 0 & \Delta t \\\ 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\\ 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\\ 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\\ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \end{bmatrix}$$
 
-#### 4. Diskritisasi Eksak Kovariansi Derau Proses $$\mathbf{Q}(\Delta t)$$
+#### 4. Diskritisasi Eksak Kovariansi Derau Proses
 Kovariansi derau proses diskrit dihitung secara eksak melalui integral konvolusi matriks eksponensial Van Loan [25]:
 $$\mathbf{Q}(\Delta t) = \int_0^{\Delta t} e^{\mathbf{F}_c \tau} \mathbf{L}_c \tilde{\mathbf{Q}} \mathbf{L}_c^T e^{\mathbf{F}_c^T \tau} \, d\tau$$
 Substitusi $$e^{\mathbf{F}_c \tau} \mathbf{L}_c = \begin{bmatrix} \tau \mathbf{I}_4 \\ \mathbf{I}_4 \end{bmatrix}$$ menghasilkan:
@@ -659,7 +659,7 @@ $$\mathbf{Q}(\Delta t) = \int_0^{\Delta t} \begin{bmatrix} \tau^2 \tilde{\mathbf
 
 Formulasi eksak ini secara simultan memodelkan ketidakpastian percepatan target dan korelasi silang temporal antara posisi dan kecepatan visual [16], [25].
 
-#### 5. Kovariansi Pengukuran Adaptif Berbobot Konfidensi YOLO $$\mathbf{R}(\text{conf})$$
+#### 5. Kovariansi Pengukuran Adaptif Berbobot Konfidensi YOLO
 Model pengukuran sensor visual menghubungkan vektor keadaan 8D dengan 4 parameter observasi kotak pembatas dari detektor YOLO:
 $$\mathbf{z}_k = \begin{bmatrix} z_x \\\ z_y \\\ z_s \\\ z_r \end{bmatrix}_k = \mathbf{H} \mathbf{x}_k + \mathbf{v}_k, \qquad \mathbf{H} = \begin{bmatrix} \mathbf{I}_{4 \times 4} & \mathbf{0}_{4 \times 4} \end{bmatrix} \in \mathbb{R}^{4 \times 8}$$
 
@@ -675,7 +675,7 @@ Dinamika adaptif ini memberikan efek kendali estimasi yang sangat elegan:
 - Saat deteksi target terdistorsi oleh gelembung air atau partikel keruh ($$\text{conf}_k \approx 0.3$$), nilai $$\mathbf{R}_k$$ melonjak secara kuadratik. Hal ini menyebabkan penguatan Kalman mengecil secara drastis ($$\mathbf{K}_k \to \mathbf{0}$$), sehingga filter secara otomatis menolak (*reject*) derau pengukuran yang tidak akurat dan lebih mempercayai prediksi model kinematika internalnya!
 
 #### 6. Outlier Innovation Gating Berbasis Jarak Mahalanobis
-Untuk mencegah penapis terganggu oleh deteksi salah (*false positive clutter), residu inovasi $$\tilde{\mathbf{y}}_k = \mathbf{z}_k - \mathbf{H}\hat{\mathbf{x}}_k^-$$ divalidasi menggunakan uji hipotesis kuadratik *Jarak Mahalanobis* (Mahalanobis distance*) [25]:
+Untuk mencegah penapis terganggu oleh deteksi salah (*false positive clutter*), residu inovasi $$\tilde{\mathbf{y}}_k = \mathbf{z}_k - \mathbf{H}\hat{\mathbf{x}}_k^-$$ divalidasi menggunakan uji hipotesis kuadratik **Jarak Mahalanobis* (*Mahalanobis distance*) [25]:
 $$D_M^2 = \tilde{\mathbf{y}}_k^T \mathbf{S}_k^{-1} \tilde{\mathbf{y}}_k = \tilde{\mathbf{y}}_k^T \left( \mathbf{H}\mathbf{P}_k^-\mathbf{H}^T + \mathbf{R}_k \right)^{-1} \tilde{\mathbf{y}}_k$$
 
 Di bawah hipotesis nol (pengukuran target benar terdistribusi Gaussian), besaran skalar $$D_M^2$$ mengikuti distribusi Chi-kuadrat dengan derajat kebebasan sama dengan dimensi pengukuran ($$m = 4$$):
@@ -706,10 +706,10 @@ $$\dot{\boldsymbol{\nu}}_r = \mathbf{M}^{-1} \left[ \boldsymbol{\tau} - \mathbf{
 
 Vektor keadaan kontinu penapis dinamika mencakup kecepatan bodi dan estimasi kecepatan arus laut pada kerangka bodi:
 $$\mathbf{x}_{\text{dyn}} = \begin{bmatrix} \boldsymbol{\nu}_r \\ \boldsymbol{\nu}_c \end{bmatrix} \in \mathbb{R}^{12}$$
-Arus laut dimodelkan sebagai proses acak Markov orde pertama yang bervariasi sangat lambat (slowly varying random walk) [7], [29]:
+Arus laut dimodelkan sebagai proses acak Markov orde pertama yang bervariasi sangat lambat (*slowly varying random walk*) [7], [29]:
 $$\dot{\boldsymbol{\nu}}_c = -\mathbf{S}(\boldsymbol{\nu}_2)\boldsymbol{\nu}_c + \mathbf{w}_c$$
 
-#### 2. Penurunan Analitis Matriks Jacobian Kontinu $$\mathbf{F} \in \mathbb{R}^{6 \times 6}$$
+#### 2. Penurunan Analitis Matriks Jacobian Kontinu 6x6
 Untuk mengeksekusi EKF, matriks Jacobian transisi kontinu $$\mathbf{F}(t)$$ diturunkan melalui diferensiasi analitis parsial terhadap vektor kecepatan relatif $$\boldsymbol{\nu}_r$$ [7], [25]:
 $$\mathbf{F}(t) = \left. \frac{\partial \mathbf{f}_d}{\partial \boldsymbol{\nu}_r} \right|_{\hat{\boldsymbol{\nu}}_r} = -\mathbf{M}^{-1} \left[ \left. \frac{\partial (\mathbf{C}_A(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r)}{\partial \boldsymbol{\nu}_r} \right|_{\hat{\boldsymbol{\nu}}_r} + \left. \frac{\partial (\mathbf{D}(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r)}{\partial \boldsymbol{\nu}_r} \right|_{\hat{\boldsymbol{\nu}}_r} \right]$$
 
