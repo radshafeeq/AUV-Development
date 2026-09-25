@@ -86,22 +86,12 @@ Selisih gaya hidrostatis neto ($$B - W$$) menghasilkan daya apung positif (*posi
 Karena pusat massa ($$z_g = +0.02\text{ m}$$) terletak di bawah pusat apung ($$z_b = 0.00\text{ m}$$), jarak metasentrik vertikal bernilai positif ($$\overline{BG} = z_g - z_b = +0.02\text{ m}$$), yang memberikan stabilitas statis pasif inheren pada sumbu *Roll* ($$\phi$$) dan *Pitch* ($$\theta$$) [7].
 
 Matriks inersia benda tegar $$\mathbf{M}_{RB} \in \mathbb{R}^{6 \times 6}$$ dihitung menggunakan formulasi Fossen:
-$$\mathbf{M}_{RB} = \begin{bmatrix} 
-m\mathbf{I}_{3 \times 3} & -m\mathbf{S}(\mathbf{r}_g) \ 
-m\mathbf{S}(\mathbf{r}_g) & \mathbf{I}_b 
-\end{bmatrix} = \begin{bmatrix} 
-13.00 & 0 & 0 & 0 & 0.26 & 0 \ 
-0 & 13.00 & 0 & -0.26 & 0 & 0 \ 
-0 & 0 & 13.00 & 0 & 0 & 0 \ 
-0 & -0.26 & 0 & 0.1652 & 0 & 0 \ 
-0.26 & 0 & 0 & 0 & 0.2452 & 0 \ 
-0 & 0 & 0 & 0 & 0 & 0.2800 
-\end{bmatrix}$$
+$$\mathbf{M}_{RB} = \begin{bmatrix} m\mathbf{I}_{3 \times 3} & -m\mathbf{S}(\mathbf{r}_g) \\ m\mathbf{S}(\mathbf{r}_g) & \mathbf{I}_b \end{bmatrix} = \begin{bmatrix} 13.00 & 0 & 0 & 0 & 0.26 & 0 \\ 0 & 13.00 & 0 & -0.26 & 0 & 0 \\ 0 & 0 & 13.00 & 0 & 0 & 0 \\ 0 & -0.26 & 0 & 0.1652 & 0 & 0 \\ 0.26 & 0 & 0 & 0 & 0.2452 & 0 \\ 0 & 0 & 0 & 0 & 0 & 0.2800 \end{bmatrix}$$
 
 ### 3.3.2 Estimasi Derivatif Massa Tambah Hidrodinamika (*Hydrodynamic Added Mass*)
 Massa tambah hidrodinamika timbul akibat percepatan massa fluida di sekitar lambung wahana ketika wahana bergerak [1], [7], [34]. Mengingat wahana beroperasi pada kecepatan jelajah moderat dan memiliki bidang simetri ganda (bidang *port-starboard* dan *fore-aft* mendekati simetris), suku-suku kopling silang di luar diagonal bernilai sangat kecil dibandingkan suku diagonal utamanya [31], [34]. Derivatif massa tambah hidrodinamika ditentukan berdasarkan hasil identifikasi eksperimental PMM dan analisis komputasi fluida (CFD) yang telah divalidasi oleh pengujian eksperimental *Planar Motion Mechanism* (PMM) dan survei literatur wahana kelas BlueROV2 [1], [4], [7], [12], [26], [28], [31], [34], [37]:
 
-$$\mathbf{M}_A = -\text{diag}\left( X_{\dot{u}}, Y_{\dot{v}}, Z_{\dot{w}}, K_{\dot{p}}, M_{\dot{q}}, N_{\dot{r}}  \right)$$
+$$\mathbf{M}_A = -\text{diag}\left( X_{\dot{u}}, Y_{\dot{v}}, Z_{\dot{w}}, K_{\dot{p}}, M_{\dot{q}}, N_{\dot{r}} \right)$$
 
 Nilai numerik massa tambah hidrodinamika dirangkum pada Tabel 3.2.
 
@@ -126,14 +116,7 @@ $$N_{\text{Munk}} = +7.20 \, u_r v_r \quad (\text{N}\cdot\text{m})$$
 yang harus diredam secara aktif oleh sistem kendali alokasi pendorong 8-motor [21], [32].
 
 Matriks massa total wahana $$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A$$ adalah:
-$$\mathbf{M} = \begin{bmatrix} 
-18.50 & 0 & 0 & 0 & 0.26 & 0 \ 
-0 & 25.70 & 0 & -0.26 & 0 & 0 \ 
-0 & 0 & 27.60 & 0 & 0 & 0 \ 
-0 & -0.26 & 0 & 0.2852 & 0 & 0 \ 
-0.26 & 0 & 0 & 0 & 0.4952 & 0 \ 
-0 & 0 & 0 & 0 & 0 & 0.5500 
-\end{bmatrix}$$
+$$\mathbf{M} = \begin{bmatrix} 18.50 & 0 & 0 & 0 & 0.26 & 0 \\ 0 & 25.70 & 0 & -0.26 & 0 & 0 \\ 0 & 0 & 27.60 & 0 & 0 & 0 \\ 0 & -0.26 & 0 & 0.2852 & 0 & 0 \\ 0.26 & 0 & 0 & 0 & 0.4952 & 0 \\ 0 & 0 & 0 & 0 & 0 & 0.5500 \end{bmatrix}$$
 
 ### 3.3.3 Matriks Koefisien Redaman Hidrodinamika Fluida
 Gaya hambat hidrodinamika fluida dimodelkan sebagai superposisi antara redaman gesek linier Navier-Stokes ($$\mathbf{D}_L$$) untuk aliran laminer kecepatan rendah dan redaman bentuk kuadratik non-linier (quadratic form drag* $$\mathbf{D}_{NL}$$) akibat pusaran turbulen (*vortex shedding) di sekitar struktur kerangka terbuka [7], [31], [34]:
@@ -141,8 +124,8 @@ Gaya hambat hidrodinamika fluida dimodelkan sebagai superposisi antara redaman g
 $$\mathbf{D}(\boldsymbol{\nu}_r) = \mathbf{D}_L + \mathbf{D}_{NL}(\boldsymbol{\nu}_r)$$
 
 di mana matriks linier dan matriks kuadratik diagonal didefinisikan sebagai:
-$$\mathbf{D}_L = -\text{diag}\left( X_u, Y_v, Z_w, K_p, M_q, N_r  \right)$$
-$$\mathbf{D}_{NL}(\boldsymbol{\nu}_r) = -\text{diag}\left( X_{u|u|}|u_r|, Y_{v|v|}|v_r|, Z_{w|w|}|w_r|, K_{p|p|}|p|, M_{q|q|}|q|, N_{r|r|}|r|  \right)$$
+$$\mathbf{D}_L = -\text{diag}\left( X_u, Y_v, Z_w, K_p, M_q, N_r \right)$$
+$$\mathbf{D}_{NL}(\boldsymbol{\nu}_r) = -\text{diag}\left( X_{u|u|}|u_r|, Y_{v|v|}|v_r|, Z_{w|w|}|w_r|, K_{p|p|}|p|, M_{q|q|}|q|, N_{r|r|}|r| \right)$$
 
 Nilai-nilai koefisien redaman yang digunakan dalam penelitian ini disajikan pada Tabel 3.3 [31], [34].
 
@@ -179,27 +162,16 @@ Dengan konstanta arah horizontal $$c = \cos(45^\circ) = \sin(45^\circ) = \frac{\
 $$\mathbf{t}_i = \begin{bmatrix} \mathbf{d}_i \ \mathbf{r}_i \times \mathbf{d}_i \end{bmatrix} \in \mathbb{R}^6$$
 
 Perhitungan perkalian silang lengan torsi menghasilkan matriks konfigurasi numerik eksak $$\mathbf{T}_{6 \times 8} \in \mathbb{R}^{6 \times 8}$$:
-$$\mathbf{T}_{6 \times 8} = \begin{bmatrix} 
-0.7071 & 0.7071 & -0.7071 & -0.7071 & 0.0000 & 0.0000 & 0.0000 & 0.0000 \ 
--0.7071 & 0.7071 & -0.7071 & 0.7071 & 0.0000 & 0.0000 & 0.0000 & 0.0000 \ 
-0.0000 & 0.0000 & 0.0000 & 0.0000 & 1.0000 & 1.0000 & 1.0000 & 1.0000 \ 
-0.0000 & 0.0000 & 0.0000 & 0.0000 & 0.2180 & -0.2180 & 0.2180 & -0.2180 \ 
-0.0000 & 0.0000 & 0.0000 & 0.0000 & -0.1200 & -0.1200 & 0.1200 & 0.1200 \ 
--0.1888 & 0.1888 & 0.1888 & -0.1888 & 0.0000 & 0.0000 & 0.0000 & 0.0000 
-\end{bmatrix}$$
+$$\mathbf{T}_{6 \times 8} = \begin{bmatrix} 0.7071 & 0.7071 & -0.7071 & -0.7071 & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\ -0.7071 & 0.7071 & -0.7071 & 0.7071 & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\ 0.0000 & 0.0000 & 0.0000 & 0.0000 & 1.0000 & 1.0000 & 1.0000 & 1.0000 \\ 0.0000 & 0.0000 & 0.0000 & 0.0000 & 0.2180 & -0.2180 & 0.2180 & -0.2180 \\ 0.0000 & 0.0000 & 0.0000 & 0.0000 & -0.1200 & -0.1200 & 0.1200 & 0.1200 \\ -0.1888 & 0.1888 & 0.1888 & -0.1888 & 0.0000 & 0.0000 & 0.0000 & 0.0000 \end{bmatrix}$$
 
 di mana baris ke-6 (sumbu *Yaw*) diperoleh dari:
 $$\tau_{N,1} = x_1 d_{y,1} - y_1 d_{x,1} = (0.156)(-0.7071) - (0.111)(0.7071) = -0.1103 - 0.0785 = -0.1888\text{ m}$$
 
 Karena jumlah aktuator ($$m = 8$$) melebihi jumlah derajat kebebasan gerak ($$n = 6$$), sistem ini bersifat *over-actuated* dengan derajat redundansi $$m - n = 2$$ [21], [32]. Solusi vektor gaya dorong individual pendorong $$\mathbf{f} = [f_1, f_2, \dots, f_8]^T \in \mathbb{R}^8$$ yang meminimalkan kriteria energi kuadratik total dihitung secara seketika (*real-time*) melalui operator invers semu Moore-Penrose:
-$$\mathbf{f} = \mathbf{T}_{6 \times 8}^\dagger \boldsymbol{\tau} = \mathbf{T}_{6 \times 8}^T \left( \mathbf{T}_{6 \times 8} \mathbf{T}_{6 \times 8}^T  \right)^{-1} \boldsymbol{\tau}$$
+$$\mathbf{f} = \mathbf{T}_{6 \times 8}^\dagger \boldsymbol{\tau} = \mathbf{T}_{6 \times 8}^T \left( \mathbf{T}_{6 \times 8} \mathbf{T}_{6 \times 8}^T \right)^{-1} \boldsymbol{\tau}$$
 
 Setiap komponen gaya dorong $$f_i\text{ (N)}$$ kemudian dipetakan ke sinyal lebar pulsa servo aktuator PWM ($$1100 - 1900\text{ }\mu\text{s}$$) dengan zona mati (deadband) nominal $$1475 - 1525\text{ }\mu\text{s}$$ sesuai karakteristik elektro-hidrodinamika ESC motor pendorong BLDC bawah air [3]:
-$$\text{PWM}_i = \begin{cases} 
-1500 & \text{jika } |f_i| < f_{\text{thresh}} \ 
-1525 + \left( \frac{f_i}{f_{\max}}  \right) \times 375 & \text{jika } f_i \ge f_{\text{thresh}} \ 
-1475 + \left( \frac{f_i}{f_{\max}}  \right) \times 375 & \text{jika } f_i \le -f_{\text{thresh}} 
-\end{cases}$$
+$$\text{PWM}_i = \begin{cases} 1500 & \text{jika } |f_i| < f_{\text{thresh}} \\ 1525 + \left( \frac{f_i}{f_{\max}} \right) \times 375 & \text{jika } f_i \ge f_{\text{thresh}} \\ 1475 + \left( \frac{f_i}{f_{\max}} \right) \times 375 & \text{jika } f_i \le -f_{\text{thresh}} \end{cases}$$
 dengan batas gaya dorong maksimum $$f_{\max} = 35.0\text{ N}$$ pada tegangan suplai nominal $$16.0\text{ V}$$ [3].
 
 ---
@@ -322,10 +294,7 @@ Diimplementasikan pada workstation permukaan di dalam berkas [`kalman_filter.py`
   di mana $$x, y$$ merepresentasikan koordinat titik pusat *bounding box*, $$s = w \times h$$ adalah luas area skala target, $$r = w / h$$ adalah rasio aspek, serta $$\dot{x}, \dot{y}, \dot{s}, \dot{r}$$ adalah laju perubahan temporalnya.
 - *Kovariansi Proses Stokastik CWNA*:
   Matriks kovariansi proses diskrit dievaluasi secara eksak melalui integrasi analitis model percepatan derau putih kontinu (*Continuous White Noise Acceleration*):
-  $$\mathbf{Q}(\Delta t) = \begin{bmatrix} 
-  \frac{\Delta t^3}{3} \tilde{\mathbf{Q}} & \frac{\Delta t^2}{2} \tilde{\mathbf{Q}} \ 
-  \frac{\Delta t^2}{2} \tilde{\mathbf{Q}} & \Delta t \tilde{\mathbf{Q}} 
-  \end{bmatrix}, \quad \tilde{\mathbf{Q}} = \text{diag}(q_x, q_y, q_s, q_r)$$
+  $$\mathbf{Q}(\Delta t) = \begin{bmatrix} \frac{\Delta t^3}{3} \tilde{\mathbf{Q}} & \frac{\Delta t^2}{2} \tilde{\mathbf{Q}} \\ \frac{\Delta t^2}{2} \tilde{\mathbf{Q}} & \Delta t \tilde{\mathbf{Q}} \end{bmatrix}, \quad \tilde{\mathbf{Q}} = \text{diag}(q_x, q_y, q_s, q_r)$$
   dengan nilai kerapatan spektral nominal $$q_x = q_y = 0.05$$, $$q_s = 0.08$$, dan $$q_r = 0.01$$.
 - *Kovariansi Pengukuran Adaptif Berbobot Konfidensi*:
   $$\mathbf{R}_k(\text{conf}) = \frac{\mathbf{R}_0}{\max(\text{conf}_k, 0.15)^2}$$
@@ -352,12 +321,9 @@ Dijalankan secara langsung pada frekuensi $$50\text{ Hz}$$ ($$\Delta t = 20\text
   yang diukur langsung dari akselerometer 3-sumbu, giroskop 3-sumbu Pixhawk, dan laju perubahan kedalaman sensor tekanan Bar30 MS5837.
 - *Linearisasi Analitis Matriks Transisi Kontinu $$\mathbf{F}$$*:
   Dievaluasi secara analitis dari persamaan dinamika Fossen 6-DOF:
-  $$\mathbf{F}(t) = \left. \frac{\partial \mathbf{f}(\mathbf{x}, \boldsymbol{\tau})}{\partial \mathbf{x}} \right|_{\hat{\mathbf{x}}} = \begin{bmatrix} 
-  -\mathbf{M}^{-1}\left( \mathbf{C}^*(\hat{\boldsymbol{\nu}}_r) + \mathbf{D}^*(\hat{\boldsymbol{\nu}}_r) \right) & \mathbf{0}_{6 \times 3} \\ 
-  \mathbf{0}_{3 \times 6} & \mathbf{0}_{3 \times 3} 
-  \end{bmatrix}$$
+  $$\mathbf{F}(t) = \left. \frac{\partial \mathbf{f}(\mathbf{x}, \boldsymbol{\tau})}{\partial \mathbf{x}} \right|_{\hat{\mathbf{x}}} = \begin{bmatrix} -\mathbf{M}^{-1}\left( \mathbf{C}^*(\hat{\boldsymbol{\nu}}_r) + \mathbf{D}^*(\hat{\boldsymbol{\nu}}_r) \right) & \mathbf{0}_{6 \times 3} \\\ \mathbf{0}_{3 \times 6} & \mathbf{0}_{3 \times 3} \end{bmatrix}$$
   di mana Jacobian redaman non-linier dievaluasi secara eksak:
-  $$\mathbf{D}^*(\hat{\boldsymbol{\nu}}_r) = \text{diag}\left( -(X_u + 2 X_{u|u|}|\hat{u}_r|), -(Y_v + 2 Y_{v|v|}|\hat{v}_r|), \dots  \right)$$
+  $$\mathbf{D}^*(\hat{\boldsymbol{\nu}}_r) = \text{diag}\left( -(X_u + 2 X_{u|u|}|\hat{u}_r|), -(Y_v + 2 Y_{v|v|}|\hat{v}_r|), \dots \right)$$
   dan suku kopling silang momen Munk terefleksikan pada baris ke-6 matriks $$\mathbf{C}^*(\hat{\boldsymbol{\nu}}_r)$$ [7], [34].
 - *Diskritisasi Matriks Fundamental Transisi*:
   $$\boldsymbol{\Phi} \approx \mathbf{I}_{9 \times 9} + \mathbf{F} \Delta t$$
@@ -411,15 +377,15 @@ Untuk memberikan penilaian performa yang objektif dan terstandarisasi secara ilm
 
 #### 1. Root Mean Square Error (RMSE)
 Digunakan untuk mengukur deviasi magnitudo galat antara variabel estimasi filter terhadap nilai kebenaran dasar (*ground truth*):
-$$\text{RMSE} = \sqrt{\frac{1}{N} \sum_{k=1}^N \left( x_k^{\text{true}} - \hat{x}_k  \right)^2}$$
+$$\text{RMSE} = \sqrt{\frac{1}{N} \sum_{k=1}^N \left( x_k^{\text{true}} - \hat{x}_k \right)^2}$$
 
 #### 2. Mean Absolute Error (MAE)
 Digunakan untuk mengevaluasi magnitudo kesalahan rata-rata tanpa memberikan bobot kuadrat berlebih pada pencilan (*outliers*):
-$$\text{MAE} = \frac{1}{N} \sum_{k=1}^N \left| x_k^{\text{true}} - \hat{x}_k  \right|$$
+$$\text{MAE} = \frac{1}{N} \sum_{k=1}^N \left| x_k^{\text{true}} - \hat{x}_k \right|$$
 
 #### 3. *Tracking Success Rate* (TSR)
 Rasio persentase keberhasilan pelacak visual dalam mempertahankan estimasi posisi target di dalam wilayah toleransi spasial ($$\delta_{\text{tol}} \le 20\text{ piksel}$$) sepanjang durasi pengujian $$N_{\text{total}}$$ frame:
-$$\text{TSR} = \left( \frac{N_{\text{success}}}{N_{\text{total}}}  \right) \times 100\%$$
+$$\text{TSR} = \left( \frac{N_{\text{success}}}{N_{\text{total}}} \right) \times 100\%$$
 
 #### 4. Waktu Pemulihan Oklusi (*Occlusion Recovery Time* / $$t_{\text{rec}}$$)
 Durasi waktu (dalam milidetik atau jumlah frame) yang dibutuhkan oleh penapis Kalman untuk merekonvergensi estimasi posisi titik pusat target ke nilai kebenaran dasar ($$\text{galat} < 5\text{ piksel}$$) sesaat setelah target visual muncul kembali dari oklusi total.

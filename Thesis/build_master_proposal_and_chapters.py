@@ -1379,13 +1379,26 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
             continue
 
         # Centered display equations (strict double-dollar LaTeX delimiters)
-        if stripped.startswith('$$') and stripped.endswith('$$') and len(stripped) > 4:
+        if stripped.startswith('$$'):
+            eq_lines = [stripped]
+            if not (stripped.endswith('$$') and len(stripped) > 4):
+                while i + 1 < len(lines):
+                    i += 1
+                    nxt = lines[i].strip()
+                    eq_lines.append(nxt)
+                    if nxt.endswith('$$'):
+                        break
+            full_eq = ' '.join(eq_lines)
+            # Ensure proper row breaks \\ inside matrices/cases
+            full_eq = re.sub(r'\\(\s+)(?=[^\\]|$)', r'\\\\\1', full_eq)
+            full_eq = re.sub(r'\s+', ' ', full_eq).strip()
+
             p_m = doc.add_paragraph()
             p_m.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p_m.paragraph_format.space_before = Pt(6)
             p_m.paragraph_format.space_after = Pt(6)
             p_m.paragraph_format.first_line_indent = Mm(0)
-            r_m = p_m.add_run(stripped)
+            r_m = p_m.add_run(full_eq)
             r_m.font.name = 'Arial'
             r_m.font.size = Pt(10)
             i += 1
