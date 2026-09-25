@@ -42,7 +42,7 @@
 
 <br><br>
 
-<img src="https://upload.wikimedia.org/wikipedia/commons/2/20/Logo-unhas.png" alt="Logo Universitas Hasanuddin" width="120" height="150"/>
+<img src="Logo-Resmi-Unhas-1.png" alt="Logo Universitas Hasanuddin" width="130"/>
 
 <br><br>
 
@@ -390,19 +390,19 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
   </tr>
   <tr>
     <td style="border:none; padding-left:20px;">1.2 Rumusan Masalah</td>
-    <td style="border:none; text-align:right;">5</td>
+    <td style="border:none; text-align:right;">3</td>
   </tr>
   <tr>
     <td style="border:none; padding-left:20px;">1.3 Tujuan Penelitian</td>
-    <td style="border:none; text-align:right;">6</td>
+    <td style="border:none; text-align:right;">4</td>
   </tr>
   <tr>
     <td style="border:none; padding-left:20px;">1.4 Batasan Masalah</td>
-    <td style="border:none; text-align:right;">7</td>
+    <td style="border:none; text-align:right;">5</td>
   </tr>
   <tr>
     <td style="border:none; padding-left:20px;">1.5 Manfaat Penelitian</td>
-    <td style="border:none; text-align:right;">8</td>
+    <td style="border:none; text-align:right;">6</td>
   </tr>
 
   <tr>
@@ -410,31 +410,31 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
   </tr>
   <tr>
     <td style="border:none;"><strong>BAB II. TINJAUAN PUSTAKA</strong></td>
-    <td style="border:none; text-align:right;"><strong>10</strong></td>
+    <td style="border:none; text-align:right;"><strong>7</strong></td>
   </tr>
   <tr>
     <td style="border:none; padding-left:20px;">2.1 Tinjauan Pustaka (*State of the Art* Penelitian AUV)</td>
-    <td style="border:none; text-align:right;">10</td>
+    <td style="border:none; text-align:right;">7</td>
   </tr>
   <tr>
     <td style="border:none; padding-left:20px;">2.2 Sistem Koordinat dan Konvensi SNAME</td>
-    <td style="border:none; text-align:right;">13</td>
+    <td style="border:none; text-align:right;">11</td>
   </tr>
   <tr>
     <td style="border:none; padding-left:20px;">2.3 Penurunan Kinematika 6-DOF dan Matriks Jacobian</td>
-    <td style="border:none; text-align:right;">18</td>
+    <td style="border:none; text-align:right;">15</td>
   </tr>
   <tr>
     <td style="border:none; padding-left:20px;">2.4 Penurunan Dinamika Hidrodinamika 6-DOF (Persamaan Fossen)</td>
-    <td style="border:none; text-align:right;">24</td>
+    <td style="border:none; text-align:right;">19</td>
   </tr>
   <tr>
     <td style="border:none; padding-left:20px;">2.5 Alokasi Gaya Dorong Sistem *Over-Actuated* 8-Pendorong</td>
-    <td style="border:none; text-align:right;">32</td>
+    <td style="border:none; text-align:right;">26</td>
   </tr>
   <tr>
     <td style="border:none; padding-left:20px;">2.6 Teori dan Formulasi Optimal *Kalman Filter* Suite</td>
-    <td style="border:none; text-align:right;">37</td>
+    <td style="border:none; text-align:right;">30</td>
   </tr>
 
   <tr>
@@ -442,31 +442,31 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
   </tr>
   <tr>
     <td style="border:none;"><strong>BAB III. METODOLOGI PENELITIAN</strong></td>
-    <td style="border:none; text-align:right;"><strong>52</strong></td>
+    <td style="border:none; text-align:right;"><strong>42</strong></td>
   </tr>
   <tr>
     <td style="border:none; padding-left:20px;">3.1 Tempat dan Waktu Penelitian</td>
-    <td style="border:none; text-align:right;">52</td>
+    <td style="border:none; text-align:right;">42</td>
   </tr>
   <tr>
     <td style="border:none; padding-left:20px;">3.2 Diagram Alir Penelitian</td>
-    <td style="border:none; text-align:right;">54</td>
+    <td style="border:none; text-align:right;">43</td>
   </tr>
   <tr>
     <td style="border:none; padding-left:20px;">3.3 Identifikasi Parameter Fisik dan Hidrodinamika Wahana</td>
-    <td style="border:none; text-align:right;">56</td>
+    <td style="border:none; text-align:right;">45</td>
   </tr>
   <tr>
     <td style="border:none; padding-left:20px;">3.4 Perancangan Arsitektur *Software-In-The-Loop* (SITL)</td>
-    <td style="border:none; text-align:right;">61</td>
+    <td style="border:none; text-align:right;">51</td>
   </tr>
   <tr>
     <td style="border:none; padding-left:20px;">3.5 Perancangan Arsitektur *Hardware-In-The-Loop* (HITL)</td>
-    <td style="border:none; text-align:right;">64</td>
+    <td style="border:none; text-align:right;">52</td>
   </tr>
   <tr>
     <td style="border:none; padding-left:20px;">3.6 Prosedur Pengujian dan Evaluasi Kinerja</td>
-    <td style="border:none; text-align:right;">71</td>
+    <td style="border:none; text-align:right;">61</td>
   </tr>
 
   <tr>
@@ -474,7 +474,7 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
   </tr>
   <tr>
     <td style="border:none;"><strong>DAFTAR PUSTAKA</strong></td>
-    <td style="border:none; text-align:right;"><strong>76</strong></td>
+    <td style="border:none; text-align:right;"><strong>64</strong></td>
   </tr>
 </table>
 
@@ -505,42 +505,42 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
   <tr>
     <td style="border:none;">Tabel 2.1</td>
     <td style="border:none;">Matriks Sintesis Literatur Terkini (2021–2025) Bidang Dinamika dan Kontrol AUV</td>
-    <td style="border:none; text-align:right;">11</td>
+    <td style="border:none; text-align:right;">8</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 2.2</td>
     <td style="border:none;">Notasi dan Konvensi 6 Derajat Kebebasan SNAME (1950) & Fossen (2021)</td>
-    <td style="border:none; text-align:right;">15</td>
+    <td style="border:none; text-align:right;">12</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 2.3</td>
     <td style="border:none;">Koordinat Spasial dan Vektor Orientasi 8 Pendorong Wahana Over-Actuated</td>
-    <td style="border:none; text-align:right;">34</td>
+    <td style="border:none; text-align:right;">27</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 3.1</td>
     <td style="border:none;">Parameter Fisik dan Properti Benda Tegar Wahana Over-Actuated 8-Pendorong</td>
-    <td style="border:none; text-align:right;">57</td>
+    <td style="border:none; text-align:right;">46</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 3.2</td>
     <td style="border:none;">Koefisien Derivatif Massa Tambah Hidrodinamika Wahana</td>
-    <td style="border:none; text-align:right;">58</td>
+    <td style="border:none; text-align:right;">47</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 3.3</td>
     <td style="border:none;">Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana</td>
-    <td style="border:none; text-align:right;">59</td>
+    <td style="border:none; text-align:right;">49</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 3.4</td>
     <td style="border:none;">Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Bervektor</td>
-    <td style="border:none; text-align:right;">60</td>
+    <td style="border:none; text-align:right;">49</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 3.5</td>
     <td style="border:none;">Spesifikasi Komponen Perangkat Keras Arsitektur HITL</td>
-    <td style="border:none; text-align:right;">64</td>
+    <td style="border:none; text-align:right;">53</td>
   </tr>
 </table>
 
@@ -565,57 +565,57 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
   <tr>
     <td style="border:none;">Gambar 2.1</td>
     <td style="border:none;">Sistem Kerangka Acuan Inersia Bumi (Fn - NED) dan Kerangka Acuan Bergerak Bodi (Fb - FRD) Konvensi SNAME (1950) dan Fossen (2021)</td>
-    <td style="border:none; text-align:right;">13</td>
+    <td style="border:none; text-align:right;">11</td>
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.1</td>
     <td style="border:none;">Diagram Alir Tahapan Penelitian Komprehensif</td>
-    <td style="border:none; text-align:right;">54</td>
+    <td style="border:none; text-align:right;">44</td>
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.2</td>
     <td style="border:none;">Arsitektur Simulasi Software-In-The-Loop (SITL) Sistem AUV</td>
-    <td style="border:none; text-align:right;">62</td>
+    <td style="border:none; text-align:right;">51</td>
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.3</td>
     <td style="border:none;">Arsitektur Integrasi Hardware-In-The-Loop (HITL) Mekatronika AUV</td>
-    <td style="border:none; text-align:right;">64</td>
+    <td style="border:none; text-align:right;">53</td>
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.4</td>
     <td style="border:none;">Rangka (Frame) dan Lambung Tekanan Kustom AUV 8-Pendorong</td>
-    <td style="border:none; text-align:right;">65</td>
+    <td style="border:none; text-align:right;">55</td>
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.5</td>
     <td style="border:none;">Papan Pengendali Penerbangan (Flight Controller) Pixhawk 2.4.8</td>
-    <td style="border:none; text-align:right;">65</td>
+    <td style="border:none; text-align:right;">55</td>
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.6</td>
     <td style="border:none;">Komputer Pendamping (Companion Computer) Raspberry Pi 4B</td>
-    <td style="border:none; text-align:right;">66</td>
+    <td style="border:none; text-align:right;">56</td>
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.7</td>
     <td style="border:none;">Modul Pengendali Kecepatan Elektronik (ESC EMAX BLHeli 30A)</td>
-    <td style="border:none; text-align:right;">66</td>
+    <td style="border:none; text-align:right;">56</td>
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.8</td>
     <td style="border:none;">Motor Pendorong Bawah Air (BLDC Underwater Thruster)</td>
-    <td style="border:none; text-align:right;">67</td>
+    <td style="border:none; text-align:right;">57</td>
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.9</td>
     <td style="border:none;">Sumber Daya Utama Baterai Li-Po 4S 14.8V 6000 mAh</td>
-    <td style="border:none; text-align:right;">71</td>
+    <td style="border:none; text-align:right;">57</td>
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.10</td>
     <td style="border:none;">Modul Kamera Sistem Pelacakan Visual: Raspberry Pi Camera Rev 1.3 dan Webcam Logitech C922 Pro</td>
-    <td style="border:none; text-align:right;">72</td>
+    <td style="border:none; text-align:right;">58</td>
   </tr>
 </table>
 

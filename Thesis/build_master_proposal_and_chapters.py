@@ -21,34 +21,35 @@ os.makedirs(html_dir, exist_ok=True)
 os.makedirs(github_docx_dir, exist_ok=True)
 os.makedirs(github_html_dir, exist_ok=True)
 
-logo_path = "/home/radhi/Documents/AUV Development/unhas_logo.png"
+logo_path = "/home/radhi/Documents/AUV Development/Logo-Resmi-Unhas-1.png"
 
-# Printable width for B5: 176 mm - 45 mm (margins) = 131 mm
-PRINTABLE_WIDTH = Mm(131)
+# Printable width for A4: 210 mm - 70 mm (margins: left 40mm, right 30mm) = 140 mm
+PRINTABLE_WIDTH = Mm(140)
 
 OFFICIAL_TITLE_MD = "ANALISIS KINEMATIKA, DINAMIKA, DAN ESTIMASI KEADAAN OPTIMAL *KALMAN FILTER* UNTUK *VISION-BASED TRACKING* PADA *OVER-ACTUATED 8-THRUSTER 6-DOF VECTORED AUV*"
 OFFICIAL_SUBTITLE_EN = "(Analysis of Kinematics, Dynamics, and Optimal Kalman Filter State Estimation for Vision-Based Tracking on an Over-Actuated 8-Thruster 6-DOF Vectored AUV)"
 
 TABLE_WIDTH_CONFIGS = {
-    "Tabel 2.1": [Mm(24), Mm(18), Mm(16), Mm(37), Mm(36)],
-    "Tabel 2.2": [Mm(18), Mm(24), Mm(20), Mm(20), Mm(25), Mm(24)],
-    "Tabel 2.3": [Mm(10), Mm(33), Mm(14), Mm(14), Mm(14), Mm(14), Mm(14), Mm(14)],
-    "Tabel 3.1": [Mm(35), Mm(20), Mm(22), Mm(18), Mm(36)],
-    "Tabel 3.2": [Mm(22), Mm(22), Mm(20), Mm(20), Mm(47)],
-    "Tabel 3.3": [Mm(20), Mm(20), Mm(22), Mm(22), Mm(22), Mm(25)],
-    "Tabel 3.4": [Mm(15), Mm(19), Mm(19), Mm(19), Mm(19), Mm(19), Mm(19)],
-    "Tabel 3.5": [Mm(24), Mm(32), Mm(27), Mm(48)],
+    "Tabel 2.1": [Mm(25), Mm(20), Mm(18), Mm(39), Mm(38)],
+    "Tabel 2.2": [Mm(20), Mm(25), Mm(22), Mm(22), Mm(26), Mm(25)],
+    "Tabel 2.3": [Mm(14), Mm(36), Mm(15), Mm(15), Mm(15), Mm(15), Mm(15), Mm(15)],
+    "Tabel 3.1": [Mm(38), Mm(22), Mm(23), Mm(19), Mm(38)],
+    "Tabel 3.2": [Mm(23), Mm(23), Mm(22), Mm(22), Mm(50)],
+    "Tabel 3.3": [Mm(22), Mm(22), Mm(23), Mm(23), Mm(23), Mm(27)],
+    "Tabel 3.4": [Mm(14), Mm(21), Mm(21), Mm(21), Mm(21), Mm(21), Mm(21)],
+    "Tabel 3.5": [Mm(26), Mm(34), Mm(29), Mm(51)],
 }
 
 def setup_unhas_section(doc, is_front_matter=False, start_page=1, add_page_number=True):
-    # 1. Section dimensions & margins: B5 (176 mm x 250 mm), 22.5 mm all around
+    # 1. Section dimensions & margins: A4 (210 mm x 297 mm)
+    # Standard academic proposal margins: Left 40 mm (binding), Top 30 mm, Right 30 mm, Bottom 30 mm
     sec = doc.sections[0]
-    sec.page_width = Mm(176)
-    sec.page_height = Mm(250)
-    sec.top_margin = Mm(22.5)
-    sec.bottom_margin = Mm(22.5)
-    sec.left_margin = Mm(22.5)
-    sec.right_margin = Mm(22.5)
+    sec.page_width = Mm(210)
+    sec.page_height = Mm(297)
+    sec.top_margin = Mm(30)
+    sec.bottom_margin = Mm(30)
+    sec.left_margin = Mm(40)
+    sec.right_margin = Mm(30)
 
     # 2. Document-level font defaults in styles.xml (ensures Google Docs always uses Arial)
     rPr_list = doc.styles.element.xpath('w:docDefaults/w:rPrDefault/w:rPr')
@@ -273,104 +274,64 @@ def set_cell_margins(cell, top=60, bottom=60, left=100, right=100):
     ''')
     tcPr.append(tcMar)
 
-def create_toc_table(doc):
-    tbl = doc.add_table(rows=0, cols=2)
-    tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
-    return tbl
-
-def add_toc_header_row(tbl, left_header, right_header):
-    row = tbl.add_row()
-    trPr = row._tr.get_or_add_trPr()
-    trPr.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
-    trPr.append(parse_xml(f'<w:tblHeader {nsdecls("w")}/>'))
-    c0, c1 = row.cells
-    c0.width = Mm(116)
-    c1.width = Mm(14)
-    for c in (c0, c1):
-        tcPr = c._tc.get_or_add_tcPr()
-        borders = parse_xml(r'''
-            <w:tcBorders %s>
-                <w:top w:val="none"/>
-                <w:left w:val="none"/>
-                <w:bottom w:val="none"/>
-                <w:right w:val="none"/>
-            </w:tcBorders>
-        ''' % nsdecls('w'))
-        tcPr.append(borders)
-        set_cell_margins(c, top=20, bottom=20, left=0, right=0)
-    p0 = c0.paragraphs[0]
-    p0.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    p0.paragraph_format.line_spacing = 1.15
-    p0.paragraph_format.space_after = Pt(6)
-    r0 = p0.add_run(left_header)
+def add_leader_header(doc, left_header="Judul", right_header="Halaman"):
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    p.paragraph_format.line_spacing = 1.15
+    p.paragraph_format.space_after = Pt(6)
+    p.paragraph_format.tab_stops.add_tab_stop(PRINTABLE_WIDTH, WD_TAB_ALIGNMENT.RIGHT, WD_TAB_LEADER.SPACES)
+    
+    r0 = p.add_run(left_header)
     r0.font.name = 'Arial'
     r0.font.size = Pt(9.5)
     r0.bold = True
-
-    p1 = c1.paragraphs[0]
-    p1.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    p1.paragraph_format.line_spacing = 1.15
-    p1.paragraph_format.space_after = Pt(6)
-    r1 = p1.add_run(right_header)
+    
+    p.add_run('\t')
+    
+    r1 = p.add_run(right_header)
     r1.font.name = 'Arial'
     r1.font.size = Pt(9.5)
     r1.bold = True
+    return p
 
-def add_toc_row(tbl, left_text, page_str, indent_mm=0, bold=False, space_after=2):
-    row = tbl.add_row()
-    trPr = row._tr.get_or_add_trPr()
-    trPr.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
-
-    c0, c1 = row.cells
-    c0.width = Mm(116)
-    c1.width = Mm(14)
-
-    for c in (c0, c1):
-        tcPr = c._tc.get_or_add_tcPr()
-        borders = parse_xml(r'''
-            <w:tcBorders %s>
-                <w:top w:val="none"/>
-                <w:left w:val="none"/>
-                <w:bottom w:val="none"/>
-                <w:right w:val="none"/>
-            </w:tcBorders>
-        ''' % nsdecls('w'))
-        tcPr.append(borders)
-        set_cell_margins(c, top=20, bottom=20, left=0, right=0)
-
-    p0 = c0.paragraphs[0]
-    p0.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    p0.paragraph_format.line_spacing = 1.15
-    p0.paragraph_format.space_after = Pt(space_after)
+def add_leader_line(doc, left_text, page_str, indent_mm=0, bold=False, space_after=2):
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    p.paragraph_format.line_spacing = 1.15
+    p.paragraph_format.space_after = Pt(space_after)
     if indent_mm > 0:
-        p0.paragraph_format.left_indent = Mm(indent_mm)
-    p0.paragraph_format.tab_stops.add_tab_stop(Mm(114), WD_TAB_ALIGNMENT.RIGHT, WD_TAB_LEADER.DOTS)
-
+        p.paragraph_format.left_indent = Mm(indent_mm)
+    
+    p.paragraph_format.tab_stops.add_tab_stop(PRINTABLE_WIDTH, WD_TAB_ALIGNMENT.RIGHT, WD_TAB_LEADER.DOTS)
+    
     tokens = parse_inline_runs(left_text)
     for t_type, t_val in tokens:
-        r = p0.add_run(t_val)
+        r = p.add_run(t_val)
         r.font.name = 'Arial'
         r.font.size = Pt(9.5)
         if bold or t_type == 'bold':
             r.bold = True
         if t_type == 'italic':
             r.italic = True
-
-    r_tab = p0.add_run('\t')
+            
+    r_tab = p.add_run('\t')
     r_tab.font.name = 'Arial'
     r_tab.font.size = Pt(9.5)
-
-    p1 = c1.paragraphs[0]
-    p1.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    p1.paragraph_format.line_spacing = 1.15
-    p1.paragraph_format.space_after = Pt(space_after)
-    r_pg = p1.add_run(str(page_str))
+    
+    r_pg = p.add_run(str(page_str))
     r_pg.font.name = 'Arial'
     r_pg.font.size = Pt(9.5)
     if bold:
         r_pg.bold = True
+    return p
 
-def build_front_matter(doc):
+def build_front_matter(doc, toc_pages=None, tables_pages=None, figures_pages=None):
+    if toc_pages is None:
+        toc_pages = {}
+    if tables_pages is None:
+        tables_pages = {}
+    if figures_pages is None:
+        figures_pages = {}
     # 2.1 Cover Page (Unnumbered)
     p_cov = doc.add_paragraph()
     p_cov.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -409,7 +370,7 @@ def build_front_matter(doc):
         p_logo.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p_logo.paragraph_format.space_after = Pt(28)
         p_logo.paragraph_format.first_line_indent = Mm(0)
-        p_logo.add_run().add_picture(logo_path, width=Mm(28), height=Mm(35))
+        p_logo.add_run().add_picture(logo_path, width=Mm(35), height=Mm(41.8))
     else:
         doc.add_paragraph()
 
@@ -503,7 +464,7 @@ def build_front_matter(doc):
     trPr_sup = table_sup.rows[0]._tr.get_or_add_trPr()
     trPr_sup.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
     for cell in table_sup.rows[0].cells:
-        cell.width = Mm(65)
+        cell.width = Mm(70)
         tcPr = cell._tc.get_or_add_tcPr()
         borders = parse_xml(r'''
             <w:tcBorders %s>
@@ -579,9 +540,9 @@ def build_front_matter(doc):
             tcPr.append(borders)
             set_cell_margins(cell, top=20, bottom=20, left=0, right=40)
 
-        row.cells[0].width = Mm(55)
+        row.cells[0].width = Mm(58)
         row.cells[1].width = Mm(5)
-        row.cells[2].width = Mm(71)
+        row.cells[2].width = Mm(77)
         p0 = row.cells[0].paragraphs[0]
         p0.alignment = WD_ALIGN_PARAGRAPH.LEFT
         p0.paragraph_format.first_line_indent = Mm(0)
@@ -743,89 +704,92 @@ def build_front_matter(doc):
 
     doc.add_page_break()
 
-    # 2.6 DAFTAR ISI (Halaman vi) - Robust Borderless Table
+    # 2.6 DAFTAR ISI (Halaman vi) - Automatic Leader Line Format with Dots
     add_heading_1(doc, "DAFTAR ISI")
-    tbl_toc = create_toc_table(doc)
-    add_toc_header_row(tbl_toc, "Judul", "Halaman")
+    add_leader_header(doc, "Judul", "Halaman")
 
-    add_toc_row(tbl_toc, "HALAMAN SAMPUL DEPAN", "i", bold=True)
-    add_toc_row(tbl_toc, "LEMBAR PENGESAHAN PROPOSAL TUGAS AKHIR", "ii", bold=True)
-    add_toc_row(tbl_toc, "PERNYATAAN KEASLIAN PROPOSAL TUGAS AKHIR", "iii", bold=True)
-    add_toc_row(tbl_toc, "PRAKATA", "iv", bold=True)
-    add_toc_row(tbl_toc, "ABSTRAK", "v", bold=True)
-    add_toc_row(tbl_toc, "DAFTAR ISI", "vi", bold=True)
-    add_toc_row(tbl_toc, "DAFTAR TABEL", "vii", bold=True)
-    add_toc_row(tbl_toc, "DAFTAR GAMBAR", "viii", bold=True)
-    add_toc_row(tbl_toc, "DAFTAR SINGKATAN, ISTILAH, DAN LAMBANG", "ix", bold=True)
+    toc_items = [
+        ("HALAMAN SAMPUL DEPAN", "i", True, 0, 2),
+        ("LEMBAR PENGESAHAN PROPOSAL TUGAS AKHIR", "ii", True, 0, 2),
+        ("PERNYATAAN KEASLIAN PROPOSAL TUGAS AKHIR", "iii", True, 0, 2),
+        ("PRAKATA", "iv", True, 0, 2),
+        ("ABSTRAK", "v", True, 0, 2),
+        ("DAFTAR ISI", "vi", True, 0, 2),
+        ("DAFTAR TABEL", "vii", True, 0, 2),
+        ("DAFTAR GAMBAR", "viii", True, 0, 2),
+        ("DAFTAR SINGKATAN, ISTILAH, DAN LAMBANG", "ix", True, 0, 2),
 
-    add_toc_row(tbl_toc, "BAB I: PENDAHULUAN", "1", bold=True, space_after=4)
-    add_toc_row(tbl_toc, "1.1 Latar Belakang", "1", indent_mm=5)
-    add_toc_row(tbl_toc, "1.2 Rumusan Masalah", "5", indent_mm=5)
-    add_toc_row(tbl_toc, "1.3 Tujuan Penelitian", "6", indent_mm=5)
-    add_toc_row(tbl_toc, "1.4 Batasan Masalah", "7", indent_mm=5)
-    add_toc_row(tbl_toc, "1.5 Manfaat Penelitian", "8", indent_mm=5)
+        ("BAB I: PENDAHULUAN", toc_pages.get("BAB I: PENDAHULUAN", "1"), True, 0, 4),
+        ("1.1 Latar Belakang", toc_pages.get("1.1 Latar Belakang", "1"), False, 5, 2),
+        ("1.2 Rumusan Masalah", toc_pages.get("1.2 Rumusan Masalah", "4"), False, 5, 2),
+        ("1.3 Tujuan Penelitian", toc_pages.get("1.3 Tujuan Penelitian", "5"), False, 5, 2),
+        ("1.4 Batasan Masalah", toc_pages.get("1.4 Batasan Masalah", "6"), False, 5, 2),
+        ("1.5 Manfaat Penelitian", toc_pages.get("1.5 Manfaat Penelitian", "7"), False, 5, 2),
 
-    add_toc_row(tbl_toc, "BAB II: TINJAUAN PUSTAKA", "10", bold=True, space_after=4)
-    add_toc_row(tbl_toc, "2.1 Tinjauan Pustaka (*State of the Art* Penelitian AUV)", "10", indent_mm=5)
-    add_toc_row(tbl_toc, "2.2 Sistem Koordinat dan Konvensi SNAME", "13", indent_mm=5)
-    add_toc_row(tbl_toc, "2.3 Penurunan Kinematika 6-DOF dan Matriks Jacobian", "18", indent_mm=5)
-    add_toc_row(tbl_toc, "2.4 Penurunan Dinamika Hidrodinamika 6-DOF (Persamaan Fossen)", "24", indent_mm=5)
-    add_toc_row(tbl_toc, "2.5 Alokasi Gaya Dorong Sistem *Over-Actuated* 8-Pendorong", "32", indent_mm=5)
-    add_toc_row(tbl_toc, "2.6 Teori dan Formulasi Optimal *Kalman Filter* Suite", "37", indent_mm=5)
+        ("BAB II: TINJAUAN PUSTAKA", toc_pages.get("BAB II: TINJAUAN PUSTAKA", "9"), True, 0, 4),
+        ("2.1 Tinjauan Pustaka (*State of the Art* Penelitian AUV)", toc_pages.get("2.1 Tinjauan Pustaka (*State of the Art* Penelitian AUV)", "9"), False, 5, 2),
+        ("2.2 Sistem Koordinat dan Konvensi SNAME", toc_pages.get("2.2 Sistem Koordinat dan Konvensi SNAME", "13"), False, 5, 2),
+        ("2.3 Penurunan Kinematika 6-DOF dan Matriks Jacobian", toc_pages.get("2.3 Penurunan Kinematika 6-DOF dan Matriks Jacobian", "19"), False, 5, 2),
+        ("2.4 Penurunan Dinamika Hidrodinamika 6-DOF (Persamaan Fossen)", toc_pages.get("2.4 Penurunan Dinamika Hidrodinamika 6-DOF (Persamaan Fossen)", "25"), False, 5, 2),
+        ("2.5 Alokasi Gaya Dorong Sistem *Over-Actuated* 8-Pendorong", toc_pages.get("2.5 Alokasi Gaya Dorong Sistem *Over-Actuated* 8-Pendorong", "32"), False, 5, 2),
+        ("2.6 Teori dan Formulasi Optimal *Kalman Filter* Suite", toc_pages.get("2.6 Teori dan Formulasi Optimal *Kalman Filter* Suite", "38"), False, 5, 2),
 
-    add_toc_row(tbl_toc, "BAB III: METODOLOGI PENELITIAN", "52", bold=True, space_after=4)
-    add_toc_row(tbl_toc, "3.1 Tempat dan Waktu Penelitian", "52", indent_mm=5)
-    add_toc_row(tbl_toc, "3.2 Diagram Alir Penelitian", "54", indent_mm=5)
-    add_toc_row(tbl_toc, "3.3 Identifikasi Parameter Fisik dan Hidrodinamika Wahana", "56", indent_mm=5)
-    add_toc_row(tbl_toc, "3.4 Perancangan Arsitektur *Software-In-The-Loop* (SITL)", "61", indent_mm=5)
-    add_toc_row(tbl_toc, "3.5 Perancangan Arsitektur *Hardware-In-The-Loop* (HITL)", "64", indent_mm=5)
-    add_toc_row(tbl_toc, "3.6 Prosedur Pengujian dan Evaluasi Kinerja", "71", indent_mm=5)
+        ("BAB III: METODOLOGI PENELITIAN", toc_pages.get("BAB III: METODOLOGI PENELITIAN", "53"), True, 0, 4),
+        ("3.1 Tempat dan Waktu Penelitian", toc_pages.get("3.1 Tempat dan Waktu Penelitian", "53"), False, 5, 2),
+        ("3.2 Diagram Alir Penelitian", toc_pages.get("3.2 Diagram Alir Penelitian", "54"), False, 5, 2),
+        ("3.3 Identifikasi Parameter Fisik dan Hidrodinamika Wahana", toc_pages.get("3.3 Identifikasi Parameter Fisik dan Hidrodinamika Wahana", "57"), False, 5, 2),
+        ("3.4 Perancangan Arsitektur *Software-In-The-Loop* (SITL)", toc_pages.get("3.4 Perancangan Arsitektur *Software-In-The-Loop* (SITL)", "64"), False, 5, 2),
+        ("3.5 Perancangan Arsitektur *Hardware-In-The-Loop* (HITL)", toc_pages.get("3.5 Perancangan Arsitektur *Hardware-In-The-Loop* (HITL)", "66"), False, 5, 2),
+        ("3.6 Prosedur Pengujian dan Evaluasi Kinerja", toc_pages.get("3.6 Prosedur Pengujian dan Evaluasi Kinerja", "75"), False, 5, 2),
 
-    add_toc_row(tbl_toc, "DAFTAR PUSTAKA", "76", bold=True, space_after=4)
+        ("DAFTAR PUSTAKA", toc_pages.get("DAFTAR PUSTAKA", "79"), True, 0, 4)
+    ]
+
+    for item, pg, is_b, ind, sp in toc_items:
+        add_leader_line(doc, item, pg, bold=is_b, indent_mm=ind, space_after=sp)
 
     doc.add_page_break()
 
     # 2.7 DAFTAR TABEL (Halaman vii) - Exactly matches the 8 actual tables present in the thesis
     add_heading_1(doc, "DAFTAR TABEL")
-    tbl_tab = create_toc_table(doc)
-    add_toc_header_row(tbl_tab, "Nomor Urut dan Judul Tabel", "Halaman")
+    add_leader_header(doc, "Nomor Urut dan Judul Tabel", "Halaman")
 
     tables_info = [
-        ("Tabel 2.1", "Matriks Sintesis Literatur Terkini (2021–2025) Bidang Dinamika dan Kontrol AUV", "11"),
-        ("Tabel 2.2", "Notasi dan Konvensi 6 Derajat Kebebasan SNAME (1950) & Fossen (2021)", "15"),
-        ("Tabel 2.3", "Koordinat Spasial dan Vektor Orientasi 8 Pendorong Wahana Over-Actuated", "34"),
-        ("Tabel 3.1", "Parameter Fisik dan Properti Benda Tegar Wahana Over-Actuated 8-Pendorong", "57"),
-        ("Tabel 3.2", "Koefisien Derivatif Massa Tambah Hidrodinamika Wahana", "58"),
-        ("Tabel 3.3", "Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana", "59"),
-        ("Tabel 3.4", "Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Bervektor", "60"),
-        ("Tabel 3.5", "Spesifikasi Komponen Perangkat Keras Arsitektur HITL", "64")
+        ("Tabel 2.1", "Matriks Sintesis Literatur Terkini (2021–2025) Bidang Dinamika dan Kontrol AUV", tables_pages.get("Tabel 2.1", "10")),
+        ("Tabel 2.2", "Notasi dan Konvensi 6 Derajat Kebebasan SNAME (1950) & Fossen (2021)", tables_pages.get("Tabel 2.2", "15")),
+        ("Tabel 2.3", "Koordinat Spasial dan Vektor Orientasi 8 Pendorong Wahana Over-Actuated", tables_pages.get("Tabel 2.3", "34")),
+        ("Tabel 3.1", "Parameter Fisik dan Properti Benda Tegar Wahana Over-Actuated 8-Pendorong", tables_pages.get("Tabel 3.1", "58")),
+        ("Tabel 3.2", "Koefisien Derivatif Massa Tambah Hidrodinamika Wahana", tables_pages.get("Tabel 3.2", "60")),
+        ("Tabel 3.3", "Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana", tables_pages.get("Tabel 3.3", "61")),
+        ("Tabel 3.4", "Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Bervektor", tables_pages.get("Tabel 3.4", "62")),
+        ("Tabel 3.5", "Spesifikasi Komponen Perangkat Keras Arsitektur HITL", tables_pages.get("Tabel 3.5", "67"))
     ]
 
     for num, title, pg in tables_info:
-        add_toc_row(tbl_tab, f"{num}  {title}", pg, space_after=3)
+        add_leader_line(doc, f"{num}  {title}", pg, space_after=3)
 
     doc.add_page_break()
 
-    # 2.8 DAFTAR GAMBAR (Halaman viii) - Exactly matches the 10 actual figures present in the thesis
+    # 2.8 DAFTAR GAMBAR (Halaman viii) - Exactly matches the 11 actual figures present in the thesis
     add_heading_1(doc, "DAFTAR GAMBAR")
-    tbl_fig = create_toc_table(doc)
-    add_toc_header_row(tbl_fig, "Nomor Urut dan Judul Gambar", "Halaman")
+    add_leader_header(doc, "Nomor Urut dan Judul Gambar", "Halaman")
 
     figures_info = [
-        ("Gambar 2.1", "Sistem Kerangka Acuan Inersia Bumi (Fn - NED) dan Kerangka Acuan Bergerak Bodi (Fb - FRD) Konvensi SNAME (1950) dan Fossen (2021)", "13"),
-        ("Gambar 3.1", "Diagram Alir Tahapan Penelitian Komprehensif", "54"),
-        ("Gambar 3.2", "Arsitektur Simulasi Software-In-The-Loop (SITL) Sistem AUV", "62"),
-        ("Gambar 3.3", "Arsitektur Integrasi Hardware-In-The-Loop (HITL) Mekatronika AUV", "64"),
-        ("Gambar 3.4", "Rangka (Frame) dan Lambung Tekanan Kustom AUV 8-Pendorong", "65"),
-        ("Gambar 3.5", "Papan Pengendali Penerbangan (Flight Controller) Pixhawk 2.4.8", "65"),
-        ("Gambar 3.6", "Komputer Pendamping (Companion Computer) Raspberry Pi 4B", "66"),
-        ("Gambar 3.7", "Modul Pengendali Kecepatan Elektronik (ESC EMAX BLHeli 30A)", "66"),
-        ("Gambar 3.8", "Motor Pendorong Bawah Air (BLDC Underwater Thruster)", "67"),
-        ("Gambar 3.9", "Sumber Daya Baterai Li-Po 4S 14.8V 6000 mAh dan Pengisi Daya SKYRC IMAX B6AC V2", "67")
+        ("Gambar 2.1", "Sistem Kerangka Acuan Inersia Bumi (Fn - NED) dan Kerangka Acuan Bergerak Bodi (Fb - FRD) Konvensi SNAME (1950) dan Fossen (2021)", figures_pages.get("Gambar 2.1", "14")),
+        ("Gambar 3.1", "Diagram Alir Tahapan Penelitian Komprehensif", figures_pages.get("Gambar 3.1", "55")),
+        ("Gambar 3.2", "Arsitektur Simulasi Software-In-The-Loop (SITL) Sistem AUV", figures_pages.get("Gambar 3.2", "65")),
+        ("Gambar 3.3", "Arsitektur Integrasi Hardware-In-The-Loop (HITL) Mekatronika AUV", figures_pages.get("Gambar 3.3", "67")),
+        ("Gambar 3.4", "Rangka (Frame) dan Lambung Tekanan Kustom AUV 8-Pendorong", figures_pages.get("Gambar 3.4", "69")),
+        ("Gambar 3.5", "Papan Pengendali Penerbangan (Flight Controller) Pixhawk 2.4.8", figures_pages.get("Gambar 3.5", "69")),
+        ("Gambar 3.6", "Komputer Pendamping (Companion Computer) Raspberry Pi 4B", figures_pages.get("Gambar 3.6", "70")),
+        ("Gambar 3.7", "Modul Pengendali Kecepatan Elektronik (ESC EMAX BLHeli 30A)", figures_pages.get("Gambar 3.7", "70")),
+        ("Gambar 3.8", "Motor Pendorong Bawah Air (BLDC Underwater Thruster)", figures_pages.get("Gambar 3.8", "71")),
+        ("Gambar 3.9", "Sumber Daya Utama Baterai Li-Po 4S 14.8V 6000 mAh", figures_pages.get("Gambar 3.9", "71")),
+        ("Gambar 3.10", "Modul Kamera Sistem Pelacakan Visual: Raspberry Pi Camera Rev 1.3 dan Webcam Logitech C922 Pro", figures_pages.get("Gambar 3.10", "72"))
     ]
 
     for num, title, pg in figures_info:
-        add_toc_row(tbl_fig, f"{num}  {title}", pg, space_after=3)
+        add_leader_line(doc, f"{num}  {title}", pg, space_after=3)
 
     doc.add_page_break()
 
@@ -1059,7 +1023,7 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
                     else:
                         col_max_lens = [max(len(r[c]) if c < len(r) else 1 for r in table_rows) for c in range(n_cols)]
                         total_len = max(1, sum(col_max_lens))
-                        col_widths = [Mm(max(12, 131 * (l / total_len))) for l in col_max_lens]
+                        col_widths = [Mm(max(12, 140 * (l / total_len))) for l in col_max_lens]
 
                     for r_idx, r_data in enumerate(table_rows):
                         for c_idx in range(n_cols):
@@ -1307,16 +1271,30 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
 
             if resolved_path:
                 r_img = p_img.add_run()
-                target_width = Mm(128)
+                fname_lower = os.path.basename(resolved_path).lower()
+                is_component = any(k in fname_lower for k in [
+                    'placeholder_frame', 'placeholder_pixhawk', 'placeholder_rpi',
+                    'placeholder_esc', 'placeholder_thruster', 'placeholder_baterai',
+                    'placeholder_kamera', 'komponen_'
+                ])
                 try:
                     from PIL import Image as PILImage
                     with PILImage.open(resolved_path) as im:
                         w_px, h_px = im.size
                         aspect = h_px / w_px
-                        if aspect > 0.8:
-                            target_width = Mm(105)
+                        if is_component:
+                            if aspect > 1.0:
+                                target_width = Mm(64) # portrait components: Pixhawk, RPi4
+                            elif aspect >= 0.8:
+                                target_width = Mm(80) # near-square components: Thruster, Camera
+                            else:
+                                target_width = Mm(96) # landscape components: Frame, ESC, Battery
+                        else:
+                            target_width = Mm(135)
+                            if aspect > 0.8:
+                                target_width = Mm(110)
                 except Exception:
-                    pass
+                    target_width = Mm(135) if not is_component else Mm(85)
                 r_img.add_picture(resolved_path, width=target_width)
             else:
                 p_img.add_run("[").font.name = 'Arial'
@@ -1419,62 +1397,171 @@ def process_markdown_chapter(doc, md_filepath, chapter_title_override=None):
         is_first_paragraph_after_heading = False
         i += 1
 
-print("--- 1. BUILDING MASTER PROPOSAL DOCX ---")
-master_doc = docx.Document()
-setup_unhas_section(master_doc, is_front_matter=True)
-build_front_matter(master_doc)
+def simulate_document_pages(doc):
+    page_height_pt = 671.8  # 237 mm in pt (297 mm - 60 mm margins)
+    curr_page = 1
+    curr_h = 0.0
+    in_body = False
+    
+    headings_page = {}
+    tables_page = {}
+    figures_page = {}
+    
+    for child in doc.element.body:
+        tag = child.tag.split('}')[-1]
+        if tag == 'p':
+            p = docx.text.paragraph.Paragraph(child, doc)
+            txt = p.text.strip()
+            has_page_break = any('w:type="page"' in r._r.xml for r in p.runs)
+            
+            if txt.startswith('BAB I\nPENDAHULUAN') or txt == 'BAB I: PENDAHULUAN':
+                in_body = True
+                curr_page = 1
+                curr_h = 0.0
+                
+            if not in_body:
+                continue
+                
+            sb = p.paragraph_format.space_before.pt if p.paragraph_format.space_before else 0
+            sa = p.paragraph_format.space_after.pt if p.paragraph_format.space_after else 4
+            
+            img_h = 0
+            for r in p.runs:
+                if 'w:drawing' in r._r.xml:
+                    import xml.etree.ElementTree as ET
+                    root = ET.fromstring(r._r.xml)
+                    for elem in root.iter('{http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing}extent'):
+                        img_h += int(elem.attrib.get('cy', 0)) / 12700.0
+                        
+            if img_h > 0:
+                h = sb + img_h + sa
+            else:
+                chars = len(txt)
+                lines = max(1, (chars // 76) + (1 if chars % 76 > 0 else 0)) if chars > 0 else 1
+                h = sb + lines * 11.5 + sa
+                
+            if has_page_break:
+                curr_page += 1
+                curr_h = 0.0
+            elif curr_h + h > page_height_pt:
+                curr_page += 1
+                curr_h = h
+            else:
+                curr_h += h
+                
+            first_line = txt.split('\n')[0].strip()
+            
+            heading_keys = [
+                ('BAB I: PENDAHULUAN', 'BAB I'),
+                ('1.1 Latar Belakang', '1.1 Latar Belakang'),
+                ('1.2 Rumusan Masalah', '1.2 Rumusan Masalah'),
+                ('1.3 Tujuan Penelitian', '1.3 Tujuan Penelitian'),
+                ('1.4 Batasan Masalah', '1.4 Batasan Masalah'),
+                ('1.5 Manfaat Penelitian', '1.5 Manfaat Penelitian'),
+                ('BAB II: TINJAUAN PUSTAKA', 'BAB II'),
+                ('2.1 Tinjauan Pustaka (*State of the Art* Penelitian AUV)', '2.1 Tinjauan Pustaka'),
+                ('2.2 Sistem Koordinat dan Konvensi SNAME', '2.2 Sistem Koordinat'),
+                ('2.3 Penurunan Kinematika 6-DOF dan Matriks Jacobian', '2.3 Penurunan Kinematika'),
+                ('2.4 Penurunan Dinamika Hidrodinamika 6-DOF (Persamaan Fossen)', '2.4 Penurunan Dinamika'),
+                ('2.5 Alokasi Gaya Dorong Sistem *Over-Actuated* 8-Pendorong', '2.5 Alokasi Gaya Dorong'),
+                ('2.6 Teori dan Formulasi Optimal *Kalman Filter* Suite', '2.6 Teori dan Formulasi'),
+                ('BAB III: METODOLOGI PENELITIAN', 'BAB III'),
+                ('3.1 Tempat dan Waktu Penelitian', '3.1 Tempat dan Waktu'),
+                ('3.2 Diagram Alir Penelitian', '3.2 Diagram Alir'),
+                ('3.3 Identifikasi Parameter Fisik dan Hidrodinamika Wahana', '3.3 Identifikasi Parameter'),
+                ('3.4 Perancangan Arsitektur *Software-In-The-Loop* (SITL)', '3.4 Perancangan Arsitektur Software'),
+                ('3.5 Perancangan Arsitektur *Hardware-In-The-Loop* (HITL)', '3.5 Perancangan Arsitektur Hardware'),
+                ('3.6 Prosedur Pengujian dan Evaluasi Kinerja', '3.6 Prosedur Pengujian'),
+                ('DAFTAR PUSTAKA', 'DAFTAR PUSTAKA')
+            ]
+            
+            for full_label, prefix in heading_keys:
+                if first_line.startswith(prefix) and full_label not in headings_page:
+                    headings_page[full_label] = str(curr_page)
+                    
+            m_tab = re.match(r'^\*?\*?(Tabel\s+[\d\.]+)\*?\*?\s+(.*)', txt)
+            if m_tab:
+                t_num = m_tab.group(1).replace('*', '').strip()
+                if t_num not in tables_page:
+                    tables_page[t_num] = str(curr_page)
+                    
+            m_fig = re.match(r'^\*?(Gambar\s+[\d\.]+)\*?\s+(.*)', txt)
+            if m_fig:
+                f_num = m_fig.group(1).replace('*', '').strip()
+                if f_num not in figures_page:
+                    figures_page[f_num] = str(curr_page)
+                    
+        elif tag == 'tbl' and in_body:
+            tbl = docx.table.Table(child, doc)
+            tbl_h = sum(max(1, max(len(c.text)//28 + 1 for c in row.cells)) * 11.5 + 8 for row in tbl.rows)
+            if curr_h + tbl_h > page_height_pt:
+                curr_page += 1
+                curr_h = tbl_h
+            else:
+                curr_h += tbl_h
+                
+    return headings_page, tables_page, figures_page
 
-# Add section for main body (Bab I onwards)
-sec_main = master_doc.add_section(docx.enum.section.WD_SECTION_START.NEW_PAGE)
-sec_main.page_width = Mm(176)
-sec_main.page_height = Mm(250)
-sec_main.top_margin = Mm(22.5)
-sec_main.bottom_margin = Mm(22.5)
-sec_main.left_margin = Mm(22.5)
-sec_main.right_margin = Mm(22.5)
-sec_main.header.is_linked_to_previous = False
-sec_main.footer.is_linked_to_previous = False
-sec_main.different_first_page_header_footer = False
+def assemble_master_doc(toc_pages=None, tables_pages=None, figures_pages=None):
+    doc = docx.Document()
+    setup_unhas_section(doc, is_front_matter=True)
+    build_front_matter(doc, toc_pages, tables_pages, figures_pages)
+    
+    sec_main = doc.add_section(docx.enum.section.WD_SECTION_START.NEW_PAGE)
+    sec_main.page_width = Mm(210)
+    sec_main.page_height = Mm(297)
+    sec_main.top_margin = Mm(30)
+    sec_main.bottom_margin = Mm(30)
+    sec_main.left_margin = Mm(40)
+    sec_main.right_margin = Mm(30)
+    sec_main.header.is_linked_to_previous = False
+    sec_main.footer.is_linked_to_previous = False
+    sec_main.different_first_page_header_footer = False
+    
+    sectPr_main = sec_main._sectPr
+    sectPr_main.append(parse_xml(f'<w:pgNumType {nsdecls("w")} w:fmt="decimal" w:start="1"/>'))
+    
+    p_hdr_main = sec_main.header.paragraphs[0]
+    p_hdr_main.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    p_hdr_main.paragraph_format.space_after = Pt(0)
+    p_hdr_main.paragraph_format.line_spacing = 1.0
+    r_hm = p_hdr_main.add_run()
+    r_hm.font.name = 'Arial'
+    r_hm.font.size = Pt(9.5)
+    fld_xml_main = parse_xml(r'<w:fldSimple %s w:instr="PAGE"/>' % nsdecls('w'))
+    p_hdr_main._p.append(fld_xml_main)
+    
+    process_markdown_chapter(doc, os.path.join(thesis_dir, "BAB_1_PENDAHULUAN.md"), "BAB I\nPENDAHULUAN")
+    doc.add_page_break()
+    process_markdown_chapter(doc, os.path.join(thesis_dir, "BAB_2_LANDASAN_TEORI.md"), "BAB II\nTINJAUAN PUSTAKA")
+    doc.add_page_break()
+    process_markdown_chapter(doc, os.path.join(thesis_dir, "BAB_3_METODOLOGI_PENELITIAN.md"), "BAB III\nMETODOLOGI PENELITIAN")
+    doc.add_page_break()
+    process_markdown_chapter(doc, os.path.join(thesis_dir, "MASTER_BIBLIOGRAPHY.md"), "DAFTAR PUSTAKA")
+    return doc
 
-sectPr_main = sec_main._sectPr
-sectPr_main.append(parse_xml(f'<w:pgNumType {nsdecls("w")} w:fmt="decimal" w:start="1"/>'))
+print("--- 1. BUILDING MASTER PROPOSAL DOCX (PASS 1: DRAFT & SIMULATION) ---")
+draft_doc = assemble_master_doc()
+h_pgs, t_pgs, f_pgs = simulate_document_pages(draft_doc)
 
-p_hdr_main = sec_main.header.paragraphs[0]
-p_hdr_main.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-p_hdr_main.paragraph_format.space_after = Pt(0)
-p_hdr_main.paragraph_format.line_spacing = 1.0
-r_hm = p_hdr_main.add_run()
-r_hm.font.name = 'Arial'
-r_hm.font.size = Pt(9.5)
-fld_xml_main = parse_xml(r'<w:fldSimple %s w:instr="PAGE"/>' % nsdecls('w'))
-p_hdr_main._p.append(fld_xml_main)
+print("\n--- DETECTED DYNAMIC PAGE NUMBERING ---")
+print("Headings:", h_pgs)
+print("Tables:", t_pgs)
+print("Figures:", f_pgs)
 
-print("Appending BAB I...")
-process_markdown_chapter(master_doc, os.path.join(thesis_dir, "BAB_1_PENDAHULUAN.md"), "BAB I\nPENDAHULUAN")
-master_doc.add_page_break()
-
-print("Appending BAB II...")
-process_markdown_chapter(master_doc, os.path.join(thesis_dir, "BAB_2_LANDASAN_TEORI.md"), "BAB II\nTINJAUAN PUSTAKA")
-master_doc.add_page_break()
-
-print("Appending BAB III...")
-process_markdown_chapter(master_doc, os.path.join(thesis_dir, "BAB_3_METODOLOGI_PENELITIAN.md"), "BAB III\nMETODOLOGI PENELITIAN")
-master_doc.add_page_break()
-
-print("Appending MASTER BIBLIOGRAPHY...")
-process_markdown_chapter(master_doc, os.path.join(thesis_dir, "MASTER_BIBLIOGRAPHY.md"), "DAFTAR PUSTAKA")
-
+print("\n--- 2. BUILDING MASTER PROPOSAL DOCX (PASS 2: EXACT SYNCHRONIZED PAGINATION) ---")
+final_doc = assemble_master_doc(h_pgs, t_pgs, f_pgs)
 master_out = os.path.join(docx_dir, "PROPOSAL_LENGKAP_AUV_RADHI_SHAFEEQ.docx")
-master_doc.save(master_out)
+final_doc.save(master_out)
 print(f"Master docx saved: {master_out} ({os.path.getsize(master_out):,} bytes)")
 
-print("\n--- 2. BUILDING INDIVIDUAL CHAPTER DOCX FILES ---")
+print("\n--- 3. BUILDING INDIVIDUAL CHAPTER DOCX FILES ---")
 chapters = [
-    ("BAGIAN_AWAL_PROPOSAL.docx", None, build_front_matter, True, 1),
-    ("BAB_1_PENDAHULUAN.docx", os.path.join(thesis_dir, "BAB_1_PENDAHULUAN.md"), "BAB I\nPENDAHULUAN", False, 1),
-    ("BAB_2_LANDASAN_TEORI.docx", os.path.join(thesis_dir, "BAB_2_LANDASAN_TEORI.md"), "BAB II\nTINJAUAN PUSTAKA", False, 10),
-    ("BAB_3_METODOLOGI_PENELITIAN.docx", os.path.join(thesis_dir, "BAB_3_METODOLOGI_PENELITIAN.md"), "BAB III\nMETODOLOGI PENELITIAN", False, 52),
-    ("MASTER_BIBLIOGRAPHY.docx", os.path.join(thesis_dir, "MASTER_BIBLIOGRAPHY.md"), "DAFTAR PUSTAKA", False, 76)
+    ("BAGIAN_AWAL_PROPOSAL.docx", None, lambda d: build_front_matter(d, h_pgs, t_pgs, f_pgs), True, 1),
+    ("BAB_1_PENDAHULUAN.docx", os.path.join(thesis_dir, "BAB_1_PENDAHULUAN.md"), "BAB I\nPENDAHULUAN", False, int(h_pgs.get("BAB I: PENDAHULUAN", 1))),
+    ("BAB_2_LANDASAN_TEORI.docx", os.path.join(thesis_dir, "BAB_2_LANDASAN_TEORI.md"), "BAB II\nTINJAUAN PUSTAKA", False, int(h_pgs.get("BAB II: TINJAUAN PUSTAKA", 9))),
+    ("BAB_3_METODOLOGI_PENELITIAN.docx", os.path.join(thesis_dir, "BAB_3_METODOLOGI_PENELITIAN.md"), "BAB III\nMETODOLOGI PENELITIAN", False, int(h_pgs.get("BAB III: METODOLOGI PENELITIAN", 53))),
+    ("MASTER_BIBLIOGRAPHY.docx", os.path.join(thesis_dir, "MASTER_BIBLIOGRAPHY.md"), "DAFTAR PUSTAKA", False, int(h_pgs.get("DAFTAR PUSTAKA", 79)))
 ]
 
 for out_name, md_file, extra, is_fm, start_pg in chapters:
@@ -1605,5 +1692,7 @@ for f_dir in [figures_html, figures_gh, figures_gh_html]:
                 shutil.copy2(s_fig, d_fig)
 
 if os.path.exists(logo_path):
+    shutil.copy2(logo_path, os.path.join(github_thesis_dir, "Logo-Resmi-Unhas-1.png"))
     shutil.copy2(logo_path, os.path.join(github_thesis_dir, "unhas_logo.png"))
+    shutil.copy2(logo_path, "/home/radhi/Documents/AUV Development/unhas_logo.png")
 print("All files and figures synchronized to AUV_GitHub_Upload/Thesis successfully!")
