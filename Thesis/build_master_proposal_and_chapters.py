@@ -325,6 +325,67 @@ def add_leader_line(doc, left_text, page_str, indent_mm=0, bold=False, space_aft
         r_pg.bold = True
     return p
 
+def add_sdt_leader_block(doc, items, sdt_id, toc_title):
+    from xml.sax.saxutils import escape
+    p_elems = []
+    n = len(items)
+    for idx, (num, title, page) in enumerate(items):
+        full_title = escape(f"{num}  {title}")
+        begin_r = '<w:r><w:fldChar w:fldCharType="begin"/><w:instrText xml:space="preserve"> TOC \\c "' + toc_title + '" </w:instrText><w:fldChar w:fldCharType="separate"/></w:r>' if idx == 0 else ''
+        end_r = '<w:r><w:fldChar w:fldCharType="end"/></w:r>' if idx == n - 1 else ''
+        
+        p_xml = f'''<w:p xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" w14:paraId="{sdt_id:08X}{idx:02X}" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml">
+  <w:pPr>
+    <w:widowControl w:val="0"/>
+    <w:tabs>
+      <w:tab w:val="right" w:leader="dot" w:pos="7937"/>
+      <w:tab w:val="right" w:leader="dot" w:pos="12000"/>
+    </w:tabs>
+    <w:spacing w:after="40" w:before="40" w:line="240" w:lineRule="auto"/>
+    <w:jc w:val="left"/>
+    <w:rPr>
+      <w:color w:val="000000"/>
+      <w:u w:val="none"/>
+    </w:rPr>
+  </w:pPr>
+  {begin_r}
+  <w:hyperlink w:anchor="">
+    <w:r>
+      <w:rPr>
+        <w:rFonts w:ascii="Arial" w:cs="Arial" w:eastAsia="Arial" w:hAnsi="Arial"/>
+        <w:sz w:val="19"/>
+        <w:szCs w:val="19"/>
+        <w:color w:val="000000"/>
+        <w:u w:val="none"/>
+      </w:rPr>
+      <w:t xml:space="preserve">{full_title}</w:t>
+      <w:tab/>
+      <w:t xml:space="preserve">{page}</w:t>
+    </w:r>
+  </w:hyperlink>
+  <w:r>
+    <w:rPr><w:rtl w:val="0"/></w:rPr>
+  </w:r>
+  {end_r}
+</w:p>'''
+        p_elems.append(p_xml)
+        
+    sdt_xml = f'''<w:sdt xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:sdtPr>
+    <w:id w:val="{sdt_id}"/>
+    <w:docPartObj>
+      <w:docPartGallery w:val="Table of Contents"/>
+      <w:docPartUnique w:val="1"/>
+    </w:docPartObj>
+  </w:sdtPr>
+  <w:sdtContent>
+    {''.join(p_elems)}
+  </w:sdtContent>
+</w:sdt>'''
+    sdt_elem = parse_xml(sdt_xml)
+    doc.element.body.append(sdt_elem)
+    return sdt_elem
+
 def build_front_matter(doc, toc_pages=None, tables_pages=None, figures_pages=None):
     if toc_pages is None:
         toc_pages = {}
@@ -755,18 +816,17 @@ def build_front_matter(doc, toc_pages=None, tables_pages=None, figures_pages=Non
     add_leader_header(doc, "Nomor Urut dan Judul Tabel", "Halaman")
 
     tables_info = [
-        ("Tabel 2.1", "Matriks Sintesis Literatur Terkini (2021–2025) Bidang Dinamika dan Kontrol AUV", tables_pages.get("Tabel 2.1", "10")),
-        ("Tabel 2.2", "Notasi dan Konvensi 6 Derajat Kebebasan SNAME (1950) & Fossen (2021)", tables_pages.get("Tabel 2.2", "15")),
-        ("Tabel 2.3", "Koordinat Spasial dan Vektor Orientasi 8 Pendorong Wahana Over-Actuated", tables_pages.get("Tabel 2.3", "34")),
-        ("Tabel 3.1", "Parameter Fisik dan Properti Benda Tegar Wahana Over-Actuated 8-Pendorong", tables_pages.get("Tabel 3.1", "58")),
-        ("Tabel 3.2", "Koefisien Derivatif Massa Tambah Hidrodinamika Wahana", tables_pages.get("Tabel 3.2", "60")),
-        ("Tabel 3.3", "Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana", tables_pages.get("Tabel 3.3", "61")),
-        ("Tabel 3.4", "Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Bervektor", tables_pages.get("Tabel 3.4", "62")),
-        ("Tabel 3.5", "Spesifikasi Komponen Perangkat Keras Arsitektur HITL", tables_pages.get("Tabel 3.5", "67"))
+        ("Tabel 2.1", "Matriks Sintesis Literatur Terkini (2021–2025) Bidang Dinamika dan Kontrol AUV", tables_pages.get("Tabel 2.1", "8")),
+        ("Tabel 2.2", "Notasi dan Konvensi 6 Derajat Kebebasan SNAME (1950) & Fossen (2021)", tables_pages.get("Tabel 2.2", "14")),
+        ("Tabel 2.3", "Koordinat Spasial dan Vektor Orientasi 8 Pendorong Wahana Over-Actuated", tables_pages.get("Tabel 2.3", "26")),
+        ("Tabel 3.1", "Parameter Fisik dan Properti Benda Tegar Wahana Over-Actuated 8-Pendorong", tables_pages.get("Tabel 3.1", "43")),
+        ("Tabel 3.2", "Koefisien Derivatif Massa Tambah Hidrodinamika Wahana", tables_pages.get("Tabel 3.2", "44")),
+        ("Tabel 3.3", "Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana", tables_pages.get("Tabel 3.3", "46")),
+        ("Tabel 3.4", "Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Bervektor", tables_pages.get("Tabel 3.4", "47")),
+        ("Tabel 3.5", "Spesifikasi Komponen Perangkat Keras Arsitektur HITL", tables_pages.get("Tabel 3.5", "50"))
     ]
 
-    for num, title, pg in tables_info:
-        add_leader_line(doc, f"{num}  {title}", pg, space_after=3)
+    add_sdt_leader_block(doc, tables_info, 3318259101, "Tabel")
 
     doc.add_page_break()
 
@@ -775,21 +835,20 @@ def build_front_matter(doc, toc_pages=None, tables_pages=None, figures_pages=Non
     add_leader_header(doc, "Nomor Urut dan Judul Gambar", "Halaman")
 
     figures_info = [
-        ("Gambar 2.1", "Sistem Kerangka Acuan Inersia Bumi (Fn - NED) dan Kerangka Acuan Bergerak Bodi (Fb - FRD) Konvensi SNAME (1950) dan Fossen (2021)", figures_pages.get("Gambar 2.1", "14")),
-        ("Gambar 3.1", "Diagram Alir Tahapan Penelitian Komprehensif", figures_pages.get("Gambar 3.1", "55")),
-        ("Gambar 3.2", "Arsitektur Simulasi Software-In-The-Loop (SITL) Sistem AUV", figures_pages.get("Gambar 3.2", "65")),
-        ("Gambar 3.3", "Arsitektur Integrasi Hardware-In-The-Loop (HITL) Mekatronika AUV", figures_pages.get("Gambar 3.3", "67")),
-        ("Gambar 3.4", "Rangka (Frame) dan Lambung Tekanan Kustom AUV 8-Pendorong", figures_pages.get("Gambar 3.4", "69")),
-        ("Gambar 3.5", "Papan Pengendali Penerbangan (Flight Controller) Pixhawk 2.4.8", figures_pages.get("Gambar 3.5", "69")),
-        ("Gambar 3.6", "Komputer Pendamping (Companion Computer) Raspberry Pi 4B", figures_pages.get("Gambar 3.6", "70")),
-        ("Gambar 3.7", "Modul Pengendali Kecepatan Elektronik (ESC EMAX BLHeli 30A)", figures_pages.get("Gambar 3.7", "70")),
-        ("Gambar 3.8", "Motor Pendorong Bawah Air (BLDC Underwater Thruster)", figures_pages.get("Gambar 3.8", "71")),
-        ("Gambar 3.9", "Sumber Daya Utama Baterai Li-Po 4S 14.8V 6000 mAh", figures_pages.get("Gambar 3.9", "71")),
-        ("Gambar 3.10", "Modul Kamera Sistem Pelacakan Visual: Raspberry Pi Camera Rev 1.3 dan Webcam Logitech C922 Pro", figures_pages.get("Gambar 3.10", "72"))
+        ("Gambar 2.1", "Sistem Kerangka Acuan Inersia Bumi (Fn - NED) dan Kerangka Acuan Bergerak Bodi (Fb - FRD) Konvensi SNAME (1950) dan Fossen (2021)", figures_pages.get("Gambar 2.1", "12")),
+        ("Gambar 3.1", "Diagram Alir Tahapan Penelitian Komprehensif", figures_pages.get("Gambar 3.1", "40")),
+        ("Gambar 3.2", "Arsitektur Simulasi Software-In-The-Loop (SITL) Sistem AUV", figures_pages.get("Gambar 3.2", "48")),
+        ("Gambar 3.3", "Arsitektur Integrasi Hardware-In-The-Loop (HITL) Mekatronika AUV", figures_pages.get("Gambar 3.3", "50")),
+        ("Gambar 3.4", "Rangka (Frame) dan Lambung Tekanan Kustom AUV 8-Pendorong", figures_pages.get("Gambar 3.4", "51")),
+        ("Gambar 3.5", "Papan Pengendali Penerbangan (Flight Controller) Pixhawk 2.4.8", figures_pages.get("Gambar 3.5", "51")),
+        ("Gambar 3.6", "Komputer Pendamping (Companion Computer) Raspberry Pi 4B", figures_pages.get("Gambar 3.6", "52")),
+        ("Gambar 3.7", "Modul Pengendali Kecepatan Elektronik (ESC EMAX BLHeli 30A)", figures_pages.get("Gambar 3.7", "52")),
+        ("Gambar 3.8", "Motor Pendorong Bawah Air (BLDC Underwater Thruster)", figures_pages.get("Gambar 3.8", "53")),
+        ("Gambar 3.9", "Sumber Daya Utama Baterai Li-Po 4S 14.8V 6000 mAh", figures_pages.get("Gambar 3.9", "53")),
+        ("Gambar 3.10", "Modul Kamera Sistem Pelacakan Visual: Raspberry Pi Camera Rev 1.3 dan Webcam Logitech C922 Pro", figures_pages.get("Gambar 3.10", "53"))
     ]
 
-    for num, title, pg in figures_info:
-        add_leader_line(doc, f"{num}  {title}", pg, space_after=3)
+    add_sdt_leader_block(doc, figures_info, 3318259102, "Gambar")
 
     doc.add_page_break()
 
