@@ -83,28 +83,28 @@ Tabel 2.2 Notasi dan Konvensi 6 Derajat Kebebasan SNAME (1950) & Fossen (2021)
 Berdasarkan konvensi Tabel 2.2, keadaan spasial wahana AUV direpresentasikan oleh tiga vektor utama berdimensi enam:
 
 1. *Vektor Posisi dan Orientasi di $$\mathcal{F}^n$$*:
-   $$\boldsymbol{\eta} = \begin{bmatrix} \boldsymbol{\eta}_1 \\ \boldsymbol{\eta}_2 \end{bmatrix} = \begin{bmatrix} x \\\ y \\\ z \\ \phi \\ \theta \\ \psi \end{bmatrix} \in \mathbb{R}^6$$
+   $$\boldsymbol{\eta} = \begin{bmatrix} \boldsymbol{\eta}_1 \\ \boldsymbol{\eta}_2 \end{bmatrix} = \begin{bmatrix} x \\ y \\ z \\ \phi \\ \theta \\ \psi \end{bmatrix} \in \mathbb{R}^6$$
    di mana $$\boldsymbol{\eta}_1 = [x, y, z]^T \in \mathbb{R}^3$$ merepresentasikan posisi koordinat kartesian global dalam satuan meter, dan $$\boldsymbol{\eta}_2 = [\phi, \theta, \psi]^T \in \mathbb{R}^3$$ merepresentasikan sudut orientasi Euler (Roll*, *Pitch*, *Yaw) dalam satuan radian.
 
 2. *Vektor Kecepatan Linier dan Kecepatan Sudut di $$\mathcal{F}^b$$*:
-   $$\boldsymbol{\nu} = \begin{bmatrix} \boldsymbol{\nu}_1 \\ \boldsymbol{\nu}_2 \end{bmatrix} = \begin{bmatrix} u \\\ v \\\ w \\\ p \\\ q \\\ r \end{bmatrix} \in \mathbb{R}^6$$
+   $$\boldsymbol{\nu} = \begin{bmatrix} \boldsymbol{\nu}_1 \\ \boldsymbol{\nu}_2 \end{bmatrix} = \begin{bmatrix} u \\ v \\ w \\ p \\ q \\ r \end{bmatrix} \in \mathbb{R}^6$$
    di mana $$\boldsymbol{\nu}_1 = [u, v, w]^T \in \mathbb{R}^3$$ adalah kecepatan linier bodi (*Surge*, *Sway*, *Heave*) dalam m/s, dan $$\boldsymbol{\nu}_2 = [p, q, r]^T \in \mathbb{R}^3$$ adalah kecepatan sudut bodi (*Roll rate*, *Pitch rate*, *Yaw rate*) dalam rad/s.
 
 3. *Vektor Gaya dan Momen Generalisasi di $$\mathcal{F}^b$$*:
-   $$\boldsymbol{\tau} = \begin{bmatrix} \boldsymbol{\tau}_1 \\ \boldsymbol{\tau}_2 \end{bmatrix} = \begin{bmatrix} X \\\ Y \\\ Z \\\ K \\\ M \\\ N \end{bmatrix} \in \mathbb{R}^6$$
+   $$\boldsymbol{\tau} = \begin{bmatrix} \boldsymbol{\tau}_1 \\ \boldsymbol{\tau}_2 \end{bmatrix} = \begin{bmatrix} X \\ Y \\ Z \\ K \\ M \\ N \end{bmatrix} \in \mathbb{R}^6$$
    di mana $$\boldsymbol{\tau}_1 = [X, Y, Z]^T \in \mathbb{R}^3$$ adalah resultan gaya dorong translasi bodi dalam Newton, dan $$\boldsymbol{\tau}_2 = [K, M, N]^T \in \mathbb{R}^3$$ adalah resultan torsi rotasi bodi dalam Newton-meter.
 
 ### 2.2.3 Pemodelan Arus Laut dan Kecepatan Relatif Fluida
 Di dalam lingkungan bawah air, gaya hidrodinamika (massa tambah dan redaman fluida) tidak bekerja berdasarkan kecepatan absolut wahana $$\boldsymbol{\nu}$$, melainkan bergantung secara eksklusif pada *kecepatan relatif wahana terhadap massa fluida* di sekitarnya [5], [7].
 
 Misalkan vektor kecepatan arus laut di kerangka inersia $$\mathcal{F}^n$$ dimodelkan sebagai aliran translasi horizontal yang bersifat irrotational* dan bervariasi lambat (*slowly varying current):
-$$\mathbf{V}_c^n = \begin{bmatrix} u_c^n \\\ v_c^n \\\ w_c^n \\\ 0 \\\ 0 \\\ 0 \end{bmatrix} \in \mathbb{R}^6, \qquad \dot{\mathbf{V}}_c^n \approx \mathbf{0}$$
+$$\mathbf{V}_c^n = \begin{bmatrix} u_c^n \\ v_c^n \\ w_c^n \\ 0 \\ 0 \\ 0 \end{bmatrix} \in \mathbb{R}^6, \qquad \dot{\mathbf{V}}_c^n \approx \mathbf{0}$$
 
 Transformasi kecepatan arus laut dari kerangka inersia $$\mathcal{F}^n$$ ke dalam kerangka bodi $$\mathcal{F}^b$$ dinyatakan melalui transpose matriks rotasi linier $$\mathbf{R}_b^n(\boldsymbol{\eta}_2)^T = \mathbf{R}_n^b(\boldsymbol{\eta}_2)$$:
-$$\boldsymbol{\nu}_c = \begin{bmatrix} \boldsymbol{\nu}_{c,1} \\ \boldsymbol{\nu}_{c,2} \end{bmatrix} = \begin{bmatrix} \mathbf{R}_n^b(\boldsymbol{\eta}_2) \mathbf{V}_{c,1}^n \\ \mathbf{0}_{3 \times 1} \end{bmatrix} = \begin{bmatrix} u_c \\\ v_c \\\ w_c \\\ 0 \\\ 0 \\\ 0 \end{bmatrix}$$
+$$\boldsymbol{\nu}_c = \begin{bmatrix} \boldsymbol{\nu}_{c,1} \\ \boldsymbol{\nu}_{c,2} \end{bmatrix} = \begin{bmatrix} \mathbf{R}_n^b(\boldsymbol{\eta}_2) \mathbf{V}_{c,1}^n \\ \mathbf{0}_{3 \times 1} \end{bmatrix} = \begin{bmatrix} u_c \\ v_c \\ w_c \\ 0 \\ 0 \\ 0 \end{bmatrix}$$
 
 Dengan demikian, *vektor kecepatan relatif wahana* $$\boldsymbol{\nu}_r \in \mathbb{R}^6$$ diformulasikan sebagai [7]:
-$$\boldsymbol{\nu}_r = \boldsymbol{\nu} - \boldsymbol{\nu}_c = \begin{bmatrix} u - u_c \\\ v - v_c \\\ w - w_c \\\ p \\\ q \\\ r \end{bmatrix} = \begin{bmatrix} u_r \\\ v_r \\\ w_r \\\ p \\\ q \\\ r \end{bmatrix}$$
+$$\boldsymbol{\nu}_r = \boldsymbol{\nu} - \boldsymbol{\nu}_c = \begin{bmatrix} u - u_c \\ v - v_c \\ w - w_c \\ p \\ q \\ r \end{bmatrix} = \begin{bmatrix} u_r \\ v_r \\ w_r \\ p \\ q \\ r \end{bmatrix}$$
 
 Turunan waktu dari kecepatan relatif di dalam kerangka bergerak bodi diturunkan dengan memperhitungkan percepatan rotasi kerangka acuan (*Coriolis acceleration theorem*):
 $$\dot{\boldsymbol{\nu}}_r = \dot{\boldsymbol{\nu}} - \dot{\boldsymbol{\nu}}_c = \dot{\boldsymbol{\nu}} - \begin{bmatrix} \dot{\mathbf{R}}_n^b \mathbf{V}_{c,1}^n \\ \mathbf{0}_{3 \times 1} \end{bmatrix}$$
@@ -145,30 +145,30 @@ Transformasi rotasi diturunkan menggunakan konvensi rotasi intrinsik Euler Tait-
 
 1. *Rotasi Pertama: Sudut Yaw ($$\psi$$) mengelilingi sumbu $$z_n$$*:
    Rotasi ini menghasilkan kerangka antara pertama $$\mathcal{F}'$$:
-   $$\mathbf{R}_{z,\psi} = \begin{bmatrix} \cos\psi & -\sin\psi & 0 \\ \sin\psi & \cos\psi & 0 \\\ 0 & 0 & 1 \end{bmatrix}$$
+   $$\mathbf{R}_{z,\psi} = \begin{bmatrix} \cos\psi & -\sin\psi & 0 \\ \sin\psi & \cos\psi & 0 \\ 0 & 0 & 1 \end{bmatrix}$$
 
 2. *Rotasi Kedua: Sudut Pitch ($$\theta$$) mengelilingi sumbu antara $$y'$$*:
    Rotasi ini menghasilkan kerangka antara kedua $$\mathcal{F}''$$:
-   $$\mathbf{R}_{y,\theta} = \begin{bmatrix} \cos\theta & 0 & \sin\theta \\\ 0 & 1 & 0 \\\ -\sin\theta & 0 & \cos\theta \end{bmatrix}$$
+   $$\mathbf{R}_{y,\theta} = \begin{bmatrix} \cos\theta & 0 & \sin\theta \\ 0 & 1 & 0 \\ -\sin\theta & 0 & \cos\theta \end{bmatrix}$$
 
 3. *Rotasi Ketiga: Sudut Roll ($$\phi$$) mengelilingi sumbu bodi $$x'' = x_b$$*:
    Rotasi ini menghasilkan kerangka bodi akhir $$\mathcal{F}^b$$:
-   $$\mathbf{R}_{x,\phi} = \begin{bmatrix} 1 & 0 & 0 \\\ 0 & \cos\phi & -\sin\phi \\\ 0 & \sin\phi & \cos\phi \end{bmatrix}$$
+   $$\mathbf{R}_{x,\phi} = \begin{bmatrix} 1 & 0 & 0 \\ 0 & \cos\phi & -\sin\phi \\ 0 & \sin\phi & \cos\phi \end{bmatrix}$$
 
 Sesuai aturan perkalian rantai transformasi koordinat rotasi intrinsik:
 $$\mathbf{R}_b^n(\boldsymbol{\eta}_2) = \mathbf{R}_{z,\psi} \mathbf{R}_{y,\theta} \mathbf{R}_{x,\phi}$$
 
 Perkalian matriks kedua dan ketiga dilakukan terlebih dahulu:
-$$\mathbf{A} = \mathbf{R}_{y,\theta} \mathbf{R}_{x,\phi} = \begin{bmatrix} \cos\theta & 0 & \sin\theta \\\ 0 & 1 & 0 \\\ -\sin\theta & 0 & \cos\theta \end{bmatrix} \begin{bmatrix} 1 & 0 & 0 \\\ 0 & \cos\phi & -\sin\phi \\\ 0 & \sin\phi & \cos\phi \end{bmatrix} = \begin{bmatrix} \cos\theta & \sin\theta\sin\phi & \sin\theta\cos\phi \\\ 0 & \cos\phi & -\sin\phi \\\ -\sin\theta & \cos\theta\sin\phi & \cos\theta\cos\phi \end{bmatrix}$$
+$$\mathbf{A} = \mathbf{R}_{y,\theta} \mathbf{R}_{x,\phi} = \begin{bmatrix} \cos\theta & 0 & \sin\theta \\ 0 & 1 & 0 \\ -\sin\theta & 0 & \cos\theta \end{bmatrix} \begin{bmatrix} 1 & 0 & 0 \\ 0 & \cos\phi & -\sin\phi \\ 0 & \sin\phi & \cos\phi \end{bmatrix} = \begin{bmatrix} \cos\theta & \sin\theta\sin\phi & \sin\theta\cos\phi \\ 0 & \cos\phi & -\sin\phi \\ -\sin\theta & \cos\theta\sin\phi & \cos\theta\cos\phi \end{bmatrix}$$
 
 Mengalikan matriks $$\mathbf{R}_{z,\psi}$$ dengan matriks intermediate $$\mathbf{A}$$ menghasilkan matriks rotasi lengkap:
-$$\mathbf{R}_b^n(\boldsymbol{\eta}_2) = \begin{bmatrix} \cos\psi & -\sin\psi & 0 \\ \sin\psi & \cos\psi & 0 \\\ 0 & 0 & 1 \end{bmatrix} \begin{bmatrix} \cos\theta & \sin\theta\sin\phi & \sin\theta\cos\phi \\\ 0 & \cos\phi & -\sin\phi \\\ -\sin\theta & \cos\theta\sin\phi & \cos\theta\cos\phi \end{bmatrix}$$
+$$\mathbf{R}_b^n(\boldsymbol{\eta}_2) = \begin{bmatrix} \cos\psi & -\sin\psi & 0 \\ \sin\psi & \cos\psi & 0 \\ 0 & 0 & 1 \end{bmatrix} \begin{bmatrix} \cos\theta & \sin\theta\sin\phi & \sin\theta\cos\phi \\ 0 & \cos\phi & -\sin\phi \\ -\sin\theta & \cos\theta\sin\phi & \cos\theta\cos\phi \end{bmatrix}$$
 
 Evaluasi analitis tiap elemen baris dan kolom menghasilkan matriks transformasi rotasi linier definitif:
-$$\mathbf{R}_b^n(\boldsymbol{\eta}_2) = \begin{bmatrix} \cos\psi\cos\theta & -\sin\psi\cos\phi + \cos\psi\sin\theta\sin\phi & \sin\psi\sin\phi + \cos\psi\sin\theta\cos\phi \\\ \sin\psi\cos\theta & \cos\psi\cos\phi + \sin\psi\sin\theta\sin\phi & -\cos\psi\sin\phi + \sin\psi\sin\theta\cos\phi \\\ -\sin\theta & \cos\theta\sin\phi & \cos\theta\cos\phi \end{bmatrix}$$
+$$\mathbf{R}_b^n(\boldsymbol{\eta}_2) = \begin{bmatrix} \cos\psi\cos\theta & -\sin\psi\cos\phi + \cos\psi\sin\theta\sin\phi & \sin\psi\sin\phi + \cos\psi\sin\theta\cos\phi \\ \sin\psi\cos\theta & \cos\psi\cos\phi + \sin\psi\sin\theta\sin\phi & -\cos\psi\sin\phi + \sin\psi\sin\theta\cos\phi \\ -\sin\theta & \cos\theta\sin\phi & \cos\theta\cos\phi \end{bmatrix}$$
 
 Karena sifat ortogonalitas $$\mathbf{R}_b^n \in SO(3)$$, matriks invers transformasi dari kerangka bumi ke kerangka bodi adalah identik dengan matriks transposisinya:
-$$\mathbf{R}_n^b(\boldsymbol{\eta}_2) = (\mathbf{R}_b^n(\boldsymbol{\eta}_2))^T = \begin{bmatrix} \cos\psi\cos\theta & \sin\psi\cos\theta & -\sin\theta \\\ -\sin\psi\cos\phi + \cos\psi\sin\theta\sin\phi & \cos\psi\cos\phi + \sin\psi\sin\theta\sin\phi & \cos\theta\sin\phi \\\ \sin\psi\sin\phi + \cos\psi\sin\theta\cos\phi & -\cos\psi\sin\phi + \sin\psi\sin\theta\cos\phi & \cos\theta\cos\phi \end{bmatrix}$$
+$$\mathbf{R}_n^b(\boldsymbol{\eta}_2) = (\mathbf{R}_b^n(\boldsymbol{\eta}_2))^T = \begin{bmatrix} \cos\psi\cos\theta & \sin\psi\cos\theta & -\sin\theta \\ -\sin\psi\cos\phi + \cos\psi\sin\theta\sin\phi & \cos\psi\cos\phi + \sin\psi\sin\theta\sin\phi & \cos\theta\sin\phi \\ \sin\psi\sin\phi + \cos\psi\sin\theta\cos\phi & -\cos\psi\sin\phi + \sin\psi\sin\theta\cos\phi & \cos\theta\cos\phi \end{bmatrix}$$
 
 Persamaan skalar kinematika translasi diturunkan dengan mengevaluasi hubungan $$\dot{\boldsymbol{\eta}}_1 = \mathbf{R}_b^n(\boldsymbol{\eta}_2)\boldsymbol{\nu}_1$$:
 $$\dot{x} = u(\cos\psi\cos\theta) + v(-\sin\psi\cos\phi + \cos\psi\sin\theta\sin\phi) + w(\sin\psi\sin\phi + \cos\psi\sin\theta\cos\phi)$$
@@ -177,15 +177,15 @@ $$\dot{z} = u(-\sin\theta) + v(\cos\theta\sin\phi) + w(\cos\theta\cos\phi)$$
 
 ### 2.3.2 Penurunan Matriks Transformasi Sudut Euler dan Invers Kofaktor-Adjoin
 Kecepatan sudut bodi wahana $$\boldsymbol{\nu}_2 = [p, q, r]^T$$ merepresentasikan proyeksi dari laju perubahan sudut Euler $$\dot{\boldsymbol{\eta}}_2 = [\dot{\phi}, \dot{\theta}, \dot{\psi}]^T$$ ke sumbu-sumbu bodi yang bergerak. Proyeksi ini diturunkan dengan memperhatikan orientasi masing-masing sumbu putar rotasi bertingkat [7]:
-$$\boldsymbol{\nu}_2 = \begin{bmatrix} p \\\ q \\\ r \end{bmatrix} = \begin{bmatrix} \dot{\phi} \\\ 0 \\\ 0 \end{bmatrix} + \mathbf{R}_{x,\phi}^T \begin{bmatrix} 0 \\ \dot{\theta} \\\ 0 \end{bmatrix} + \mathbf{R}_{x,\phi}^T \mathbf{R}_{y,\theta}^T \begin{bmatrix} 0 \\\ 0 \\ \dot{\psi} \end{bmatrix}$$
+$$\boldsymbol{\nu}_2 = \begin{bmatrix} p \\ q \\ r \end{bmatrix} = \begin{bmatrix} \dot{\phi} \\ 0 \\ 0 \end{bmatrix} + \mathbf{R}_{x,\phi}^T \begin{bmatrix} 0 \\ \dot{\theta} \\ 0 \end{bmatrix} + \mathbf{R}_{x,\phi}^T \mathbf{R}_{y,\theta}^T \begin{bmatrix} 0 \\ 0 \\ \dot{\psi} \end{bmatrix}$$
 
 Mengevaluasi perkalian proyeksi sudut:
-$$\mathbf{R}_{x,\phi}^T \begin{bmatrix} 0 \\ \dot{\theta} \\\ 0 \end{bmatrix} = \begin{bmatrix} 1 & 0 & 0 \\\ 0 & \cos\phi & \sin\phi \\\ 0 & -\sin\phi & \cos\phi \end{bmatrix} \begin{bmatrix} 0 \\ \dot{\theta} \\\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ \dot{\theta}\cos\phi \\\ -\dot{\theta}\sin\phi \end{bmatrix}$$
+$$\mathbf{R}_{x,\phi}^T \begin{bmatrix} 0 \\ \dot{\theta} \\ 0 \end{bmatrix} = \begin{bmatrix} 1 & 0 & 0 \\ 0 & \cos\phi & \sin\phi \\ 0 & -\sin\phi & \cos\phi \end{bmatrix} \begin{bmatrix} 0 \\ \dot{\theta} \\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ \dot{\theta}\cos\phi \\ -\dot{\theta}\sin\phi \end{bmatrix}$$
 
-$$\mathbf{R}_{x,\phi}^T \mathbf{R}_{y,\theta}^T \begin{bmatrix} 0 \\\ 0 \\ \dot{\psi} \end{bmatrix} = \begin{bmatrix} \cos\theta & 0 & -\sin\theta \\ \sin\theta\sin\phi & \cos\phi & \cos\theta\sin\phi \\ \sin\theta\cos\phi & -\sin\phi & \cos\theta\cos\phi \end{bmatrix} \begin{bmatrix} 0 \\\ 0 \\ \dot{\psi} \end{bmatrix} = \begin{bmatrix} -\dot{\psi}\sin\theta \\ \dot{\psi}\sin\phi\cos\theta \\ \dot{\psi}\cos\phi\cos\theta \end{bmatrix}$$
+$$\mathbf{R}_{x,\phi}^T \mathbf{R}_{y,\theta}^T \begin{bmatrix} 0 \\ 0 \\ \dot{\psi} \end{bmatrix} = \begin{bmatrix} \cos\theta & 0 & -\sin\theta \\ \sin\theta\sin\phi & \cos\phi & \cos\theta\sin\phi \\ \sin\theta\cos\phi & -\sin\phi & \cos\theta\cos\phi \end{bmatrix} \begin{bmatrix} 0 \\ 0 \\ \dot{\psi} \end{bmatrix} = \begin{bmatrix} -\dot{\psi}\sin\theta \\ \dot{\psi}\sin\phi\cos\theta \\ \dot{\psi}\cos\phi\cos\theta \end{bmatrix}$$
 
 Menjumlahkan ketiga komponen proyeksi tersebut:
-$$\begin{bmatrix} p \\\ q \\\ r \end{bmatrix} = \begin{bmatrix} 1 & 0 & -\sin\theta \\\ 0 & \cos\phi & \sin\phi\cos\theta \\\ 0 & -\sin\phi & \cos\phi\cos\theta \end{bmatrix} \begin{bmatrix} \dot{\phi} \\ \dot{\theta} \\ \dot{\psi} \end{bmatrix} \iff \boldsymbol{\nu}_2 = \mathbf{T}_\Theta^{-1}(\boldsymbol{\eta}_2)\dot{\boldsymbol{\eta}}_2$$
+$$\begin{bmatrix} p \\ q \\ r \end{bmatrix} = \begin{bmatrix} 1 & 0 & -\sin\theta \\ 0 & \cos\phi & \sin\phi\cos\theta \\ 0 & -\sin\phi & \cos\phi\cos\theta \end{bmatrix} \begin{bmatrix} \dot{\phi} \\ \dot{\theta} \\ \dot{\psi} \end{bmatrix} \iff \boldsymbol{\nu}_2 = \mathbf{T}_\Theta^{-1}(\boldsymbol{\eta}_2)\dot{\boldsymbol{\eta}}_2$$
 
 Untuk memperoleh relasi maju $$\dot{\boldsymbol{\eta}}_2 = \mathbf{T}_\Theta(\boldsymbol{\eta}_2)\boldsymbol{\nu}_2$$, matriks $$\mathbf{B} = \mathbf{T}_\Theta^{-1}$$ harus dibalik. Inversi analitis dilakukan secara rigor langkah demi langkah menggunakan metode matriks kofaktor dan adjoin (cofactor-adjugate method) [7]:
 
@@ -211,13 +211,13 @@ Untuk memperoleh relasi maju $$\dot{\boldsymbol{\eta}}_2 = \mathbf{T}_\Theta(\bo
 
 3. *Penyusunan Matriks Adjoin $$\text{adj}(\mathbf{B}) = \text{Cof}(\mathbf{B})^T$$*:
    Transposisi dari matriks kofaktor:
-   $$\text{adj}(\mathbf{B}) = \begin{bmatrix} \cos\theta & \sin\phi\sin\theta & \cos\phi\sin\theta \\\ 0 & \cos\phi\cos\theta & -\sin\phi\cos\theta \\\ 0 & \sin\phi & \cos\phi \end{bmatrix}$$
+   $$\text{adj}(\mathbf{B}) = \begin{bmatrix} \cos\theta & \sin\phi\sin\theta & \cos\phi\sin\theta \\ 0 & \cos\phi\cos\theta & -\sin\phi\cos\theta \\ 0 & \sin\phi & \cos\phi \end{bmatrix}$$
 
 4. *Pembagian dengan Determinan $$\cos\theta$$*:
-   $$\mathbf{T}_\Theta(\boldsymbol{\eta}_2) = \frac{1}{\det(\mathbf{B})} \text{adj}(\mathbf{B}) = \frac{1}{\cos\theta} \begin{bmatrix} \cos\theta & \sin\phi\sin\theta & \cos\phi\sin\theta \\\ 0 & \cos\phi\cos\theta & -\sin\phi\cos\theta \\\ 0 & \sin\phi & \cos\phi \end{bmatrix}$$
+   $$\mathbf{T}_\Theta(\boldsymbol{\eta}_2) = \frac{1}{\det(\mathbf{B})} \text{adj}(\mathbf{B}) = \frac{1}{\cos\theta} \begin{bmatrix} \cos\theta & \sin\phi\sin\theta & \cos\phi\sin\theta \\ 0 & \cos\phi\cos\theta & -\sin\phi\cos\theta \\ 0 & \sin\phi & \cos\phi \end{bmatrix}$$
 
    Maka diperoleh matriks transformasi kecepatan sudut analitis eksak [7]:
-   $$\mathbf{T}_\Theta(\boldsymbol{\eta}_2) = \begin{bmatrix} 1 & \sin\phi\tan\theta & \cos\phi\tan\theta \\\ 0 & \cos\phi & -\sin\phi \\\ 0 & \frac{\sin\phi}{\cos\theta} & \frac{\cos\phi}{\cos\theta} \end{bmatrix}$$
+   $$\mathbf{T}_\Theta(\boldsymbol{\eta}_2) = \begin{bmatrix} 1 & \sin\phi\tan\theta & \cos\phi\tan\theta \\ 0 & \cos\phi & -\sin\phi \\ 0 & \frac{\sin\phi}{\cos\theta} & \frac{\cos\phi}{\cos\theta} \end{bmatrix}$$
 
 Persamaan skalar kinematika rotasi sudut Euler adalah:
 $$\dot{\phi} = p + q(\sin\phi\tan\theta) + r(\cos\phi\tan\theta)$$
@@ -237,14 +237,14 @@ di mana $$\eta = \cos(\beta/2)$$ adalah bagian skalar, dan $$\boldsymbol{\epsilo
 Dinamika diferensial kinematika unit kuaternion bersifat linier terhadap kecepatan sudut bodi $$\boldsymbol{\nu}_2$$ dan sepenuhnya *bebas singularitas* di semua sudut orientasi [7], [27]:
 $$\begin{bmatrix} \dot{\eta} \\ \dot{\boldsymbol{\epsilon}} \end{bmatrix} = \frac{1}{2} \begin{bmatrix} -\boldsymbol{\epsilon}^T \\ \eta\mathbf{I}_{3 \times 3} + \mathbf{S}(\boldsymbol{\epsilon}) \end{bmatrix} \boldsymbol{\nu}_2 = \frac{1}{2} \mathbf{E}(\mathbf{q}) \boldsymbol{\nu}_2$$
 di mana matriks *skew-symmetric cross-product* $$\mathbf{S}(\boldsymbol{\epsilon})$$ didefinisikan sebagai:
-$$\mathbf{S}(\boldsymbol{\epsilon}) = \begin{bmatrix} 0 & -\epsilon_3 & \epsilon_2 \\ \epsilon_3 & 0 & -\epsilon_1 \\\ -\epsilon_2 & \epsilon_1 & 0 \end{bmatrix}$$
+$$\mathbf{S}(\boldsymbol{\epsilon}) = \begin{bmatrix} 0 & -\epsilon_3 & \epsilon_2 \\ \epsilon_3 & 0 & -\epsilon_1 \\ -\epsilon_2 & \epsilon_1 & 0 \end{bmatrix}$$
 
 Matriks rotasi $$\mathbf{R}(\mathbf{q})$$ yang ekuivalen dalam representasi kuaternion dinyatakan oleh formula Rodrigues [7]:
 $$\mathbf{R}(\mathbf{q}) = (\eta^2 - \boldsymbol{\epsilon}^T\boldsymbol{\epsilon})\mathbf{I}_{3 \times 3} + 2\boldsymbol{\epsilon}\boldsymbol{\epsilon}^T + 2\eta\mathbf{S}(\boldsymbol{\epsilon})$$
 
 ### 2.3.4 Matriks Jacobian Kinematika Gabungan 6x6
 Menggabungkan transformasi translasi linier dan transformasi sudut Euler menghasilkan matriks Jacobian kinematika 6-DOF terpadu $$\mathbf{J}(\boldsymbol{\eta}_2) \in \mathbb{R}^{6 \times 6}$$ [7]:
-$$\begin{bmatrix} \dot{x} \\ \dot{y} \\ \dot{z} \\ \dot{\phi} \\ \dot{\theta} \\ \dot{\psi} \end{bmatrix} = \begin{bmatrix} \cos\psi\cos\theta & -\sin\psi\cos\phi + \cos\psi\sin\theta\sin\phi & \sin\psi\sin\phi + \cos\psi\sin\theta\cos\phi & 0 & 0 & 0 \\\ \sin\psi\cos\theta & \cos\psi\cos\phi + \sin\psi\sin\theta\sin\phi & -\cos\psi\sin\phi + \sin\psi\sin\theta\cos\phi & 0 & 0 & 0 \\\ -\sin\theta & \cos\theta\sin\phi & \cos\theta\cos\phi & 0 & 0 & 0 \\\ 0 & 0 & 0 & 1 & \sin\phi\tan\theta & \cos\phi\tan\theta \\\ 0 & 0 & 0 & 0 & \cos\phi & -\sin\phi \\\ 0 & 0 & 0 & 0 & \frac{\sin\phi}{\cos\theta} & \frac{\cos\phi}{\cos\theta} \end{bmatrix} \begin{bmatrix} u \\\ v \\\ w \\\ p \\\ q \\\ r \end{bmatrix}$$
+$$\begin{bmatrix} \dot{x} \\ \dot{y} \\ \dot{z} \\ \dot{\phi} \\ \dot{\theta} \\ \dot{\psi} \end{bmatrix} = \begin{bmatrix} \cos\psi\cos\theta & -\sin\psi\cos\phi + \cos\psi\sin\theta\sin\phi & \sin\psi\sin\phi + \cos\psi\sin\theta\cos\phi & 0 & 0 & 0 \\ \sin\psi\cos\theta & \cos\psi\cos\phi + \sin\psi\sin\theta\sin\phi & -\cos\psi\sin\phi + \sin\psi\sin\theta\cos\phi & 0 & 0 & 0 \\ -\sin\theta & \cos\theta\sin\phi & \cos\theta\cos\phi & 0 & 0 & 0 \\ 0 & 0 & 0 & 1 & \sin\phi\tan\theta & \cos\phi\tan\theta \\ 0 & 0 & 0 & 0 & \cos\phi & -\sin\phi \\ 0 & 0 & 0 & 0 & \frac{\sin\phi}{\cos\theta} & \frac{\cos\phi}{\cos\theta} \end{bmatrix} \begin{bmatrix} u \\ v \\ w \\ p \\ q \\ r \end{bmatrix}$$
 
 ---
 
@@ -266,24 +266,24 @@ di mana:
 
 #### 1. Matriks Massa Inersia Bodi Kaku $$\mathbf{M}_{RB}$$
 Berdasarkan hukum kedua Newton dan persamaan momentum angular Euler, matriks inersia benda tegar 6-DOF yang dirumuskan terhadap titik acuan geometris $$O_b$$ dengan *offset* pusat massa $$\mathbf{r}_g = [x_g, y_g, z_g]^T$$ dinyatakan sebagai [7]:
-$$\mathbf{M}_{RB} = \begin{bmatrix} m\mathbf{I}_{3 \times 3} & -m\mathbf{S}(\mathbf{r}_g) \\\ m\mathbf{S}(\mathbf{r}_g) & \mathbf{I}_g - m\mathbf{S}^2(\mathbf{r}_g) \end{bmatrix} \in \mathbb{R}^{6 \times 6}$$
+$$\mathbf{M}_{RB} = \begin{bmatrix} m\mathbf{I}_{3 \times 3} & -m\mathbf{S}(\mathbf{r}_g) \\ m\mathbf{S}(\mathbf{r}_g) & \mathbf{I}_g - m\mathbf{S}^2(\mathbf{r}_g) \end{bmatrix} \in \mathbb{R}^{6 \times 6}$$
 di mana $$m$$ adalah massa kering wahana, $$\mathbf{S}(\mathbf{r}_g)$$ adalah matriks *skew-symmetric* dari vektor posisi CG:
-$$\mathbf{S}(\mathbf{r}_g) = \begin{bmatrix} 0 & -z_g & y_g \\\ z_g & 0 & -x_g \\\ -y_g & x_g & 0 \end{bmatrix}$$
+$$\mathbf{S}(\mathbf{r}_g) = \begin{bmatrix} 0 & -z_g & y_g \\ z_g & 0 & -x_g \\ -y_g & x_g & 0 \end{bmatrix}$$
 dan tensor inersia benda tegar terhadap titik pusat massa CG dinyatakan oleh:
-$$\mathbf{I}_g = \begin{bmatrix} I_{xx} & -I_{xy} & -I_{xz} \\\ -I_{xy} & I_{yy} -I_{yz} \\\ -I_{xz} & -I_{yz} & I_{zz} \end{bmatrix}$$
+$$\mathbf{I}_g = \begin{bmatrix} I_{xx} & -I_{xy} & -I_{xz} \\ -I_{xy} & I_{yy} -I_{yz} \\ -I_{xz} & -I_{yz} & I_{zz} \end{bmatrix}$$
 
 Suku teorema sumbu sejajar (*parallel-axis theorem*) $$-m\mathbf{S}^2(\mathbf{r}_g)$$ dihitung melalui perkalian matriks *skew-symmetric*:
-$$-\mathbf{S}^2(\mathbf{r}_g) = \begin{bmatrix} y_g^2 + z_g^2 & -x_g y_g & -x_g z_g \\\ -x_g y_g & x_g^2 + z_g^2 & -y_g z_g \\\ -x_g z_g & -y_g z_g & x_g^2 + y_g^2 \end{bmatrix}$$
+$$-\mathbf{S}^2(\mathbf{r}_g) = \begin{bmatrix} y_g^2 + z_g^2 & -x_g y_g & -x_g z_g \\ -x_g y_g & x_g^2 + z_g^2 & -y_g z_g \\ -x_g z_g & -y_g z_g & x_g^2 + y_g^2 \end{bmatrix}$$
 
 Pada arsitektur BlueROV2 Heavy yang dirancang dengan simetri bilateral transversal dan longitudinal ($$x_g \approx 0, y_g \approx 0$$) dan produk inersia silang mendekati nol ($$I_{xy} \approx I_{xz} \approx I_{yz} \approx 0$$) [3], [21], [31]:
-$$\mathbf{M}_{RB} = \begin{bmatrix} m & 0 & 0 & 0 & m z_g & 0 \\\ 0 & m & 0 & -m z_g & 0 & 0 \\\ 0 & 0 & m & 0 & 0 & 0 \\\ 0 & -m z_g & 0 & I_{xx} + m z_g^2 & 0 & 0 \\\ m z_g & 0 & 0 & 0 & I_{yy} + m z_g^2 & 0 \\\ 0 & 0 & 0 & 0 & 0 & I_{zz} \end{bmatrix}$$
+$$\mathbf{M}_{RB} = \begin{bmatrix} m & 0 & 0 & 0 & m z_g & 0 \\ 0 & m & 0 & -m z_g & 0 & 0 \\ 0 & 0 & m & 0 & 0 & 0 \\ 0 & -m z_g & 0 & I_{xx} + m z_g^2 & 0 & 0 \\ m z_g & 0 & 0 & 0 & I_{yy} + m z_g^2 & 0 \\ 0 & 0 & 0 & 0 & 0 & I_{zz} \end{bmatrix}$$
 
 Dengan parameter fisik terukur pada platform uji BlueROV2 Heavy: massa kering $$m = 13.5\text{ kg}$$, $$z_g = 0.02\text{ m}$$, dan momen inersia bodi $$I_{xx} = 0.16\text{ kg}\cdot\text{m}^2$$, $$I_{yy} = 0.21\text{ kg}\cdot\text{m}^2$$, $$I_{zz} = 0.245\text{ kg}\cdot\text{m}^2$$ [3], [21], [31]:
 $$\mathbf{M}_{RB} \approx \text{diag}[13.5, 13.5, 13.5, 0.16, 0.21, 0.245]$$
 
 #### 2. Matriks Massa Tambah Hidrodinamika Fluida $$\mathbf{M}_A$$
 Ketika wahana bergerak di bawah air, fluida di sekitarnya ikut terakselerasi. Inersia fluida yang terdefleksi ini dimodelkan sebagai *massa tambah hidrodinamika* (*hydrodynamic added mass*) melalui turunan kestabilan SNAME [7]:
-$$\mathbf{M}_A = -\begin{bmatrix} X_{\dot{u}} & X_{\dot{v}} & X_{\dot{w}} & X_{\dot{p}} & X_{\dot{q}} & X_{\dot{r}} \\\ Y_{\dot{u}} & Y_{\dot{v}} & Y_{\dot{w}} & Y_{\dot{p}} & Y_{\dot{q}} & Y_{\dot{r}} \\\ Z_{\dot{u}} & Z_{\dot{v}} & Z_{\dot{w}} & Z_{\dot{p}} & Z_{\dot{q}} & Z_{\dot{r}} \\\ K_{\dot{u}} & K_{\dot{v}} & K_{\dot{w}} & K_{\dot{p}} & K_{\dot{q}} & K_{\dot{r}} \\\ M_{\dot{u}} & M_{\dot{v}} & M_{\dot{w}} & M_{\dot{p}} & M_{\dot{q}} & M_{\dot{r}} \\\ N_{\dot{u}} & N_{\dot{v}} & N_{\dot{w}} & N_{\dot{p}} & N_{\dot{q}} & N_{\dot{r}} \end{bmatrix}$$
+$$\mathbf{M}_A = -\begin{bmatrix} X_{\dot{u}} & X_{\dot{v}} & X_{\dot{w}} & X_{\dot{p}} & X_{\dot{q}} & X_{\dot{r}} \\ Y_{\dot{u}} & Y_{\dot{v}} & Y_{\dot{w}} & Y_{\dot{p}} & Y_{\dot{q}} & Y_{\dot{r}} \\ Z_{\dot{u}} & Z_{\dot{v}} & Z_{\dot{w}} & Z_{\dot{p}} & Z_{\dot{q}} & Z_{\dot{r}} \\ K_{\dot{u}} & K_{\dot{v}} & K_{\dot{w}} & K_{\dot{p}} & K_{\dot{q}} & K_{\dot{r}} \\ M_{\dot{u}} & M_{\dot{v}} & M_{\dot{w}} & M_{\dot{p}} & M_{\dot{q}} & M_{\dot{r}} \\ N_{\dot{u}} & N_{\dot{v}} & N_{\dot{w}} & N_{\dot{p}} & N_{\dot{q}} & N_{\dot{r}} \end{bmatrix}$$
 
 Pada fluida tak berotasi (*ideal fluid / potential flow theory*), matriks massa tambah selalu simetris dan bernilai definit positif ($$\mathbf{M}_A = \mathbf{M}_A^T \succ 0$$) [7]. Untuk wahana *open-frame* dengan tiga bidang simetri geometris pada kecepatan rendah hingga moderat, koefisien massa tambah non-diagonal bernilai sangat kecil dibandingkan elemen diagonal utama [1], [21], [31], sehingga tereduksi menjadi:
 $$\mathbf{M}_A = -\text{diag}[X_{\dot{u}}, Y_{\dot{v}}, Z_{\dot{w}}, K_{\dot{p}}, M_{\dot{q}}, N_{\dot{r}}]$$
@@ -303,15 +303,15 @@ $$\mathbf{M} = \text{diag}[19.86\text{ kg}, 20.62\text{ kg}, 32.18\text{ kg}, 0.
 
 #### 1. Matriks Coriolis Bodi Kaku $$\mathbf{C}_{RB}(\boldsymbol{\nu})$$
 Matriks Coriolis-sentripetal bodi kaku merepresentasikan gaya semu inersia yang muncul akibat gerak wahana di dalam kerangka referensi bodi yang berotasi. Menggunakan representasi *skew-symmetric* Kirchhoff [7]:
-$$\mathbf{C}_{RB}(\boldsymbol{\nu}) = \begin{bmatrix} \mathbf{0}_{3 \times 3} & -\mathbf{S}(\mathbf{M}_{RB,11}\boldsymbol{\nu}_1 + \mathbf{M}_{RB,12}\boldsymbol{\nu}_2) \\\ -\mathbf{S}(\mathbf{M}_{RB,11}\boldsymbol{\nu}_1 + \mathbf{M}_{RB,12}\boldsymbol{\nu}_2) & -\mathbf{S}(\mathbf{M}_{RB,21}\boldsymbol{\nu}_1 + \mathbf{M}_{RB,22}\boldsymbol{\nu}_2) \end{bmatrix}$$
+$$\mathbf{C}_{RB}(\boldsymbol{\nu}) = \begin{bmatrix} \mathbf{0}_{3 \times 3} & -\mathbf{S}(\mathbf{M}_{RB,11}\boldsymbol{\nu}_1 + \mathbf{M}_{RB,12}\boldsymbol{\nu}_2) \\ -\mathbf{S}(\mathbf{M}_{RB,11}\boldsymbol{\nu}_1 + \mathbf{M}_{RB,12}\boldsymbol{\nu}_2) & -\mathbf{S}(\mathbf{M}_{RB,21}\boldsymbol{\nu}_1 + \mathbf{M}_{RB,22}\boldsymbol{\nu}_2) \end{bmatrix}$$
 Untuk kondisi simetri di mana $$\mathbf{r}_g \approx \mathbf{0}$$:
-$$\mathbf{C}_{RB}(\boldsymbol{\nu}) = \begin{bmatrix} 0 & 0 & 0 & 0 & mw & -mv \\\ 0 & 0 & 0 & -mw & 0 & mu \\\ 0 & 0 & 0 & mv & -mu & 0 \\\ 0 & mw & -mv & 0 & I_{zz}r & -I_{yy}q \\\ -mw & 0 & mu & -I_{zz}r & 0 & I_{xx}p \\\ mv & -mu & 0 & I_{yy}q & -I_{xx}p & 0 \end{bmatrix}$$
+$$\mathbf{C}_{RB}(\boldsymbol{\nu}) = \begin{bmatrix} 0 & 0 & 0 & 0 & mw & -mv \\ 0 & 0 & 0 & -mw & 0 & mu \\ 0 & 0 & 0 & mv & -mu & 0 \\ 0 & mw & -mv & 0 & I_{zz}r & -I_{yy}q \\ -mw & 0 & mu & -I_{zz}r & 0 & I_{xx}p \\ mv & -mu & 0 & I_{yy}q & -I_{xx}p & 0 \end{bmatrix}$$
 
 #### 2. Matriks Coriolis Massa Tambah $$\mathbf{C}_A(\boldsymbol{\nu}_r)$$
 Matriks Coriolis massa tambah diturunkan dari energi kinetik fluida terakselerasi [7]:
-$$\mathbf{C}_A(\boldsymbol{\nu}_r) = \begin{bmatrix} \mathbf{0}_{3 \times 3} & -\mathbf{S}(\mathbf{M}_{A,11}\boldsymbol{\nu}_{r,1} + \mathbf{M}_{A,12}\boldsymbol{\nu}_{r,2}) \\\ -\mathbf{S}(\mathbf{M}_{A,11}\boldsymbol{\nu}_{r,1} + \mathbf{M}_{A,12}\boldsymbol{\nu}_{r,2}) & -\mathbf{S}(\mathbf{M}_{A,21}\boldsymbol{\nu}_{r,1} + \mathbf{M}_{A,22}\boldsymbol{\nu}_{r,2}) \end{bmatrix}$$
+$$\mathbf{C}_A(\boldsymbol{\nu}_r) = \begin{bmatrix} \mathbf{0}_{3 \times 3} & -\mathbf{S}(\mathbf{M}_{A,11}\boldsymbol{\nu}_{r,1} + \mathbf{M}_{A,12}\boldsymbol{\nu}_{r,2}) \\ -\mathbf{S}(\mathbf{M}_{A,11}\boldsymbol{\nu}_{r,1} + \mathbf{M}_{A,12}\boldsymbol{\nu}_{r,2}) & -\mathbf{S}(\mathbf{M}_{A,21}\boldsymbol{\nu}_{r,1} + \mathbf{M}_{A,22}\boldsymbol{\nu}_{r,2}) \end{bmatrix}$$
 Dengan mengasumsikan matriks massa tambah diagonal:
-$$\mathbf{C}_A(\boldsymbol{\nu}_r) = \begin{bmatrix} 0 & 0 & 0 & 0 & -Z_{\dot{w}}w_r & Y_{\dot{v}}v_r \\\ 0 & 0 & 0 & Z_{\dot{w}}w_r & 0 & -X_{\dot{u}}u_r \\\ 0 & 0 & 0 & -Y_{\dot{v}}v_r & X_{\dot{u}}u_r & 0 \\\ 0 & -Z_{\dot{w}}w_r & Y_{\dot{v}}v_r & 0 & -N_{\dot{r}}r & M_{\dot{q}}q \\\ Z_{\dot{w}}w_r & 0 & -X_{\dot{u}}u_r & N_{\dot{r}}r & 0 & -K_{\dot{p}}p \\\ -Y_{\dot{v}}v_r & X_{\dot{u}}u_r & 0 & -M_{\dot{q}}q & K_{\dot{p}}p & 0 \end{bmatrix}$$
+$$\mathbf{C}_A(\boldsymbol{\nu}_r) = \begin{bmatrix} 0 & 0 & 0 & 0 & -Z_{\dot{w}}w_r & Y_{\dot{v}}v_r \\ 0 & 0 & 0 & Z_{\dot{w}}w_r & 0 & -X_{\dot{u}}u_r \\ 0 & 0 & 0 & -Y_{\dot{v}}v_r & X_{\dot{u}}u_r & 0 \\ 0 & -Z_{\dot{w}}w_r & Y_{\dot{v}}v_r & 0 & -N_{\dot{r}}r & M_{\dot{q}}q \\ Z_{\dot{w}}w_r & 0 & -X_{\dot{u}}u_r & N_{\dot{r}}r & 0 & -K_{\dot{p}}p \\ -Y_{\dot{v}}v_r & X_{\dot{u}}u_r & 0 & -M_{\dot{q}}q & K_{\dot{p}}p & 0 \end{bmatrix}$$
 
 ### 2.4.3 Analisis Destabilisasi Momen Munk Hidrodinamika (*Hydrodynamic Munk Moment*)
 Fenomena hidrodinamika non-linier yang paling krusial dalam manuver wahana bawah air adalah *momen Munk hidrodinamika* [7], [34]. Momen ini timbul akibat perbedaan (*asymmetry*) antara massa tambah transversal ($$Y_{\dot{v}}$$) dan massa tambah longitudinal ($$X_{\dot{u}}$$).
@@ -354,25 +354,25 @@ $$\mathbf{D}(\boldsymbol{\nu}_r) = \mathbf{D}_L + \mathbf{D}_{NL}(\boldsymbol{\n
    $$\mathbf{D}_{NL}(\boldsymbol{\nu}_r) = \text{diag}[33.8|u_r|, 54.2|v_r|, 73.2|w_r|, 0.45|p|, 0.65|q|, 1.15|r|]$$
 
 Total gaya disipasi redaman hidrodinamika pada kerangka bodi dinyatakan oleh:
-$$\mathbf{D}(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r = \begin{bmatrix} -(X_u + X_{u|u|}|u_r|)u_r \\\ -(Y_v + Y_{v|v|}|v_r|)v_r \\\ -(Z_w + Z_{w|w|}|w_r|)w_r \\\ -(K_p + K_{p|p|}|p|)p \\\ -(M_q + M_{q|q|}|q|)q \\\ -(N_r + N_{r|r|}|r|)r \end{bmatrix}$$
+$$\mathbf{D}(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r = \begin{bmatrix} -(X_u + X_{u|u|}|u_r|)u_r \\ -(Y_v + Y_{v|v|}|v_r|)v_r \\ -(Z_w + Z_{w|w|}|w_r|)w_r \\ -(K_p + K_{p|p|}|p|)p \\ -(M_q + M_{q|q|}|q|)q \\ -(N_r + N_{r|r|}|r|)r \end{bmatrix}$$
 
 ### 2.4.5 Vektor Gaya dan Momen Pemulih Hidrostatis 6-DOF Penuh $$\mathbf{g}(\boldsymbol{\eta})$$
 Gaya hidrostatis terdiri dari gaya berat gravitasi $$W = mg$$ yang bekerja vertikal ke bawah pada Pusat Gravitasi $$\mathbf{r}_g = [x_g, y_g, z_g]^T$$, dan gaya apung Archimedes $$B = \rho g \nabla$$ yang bekerja vertikal ke atas pada Pusat Daya Apung $$\mathbf{r}_b = [x_b, y_b, z_b]^T$$ [7].
 
 Transformasi vektor gaya gravitasi dan gaya apung ke kerangka bodi $$\mathcal{F}^b$$ dinyatakan oleh:
-$$\mathbf{f}_g^b = \mathbf{R}_n^b(\boldsymbol{\eta}_2) \begin{bmatrix} 0 \\\ 0 \\\ W \end{bmatrix} = \begin{bmatrix} -W\sin\theta \\\ W\cos\theta\sin\phi \\\ W\cos\theta\cos\phi \end{bmatrix}, \qquad \mathbf{f}_b^b = \mathbf{R}_n^b(\boldsymbol{\eta}_2) \begin{bmatrix} 0 \\\ 0 \\\ -B \end{bmatrix} = \begin{bmatrix} B\sin\theta \\\ -B\cos\theta\sin\phi \\\ -B\cos\theta\cos\phi \end{bmatrix}$$
+$$\mathbf{f}_g^b = \mathbf{R}_n^b(\boldsymbol{\eta}_2) \begin{bmatrix} 0 \\ 0 \\ W \end{bmatrix} = \begin{bmatrix} -W\sin\theta \\ W\cos\theta\sin\phi \\ W\cos\theta\cos\phi \end{bmatrix}, \qquad \mathbf{f}_b^b = \mathbf{R}_n^b(\boldsymbol{\eta}_2) \begin{bmatrix} 0 \\ 0 \\ -B \end{bmatrix} = \begin{bmatrix} B\sin\theta \\ -B\cos\theta\sin\phi \\ -B\cos\theta\cos\phi \end{bmatrix}$$
 
 Resultan gaya hidrostatis bodi adalah:
-$$\mathbf{f}_{\text{restoring}}^b = \mathbf{f}_g^b + \mathbf{f}_b^b = \begin{bmatrix} -(W - B)\sin\theta \\\ (W - B)\cos\theta\sin\phi \\\ (W - B)\cos\theta\cos\phi \end{bmatrix}$$
+$$\mathbf{f}_{\text{restoring}}^b = \mathbf{f}_g^b + \mathbf{f}_b^b = \begin{bmatrix} -(W - B)\sin\theta \\ (W - B)\cos\theta\sin\phi \\ (W - B)\cos\theta\cos\phi \end{bmatrix}$$
 
 Momen pemulih hidrostatis bodi diturunkan melalui perkalian silang posisi terhadap titik asal $$O_b$$:
 $$\boldsymbol{\tau}_{\text{restoring}}^b = (\mathbf{r}_g \times \mathbf{f}_g^b) + (\mathbf{r}_b \times \mathbf{f}_b^b)$$
 
 Karena vektor pemulih didefinisikan sebagai suku pengurang di ruas kiri persamaan gerak ($$\mathbf{g}(\boldsymbol{\eta}) = -\begin{bmatrix} \mathbf{f}_{\text{restoring}}^b \\ \boldsymbol{\tau}_{\text{restoring}}^b \end{bmatrix}$$), maka diperoleh formulasi umum 6-DOF [7]:
-$$\mathbf{g}(\boldsymbol{\eta}) = \begin{bmatrix} (W - B)\sin\theta \\\ -(W - B)\cos\theta\sin\phi \\\ -(W - B)\cos\theta\cos\phi \\\ -(y_g W - y_b B)\cos\theta\cos\phi + (z_g W - z_b B)\cos\theta\sin\phi \\\ (z_g W - z_b B)\sin\theta + (x_g W - x_b B)\cos\theta\cos\phi \\\ -(x_g W - x_b B)\cos\theta\sin\phi - (y_g W - y_b B)\sin\theta \end{bmatrix}$$
+$$\mathbf{g}(\boldsymbol{\eta}) = \begin{bmatrix} (W - B)\sin\theta \\ -(W - B)\cos\theta\sin\phi \\ -(W - B)\cos\theta\cos\phi \\ -(y_g W - y_b B)\cos\theta\cos\phi + (z_g W - z_b B)\cos\theta\sin\phi \\ (z_g W - z_b B)\sin\theta + (x_g W - x_b B)\cos\theta\cos\phi \\ -(x_g W - x_b B)\cos\theta\sin\phi - (y_g W - y_b B)\sin\theta \end{bmatrix}$$
 
 Pada wahana yang dirancang netral secara apung (*neutrally buoyant*, $$W \approx B$$) dan pusat koordinat $$O_b$$ berimpit dengan CB ($$\mathbf{r}_b = \mathbf{0}$$) serta massa simetris ($$x_g \approx 0, y_g \approx 0, z_g > 0$$) [7], [21]:
-$$\mathbf{g}(\boldsymbol{\eta}) = \begin{bmatrix} 0 \\\ 0 \\\ 0 \\\ z_g W \cos\theta\sin\phi \\\ z_g W \sin\theta \\\ 0 \end{bmatrix}$$
+$$\mathbf{g}(\boldsymbol{\eta}) = \begin{bmatrix} 0 \\ 0 \\ 0 \\ z_g W \cos\theta\sin\phi \\ z_g W \sin\theta \\ 0 \end{bmatrix}$$
 
 Persamaan ini menunjukkan bahwa gaya apung netral menghilangkan gaya hidrostatis translasi, sementara tinggi metasentris $$z_g W > 0$$ menyediakan kekakuan pemulih pada sumbu rotasi *roll* ($$\phi$$) dan *pitch* ($$\theta$$).
 
@@ -428,7 +428,7 @@ Tabel 2.3 Koordinat Spasial dan Vektor Orientasi 8 Pendorong Wahana Over-Actuate
 Catatan: Nilai $$\cos(45^\circ) = \sin(45^\circ) = \frac{\sqrt{2}}{2} \approx 0.7071$$.
 
 Perhitungan lengan momen rotasi $$\mathbf{r}_i \times \mathbf{d}_i$$ untuk masing-masing pendorong dievaluasi sebagai berikut [7]:
-$$\mathbf{r}_i \times \mathbf{d}_i = \begin{bmatrix} y_i d_{z,i} - z_i d_{y,i} \\\ z_i d_{x,i} - x_i d_{z,i} \\\ x_i d_{y,i} - y_i d_{x,i} \end{bmatrix}$$
+$$\mathbf{r}_i \times \mathbf{d}_i = \begin{bmatrix} y_i d_{z,i} - z_i d_{y,i} \\ z_i d_{x,i} - x_i d_{z,i} \\ x_i d_{y,i} - y_i d_{x,i} \end{bmatrix}$$
 
 1. *Untuk Pendorong Horizontal ($$i = 1, 2, 3, 4$$)*:
    Karena $$z_i = 0$$ dan $$d_{z,i} = 0$$, maka komponen momen putar *roll* ($$K$$) dan *pitch* ($$M$$) bernilai nol. Komponen momen *yaw* ($$N$$) adalah:
@@ -450,10 +450,10 @@ $$\mathbf{r}_i \times \mathbf{d}_i = \begin{bmatrix} y_i d_{z,i} - z_i d_{y,i} \
    - Motor 8 (Stbd-Aft): $$K_8 = -(+0.218) = -0.218\text{ m}$$, $$M_8 = -0.120\text{ m}$$
 
 Menyusun kedelapan vektor kolom $$\mathbf{t}_1, \dots, \mathbf{t}_8$$ menghasilkan *Matriks Konfigurasi Alokasi Gaya Dorong 6x8* eksplisit [21], [32]:
-$$\mathbf{T}_{6 \times 8} = \begin{bmatrix} c & c & -c & -c & 0 & 0 & 0 & 0 \\\ c & -c & c & -c & 0 & 0 & 0 & 0 \\\ 0 & 0 & 0 & 0 & -1 & -1 & -1 & -1 \\\ 0 & 0 & 0 & 0 & +y_v & -y_v & +y_v & -y_v \\\ 0 & 0 & 0 & 0 & +x_v & +x_v & -x_v & -x_v \\\ +l_h & -l_h & -l_h & +l_h & 0 & 0 & 0 & 0 \end{bmatrix}$$
+$$\mathbf{T}_{6 \times 8} = \begin{bmatrix} c & c & -c & -c & 0 & 0 & 0 & 0 \\ c & -c & c & -c & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & -1 & -1 & -1 & -1 \\ 0 & 0 & 0 & 0 & +y_v & -y_v & +y_v & -y_v \\ 0 & 0 & 0 & 0 & +x_v & +x_v & -x_v & -x_v \\ +l_h & -l_h & -l_h & +l_h & 0 & 0 & 0 & 0 \end{bmatrix}$$
 
 Substitusi nilai parameter numerik ($$c = 0.7071$$, $$l_h = 0.1888\text{ m}$$, $$x_v = 0.120\text{ m}$$, $$y_v = 0.218\text{ m}$$):
-$$\mathbf{T}_{6 \times 8} = \begin{bmatrix} 0.7071 & 0.7071 & -0.7071 & -0.7071 & 0 & 0 & 0 & 0 \\\ 0.7071 & -0.7071 & 0.7071 & -0.7071 & 0 & 0 & 0 & 0 \\\ 0 & 0 & 0 & 0 & -1.0 & -1.0 & -1.0 & -1.0 \\\ 0 & 0 & 0 & 0 & 0.218 & -0.218 & 0.218 & -0.218 \\\ 0 & 0 & 0 & 0 & 0.120 & 0.120 & -0.120 & -0.120 \\\ 0.1888 & -0.1888 & -0.1888 & 0.1888 & 0 & 0 & 0 & 0 \end{bmatrix}$$
+$$\mathbf{T}_{6 \times 8} = \begin{bmatrix} 0.7071 & 0.7071 & -0.7071 & -0.7071 & 0 & 0 & 0 & 0 \\ 0.7071 & -0.7071 & 0.7071 & -0.7071 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & -1.0 & -1.0 & -1.0 & -1.0 \\ 0 & 0 & 0 & 0 & 0.218 & -0.218 & 0.218 & -0.218 \\ 0 & 0 & 0 & 0 & 0.120 & 0.120 & -0.120 & -0.120 \\ 0.1888 & -0.1888 & -0.1888 & 0.1888 & 0 & 0 & 0 & 0 \end{bmatrix}$$
 
 Struktur matriks blok ini terdekopel secara elegan:
 - Baris 1, 2, dan 6 (Surge, Sway, Yaw) sepenuhnya dikendalikan oleh motor horizontal 1–4.
@@ -629,7 +629,7 @@ Untuk mengatasi degradasi optik ini, dirancang modul *Topside/Onboard Visual Tar
 
 #### 1. Formulasi Vektor Ruang Keadaan 8-Dimensi
 Vektor keadaan penjejakan visual diformulasikan dalam ruang koordinat citra piksel berdimensi delapan:
-$$\mathbf{x}_k = \begin{bmatrix} x_k \\\ y_k \\\ s_k \\\ r_k \\ \dot{x}_k \\ \dot{y}_k \\ \dot{s}_k \\ \dot{r}_k \end{bmatrix} \in \mathbb{R}^8$$
+$$\mathbf{x}_k = \begin{bmatrix} x_k \\ y_k \\ s_k \\ r_k \\ \dot{x}_k \\ \dot{y}_k \\ \dot{s}_k \\ \dot{r}_k \end{bmatrix} \in \mathbb{R}^8$$
 di mana:
 - $$x_k, y_k$$: Koordinat piksel horizontal dan vertikal dari titik pusat sentroid kotak pembatas (*bounding box center*).
 - $$s_k$$: Skala luasan area kotak pembatas ($$s = w \times h$$ dalam piksel kuadrat), yang berbanding terbalik dengan kuadrat jarak relatif wahana ke target ($$s \propto 1/d^2$$).
@@ -649,7 +649,7 @@ $$\mathbf{F}_c = \begin{bmatrix} \mathbf{0}_{4 \times 4} & \mathbf{I}_{4 \times 
 Solusi analitis persamaan keadaan kontinu pada selang waktu pencuplikan $$\Delta t$$ (di mana $$\Delta t = 1/30\text{ s} \approx 0.0333\text{ s}$$ untuk kamera 30 FPS) dievaluasi melalui deret matriks eksponensial:
 $$\mathbf{A}(\Delta t) = e^{\mathbf{F}_c \Delta t} = \mathbf{I}_{8 \times 8} + \mathbf{F}_c \Delta t + \frac{1}{2!} \mathbf{F}_c^2 \Delta t^2 + \dots$$
 Karena $$\mathbf{F}_c^2 = \mathbf{0}_{8 \times 8}$$ (bersifat nilpoten orde 2), deret Taylor terputus secara eksak:
-$$\mathbf{A}(\Delta t) = \begin{bmatrix} \mathbf{I}_{4 \times 4} & \Delta t \mathbf{I}_{4 \times 4} \\ \mathbf{0}_{4 \times 4} & \mathbf{I}_{4 \times 4} \end{bmatrix} = \begin{bmatrix} 1 & 0 & 0 & 0 & \Delta t & 0 & 0 & 0 \\\ 0 & 1 & 0 & 0 & 0 & \Delta t & 0 & 0 \\\ 0 & 0 & 1 & 0 & 0 & 0 & \Delta t & 0 \\\ 0 & 0 & 0 & 1 & 0 & 0 & 0 & \Delta t \\\ 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\\ 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\\ 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\\ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \end{bmatrix}$$
+$$\mathbf{A}(\Delta t) = \begin{bmatrix} \mathbf{I}_{4 \times 4} & \Delta t \mathbf{I}_{4 \times 4} \\ \mathbf{0}_{4 \times 4} & \mathbf{I}_{4 \times 4} \end{bmatrix} = \begin{bmatrix} 1 & 0 & 0 & 0 & \Delta t & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 & 0 & \Delta t & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 & 0 & \Delta t & 0 \\ 0 & 0 & 0 & 1 & 0 & 0 & 0 & \Delta t \\ 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \end{bmatrix}$$
 
 #### 4. Diskritisasi Eksak Kovariansi Derau Proses
 Kovariansi derau proses diskrit dihitung secara eksak melalui integral konvolusi matriks eksponensial Van Loan [25]:
@@ -661,7 +661,7 @@ Formulasi eksak ini secara simultan memodelkan ketidakpastian percepatan target 
 
 #### 5. Kovariansi Pengukuran Adaptif Berbobot Konfidensi YOLO
 Model pengukuran sensor visual menghubungkan vektor keadaan 8D dengan 4 parameter observasi kotak pembatas dari detektor YOLO:
-$$\mathbf{z}_k = \begin{bmatrix} z_x \\\ z_y \\\ z_s \\\ z_r \end{bmatrix}_k = \mathbf{H} \mathbf{x}_k + \mathbf{v}_k, \qquad \mathbf{H} = \begin{bmatrix} \mathbf{I}_{4 \times 4} & \mathbf{0}_{4 \times 4} \end{bmatrix} \in \mathbb{R}^{4 \times 8}$$
+$$\mathbf{z}_k = \begin{bmatrix} z_x \\ z_y \\ z_s \\ z_r \end{bmatrix}_k = \mathbf{H} \mathbf{x}_k + \mathbf{v}_k, \qquad \mathbf{H} = \begin{bmatrix} \mathbf{I}_{4 \times 4} & \mathbf{0}_{4 \times 4} \end{bmatrix} \in \mathbb{R}^{4 \times 8}$$
 
 Setiap keluaran bounding box dari jaringan syaraf YOLO menyertakan skor keyakinan (*confidence score*) $$\text{conf}_k \in [0, 1]$$. Pada kondisi air keruh, deteksi dengan nilai keyakinan rendah mengandung variansi derau spasial yang jauh lebih besar. Untuk mengakomodasi fenomena ini secara stokastik, dikembangkan formulasi *kovariansi pengukuran adaptif non-linier* [16], [17]:
 $$\mathbf{R}_k(\text{conf}_k) = \mathbf{R}_0 \cdot \left[ 1 + \alpha_{\text{conf}} \left( \frac{1 - \text{conf}_k}{\text{conf}_k + \epsilon} \right)^2 \right]$$
@@ -685,7 +685,7 @@ Kriteria penerimaan pengukuran ditetapkan berdasarkan ambang batas gerbang (*gat
 $$\gamma_{\text{gate}} = \chi_{0.95}^2(4) \approx 9.488$$
 
 Aturan keputusan validasi deteksi visual dirumuskan sebagai:
-$$\begin{cases} \text{Diterima (Valid)}: & D_M^2 \le \gamma_{\text{gate}} \implies \text{Lakukan pembaruan Kalman (Update Posterior)} \\\ \text{Ditolak (Outlier)}: & D_M^2 > \gamma_{\text{gate}} \implies \text{Abaikan pengukuran, lakukan propagasi dead-reckoning} \end{cases}$$
+$$\begin{cases} \text{Diterima (Valid)}: & D_M^2 \le \gamma_{\text{gate}} \implies \text{Lakukan pembaruan Kalman (Update Posterior)} \\ \text{Ditolak (Outlier)}: & D_M^2 > \gamma_{\text{gate}} \implies \text{Abaikan pengukuran, lakukan propagasi dead-reckoning} \end{cases}$$
 
 #### 7. Penanganan Oklusi Visual dan Propagasi Dead-Reckoning
 Ketika target visual terhalang total oleh struktur bawah air atau keluar dari medan pandang kamera (*field of view*) selama beberapa detik ($$\mathbf{z}_k = \emptyset$$), modul penapis Kalman beralih ke mode *dead-reckoning murni* [16], [25]:
@@ -718,7 +718,7 @@ Karena $$\mathbf{D}(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r = \mathbf{D}_L \boldsy
 $$\frac{\partial}{\partial v_{r,j}} \left[ -(X_j + X_{j|j|}|v_{r,j}|)v_{r,j} \right] = -(X_j + 2 X_{j|j|} |v_{r,j}|)$$
 
 Dengan demikian, matriks Jacobian redaman adalah matriks diagonal definit negatif [7], [31]:
-$$\mathbf{D}^*(\boldsymbol{\nu}_r) = \text{diag}\begin{bmatrix} -(X_u + 2 X_{u|u|} |u_r|) \\\ -(Y_v + 2 Y_{v|v|} |v_r|) \\\ -(Z_w + 2 Z_{w|w|} |w_r|) \\\ -(K_p + 2 K_{p|p|} |p|) \\\ -(M_q + 2 M_{q|q|} |q|) \\\ -(N_r + 2 N_{r|r|} |r|) \end{bmatrix}$$
+$$\mathbf{D}^*(\boldsymbol{\nu}_r) = \text{diag}\begin{bmatrix} -(X_u + 2 X_{u|u|} |u_r|) \\ -(Y_v + 2 Y_{v|v|} |v_r|) \\ -(Z_w + 2 Z_{w|w|} |w_r|) \\ -(K_p + 2 K_{p|p|} |p|) \\ -(M_q + 2 M_{q|q|} |q|) \\ -(N_r + 2 N_{r|r|} |r|) \end{bmatrix}$$
 
 Sedangkan Jacobian dari suku Coriolis massa tambah $$\mathbf{C}_A(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r$$ membentuk matriks kopling silang yang mencakup turunan dari momen Munk [7], [34]:
 $$\mathbf{C}^*(\boldsymbol{\nu}_r) = \left. \frac{\partial (\mathbf{C}_A(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r)}{\partial \boldsymbol{\nu}_r} \right|_{\hat{\boldsymbol{\nu}}_r}$$

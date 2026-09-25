@@ -321,7 +321,7 @@ Dijalankan secara langsung pada frekuensi $$50\text{ Hz}$$ ($$\Delta t = 20\text
   yang diukur langsung dari akselerometer 3-sumbu, giroskop 3-sumbu Pixhawk, dan laju perubahan kedalaman sensor tekanan Bar30 MS5837.
 - *Linearisasi Analitis Matriks Transisi Kontinu $$\mathbf{F}$$*:
   Dievaluasi secara analitis dari persamaan dinamika Fossen 6-DOF:
-  $$\mathbf{F}(t) = \left. \frac{\partial \mathbf{f}(\mathbf{x}, \boldsymbol{\tau})}{\partial \mathbf{x}} \right|_{\hat{\mathbf{x}}} = \begin{bmatrix} -\mathbf{M}^{-1}\left( \mathbf{C}^*(\hat{\boldsymbol{\nu}}_r) + \mathbf{D}^*(\hat{\boldsymbol{\nu}}_r) \right) & \mathbf{0}_{6 \times 3} \\\ \mathbf{0}_{3 \times 6} & \mathbf{0}_{3 \times 3} \end{bmatrix}$$
+  $$\mathbf{F}(t) = \left. \frac{\partial \mathbf{f}(\mathbf{x}, \boldsymbol{\tau})}{\partial \mathbf{x}} \right|_{\hat{\mathbf{x}}} = \begin{bmatrix} -\mathbf{M}^{-1}\left( \mathbf{C}^*(\hat{\boldsymbol{\nu}}_r) + \mathbf{D}^*(\hat{\boldsymbol{\nu}}_r) \right) & \mathbf{0}_{6 \times 3} \\ \mathbf{0}_{3 \times 6} & \mathbf{0}_{3 \times 3} \end{bmatrix}$$
   di mana Jacobian redaman non-linier dievaluasi secara eksak:
   $$\mathbf{D}^*(\hat{\boldsymbol{\nu}}_r) = \text{diag}\left( -(X_u + 2 X_{u|u|}|\hat{u}_r|), -(Y_v + 2 Y_{v|v|}|\hat{v}_r|), \dots \right)$$
   dan suku kopling silang momen Munk terefleksikan pada baris ke-6 matriks $$\mathbf{C}^*(\hat{\boldsymbol{\nu}}_r)$$ [7], [34].
