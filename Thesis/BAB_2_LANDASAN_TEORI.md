@@ -459,40 +459,23 @@ Struktur matriks blok ini terdekopel secara elegan:
 - Baris 1, 2, dan 6 (Surge, Sway, Yaw) sepenuhnya dikendalikan oleh motor horizontal 1–4.
 - Baris 3, 4, dan 5 (Heave, Roll, Pitch) sepenuhnya dikendalikan oleh motor vertikal 5–8.
 
-### 2.5.3 Penyelesaian Alokasi Berbasis Moore-Penrose Pseudo-Inverse
-Karena sistem bersifat *over-actuated*, persamaan alokasi $$\boldsymbol{\tau} = \mathbf{T}_{6 \times 8} \mathbf{f}$$ memiliki solusi tak terhingga banyaknya. Untuk memilih satu solusi optimal yang meminimalkan total konsumsi energi listrik dan menghindari beban berlebih pada pendorong tertentu, masalah alokasi diformulasikan sebagai optimasi kuadratik terkonstrain (*constrained quadratic optimization*) [7], [32]:
-$$\min_{\mathbf{f}} J(\mathbf{f}) = \frac{1}{2} \mathbf{f}^T \mathbf{W} \mathbf{f} \quad \text{dengan kendala} \quad \mathbf{T}_{6 \times 8}\mathbf{f} = \boldsymbol{\tau}$$
-di mana $$\mathbf{W} \in \mathbb{R}^{8 \times 8}$$ adalah matriks bobot simetris definit positif ($$\mathbf{W} = \mathbf{W}^T \succ 0$$). Jika seluruh pendorong diasumsikan memiliki karakteristik identik, maka $$\mathbf{W} = \mathbf{I}_{8 \times 8}$$, yang merepresentasikan minimasi gaya dorong kuadrat minimum (*minimum Euclidean norm* $$\|\mathbf{f}\|^2$$).
+### 2.5.3 Alokasi Gaya Dorong pada Konfigurasi Over-Actuated Berbasis Moore-Penrose Pseudo-Inverse
 
-Fungsi Lagrangian dari problem optimasi ini dinyatakan oleh:
-$$\mathcal{L}(\mathbf{f}, \boldsymbol{\lambda}) = \frac{1}{2} \mathbf{f}^T \mathbf{W} \mathbf{f} + \boldsymbol{\lambda}^T (\boldsymbol{\tau} - \mathbf{T}_{6 \times 8}\mathbf{f})$$
-di mana $$\boldsymbol{\lambda} \in \mathbb{R}^6$$ adalah vektor pengali Lagrange (*Lagrange multiplier vector*).
+Karena sistem pendorong wahana memiliki 8 aktuator independen untuk mengendalikan 6 derajat kebebasan ($$n = 8 > m = 6$$), sistem ini diklasifikasikan sebagai sistem *over-actuated* [7], [21]. Konsekuensinya, pemetaan gaya kendali generalisasi $$\boldsymbol{\tau} = \mathbf{T}_{6 \times 8} \mathbf{f}$$ bersifat *under-determined*, yang berarti terdapat tak berhingga kombinasi gaya dorong individual motor $$\mathbf{f}$$ yang dapat menghasilkan vektor gaya dan momen kendali $$\boldsymbol{\tau}$$ yang sama.
 
-Kondisi optimalitas Karush-Kuhn-Tucker (KKT) orde pertama mensyaratkan gradien parsial bernilai nol:
-$$\frac{\partial \mathcal{L}}{\partial \mathbf{f}} = \mathbf{W}\mathbf{f} - \mathbf{T}_{6 \times 8}^T \boldsymbol{\lambda} = \mathbf{0} \implies \mathbf{f} = \mathbf{W}^{-1} \mathbf{T}_{6 \times 8}^T \boldsymbol{\lambda}$$
+Untuk memperoleh distribusi gaya dorong yang unik, efisien secara energi, serta meminimalkan magnitudo kuadratik dari vektor gaya dorong ($$\min \|\mathbf{f}\|^2$$), solusi analitis standar yang digunakan dalam hidrodinamika kelautan adalah formulasi *Moore-Penrose Pseudo-Inverse kanan* [7], [32]:
+$$\mathbf{f} = \mathbf{T}_{6 \times 8}^\dagger \boldsymbol{\tau} = \mathbf{T}_{6 \times 8}^T \left( \mathbf{T}_{6 \times 8} \mathbf{T}_{6 \times 8}^T \right)^{-1} \boldsymbol{\tau}$$
+di mana $$\mathbf{T}_{6 \times 8}^\dagger \in \mathbb{R}^{8 \times 6}$$ adalah matriks pseudo-inverse dari konfigurasi geometri pendorong. Karena matriks $$\mathbf{T}_{6 \times 8}$$ memiliki rank baris penuh ($$\text{rank}(\mathbf{T}_{6 \times 8}) = 6$$), perkalian kuadrat $$(\mathbf{T}_{6 \times 8} \mathbf{T}_{6 \times 8}^T) \in \mathbb{R}^{6 \times 6}$$ dijamin non-singular dan dapat dibalik secara analitis [7].
 
-Substitusikan persamaan gaya dorong optimal ini ke dalam persamaan kendali kesetimbangan:
-$$\mathbf{T}_{6 \times 8} \mathbf{f} = \boldsymbol{\tau} \implies \mathbf{T}_{6 \times 8} (\mathbf{W}^{-1} \mathbf{T}_{6 \times 8}^T \boldsymbol{\lambda}) = \boldsymbol{\tau}$$
-$$\left( \mathbf{T}_{6 \times 8} \mathbf{W}^{-1} \mathbf{T}_{6 \times 8}^T \right) \boldsymbol{\lambda} = \boldsymbol{\tau}$$
-
-Karena matriks $$\mathbf{T}_{6 \times 8}$$ memiliki rank baris penuh (*full row-rank*, $$\text{rank}(\mathbf{T}_{6 \times 8}) = 6$$), maka matriks kuadrat $$(\mathbf{T}_{6 \times 8} \mathbf{W}^{-1} \mathbf{T}_{6 \times 8}^T) \in \mathbb{R}^{6 \times 6}$$ dijamin non-singular dan memiliki invers [7]:
-$$\boldsymbol{\lambda} = \left( \mathbf{T}_{6 \times 8} \mathbf{W}^{-1} \mathbf{T}_{6 \times 8}^T \right)^{-1} \boldsymbol{\tau}$$
-
-Substitusikan kembali vektor pengali Lagrange $$\boldsymbol{\lambda}$$ ke persamaan $$\mathbf{f}$$:
-$$\mathbf{f} = \mathbf{W}^{-1} \mathbf{T}_{6 \times 8}^T \left( \mathbf{T}_{6 \times 8} \mathbf{W}^{-1} \mathbf{T}_{6 \times 8}^T \right)^{-1} \boldsymbol{\tau}$$
-
-Untuk kasus pembobotan seragam $$\mathbf{W} = \mathbf{I}_{8 \times 8}$$, solusi alokasi gaya dorong optimal tertutup (*closed-form optimal solution*) direduksi secara elegan menjadi rumus *Moore-Penrose Pseudo-Inverse kanan* [7], [32]:
-$$\mathbf{f} = \mathbf{T}_{6 \times 8}^+ \boldsymbol{\tau} = \mathbf{T}_{6 \times 8}^T (\mathbf{T}_{6 \times 8} \mathbf{T}_{6 \times 8}^T)^{-1} \boldsymbol{\tau}$$
-
-Algoritma ini diimplementasikan secara komputasional pada *firmware* ArduSub `-f vectored_6dof` di dalam mikrokontroler Pixhawk 2.4.8 pada frekuensi loop kendali 50 Hz, dilengkapi dengan logika *thrust clipping and scaling* untuk mencegah saturasi batas fisik motor BLDC Underwater Thruster ($$f_{\min} \le f_i \le f_{\max}$$) [3], [21].
+Pada arsitektur sistem kendali wahana, komputasi alokasi gaya dorong dan pemetaan sinyal PWM ke delapan modul *Electronic Speed Controller* (ESC) pendorong BLDC ditangani secara internal oleh *flight controller* Pixhawk 2.4.8 yang menjalankan *firmware* ArduSub dengan kerangka konfigurasi `AP_Motors6DOF` (`vectored_6dof`) pada frekuensi siklus kendali 50 Hz, yang dilengkapi dengan algoritma penskalaan (*thrust scaling*) untuk mencegah saturasi gaya dorong motor ($$f_{\min} \le f_i \le f_{\max}$$) [3], [21].
 
 ---
 
 ## 2.6 Teori dan Formulasi Optimal Kalman Filter Suite
 
 Operasi otonom AUV di lingkungan laut menghadapi ketidakpastian lingkungan yang tinggi (*environmental stochasticity*), derau sensor frekuensi tinggi, serta penurunan kualitas visual bawah air [2], [14], [16]. Untuk menjamin estimasi keadaan spasial dan pelacakan objek yang andal dan kokoh, penelitian ini merancang dan memformulasikan *Suite Optimal Kalman Filter* yang terdiri dari dua tingkatan terpadu [16], [17], [25], [29]:
-1. *Topside/Onboard Visual Target Kalman Filter (`AUVVisualKalmanFilter`)*: Penapis Kalman linier diskrit 8-dimensi untuk melacak kotak pembatas (bounding box) target visual deteksi YOLO monokuler pada laju 30 FPS.
-2. *Subsea Hydrodynamic Extended Kalman Filter (`AUVDynamicsKalmanFilter`)*: Penapis Kalman non-linier terperluas (EKF) untuk melakukan fusi sensor IMU dan kedalaman berbasis persamaan dinamika Fossen 6-DOF serta mengestimasi gangguan arus laut pada laju 50 Hz.
+1. *Topside Visual Target Kalman Filter (Penapis Pelacak Target Visual 8D)*: Penapis Kalman linier diskrit 8-dimensi untuk melacak kotak pembatas (*bounding box*) target visual deteksi YOLO monokuler pada laju 30 FPS.
+2. *Subsea Hydrodynamic Extended Kalman Filter (Penapis Estimasi Dinamika Hidrodinamika 6-DOF)*: Penapis Kalman non-linier terperluas (EKF) untuk melakukan fusi sensor IMU dan kedalaman berbasis persamaan dinamika Fossen 6-DOF serta mengestimasi gangguan arus laut pada laju 50 Hz.
 
 ### 2.6.1 Dasar Teori Estimasi Keadaan Stokastik dan Kriteria MMSE
 Tinjau suatu ruang probabilitas lengkap yang didefinisikan oleh tripel $$(\Omega, \mathcal{F}, \mathbb{P})$$, di mana $$\Omega$$ adalah ruang sampel peristiwa fisik, $$\mathcal{F}$$ adalah $$\sigma$$-aljabar himpunan bagian peristiwa terukur, dan $$\mathbb{P}$$ adalah ukuran probabilitas [25].
@@ -621,11 +604,11 @@ Struktur persamaan rekursif EKF diskrit dinyatakan oleh [25], [29]:
 
 ---
 
-### 2.6.4 Topside/Onboard Visual Target Kalman Filter (`AUVVisualKalmanFilter`)
+### 2.6.4 Formulasi Penapis Pelacak Target Visual 8D (Topside Visual Target Kalman Filter)
 
-Persepsi visual bawah air yang diperoleh dari kamera monokuler rentan terhadap distorsi optik, turbiditas air, hamburan cahaya, partikel tersuspensi (*marine snow*), serta bayangan dinamis [2], [14]. Arsitektur *deep learning* YOLO yang dijalankan pada komputer pendamping memprediksi koordinat kotak pembatas (*bounding box*) target secara *frame-by-frame*. Namun, deteksi visual mentah ini menghasilkan sentroid yang bergetar (*centroid jitter*), fluktuasi skala, deteksi palsu (*false positives*), dan kehilangan deteksi sesaat saat target terhalang (*temporary visual occlusion*) [2], [16], [17].
+Persepsi visual bawah air yang diperoleh dari kamera monokuler rentan terhadap distorsi optik, turbiditas air, hamburan cahaya, partikel tersuspensi (*marine snow*), serta bayangan dinamis [2], [14]. Arsitektur *deep learning* YOLO yang dijalankan pada stasiun permukaan memprediksi koordinat kotak pembatas (*bounding box*) target secara *frame-by-frame*. Namun, deteksi visual mentah ini menghasilkan sentroid yang bergetar (*centroid jitter*), fluktuasi skala, deteksi palsu (*false positives*), dan kehilangan deteksi sesaat saat target terhalang (*temporary visual occlusion*) [2], [16], [17].
 
-Untuk mengatasi degradasi optik ini, dirancang modul *Topside/Onboard Visual Target Kalman Filter (`AUVVisualKalmanFilter`)* berbasis model kinematika stokastik *Continuous White Noise Acceleration* (CWNA) [16], [25].
+Untuk mengatasi degradasi optik ini, dirancang modul *Topside Visual Target Kalman Filter* berbasis model kinematika stokastik *Continuous White Noise Acceleration* (CWNA) [16], [25].
 
 #### 1. Formulasi Vektor Ruang Keadaan 8-Dimensi
 Vektor keadaan penjejakan visual diformulasikan dalam ruang koordinat citra piksel berdimensi delapan:
@@ -696,9 +679,9 @@ Pada fase ini, estimasi kecepatan visual ($$\dot{x}, \dot{y}, \dot{s}$$) yang te
 
 ---
 
-### 2.6.5 Subsea Hydrodynamic Dynamics Extended Kalman Filter (`AUVDynamicsKalmanFilter`)
+### 2.6.5 Formulasi Penapis Estimasi Dinamika Hidrodinamika 6-DOF (Subsea Hydrodynamic Extended Kalman Filter)
 
-Di sisi wahana bawah laut, estimasi status dinamika hidrodinamika 6-DOF dieksekusi secara *real-time* oleh *Subsea Hydrodynamic Extended Kalman Filter* (`AUVDynamicsKalmanFilter`) yang berjalan pada komputer pendamping Raspberry Pi 4B berkomunikasi dengan Pixhawk 2.4.8 melalui protokol MAVLink pada frekuensi 50 Hz [14], [21], [29].
+Di sisi wahana bawah laut, estimasi status dinamika hidrodinamika 6-DOF dieksekusi secara *real-time* oleh *Subsea Hydrodynamic Extended Kalman Filter* yang berjalan pada komputer pendamping Raspberry Pi 4B berkomunikasi dengan Pixhawk 2.4.8 melalui protokol MAVLink pada frekuensi 50 Hz [14], [21], [29].
 
 #### 1. Formulasi Model Ruang Keadaan Non-Linier Dinamika 6-DOF
 Berdasarkan persamaan gerak Fossen (2021) yang diturunkan pada Subbab 2.4, turunan percepatan relatif bodi wahana dinyatakan oleh sistem persamaan diferensial non-linier [7]:

@@ -12,7 +12,7 @@ Pelaksanaan penelitian tugas akhir ini dijadwalkan berlangsung selama kurun wakt
 - Bulan 1 (September 2026): Studi literatur komprehensif, perumusan formulasi matematis kinematika dan dinamika 6-DOF, serta perancangan geometri kerangka wahana.
 - Bulan 2 (Oktober 2026): Fabrikasi kerangka kustom (*custom frame*), perakitan tabung lambung silinder akrilik kedap air (*custom hull*), instalasi 8 motor pendorong BLDC, 8 unit ESC EMAX BLHeli 30A, dan kalibrasi sensor kedalaman MS5837.
 - Bulan 3 (November 2026): Perancangan dan integrasi arsitektur komputasi perangkat keras *companion computer* Raspberry Pi 4B, *flight controller* Pixhawk 2.4.8 (ArduSub `vectored_6dof`), serta pengujian jalur *tether* Ethernet.
-- Bulan 4 (Desember 2026): Pengembangan algoritma *Dual Kalman Filter* (*Topside Visual Kalman Filter* 8D pada laptop berakselerasi GPU NVIDIA dan *Subsea AUVDynamicsKalmanFilter* 6-DOF pada RPi 4B) serta simulasi *Software-In-The-Loop* (SITL) Gazebo Harmonic.
+- Bulan 4 (Desember 2026): Pengembangan algoritma *Dual Kalman Filter* (*Topside Visual Kalman Filter* 8D pada laptop berakselerasi GPU NVIDIA dan *Subsea Dynamics EKF* 6-DOF pada RPi 4B) serta simulasi *Software-In-The-Loop* (SITL) Gazebo Harmonic.
 - Bulan 5 (Januari 2027): Pengujian eksperimental terpadu *Hardware-In-The-Loop* (HITL) di tangki uji perairan Laboratorium Mekatronika dan Robotika, evaluasi ketahanan pelacakan target visual (*tracking* YOLO), dan analisis penolakan gangguan arus laut.
 - Bulan 6 (Februari 2027): Analisis data kuantitatif komprehensif, kalkulasi metrik evaluasi galat (RMSE dan MAE), penyusunan laporan naskah skripsi, dan penyelesaian administrasi tugas akhir.
 
@@ -39,8 +39,8 @@ Gambar 3.1 Diagram alir tahapan penelitian komprehensif
 1. *Fase I (Studi Pendahuluan dan Perumusan Masalah)*: Mengidentifikasi keterbatasan mendasar pada wahana konvensional *underactuated* 6-pendorong, khususnya fenomena kopling silang momen Munk hidrodinamika yang mendestabilisasi gerak *yaw* dan ketidakmampuan manuver *pitch-hold* aktif [7], [6], [32], [40], [34]. Studi literatur dipusatkan pada publikasi mutakhir ($$\ge 2021$$) di bidang estimasi parameter hidrodinamika [1], penapis Bayesian [25], dan kendali wahana *over-actuated* [21], [32].
 2. *Fase II (Pemodelan Matematis Rigorous)*: Menurunkan model analitis lengkap gerak wahana bawah air 6-DOF berdasarkan standar SNAME (1950) dan Fossen (2021) [7]. Formulasi meliputi transformasi rotasi $$SO(3)$$, perumusan kinematika kuaternion bebas *gimbal lock*, pemodelan tensor inersia total $$\mathbf{M}$$, tensor Coriolis $$\mathbf{C}(\boldsymbol{\nu})$$, tensor redaman non-linier $$\mathbf{D}(\boldsymbol{\nu}_r)$$, gaya apung/berat hidrostatis $$\mathbf{g}(\boldsymbol{\eta})$$, serta matriks geometri alokasi pendorong $$\mathbf{T}_{6 \times 8}$$ menggunakan invers semu Moore-Penrose [21], [32].
 3. *Fase III (Perancangan Arsitektur Dual Kalman Filter)*: Merancang dua modul penapis optimal yang bekerja secara komplementer:
-   - *Topside/Onboard Visual Target Kalman Filter* (`AUVVisualKalmanFilter`): Penapis linier diskrit 8-dimensi berbasis model percepatan derau putih kontinu (*Continuous White Noise Acceleration* / CWNA) dengan kovariansi adaptif berbobot skor konfidensi YOLO $$\mathbf{R}_k(\text{conf})$$, validasi jarak inovasi Mahalanobis $$\chi^2(4)$$, dan mekanisme propagasi *dead-reckoning* saat terjadi oklusi visual [16], [17], [25].
-   - *Subsea Hydrodynamic Dynamics Extended Kalman Filter* (`AUVDynamicsKalmanFilter`): Penapis non-linier 6-DOF yang menggabungkan pembacaan sensor inersia Pixhawk dan sensor tekanan kedalaman dengan model kinetika Fossen, dilengkapi pengamat gangguan arus laut (*ocean current disturbance observer*) [7], [18], [29].
+   - *Topside Visual Target Kalman Filter (Penapis Pelacak Target Visual 8D)*: Penapis linier diskrit 8-dimensi berbasis model percepatan derau putih kontinu (*Continuous White Noise Acceleration* / CWNA) dengan kovariansi adaptif berbobot skor konfidensi YOLO $$\mathbf{R}_k(\text{conf})$$, validasi jarak inovasi Mahalanobis $$\chi^2(4)$$, dan mekanisme propagasi *dead-reckoning* saat terjadi oklusi visual [16], [17], [25].
+   - *Subsea Hydrodynamic Dynamics Extended Kalman Filter (Penapis Estimasi Dinamika Hidrodinamika 6-DOF)*: Penapis non-linier 6-DOF yang menggabungkan pembacaan sensor inersia Pixhawk dan sensor tekanan kedalaman dengan model kinetika Fossen, dilengkapi pengamat gangguan arus laut (*ocean current disturbance observer*) [7], [18], [29].
 4. *Fase IV (Simulasi Software-In-The-Loop / SITL)*: Membangun lingkungan simulasi virtual presisi tinggi memanfaatkan simulator Gazebo Harmonic (`gz-sim 8.14`) dan *Robot Operating System* (ROS 2 Jazzy Jalisco) [14], [31]. Wahana AUV 8-pendorong dimodelkan dalam format *Simulation Description Format* (SDF) lengkap dengan *plugin* hidrodinamika dan daya apung. Sistem kendali dieksekusi melalui ArduSub SITL dengan model kerangka `vectored_6dof` yang berkomunikasi dua arah via protokol JSON/UDP [21].
 - *Evaluasi Validasi SITL dan Konvergensi Filter (Decision Gateway 1)*: Merupakan gerbang pengujian pertama untuk memastikan bahwa model numerik dan penapis Kalman stabil sebelum diaplikasikan ke perangkat keras. Kriteria evaluasi mencakup kekonvergenan kovariansi galat $$\mathbf{P}_k$$, tidak adanya osilasi divergen pada alokasi gaya dorong, dan respons dinamika yang konsisten pada resolusi *step size* waktu nyata ($$\Delta t = 1\text{ ms}$$). Apabila kriteria tidak terpenuhi (*Tidak*), sistem memasuki *feedback loop* untuk merevisi parameter pemodelan fisik (Fase II) serta menala ulang kovariansi derau proses $$\mathbf{Q}$$ dan derau pengukuran $$\mathbf{R}$$ (Fase III). Jika simulasi valid dan konvergen (*Ya*), penelitian berlanjut ke integrasi fisik.
 5. *Fase V (Integrasi Hardware-In-The-Loop / HITL dan Fabrikasi Fisik)*: Mengintegrasikan perangkat keras fisik wahana ke dalam lingkungan komputasi permukaan melalui kabel *tether* Ethernet subsea [2], [14]. Komponen fisik mencakup sasis akrilik kedap air (*custom pressure hull*), *flight controller* Pixhawk 2.4.8 (menjalankan ArduSub), *companion computer* Raspberry Pi 4B (menjalankan BlueOS), 8 unit ESC EMAX BLHeli 30A, 8 motor BLDC *underwater thruster*, baterai Li-Po 4S 6000 mAh, sensor tekanan digital Bar30 MS5837, serta kamera Raspberry Pi Rev 1.3 dan Logitech C922. Stasiun permukaan memproses deteksi objek YOLO dan mengeksekusi penapis visual 8D, lalu mengirimkan *setpoint* kendali *visual servoing* kembali ke wahana melalui MAVLink.
@@ -52,7 +52,7 @@ Gambar 3.1 Diagram alir tahapan penelitian komprehensif
 
 ## 3.3 Identifikasi Parameter Fisik dan Hidrodinamika Wahana
 
-Keberhasilan perancangan penapis Kalman dinamika (`AUVDynamicsKalmanFilter`) dan alokasi gaya dorong *over-actuated* bergantung mutlak pada akurasi parameter fisik dan koefisien hidrodinamika wahana. Subbab ini merangkum identifikasi numerik dari parameter benda tegar (*rigid-body*), massa tambah hidrodinamika (*added mass*), redaman fluida (*hydrodynamic damping*), gaya pemulih hidrostatis (*restoring forces*), serta geometri alokasi pendorong 8-motor BlueROV2 Heavy [1], [3], [7], [34].
+Keberhasilan perancangan penapis estimasi dinamika hidrodinamika dan alokasi gaya dorong *over-actuated* bergantung mutlak pada akurasi parameter fisik dan koefisien hidrodinamika wahana. Subbab ini merangkum identifikasi numerik dari parameter benda tegar (*rigid-body*), massa tambah hidrodinamika (*added mass*), redaman fluida (*hydrodynamic damping*), gaya pemulih hidrostatis (*restoring forces*), serta geometri alokasi pendorong 8-motor BlueROV2 Heavy [1], [3], [7], [34].
 
 ### 3.3.1 Parameter Fisik dan Properti Benda Tegar (*Rigid-Body Properties*)
 Wahana yang digunakan mengadopsi arsitektur konfigurasi *retrofit* BlueROV2 Heavy berbahan dasar tabung akrilik tahan tekanan tinggi dengan rangka struktural *High-Density Polyethylene* (HDPE) [3]. Mengingat purwarupa fisik wahana saat ini masih berada dalam tahap perakitan dan integrasi mekanis (*under active fabrication and assembly*), nilai parameter massa total, dimensi fisik, dan posisi pusat massa/apung yang ditabulasikan pada Tabel 3.1 merupakan nilai estimasi referensi nominal berbasis model CAD 3D dan acuan standar BlueROV2 Heavy untuk keperluan simulasi awal *Software-in-the-Loop* (SITL). Identifikasi definitif terhadap parameter fisik riil (seperti massa akhir, volume benaman terdislokasi, posisi CG, serta koefisien massa tambah dan redaman hidrodinamika empiris) akan diukur secara langsung menggunakan timbangan digital, uji apung statis di tangki laboratorium, dan uji eksperimental pada tahap pengujian fisik penelitian tugas akhir ini.
@@ -203,7 +203,7 @@ Parameter `-f vectored_6dof` secara khusus mengonfigurasi ArduSub untuk mengguna
 Untuk memfasilitasi pertukaran data antara simulator Gazebo Harmonic dan ekosistem komputasi robotika, diimplementasikan jembatan komunikasi `ros_gz_bridge` pada distribusi ROS 2 Jazzy Jalisco [14]:
 1. Topik data odometri wahana `/model/bluerov2_heavy/odometry` dijembatani menjadi pesan ROS 2 `nav_msgs/msg/Odometry` untuk merekam koordinat posisi $$(x, y, z)$$, orientasi kuaternion, dan kecepatan linier/sudut wahana sebagai nilai kebenaran dasar (*ground truth*).
 2. Topik kamera virtual bawah air `/camera/image_raw` dijembatani menjadi pesan ROS 2 `sensor_msgs/msg/Image` dengan laju penyegaran $$30\text{ FPS}$$ pada resolusi $$1280 \times 720$$ piksel.
-3. Node pembaca kecepatan `display_velocity.py` mengekstraksi kecepatan bodi relatif wahana secara *real-time* untuk memvalidasi estimasi kecepatan dari penapis dinamika EKF.
+3. Node pembaca kecepatan telemetri mengekstraksi kecepatan bodi relatif wahana secara *real-time* untuk memvalidasi estimasi kecepatan dari penapis dinamika EKF.
 
 ---
 
@@ -261,7 +261,7 @@ Untuk memberikan gambaran yang lebih konkret terkait perangkat yang digunakan, b
 Untuk mengalirkan data sensor dari wahana ke modul estimasi tanpa membebani bus komputasi serial MAVLink secara berlebihan, diimplementasikan jembatan telemetri asinkron berbasis REST API memanfaatkan layanan `mavlink2rest` yang terintegrasi pada BlueOS (port HTTP `6040`):
 
 #### 1. Akuisisi Data IMU dan Tekanan
-Modul Python `SubseaTelemetryBridge` pada berkas [`auv_dynamics_hil_node.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/auv_dynamics_hil_node.py) melakukan *polling* data JSON pada endpoint `http://192.168.2.2:6040/mavlink/vehicles/1/components/1/messages` dengan batas waktu (*timeout*) $$0.25\text{ detik}$$.
+Subsistem komunikasi wahana mengimplementasikan modul jembatan telemetri asinkron (*subsea telemetry bridge*) yang melakukan pertukaran data JSON pada *endpoint* telemetri MAVLink wahana (`http://192.168.2.2:6040/mavlink/vehicles/1/components/1/messages`) dengan batas waktu (*timeout*) $$0.25\text{ detik}$$.
 
 #### 2. Pengekstrakkan Pesan MAVLink
 Pesan `SCALED_IMU2` atau `RAW_IMU` diekstraksi untuk memperoleh percepatan linier tiga sumbu ($$a_x, a_y, a_z$$) dan kecepatan sudut ($$p, q, r$$). Pesan `ATTITUDE` diekstraksi untuk memperoleh orientasi Euler ($$\phi, \theta, \psi$$). Pesan `SCALED_PRESSURE2` diekstraksi untuk memperoleh tekanan absolut subsea ($$P_{\text{fluid}}$$). Pesan `SERVO_OUTPUT_RAW` diekstraksi untuk merekam sinyal PWM dari delapan pendorong secara simultan.
@@ -287,8 +287,8 @@ beserta skor keyakinan deteksi (*detection confidence score*) $$\text{conf}_k \i
 ### 3.5.4 Algoritma Implementasi Dual Kalman Filter
 Sistem estimasi keadaan terdiri dari dua penapis Kalman yang beroperasi secara terpisah namun saling menyokong:
 
-#### 1. Topside Visual Target Kalman Filter (`AUVVisualKalmanFilter`)
-Diimplementasikan pada workstation permukaan di dalam berkas [`kalman_filter.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/kalman_filter.py) untuk menapis getaran deteksi (*jitter*), mengatasi oklusi sesaat, dan mengestimasi laju perubahan skala objek:
+#### 1. Topside Visual Target Kalman Filter (Penapis Pelacak Target Visual 8D)
+Diimplementasikan pada stasiun permukaan berbasis modul komputasi Python / ROS 2 untuk menapis getaran deteksi (*jitter*), mengatasi oklusi sesaat, dan mengestimasi laju perubahan skala objek:
 - *Vektor Keadaan 8D*:
   $$\mathbf{x}_{\text{vis}} = [x, y, s, r, \dot{x}, \dot{y}, \dot{s}, \dot{r}]^T$$
   di mana $$x, y$$ merepresentasikan koordinat titik pusat *bounding box*, $$s = w \times h$$ adalah luas area skala target, $$r = w / h$$ adalah rasio aspek, serta $$\dot{x}, \dot{y}, \dot{s}, \dot{r}$$ adalah laju perubahan temporalnya.
@@ -311,8 +311,8 @@ Diimplementasikan pada workstation permukaan di dalam berkas [`kalman_filter.py`
   $$\mathbf{P}_k = \mathbf{A}(\Delta t) \mathbf{P}_{k-1} \mathbf{A}^T(\Delta t) + \mathbf{Q}(\Delta t)$$
   sehingga posisi target tetap terlacak dengan mulus saat muncul kembali [25].
 
-#### 2. Subsea Hydrodynamic Dynamics EKF (`AUVDynamicsKalmanFilter`)
-Dijalankan secara langsung pada frekuensi $$50\text{ Hz}$$ ($$\Delta t = 20\text{ ms}$$) pada *companion computer* Raspberry Pi 4B (atau laptop topside melalui jembatan telemetri) di dalam berkas [`auv_dynamics_hil_node.py`](file:///home/radhi/Documents/AUV_GitHub_Upload/auv_dynamics_hil_node.py) [18], [29]:
+#### 2. Subsea Hydrodynamic Dynamics EKF (Penapis Estimasi Dinamika Hidrodinamika 6-DOF)
+Dijalankan secara langsung pada frekuensi $$50\text{ Hz}$$ ($$\Delta t = 20\text{ ms}$$) pada *companion computer* Raspberry Pi 4B (serta terhubung ke stasiun permukaan melalui jembatan telemetri) sebagai modul pengestimasi keadaan dinamika wahana [18], [29]:
 - *Vektor Keadaan Dinamika 9-Dimensi*:
   $$\mathbf{x}_{\text{dyn}} = [u_r, v_r, w_r, p, q, r, u_c, v_c, w_c]^T$$
   yang menggabungkan 6-DOF kecepatan bodi relatif wahana terhadap fluida dan 3-DOF komponen kecepatan arus laut lingkungan.
@@ -336,7 +336,7 @@ Dijalankan secara langsung pada frekuensi $$50\text{ Hz}$$ ($$\Delta t = 20\text
 Untuk membuktikan hipotesis penelitian dan memvalidasi keunggulan arsitektur mekatronika yang diajukan, dirancang tiga skenario pengujian eksperimental terstruktur yang mencakup ranah simulasi presisi tinggi (SITL) dan validasi perangkat keras riil (HITL).
 
 ### 3.6.1 Skenario 1: Evaluasi Pelacakan Visual Target Dinamis dan Ketahanan terhadap Oklusi
-Skenario ini bertujuan menguji akurasi pelacakan visual penapis AUVVisualKalmanFilter dalam meredam derau deteksi YOLO dan mempertahankan penjejakan target saat terjadi kehilangan deteksi visual sementara [2], [14], [25].
+Skenario ini bertujuan menguji akurasi pelacakan visual penapis Kalman visual 8D dalam meredam derau deteksi YOLO dan mempertahankan penjejakan target saat terjadi kehilangan deteksi visual sementara [2], [14], [25].
 - *Prosedur Pengujian*:
   1. Wahana AUV diposisikan mengapung di depan target visual referensi (misalnya pelampung bawah air underwater buoy atau penanda berstruktur) pada jarak observasi nominal $$1.5 - 3.0\text{ meter}$$.
   2. Target visual digerakkan secara dinamis mengikuti trajektori spasial acak pada bidang pandang kamera ($$xy$$) dan variasi jarak maju-mundur (perubahan skala area $$s$$).
@@ -347,7 +347,7 @@ Skenario ini bertujuan menguji akurasi pelacakan visual penapis AUVVisualKalmanF
   5. Sinyal trajektori hasil penapisan Kalman dibandingkan secara kuantitatif terhadap sinyal koordinat deteksi mentah (raw YOLO detection) dan posisi kebenaran dasar (*ground truth*).
 
 ### 3.6.2 Skenario 2: Rekonstruksi Kecepatan Bodi 6-DOF dan Mitigasi Momen Munk
-Skenario ini dirancang untuk memvalidasi performa penapis non-linier AUVDynamicsKalmanFilter dalam mengestimasi kecepatan relatif wahana terhadap fluida, mengamati kecepatan arus laut, serta mengevaluasi kompensasi aktif momen Munk hidrodinamika oleh sistem alokasi 8-pendorong [7], [21], [32], [34].
+Skenario ini dirancang untuk memvalidasi performa penapis non-linier EKF dinamika dalam mengestimasi kecepatan relatif wahana terhadap fluida, mengamati kecepatan arus laut, serta mengevaluasi kompensasi aktif momen Munk hidrodinamika oleh sistem alokasi 8-pendorong [7], [21], [32], [34].
 - *Prosedur Pengujian*:
   1. Wahana dioperasikan dalam lingkungan simulasi Gazebo Harmonic dan diarahkan menjalankan serangkaian manuver uji standar:
      - *Uji Akselerasi Lurus (Surge Acceleration)*: Wahana dipercepat dari diam hingga mencapai kecepatan jelajah $$u = 1.0\text{ m/s}$$.
