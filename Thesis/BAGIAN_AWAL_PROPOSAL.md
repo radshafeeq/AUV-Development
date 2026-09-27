@@ -316,11 +316,11 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
 
 <br>
 
-*Latar belakang.* Eksplorasi dan pemantauan infrastruktur bawah air menuntut wahana otonom dengan manuver tinggi. Sebagian besar AUV mikro konvensional bekerja dalam kondisi *underactuated* (6 pendorong) yang tidak memiliki kendali aktif pada derajat kebebasan *pitch* dan rentan terhadap momen kopling hidrodinamika tidak stabil seperti *Munk moment*. Wahana *over-actuated* 8-pendorong mampu menyediakan kendali aktif 6 derajat kebebasan (6-DOF) penuh, namun menghadirkan kompleksitas non-linearitas hidrodinamika Navier-Stokes serta degradasi sensor visual akibat turbiditas air. *Tujuan.* Penelitian ini bertujuan memformulasikan model matematis lengkap kinematika dan dinamika 6-DOF, mengkonstruksi matriks konfigurasi geometri alokasi gaya dorong $$6 \times 8$$ ($$\mathbf{T}_{6 \times 8}$$) untuk pemetaan aktuasi delapan pendorong, merancang *suite* Kalman Filter optimal untuk pelacakan target visual dan estimasi dinamika wahana, serta memvalidasi performa sistem melalui integrasi *Software-In-The-Loop* (SITL) dan *Hardware-In-The-Loop* (HITL). *Metode.* Kinematika 6-DOF diturunkan melalui grup rotasi $$SO(3)$$ dan kuaternion unit bebas singularitas. Persamaan dinamika non-linear diturunkan berbasis model Fossen, mencakup tensor massa total ($$\mathbf{M}_{RB} + \mathbf{M}_A$$), matriks Coriolis-sentripetal ($$\mathbf{C}_{RB} + \mathbf{C}_A$$), redaman kuadratik Morison, dan vektor pemulih hidrostatis. Pemetaan gaya kendali generalisasi ke delapan aktuator didistribusikan melalui matriks konfigurasi geometri pendorong $$\mathbf{T}_{6 \times 8}$$ dengan manajemen pencampuran motor (*motor matrix mixing*). Estimasi keadaan visual menggunakan Kalman Filter diskrit 8D berbasis *Continuous White Noise Acceleration* (CWNA) dengan *Mahalanobis distance gating*, sedangkan estimasi dinamika menggunakan *Extended Kalman Filter* (EKF) pada *companion computer* Raspberry Pi 4B yang terhubung secara serial MAVLink (50 Hz) dengan *flight controller* Pixhawk 2.4.8 (ArduSub `vectored_6dof`) dan simulator Gazebo Harmonic/ROS 2. *Hasil yang diharapkan.* Penelitian ini menghasilkan formulasi matematis lengkap, matriks alokasi gaya dorong terverifikasi, serta algoritma penapis Kalman yang mampu mengeliminasi derau deteksi YOLO dan menjaga stabilitas orientasi 6-DOF (*pitch-holding*) secara *real-time*. *Kesimpulan.* Integrasi pemodelan dinamika 6-DOF *first-principles* dengan estimasi Kalman Filter optimal memberikan landasan teoretis dan arsitektur mekatronika yang kokoh untuk inspeksi otonom bawah air.
+*Latar belakang.* Eksplorasi dan pemantauan infrastruktur bawah air menuntut wahana otonom dengan manuver tinggi. Sebagian besar AUV mikro konvensional bekerja dalam kondisi *underactuated* (6 pendorong) yang tidak memiliki kendali aktif pada derajat kebebasan *pitch* dan rentan terhadap momen kopling hidrodinamika tidak stabil seperti *Munk moment*. Wahana *over-actuated* 8-pendorong mampu menyediakan kendali aktif 6 derajat kebebasan (6-DOF) penuh, namun menghadirkan kompleksitas non-linearitas hidrodinamika Navier-Stokes serta degradasi sensor visual akibat turbiditas air. *Tujuan.* Penelitian ini bertujuan memformulasikan model matematis lengkap kinematika dan dinamika 6-DOF Fossen, merancang *suite* Kalman Filter optimal untuk pelacakan target visual dan estimasi dinamika wahana, serta memvalidasi performa sistem melalui integrasi *Software-In-The-Loop* (SITL) dan *Hardware-In-The-Loop* (HITL). *Metode.* Kinematika 6-DOF diturunkan melalui grup rotasi $$SO(3)$$ dan kuaternion unit bebas singularitas. Persamaan dinamika non-linear diturunkan berbasis model Fossen, mencakup tensor massa total ($$\mathbf{M}_{RB} + \mathbf{M}_A$$), matriks Coriolis-sentripetal ($$\mathbf{C}_{RB} + \mathbf{C}_A$$), redaman kuadratik Morison, dan vektor pemulih hidrostatis. Estimasi keadaan visual menggunakan Kalman Filter diskrit 8D berbasis *Continuous White Noise Acceleration* (CWNA) dengan *Mahalanobis distance gating*, sedangkan estimasi dinamika menggunakan *Extended Kalman Filter* (EKF) pada *companion computer* Raspberry Pi 4B yang terhubung secara serial MAVLink (50 Hz) dengan *flight controller* Pixhawk 2.4.8 (ArduSub `vectored_6dof`) dan simulator Gazebo Harmonic/ROS 2. *Hasil yang diharapkan.* Penelitian ini menghasilkan formulasi matematis lengkap kinematika dan dinamika 6-DOF Fossen, algoritma penapis Kalman yang mampu mengeliminasi derau deteksi YOLO dan merekonstruksi dinamika bodi serta gangguan arus laut, serta menjaga stabilitas orientasi 6-DOF (*pitch-holding*) secara *real-time*. *Kesimpulan.* Integrasi pemodelan dinamika 6-DOF *first-principles* dengan estimasi Kalman Filter optimal memberikan landasan teoretis dan arsitektur mekatronika yang kokoh untuk inspeksi otonom bawah air.
 
 <br>
 
-*Kata kunci:* AUV *over-actuated*; dinamika 6-DOF; alokasi gaya dorong; *Extended Kalman Filter*; pelacakan visual YOLO; *Hardware-In-The-Loop*
+*Kata kunci:* AUV *over-actuated*; dinamika 6-DOF Fossen; *Extended Kalman Filter*; *Discrete Kalman Filter*; pelacakan visual YOLO; *Hardware-In-The-Loop*
 
 <div style="page-break-after: always;"></div>
 
@@ -429,12 +429,8 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
     <td style="border:none; text-align:right;">19</td>
   </tr>
   <tr>
-    <td style="border:none; padding-left:20px;">2.5 Alokasi Gaya Dorong Sistem *Over-Actuated* 8-Pendorong</td>
+    <td style="border:none; padding-left:20px;">2.5 Teori dan Formulasi Optimal *Kalman Filter* Suite</td>
     <td style="border:none; text-align:right;">26</td>
-  </tr>
-  <tr>
-    <td style="border:none; padding-left:20px;">2.6 Teori dan Formulasi Optimal *Kalman Filter* Suite</td>
-    <td style="border:none; text-align:right;">30</td>
   </tr>
 
   <tr>
@@ -513,28 +509,23 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
     <td style="border:none; text-align:right;">14</td>
   </tr>
   <tr>
-    <td style="border:none;">Tabel 2.3</td>
-    <td style="border:none;">Koordinat Spasial dan Vektor Orientasi 8 Pendorong Wahana Over-Actuated</td>
-    <td style="border:none; text-align:right;">26</td>
-  </tr>
-  <tr>
     <td style="border:none;">Tabel 3.1</td>
-    <td style="border:none;">Parameter Fisik dan Properti Benda Tegar Wahana Over-Actuated 8-Pendorong</td>
+    <td style="border:none;">Parameter Fisik dan Properti Benda Tegar Acuan Nominal Model Simulasi SITL</td>
     <td style="border:none; text-align:right;">43</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 3.2</td>
-    <td style="border:none;">Koefisien Derivatif Massa Tambah Hidrodinamika Wahana</td>
+    <td style="border:none;">Koefisien Derivatif Massa Tambah Hidrodinamika Acuan Simulasi SITL</td>
     <td style="border:none; text-align:right;">44</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 3.3</td>
-    <td style="border:none;">Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana</td>
+    <td style="border:none;">Koefisien Redaman Hidrodinamika Acuan Simulasi SITL</td>
     <td style="border:none; text-align:right;">46</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 3.4</td>
-    <td style="border:none;">Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Bervektor</td>
+    <td style="border:none;">Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Acuan Geometri Kerangka</td>
     <td style="border:none; text-align:right;">47</td>
   </tr>
   <tr>
@@ -689,8 +680,6 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
 | $$\mathbf{D}(\boldsymbol{\nu}_r)$$ | $$\mathbb{R}^{6 \times 6}$$ | Tensor redaman hidrodinamika gabungan (linier laminar $$\mathbf{D}_L$$ + kuadratik $$\mathbf{D}_{NL}$$) |
 | $$\mathbf{g}(\boldsymbol{\eta})$$ | $$\mathbb{R}^6$$ | Vektor gaya dan momen pemulih hidrostatis (gravitasi dan gaya apung) |
 | $$GM_T$$ | $$\text{m}$$ | Tinggi metasentris transversal wahana: $$z_g - z_b$$ |
-| $$\mathbf{T}_{6 \times 8}$$ | $$\mathbb{R}^{6 \times 8}$$ | Matriks konfigurasi geometri alokasi gaya dorong 8 pendorong ($$\boldsymbol{\tau} = \mathbf{T}_{6 \times 8}\mathbf{f}$$) |
-| $$\mathbf{f}$$ | $$\mathbb{R}^8$$ | Vektor gaya dorong individual 8 motor pendorong $$[f_1, f_2, \dots, f_8]^T$$ ($$\text{N}$$) |
 | $$\mathbf{x}_{k}$$ | $$\mathbb{R}^8$$ | Vektor keadaan penjejakan visual: $$[x, y, s, r, \dot{x}, \dot{y}, \dot{s}, \dot{r}]^T$$ |
 | $$\mathbf{P}_k$$ | $$\mathbb{R}^{8 \times 8}$$ | Matriks kovariansi kesalahan estimasi (*error covariance matrix*) |
 | $$\mathbf{K}_k$$ | - | Matriks penguatan optimal Kalman (*optimal Kalman gain*) |

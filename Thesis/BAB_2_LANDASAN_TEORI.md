@@ -432,98 +432,13 @@ Persamaan ini menunjukkan bahwa gaya apung netral menghilangkan gaya hidrostatis
 
 ---
 
-## 2.5 Alokasi Gaya Dorong Sistem Over-Actuated 8-Pendorong
-
-Salah satu keunggulan mendasar dari arsitektur wahana BlueROV2 Heavy adalah sistem aktuasinya yang bersifat *over-actuated* [3], [21], [32]. Wahana ini dilengkapi dengan 8 unit pendorong elektro-mekanis Brushless DC (Blue Robotics BLDC Underwater Thruster) yang disusun secara geometris untuk mengendalikan 6 derajat kebebasan spasial. Karena jumlah aktuator ($$m = 8$$) melebihi jumlah derajat kebebasan yang dikendalikan ($$n = 6$$), sistem memiliki dua derajat redundansi aktuasi ($$m - n = 2$$) [7], [32]. Redundansi ini menghadirkan ruang nol aktuasi (*actuator null-space*) yang memungkinkan optimasi konsumsi energi listrik, penghindaran saturasi pendorong individual, serta kemampuan rekonfigurasi toleransi kesalahan (*fault-tolerant control*) [21], [32].
-
-### 2.5.1 Karakteristik Dinamika Motor Pendorong Tanpa Sikat Bawah Air (*BLDC Underwater Thruster*)
-Setiap unit motor pendorong bawah air terdiri atas motor *brushless* DC (BLDC) 3-fase dengan efisiensi tinggi yang terendam langsung di dalam air (*flooded motor design*) dan dikendalikan oleh *Electronic Speed Controller* (ESC) berbasis modulasi lebar pulsa (*Pulse Width Modulation* / PWM). Baling-baling berdiameter $$D_p = 0.076\text{ m}$$ menghasilkan gaya dorong hidrodinamika fluida ($$T_i$$) yang sebanding dengan kuadrat kecepatan putar poros ($$n_i$$ dalam RPM atau rev/s) [3], [7]:
-$$T_i = K_T \rho D_p^4 n_i |n_i|$$
-di mana:
-- $$K_T$$ adalah koefisien gaya dorong baling-baling non-dimensi ($$K_T \approx 0.11$$ untuk gerak maju dan $$K_T \approx 0.09$$ untuk gerak mundur).
-- $$\rho = 1025\text{ kg/m}^3$$ adalah densitas massa air laut.
-- $$D_p = 0.076\text{ m}$$ adalah diameter luar propeler.
-
-Karakteristik gaya dorong maksimum yang dihasilkan oleh motor pendorong BLDC pada tegangan nominal baterai 16V (4S LiPo) adalah sebesar $$+51.5\text{ N}$$ ($$+5.25\text{ kgf}$$) untuk arah maju dan $$-40.2\text{ N}$$ ($$-4.1\text{ kgf}$$) untuk arah mundur [3].
-
-Dinamika respons elektrik dan hidrodinamika pendorong dimodelkan sebagai sistem diferensial orde pertama linier dengan konstanta waktu elektro-mekanis $$\tau_m \approx 0.05\text{ s}$$ [7], [31]:
-$$\dot{f}_i(t) = \frac{1}{\tau_m} \left( f_{i,\text{cmd}}(t) - f_i(t) \right)$$
-di mana $$f_{i,\text{cmd}}$$ adalah perintah gaya dorong yang diminta oleh algoritma kontrol alokasi, dan $$f_i$$ adalah gaya dorong aktual yang dihasilkan oleh pendorong ke-$$i$$.
-
-### 2.5.2 Formulasi Geometris Matriks Alokasi Gaya Dorong 6x8 (T_6x8)
-Gaya dan torsi generalisasi total $$\boldsymbol{\tau} \in \mathbb{R}^6$$ yang bekerja pada kerangka bodi wahana merupakan superposisi linier dari kontribusi gaya translasi dan momen putar dari kedelapan motor pendorong [7], [32]:
-$$\boldsymbol{\tau} = \sum_{i=1}^8 \mathbf{t}_i f_i = \mathbf{T}_{6 \times 8} \mathbf{f}$$
-di mana:
-- $$\mathbf{f} = [f_1, f_2, f_3, f_4, f_5, f_6, f_7, f_8]^T \in \mathbb{R}^8$$ adalah vektor gaya dorong individual tiap motor (Newton).
-- Kolom ke-$$i$$ dari matriks alokasi, dinotasikan $$\mathbf{t}_i \in \mathbb{R}^6$$, dibentuk dari vektor satuan arah dorong $$\mathbf{d}_i \in \mathbb{R}^3$$ dan lengan momen posisi pendorong $$\mathbf{r}_i = [x_i, y_i, z_i]^T \in \mathbb{R}^3$$ terhadap titik asal acuan $$O_b$$ [7]:
-  $$\mathbf{t}_i = \begin{bmatrix} \mathbf{d}_i \\ \mathbf{r}_i \times \mathbf{d}_i \end{bmatrix} \in \mathbb{R}^6$$
-
-Tata letak fisik 8 pendorong pada arsitektur BlueROV2 Heavy dibagi menjadi dua subsistem independen [3], [21]:
-1. *Subsistem Horizontal (Pendorong 1, 2, 3, 4)*:  
-   Empat pendorong dipasang horizontal di bidang $$x_b-y_b$$ membentuk konfigurasi *vectored* dengan sudut canting $$\alpha = 45^\circ$$ ($$\pi/4\text{ rad}$$) terhadap sumbu longitudinal. Konfigurasi ini menghasilkan gaya translasi gabungan *Surge* ($$X$$), *Sway* ($$Y$$), dan momen rotasi *Yaw* ($$N$$).
-2. *Subsistem Vertikal (Pendorong 5, 6, 7, 8)*:  
-   Empat pendorong dipasang vertikal di keempat sudut sasis (port-fore*, *starboard-fore*, *port-aft*, *starboard-aft*). Pendorong ini menghasilkan gaya translasi *Heave* ($$Z$$), serta momen kendali aktif independen pada sumbu *Roll* ($$K$$) dan sumbu *Pitch ($$M$$).
-
-Koordinat spasial posisi dan vektor satuan arah dorong untuk kedelapan motor pendorong wahana *over-actuated* disajikan pada Tabel 2.3 [3], [21], [31].
-
-Tabel 2.3 Koordinat Spasial dan Vektor Orientasi 8 Pendorong Wahana Over-Actuated
-
-| Indeks ($$i$$) | Penamaan Pendorong | Posisi $$x_i$$ (m) | Posisi $$y_i$$ (m) | Posisi $$z_i$$ (m) | Arah $$d_{x,i}$$ | Arah $$d_{y,i}$$ | Arah $$d_{z,i}$$ |
-| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| *1* | Horizontal Kiri-Depan (Port-Fore) | $$+0.156$$ | $$-0.111$$ | $$0.000$$ | $$+\cos(45^\circ)$$ | $$+\sin(45^\circ)$$ | $$0.000$$ |
-| *2* | Horizontal Kanan-Depan (Starboard-Fore) | $$+0.156$$ | $$+0.111$$ | $$0.000$$ | $$+\cos(45^\circ)$$ | $$-\sin(45^\circ)$$ | $$0.000$$ |
-| *3* | Horizontal Kiri-Belakang (Port-Aft) | $$-0.156$$ | $$-0.111$$ | $$0.000$$ | $$-\cos(45^\circ)$$ | $$+\sin(45^\circ)$$ | $$0.000$$ |
-| *4* | Horizontal Kanan-Belakang (Starboard-Aft) | $$-0.156$$ | $$+0.111$$ | $$0.000$$ | $$-\cos(45^\circ)$$ | $$-\sin(45^\circ)$$ | $$0.000$$ |
-| *5* | Vertikal Kiri-Depan (Port-Fore Vertical) | $$+0.120$$ | $$-0.218$$ | $$-0.055$$ | $$0.000$$ | $$0.000$$ | $$-1.000$$ |
-| *6* | Vertikal Kanan-Depan (Starboard-Fore Vertical) | $$+0.120$$ | $$+0.218$$ | $$-0.055$$ | $$0.000$$ | $$0.000$$ | $$-1.000$$ |
-| *7* | Vertikal Kiri-Belakang (Port-Aft Vertical) | $$-0.120$$ | $$-0.218$$ | $$-0.055$$ | $$0.000$$ | $$0.000$$ | $$-1.000$$ |
-| *8* | Vertikal Kanan-Belakang (*Starboard-Aft Vertical*) | $$-0.120$$ | $$+0.218$$ | $$-0.055$$ | $$0.000$$ | $$0.000$$ | $$-1.000$$ |
-
-Catatan: Nilai $$\cos(45^\circ) = \sin(45^\circ) = \frac{\sqrt{2}}{2} \approx 0.7071$$.
-
-Perhitungan lengan momen rotasi $$\mathbf{r}_i \times \mathbf{d}_i$$ untuk masing-masing pendorong dievaluasi sebagai berikut [7]:
-$$\mathbf{r}_i \times \mathbf{d}_i = \begin{bmatrix} y_i d_{z,i} - z_i d_{y,i} \\ z_i d_{x,i} - x_i d_{z,i} \\ x_i d_{y,i} - y_i d_{x,i} \end{bmatrix}$$
-
-1. *Untuk Pendorong Horizontal ($$i = 1, 2, 3, 4$$)*:
-   Karena $$z_i = 0$$ dan $$d_{z,i} = 0$$, maka komponen momen putar *roll* ($$K$$) dan *pitch* ($$M$$) bernilai nol. Komponen momen *yaw* ($$N$$) adalah:
-   - $$N_1 = x_1 d_{y,1} - y_1 d_{x,1} = (0.156)(0.7071) - (-0.111)(0.7071) = (0.156 + 0.111)(0.7071) = 0.267 \cdot 0.7071 \approx +0.1888\text{ m}$$
-   - $$N_2 = x_2 d_{y,2} - y_2 d_{x,2} = (0.156)(-0.7071) - (0.111)(0.7071) = -(0.156 + 0.111)(0.7071) \approx -0.1888\text{ m}$$
-   - $$N_3 = x_3 d_{y,3} - y_3 d_{x,3} = (-0.156)(0.7071) - (-0.111)(-0.7071) = -0.1103 - 0.0785 \approx -0.1888\text{ m}$$
-   - $$N_4 = x_4 d_{y,4} - y_4 d_{x,4} = (-0.156)(-0.7071) - (0.111)(-0.7071) = +0.1103 + 0.0785 \approx +0.1888\text{ m}$$
-
-2. *Untuk Pendorong Vertikal ($$i = 5, 6, 7, 8$$)*:
-   Karena $$d_{x,i} = 0, d_{y,i} = 0, d_{z,i} = -1$$, maka gaya translasi murni bekerja pada sumbu heave ($$Z = -1$$). Komponen momen putar adalah:
-   - $$K_i = y_i d_{z,i} - z_i d_{y,i} = -y_i$$ (momen roll)
-   - $$M_i = z_i d_{x,i} - x_i d_{z,i} = x_i$$ (momen pitch)
-   - $$N_i = x_i d_{y,i} - y_i d_{x,i} = 0$$ (momen yaw)
-
-   Sehingga nilai lengan momen untuk pendorong vertikal:
-   - Motor 5 (Port-Fore): $$K_5 = -(-0.218) = +0.218\text{ m}$$, $$M_5 = +0.120\text{ m}$$
-   - Motor 6 (Stbd-Fore): $$K_6 = -(+0.218) = -0.218\text{ m}$$, $$M_6 = +0.120\text{ m}$$
-   - Motor 7 (Port-Aft): $$K_7 = -(-0.218) = +0.218\text{ m}$$, $$M_7 = -0.120\text{ m}$$
-   - Motor 8 (Stbd-Aft): $$K_8 = -(+0.218) = -0.218\text{ m}$$, $$M_8 = -0.120\text{ m}$$
-
-Menyusun kedelapan vektor kolom $$\mathbf{t}_1, \dots, \mathbf{t}_8$$ menghasilkan *Matriks Konfigurasi Alokasi Gaya Dorong 6x8* eksplisit [21], [32]:
-$$\mathbf{T}_{6 \times 8} = \begin{bmatrix} c & c & -c & -c & 0 & 0 & 0 & 0 \\ c & -c & c & -c & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & -1 & -1 & -1 & -1 \\ 0 & 0 & 0 & 0 & +y_v & -y_v & +y_v & -y_v \\ 0 & 0 & 0 & 0 & +x_v & +x_v & -x_v & -x_v \\ +l_h & -l_h & -l_h & +l_h & 0 & 0 & 0 & 0 \end{bmatrix}$$
-
-Struktur matriks blok ini terdekopel secara elegan:
-- Baris 1, 2, dan 6 (Surge, Sway, Yaw) sepenuhnya dikendalikan oleh motor horizontal 1–4.
-- Baris 3, 4, dan 5 (Heave, Roll, Pitch) sepenuhnya dikendalikan oleh motor vertikal 5–8.
-
-Matriks konfigurasi alokasi gaya dorong $$\mathbf{T}_{6 \times 8}$$ ini mendefinisikan pemetaan fisik maju dari gaya dorong kedelapan motor pendorong $$\mathbf{f} = [f_1, \dots, f_8]^T \in \mathbb{R}^8$$ menjadi vektor gaya dan momen kendali generalisasi 6-DOF $$\boldsymbol{\tau} \in \mathbb{R}^6$$ pada bodi wahana:
-$$\boldsymbol{\tau} = \mathbf{T}_{6 \times 8} \mathbf{f}$$
-
-Pada arsitektur sistem kendali wahana, alokasi gaya dorong dan pemetaan sinyal kendali PWM ke delapan modul *Electronic Speed Controller* (ESC) pendorong BLDC ditangani secara internal oleh *flight controller* Pixhawk 2.4.8 yang menjalankan *firmware* ArduSub dengan kerangka konfigurasi `AP_Motors6DOF` (`vectored_6dof`) pada frekuensi siklus kendali 50 Hz, yang mengintegrasikan tabel alokasi motor (*motor matrix*) berbasis geometri kerangka wahana serta pembatasan batas fisik gaya dorong ($$f_{\min} \le f_i \le f_{\max}$$) [3], [21].
-
----
-
-## 2.6 Teori dan Formulasi Optimal Kalman Filter Suite
+## 2.5 Teori dan Formulasi Optimal Kalman Filter Suite
 
 Operasi otonom AUV di lingkungan laut menghadapi ketidakpastian lingkungan yang tinggi (*environmental stochasticity*), derau sensor frekuensi tinggi, serta penurunan kualitas visual bawah air [2], [14], [16]. Untuk menjamin estimasi keadaan spasial dan pelacakan objek yang andal dan kokoh, penelitian ini merancang dan memformulasikan *Suite Optimal Kalman Filter* yang terdiri dari dua tingkatan terpadu [16], [17], [25], [29]:
 1. *Topside Visual Target Kalman Filter (Penapis Pelacak Target Visual 8D)*: Penapis Kalman linier diskrit 8-dimensi untuk melacak kotak pembatas (*bounding box*) target visual deteksi YOLO monokuler pada laju 30 FPS.
 2. *Subsea Hydrodynamic Extended Kalman Filter (Penapis Estimasi Dinamika Hidrodinamika 6-DOF)*: Penapis Kalman non-linier terperluas (EKF) untuk melakukan fusi sensor IMU dan kedalaman berbasis persamaan dinamika Fossen 6-DOF serta mengestimasi gangguan arus laut pada laju 50 Hz.
 
-### 2.6.1 Dasar Teori Estimasi Keadaan Stokastik dan Kriteria MMSE
+### 2.5.1 Dasar Teori Estimasi Keadaan Stokastik dan Kriteria MMSE
 
 Estimasi keadaan stokastik bertujuan merekonstruksi vektor status internal suatu sistem dinamika wahana berdasarkan urutan data pengukuran sensor yang terdistorsi oleh derau acak [25]. Tinjau model ruang keadaan linier waktu diskrit berdimensi-$$n$$ dengan $$m$$ pengukuran sensor:
 $$\mathbf{x}_k = \mathbf{A}_{k-1}\mathbf{x}_{k-1} + \mathbf{B}_{k-1}\mathbf{u}_{k-1} + \mathbf{w}_{k-1}$$
@@ -551,7 +466,7 @@ Untuk sistem dinamika linier berderau Gaussian, penaksir yang meminimalkan krite
 $$\hat{\mathbf{x}}_{\text{MMSE}} = \mathbb{E}[\mathbf{x}_k \mid \mathbf{Z}^k]$$
 Karakteristik invarian linearitas distribusi Gaussian menjamin bahwa distribusi posterior tetap berdistribusi Gaussian, sehingga estimasi keadaan optimal dapat diperbarui secara rekursif hanya dengan mempropagasi vektor rata-rata $$\hat{\mathbf{x}}_k$$ dan matriks kovariansi $$\mathbf{P}_k$$ tanpa perlu menyimpan seluruh riwayat data masa lalu [25].
 
-### 2.6.2 Derivasi Lengkap Discrete Kalman Filter (DKF) dan Bentuk Kovariansi Joseph
+### 2.5.2 Derivasi Lengkap Discrete Kalman Filter (DKF) dan Bentuk Kovariansi Joseph
 Model ruang keadaan linier waktu diskrit diformulasikan sebagai berikut [16], [25]:
 $$\mathbf{x}_k = \mathbf{A}_{k-1}\mathbf{x}_{k-1} + \mathbf{B}_{k-1}\mathbf{u}_{k-1} + \mathbf{w}_{k-1}$$
 $$\mathbf{z}_k = \mathbf{H}_k\mathbf{x}_k + \mathbf{v}_k$$
@@ -607,7 +522,7 @@ $$\mathbf{K}_k = \mathbf{P}_k^- \mathbf{H}_k^T \left( \mathbf{H}_k \mathbf{P}_k^
 Jika penguatan optimal $$\mathbf{K}_k$$ disubstitusikan ke dalam bentuk Joseph, persamaan kovariansi posterior tereduksi menjadi bentuk kanonikal:
 $$\mathbf{P}_k^+ = (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k) \mathbf{P}_k^-$$
 
-### 2.6.3 Derivasi Extended Kalman Filter (EKF) untuk Sistem Dinamika Non-Linier
+### 2.5.3 Derivasi Extended Kalman Filter (EKF) untuk Sistem Dinamika Non-Linier
 Pada kenyataannya, dinamika wahana laut Fossen dan proyeksi optik kamera bersifat sangat non-linier [7], [25]:
 $$\mathbf{x}_k = \mathbf{f}(\mathbf{x}_{k-1}, \mathbf{u}_{k-1}) + \mathbf{w}_{k-1}$$
 $$\mathbf{z}_k = \mathbf{h}(\mathbf{x}_k) + \mathbf{v}_k$$
@@ -630,7 +545,7 @@ Struktur persamaan rekursif EKF diskrit dinyatakan oleh [25], [29]:
 
 ---
 
-### 2.6.4 Formulasi Penapis Pelacak Target Visual 8D (Topside Visual Target Kalman Filter)
+### 2.5.4 Formulasi Penapis Pelacak Target Visual 8D (Topside Visual Target Kalman Filter)
 
 Persepsi visual bawah air yang diperoleh dari kamera monokuler rentan terhadap distorsi optik, turbiditas air, hamburan cahaya, partikel tersuspensi (*marine snow*), serta bayangan dinamis [2], [14]. Arsitektur *deep learning* YOLO yang dijalankan pada stasiun permukaan memprediksi koordinat kotak pembatas (*bounding box*) target secara *frame-by-frame*. Namun, deteksi visual mentah ini menghasilkan sentroid yang bergetar (*centroid jitter*), fluktuasi skala, deteksi palsu (*false positives*), dan kehilangan deteksi sesaat saat target terhalang (*temporary visual occlusion*) [2], [16], [17].
 
@@ -705,7 +620,7 @@ Pada fase ini, estimasi kecepatan visual ($$\dot{x}, \dot{y}, \dot{s}$$) yang te
 
 ---
 
-### 2.6.5 Formulasi Penapis Estimasi Dinamika Hidrodinamika 6-DOF (Subsea Hydrodynamic Extended Kalman Filter)
+### 2.5.5 Formulasi Penapis Estimasi Dinamika Hidrodinamika 6-DOF (Subsea Hydrodynamic Extended Kalman Filter)
 
 Di sisi wahana bawah laut, estimasi status dinamika hidrodinamika 6-DOF dieksekusi secara *real-time* oleh *Subsea Hydrodynamic Extended Kalman Filter* yang berjalan pada komputer pendamping Raspberry Pi 4B berkomunikasi dengan Pixhawk 2.4.8 melalui protokol MAVLink pada frekuensi 50 Hz [14], [21], [29].
 
