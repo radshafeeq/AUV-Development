@@ -21,7 +21,7 @@ Metodologi penelitian ini dirancang secara sistematis untuk memodelkan, mensimul
 Penelitian ini memadukan empat pilar rekayasa mekatronika:
 1. *Pemodelan Kinematika Matematis*: Perumusan matriks transformasi koordinat ortogonal dari kerangka gerak wahana (Body-Fixed Frame*) ke kerangka inersial bumi (*Earth-Fixed Frame*) serta mitigasi singularitas representasi (*gimbal lock).
 2. *Pemodelan Kinetika & Hidrodinamika Non-Linear (Fossen)*: Formulasi tensor massa total (massa benda tegar dan hydrodynamic added mass*), tensor redaman hidrodinamika coupled (gesekan laminar Navier-Stokes dan *quadratic drag), serta gaya apung/pemulih hidrostatis.
-3. *Alokasi Pendorong Over-Actuated ($$6 \times 8$$)*: Pemetaan gaya generalisasi 6-DOF ke dalam 8 sinyal modulasi lebar pulsa (Pulse Width Modulation / PWM) aktuator menggunakan invers semu Moore-Penrose dengan optimasi energi kuadratik minimum.
+3. *Alokasi Pendorong Over-Actuated ($$6 \times 8$$)*: Pemetaan gaya generalisasi 6-DOF ke dalam 8 sinyal modulasi lebar pulsa (Pulse Width Modulation / PWM) aktuator menggunakan matriks konfigurasi geometri pendorong $$\mathbf{T}_{6 \times 8}$$ dengan manajemen pencampuran motor (*motor matrix mixing*).
 4. *Fusi Multi-Sensor & Arsitektur *Dual Kalman Filter*: Penggabungan telemetri Inertial Measurement Unit (IMU), sensor tekanan subsea Bar30 (MS5837), umpan balik PWM motor, dan sistem visi kecerdasan buatan (kamera YOLO26) ke dalam *Extended Kalman Filter* (EKF) dinamika dan *Visual Kalman Filter* 8D.
 
 ```
@@ -47,7 +47,7 @@ Penelitian ini memadukan empat pilar rekayasa mekatronika:
        |          3. ALOKASI KONTROL OVER-ACTUATED 8-MOTOR                |
        | • Karakteristik Gaya Dorong T200 f(PWM)                          |
        | • Matriks Konfigurasi Geometri T_{6x8}                           |
-       | • Solusi Invers Semu Moore-Penrose T_{6x8}^+                     |
+       | • Motor Matrix Mixing ArduSub AP_Motors6DOF                      |
        +------------------------------------------------------------------+
                                         |
        +--------------------------------+---------------------------------+
@@ -311,11 +311,13 @@ $$\mathbf{T}_{6 \times 8} = \begin{bmatrix}
 -0.177 & 0.177 & 0.177 & -0.177 & 0 & 0 & 0 & 0
 \end{bmatrix}$$
 
-### 3.5.2 Solusi Invers Semu Moore-Penrose Kuadratik Minimum
+### 3.5.2 Pemetaan Alokasi Gaya Dorong dan Motor Matrix Mixing
 
-Karena jumlah aktuator lebih besar daripada derajat kebebasan ($$8 > 6$$), sistem memiliki redundansi kontrol (*over-actuated*). Solusi alokasi yang meminimalkan konsumsi energi total aktuator ($$J = \frac{1}{2} \mathbf{f}^T \mathbf{W} \mathbf{f}$$) diselesaikan menggunakan invers semu terbobot (*weighted Moore-Penrose pseudo-inverse):
+Karena jumlah aktuator lebih besar daripada derajat kebebasan ($$8 > 6$$), sistem memiliki redundansi kontrol (*over-actuated*). Hubungan langsung antara gaya/torsi generalisasi 6-DOF ($$\boldsymbol{\tau} \in \mathbb{R}^6$$) dan vektor gaya dorong 8 pendorong ($$\mathbf{f} \in \mathbb{R}^8$$) dimodelkan secara geometris melalui:
 
-$$\mathbf{f} = \mathbf{T}^+ \boldsymbol{\tau} = \mathbf{W}^{-1} \mathbf{T}^T (\mathbf{T} \mathbf{W}^{-1} \mathbf{T}^T)^{-1} \boldsymbol{\tau}$$
+$$\boldsymbol{\tau} = \mathbf{T}_{6 \times 8} \mathbf{f}$$
+
+Pada implementasi perangkat keras wahana, pemetaan gaya kendali ini didistribusikan secara *real-time* oleh pustaka pencampuran motor ArduSub (`AP_Motors6DOF`) dengan manajemen prioritas saturasi untuk menjaga stabilitas orientasi (*attitude stability*).
 
 ---
 
