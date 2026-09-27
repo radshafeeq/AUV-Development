@@ -2,15 +2,15 @@
 
 ## 2.1 Tinjauan Pustaka (*State of the Art* Penelitian AUV)
 
-Perkembangan teknologi wahana bawah air tanpa awak (*unmanned underwater vehicles*) dalam lima tahun terakhir (2021–2026) mengalami akselerasi signifikan, terutama didorong oleh kebutuhan inspeksi infrastruktur maritim lepas pantai, pemantauan aset energi bawah laut, dan eksplorasi lingkungan bentik laut dalam [2], [14], [18]. Penelitian terdahulu pada wahana kelas mikro dan inspeksi umumnya bertumpu pada platform *Remotely Operated Vehicle* (ROV) yang dikonversi menjadi *Autonomous Underwater Vehicle* (AUV) atau *Hovering Autonomous Underwater Vehicle* (HAUV) [2], [14], [21], [31]. Namun, tantangan utama yang dihadapi oleh komunitas riset robotika kelautan global adalah keterbatasan derajat kebebasan aktuasi (*underactuation*), non-linearitas hidrodinamika fluida Navier-Stokes yang tinggi, ketidakpastian parameter lingkungan laut, serta degradasi kualitas sensor visual bawah air akibat turbiditas dan atenuasi cahaya [1], [7], [16], [31], [34].
+Perkembangan teknologi wahana bawah air tanpa awak (*unmanned underwater vehicles*) dalam lima tahun terakhir (2021–2026) mengalami akselerasi signifikan, terutama didorong oleh kebutuhan inspeksi infrastruktur maritim lepas pantai, pemantauan aset energi bawah laut, dan eksplorasi lingkungan bentik laut dalam [2], [14], [18]. Penelitian terdahulu pada wahana kelas mikro dan inspeksi umumnya bertumpu pada platform *Remotely Operated Vehicle* (ROV) yang dikonversi menjadi *Autonomous Underwater Vehicle* (AUV) atau *Hovering Autonomous Underwater Vehicle* (HAUV) [2], [14], [21], [31]. Namun, tantangan utama yang dihadapi oleh komunitas riset robotika kelautan global adalah keterbatasan *Degrees of Freedom* aktuasi (*underactuation*), non-linearitas hidrodinamika fluida Navier-Stokes yang tinggi, ketidakpastian parameter lingkungan laut, serta degradasi kualitas sensor visual bawah air akibat turbiditas dan atenuasi cahaya [1], [7], [16], [31], [34].
 
-Dalam literatur dinamika dan kendali wahana bawah air, konfigurasi standar BlueROV2 dengan enam pendorong (*6-thruster standard frame*) telah banyak digunakan sebagai tolok ukur (*benchmark platform*) [2], [14], [21], [31]. von Benzon dkk. (2022) mengembangkan simulator *benchmark open-source* berbasis BlueROV2 untuk mengevaluasi berbagai algoritma kendali [31]. Namun, platform standar tersebut beroperasi dalam kondisi *underactuated* 4-DOF aktif (*Surge*, *Sway*, *Heave*, *Yaw*), di mana derajat kebebasan *pitch* ($$\theta$$) dan *roll* ($$\phi$$) tidak memiliki pendorong aktif dan hanya mengandalkan stabilitas metasentris hidrostatis pasif [21], [31]. Keterbatasan ini menghalangi wahana untuk melakukan inspeksi berorientasi miring (*tilt/pitch inspection*) terhadap struktur vertikal atau dasar laut berkontur curam [3], [21].
+Dalam literatur dinamika dan kendali wahana bawah air, konfigurasi standar BlueROV2 dengan *6-thruster standard frame* telah banyak digunakan sebagai tolok ukur (*benchmark platform*) [2], [14], [21], [31]. von Benzon dkk. (2022) mengembangkan simulator *benchmark open-source* berbasis BlueROV2 untuk mengevaluasi berbagai algoritma kendali [31]. Namun, platform standar tersebut beroperasi dalam kondisi *underactuated* 4-DOF aktif (*Surge*, *Sway*, *Heave*, *Yaw*), di mana *Degrees of Freedom* *pitch* ($$\theta$$) dan *roll* ($$\phi$$) tidak memiliki pendorong aktif dan hanya mengandalkan stabilitas metasentris hidrostatis pasif [21], [31]. Keterbatasan ini menghalangi wahana untuk melakukan *tilt/pitch inspection* terhadap struktur vertikal atau dasar laut berkontur curam [3], [21].
 
-Untuk mengatasi keterbatasan tersebut, konfigurasi *over-actuated* 8-pendorong berbasis BlueROV2 Heavy retrofit frame mulai diteliti secara intensif [3], [21], [6], [32], [40]. Vu dkk. (2021) mengkaji kendali posisi kokoh (*robust position control*) pada wahana bawah air *over-actuated* dengan menggabungkan *dynamic sliding mode surface*, alokasi kendali optimal, serta arsitektur kontrol modular [20] di bawah pengaruh arus laut dan ketidakpastian model [32]. Hasil studi mereka membuktikan bahwa penambahan aktuasi redundan tidak hanya memberikan kendali penuh pada enam derajat kebebasan spasial (6-DOF: *Surge*, *Sway*, *Heave*, *Roll*, *Pitch*, *Yaw*), tetapi juga meningkatkan toleransi kesalahan (*fault tolerance*) dan efisiensi konsumsi energi *thruster* [21], [32].
+Untuk mengatasi keterbatasan tersebut, konfigurasi *over-actuated* 8-pendorong berbasis BlueROV2 Heavy retrofit frame mulai diteliti secara intensif [3], [21], [6], [32], [40]. Vu dkk. (2021) mengkaji kendali posisi kokoh (*robust position control*) pada wahana bawah air *over-actuated* dengan menggabungkan *dynamic sliding mode surface*, alokasi kendali optimal, serta arsitektur kontrol modular [20] di bawah pengaruh arus laut dan ketidakpastian model [32]. Hasil studi mereka membuktikan bahwa penambahan aktuasi redundan tidak hanya memberikan kendali penuh pada *6-Degrees of Freedom* spasial (6-DOF: *Surge*, *Sway*, *Heave*, *Roll*, *Pitch*, *Yaw*), tetapi juga meningkatkan *fault tolerance* dan efisiensi konsumsi energi *thruster* [21], [32].
 
-Di sisi estimasi parameter hidrodinamika, identifikasi koefisien massa tambah (*hydrodynamic added mass*) dan redaman (*damping*) menjadi fondasi krusial dalam perancangan model kendali berbasis model (*model-based control*) [1], [7], [34]. Ahmed dkk. (2023) mempublikasikan survei komprehensif mengenai teknik estimasi parameter hidrodinamika tradisional (metode analitis strip theory, uji Planar Motion Mechanism/PMM) hingga pendekatan berbasis kecerdasan buatan (*AI-based estimation*) [1]. Lebih lanjut, Wei dkk. (2025) mengajukan metode solusi koefisien hidrodinamika AUV memanfaatkan data gerak terkopling multi-derajat kebebasan (*multi-DOF coupled motion data*), yang menyoroti betapa dominannya pengaruh kopling silang hidrodinamika non-linier seperti momen Munk hidrodinamika (*hydrodynamic Munk moment*) pada manuver kecepatan tinggi dan belokan tajam [34].
+Di sisi estimasi parameter hidrodinamika, identifikasi koefisien *hydrodynamic added mass* dan redaman (*damping*) menjadi fondasi krusial dalam perancangan model kendali berbasis model (*model-based control*) [1], [7], [34]. Ahmed dkk. (2023) mempublikasikan survei komprehensif mengenai teknik estimasi parameter hidrodinamika tradisional (metode analitis strip theory, uji Planar Motion Mechanism/PMM) hingga pendekatan berbasis kecerdasan buatan (*AI-based estimation*) [1]. Lebih lanjut, Wei dkk. (2025) mengajukan metode solusi koefisien hidrodinamika AUV memanfaatkan data gerak terkopling multi-*Degrees of Freedom* (*multi-DOF coupled motion data*), yang menyoroti betapa dominannya pengaruh kopling silang hidrodinamika non-linier seperti momen Munk hidrodinamika (*hydrodynamic Munk moment*) pada manuver kecepatan tinggi dan belokan tajam [34].
 
-Terkait persepsi visual dan penjejakan target bawah air, Alinei-Poiană dkk. (2024) serta Ismail dkk. (2021) menunjukkan bahwa integrasi modul kecerdasan buatan seperti *convolutional neural networks* (YOLO) pada *companion computer* (Raspberry Pi / Jetson) rentan terhadap derau pengukuran frekuensi tinggi, *detection jitter*, dan *occlusion* sementara [2], [14]. Untuk memitigasi derau tersebut, literatur estimasi mutakhir menyarankan pemanfaatan *Kalman Filter* optimal dan variannya [16], [17], [25], [29]. Särkkä dan Svensson (2023) dalam buku teks kanonikal *Bayesian Filtering and Smoothing* merumuskan kerangka stokastik rigorous untuk model *Continuous White Noise Acceleration* (CWNA) dan penapis non-linier seperti *Extended Kalman Filter* (EKF) [25]. Khalid dkk. (2024) serta Kim (2023) mendokumentasikan aplikasi *Kalman Filter* dalam fusi multi-sensor robotika dan pelacakan target dinamis [16], [17]. Di domain bawah laut, integrasi EKF yang memadukan data inersia (IMU), sensor kedalaman, dan persamaan dinamika Fossen 6-DOF terbukti mampu mengestimasi kecepatan relatif wahana sekaligus merekonstruksi gangguan arus laut (*ocean current disturbance observer*) secara *real-time* [7], [18], [29].
+Terkait persepsi visual dan penjejakan target bawah air, Alinei-Poiană dkk. (2024) serta Ismail dkk. (2021) menunjukkan bahwa integrasi modul kecerdasan buatan seperti *convolutional neural networks* (YOLO) pada *companion computer* (Raspberry Pi / Jetson) rentan terhadap *measurement noise* frekuensi tinggi, *detection jitter*, dan *occlusion* sementara [2], [14]. Untuk memitigasi derau tersebut, literatur estimasi mutakhir menyarankan pemanfaatan *Kalman Filter* optimal dan variannya [16], [17], [25], [29]. Särkkä dan Svensson (2023) dalam buku teks kanonikal *Bayesian Filtering and Smoothing* merumuskan kerangka stokastik rigorous untuk model *Continuous White Noise Acceleration* (CWNA) dan penapis non-linier seperti *Extended Kalman Filter* (EKF) [25]. Khalid dkk. (2024) serta Kim (2023) mendokumentasikan aplikasi *Kalman Filter* dalam fusi multi-sensor robotika dan pelacakan target dinamis [16], [17]. Di domain bawah laut, integrasi EKF yang memadukan data inersia (IMU), sensor kedalaman, dan persamaan dinamika Fossen 6-DOF terbukti mampu mengestimasi kecepatan relatif wahana sekaligus merekonstruksi gangguan arus laut (*ocean current disturbance observer*) secara *real-time* [7], [18], [29].
 
 Matriks sintesis literatur terkini (2021–2025) yang menjadi pijakan komparatif dan fondasi kebaruan (*novelty*) penelitian tugas akhir ini dirangkum pada Tabel 2.1.
 
@@ -26,7 +26,7 @@ Tabel 2.1 Matriks Sintesis Literatur Terkini (2021–2025) Bidang Dinamika dan K
 | *Alinei-Poiană dkk. (2024)* [2] | BlueROV2 Platform | 4-DOF | Eksperimen pemetaan bawah air (underwater mapping*) menggunakan *sensor fusion* akustik dan visual. | Pemrosesan visi optik tidak dilengkapi penapis stokastik pelacakan dinamis adaptif terhadap *detection dropouts* dan *occlusion. |
 | *Ng & Krieg (2024)* [21] | BlueROV2 Standard & Heavy | 4-DOF & 6-DOF | Modifikasi ArduSub SITL untuk meningkatkan akurasi simulasi dan perancangan autopilot hibrida. | Fokus utama pada modifikasi firmware ArduSub; tidak menurunkan secara analitis derivasi matematis matriks alokasi gaya dorong $$6 \times 8$$ maupun penapis Kalman visual. |
 | *Suárez dkk. (2024)* [27] | UUV 6-DOF | 6-DOF | Pemodelan dinamika dan kendali kokoh wahana bawah air memanfaatkan aljabar dual quaternions*. | Formulasi *dual quaternion* sangat abstrak secara aljabar dan sulit diintegrasikan ke dalam ekosistem *flight controller standar industri seperti Pixhawk/ArduSub. |
-| *Wei dkk. (2025)* [34] | AUV Multi-DOF | 6-DOF | Solusi identifikasi koefisien hidrodinamika memanfaatkan data gerak terkopling multi-derajat kebebasan. | Menitikberatkan pada uji identifikasi parameter offline*; tidak mengkaji penapis keadaan Kalman *real-time atau alokasi pendorong berlebih. |
+| *Wei dkk. (2025)* [34] | AUV Multi-DOF | 6-DOF | Solusi identifikasi koefisien hidrodinamika memanfaatkan data gerak terkopling multi-*Degrees of Freedom*. | Menitikberatkan pada uji identifikasi parameter offline*; tidak mengkaji penapis keadaan Kalman *real-time atau alokasi pendorong berlebih. |
 | *Llorente-Vidrio dkk. (2025)* [18] | Underwater ROV | 4-DOF | Robust sliding-mode control* berbasis identifikasi diferensial neural untuk ketidakpastian model. | Wahana beroperasi pada mode *tethered* ROV manual; tidak mengintegrasikan navigasi otonom berbasis estimasi *Kalman Filter ganda. |
 | *Penelitian Tugas Akhir Ini (2026)* | BlueROV2 Heavy Frame | *6-DOF Penuh (8 Pendorong Over-Actuated)* | *Derivasi matematis analitis first-principles kinematika & dinamika 6-DOF Fossen, alokasi gaya dorong matriks konfigurasi pendorong $$6 \times 8$$ (*thruster allocation matrix*), suite Optimal Kalman Filter ganda (Visual 8D CWNA Mahalanobis + EKF Dinamika Fossen), dan validasi SITL (Gazebo Harmonic ROS 2) & HITL (RPi4 - Pixhawk ArduSub MAVLink 50 Hz).* | *Menutup seluruh kesenjangan riset di atas secara terpadu, rigor, dan teruji.* |
 
@@ -67,7 +67,7 @@ Kerangka acuan bergerak bodi (*Body-Fixed Frame* atau *Forward-Right-Down* / FRD
 - *Sumbu Transversal ($$y_b$$)*: Mengarah ke sisi kanan lambung wahana (*Starboard*), mendefinisikan gerak translasi *Sway*.
 - *Sumbu Normal ($$z_b$$)*: Mengarah tegak lurus ke bawah menembus lunas wahana (*Down / Keel*), mendefinisikan gerak translasi *Heave*.
 
-Konvensi formal notasi SNAME (1950) dan Fossen (2021) untuk 6 derajat kebebasan spasial dirinci secara komprehensif pada Tabel 2.2 [7].
+Konvensi formal notasi SNAME (1950) dan Fossen (2021) untuk 6 *Degrees of Freedom* spasial dirinci secara komprehensif pada Tabel 2.2 [7].
 
 Tabel 2.2 Notasi dan Konvensi 6 Derajat Kebebasan SNAME (1950) & Fossen (2021)
 
@@ -117,7 +117,7 @@ Pada wahana bawah air, Pusat Gravitasi (*Center of Gravity* / CG) berlokasi di $
 Untuk menjamin wahana tidak mudah terbalik di bawah air, tata letak massa dirancang sedemikian rupa sehingga komponen berat (baterai, ballast timbal, tabung aluminium) diletakkan di bagian paling bawah lunas ($$z_g > 0$$), sedangkan busa apung (*syntactic foam*) diletakkan di bagian atas bodi ($$z_b < 0$$). Hal ini menghasilkan *tinggi metasentris positif*:
 $$GM_T = z_g - z_b > 0$$
 
-Gaya berat $$W$$ dan gaya apung $$B$$ yang terpisah secara vertikal menghasilkan momen pemulih hidrostatis pasif (passive metacentric righting moments):
+Gaya berat $$W$$ dan gaya apung $$B$$ yang terpisah secara vertikal menghasilkan *passive metacentric righting moments*:
 $$K_{\text{restoring}}(\phi) = -(z_g W - z_b B)\cos\theta\sin\phi$$
 $$M_{\text{restoring}}(\theta) = -(z_g W - z_b B)\sin\theta$$
 
@@ -128,7 +128,7 @@ $$M_{\text{restoring}} \approx -k_\theta \theta, \qquad k_\theta = z_g W - z_b B
 Frekuensi natural osilasi sudut pada sumbu *roll* ($$\omega_{n,\phi}$$) dan sumbu *pitch* ($$\omega_{n,\theta}$$) dirumuskan oleh [7], [31]:
 $$\omega_{n,\phi} = \sqrt{\frac{z_g W - z_b B}{I_{xx} - K_{\dot{p}}}}, \qquad \omega_{n,\theta} = \sqrt{\frac{z_g W - z_b B}{I_{yy} - M_{\dot{q}}}}$$
 
-Meskipun kekakuan metasentris ini menjaga orientasi wahana tetap datar secara pasif pada wahana *underactuated* 6-pendorong, kekakuan ini justru menjadi penghalang besar saat wahana ditugaskan untuk melakukan inspeksi berorientasi miring (*pitch-hold*) terhadap struktur miring di dasar laut [3], [21]. Pada wahana *over-actuated* 8-pendorong, torsi pemulih hidrostatis ini dapat dilawan dan dikendalikan secara presisi oleh aktuasi gaya dorong diferensial vertikal, memungkinkan wahana menahan sudut *pitch* konstan $$\theta_{\text{ref}} \neq 0$$ tanpa mengalami osilasi liar atau ketidakstabilan [21], [32].
+Meskipun kekakuan metasentris ini menjaga orientasi wahana tetap datar secara pasif pada wahana *underactuated* 6-pendorong, kekakuan ini justru menjadi penghalang besar saat wahana ditugaskan untuk melakukan *pitch-hold inspection* terhadap struktur miring di dasar laut [3], [21]. Pada wahana *over-actuated* 8-pendorong, torsi pemulih hidrostatis ini dapat dilawan dan dikendalikan secara presisi oleh aktuasi gaya dorong diferensial vertikal, memungkinkan wahana menahan sudut *pitch* konstan $$\theta_{\text{ref}} \neq 0$$ tanpa mengalami osilasi liar atau ketidakstabilan [21], [32].
 
 ---
 
@@ -228,7 +228,7 @@ $$\dot{\psi} = q\left(\frac{\sin\phi}{\cos\theta}\right) + r\left(\frac{\cos\phi
 Dari rumusan matematis matriks $$\mathbf{T}_\Theta(\boldsymbol{\eta}_2)$$, terlihat jelas bahwa ketika sudut *pitch* mendekati tegak lurus:
 $$\theta \to \pm 90^\circ \iff \cos\theta \to 0 \implies \tan\theta \to \pm\infty, \quad \frac{1}{\cos\theta} \to \infty$$
 
-Kondisi hilangnya satu derajat kebebasan rotasi ini dikenal sebagai *Gimbal Lock* (singularitas representasi koordinat Euler). Pada manuver inspeksi bawah air yang melibatkan *pitch-angle holding* hingga sudut vertikal ekstrim ($$\pm 90^\circ$$), integrasi numerik sudut Euler akan mengalami *overflow* komputasi tak berhingga [7], [27].
+Kondisi hilangnya satu *Degrees of Freedom* rotasi ini dikenal sebagai *Gimbal Lock* (singularitas representasi koordinat Euler). Pada manuver inspeksi bawah air yang melibatkan *pitch-angle holding* hingga sudut vertikal ekstrim ($$\pm 90^\circ$$), integrasi numerik sudut Euler akan mengalami *overflow* komputasi tak berhingga [7], [27].
 
 Untuk mengatasi singularitas ini, orientasi wahana direpresentasikan menggunakan *unit quaternion* empat dimensi $$\mathbf{q} \in \mathcal{S}^3$$ [7], [27]:
 $$\mathbf{q} = \begin{bmatrix} \eta \\ \epsilon_1 \\ \epsilon_2 \\ \epsilon_3 \end{bmatrix} = \begin{bmatrix} \eta \\ \boldsymbol{\epsilon} \end{bmatrix} \in \mathbb{R}^4, \qquad \eta^2 + \boldsymbol{\epsilon}^T\boldsymbol{\epsilon} = \eta^2 + \epsilon_1^2 + \epsilon_2^2 + \epsilon_3^2 = 1$$
@@ -256,11 +256,11 @@ atau dalam representasi kecepatan relatif fluida (*relative velocity formulation
 $$\mathbf{M}_{RB}\dot{\boldsymbol{\nu}} + \mathbf{C}_{RB}(\boldsymbol{\nu})\boldsymbol{\nu} + \mathbf{M}_A\dot{\boldsymbol{\nu}}_r + \mathbf{C}_A(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r + \mathbf{D}(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r + \mathbf{g}(\boldsymbol{\eta}) = \boldsymbol{\tau} + \boldsymbol{\tau}_{\text{ext}}$$
 
 di mana setiap suku matriks dan vektor gaya didefinisikan secara fisis sebagai berikut [7]:
-- $$\mathbf{M} \in \mathbb{R}^{6 \times 6}$$: Tensor massa inersia total sistem, yaitu gabungan antara matriks massa inersia benda tegar $$\mathbf{M}_{RB}$$ dan matriks massa tambah hidrodinamika fluida $$\mathbf{M}_A$$ ($$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A$$).
+- $$\mathbf{M} \in \mathbb{R}^{6 \times 6}$$: Tensor massa inersia total sistem, yaitu gabungan antara matriks massa inersia benda tegar $$\mathbf{M}_{RB}$$ dan *hydrodynamic added mass* $$\mathbf{M}_A$$ ($$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A$$).
 - $$\mathbf{C}_{RB}(\boldsymbol{\nu}) \in \mathbb{R}^{6 \times 6}$$: Matriks gaya inersia semu Coriolis dan sentripetal benda tegar (*rigid-body*).
 - $$\mathbf{C}_A(\boldsymbol{\nu}_r) \in \mathbb{R}^{6 \times 6}$$: Matriks percepatan Coriolis dan sentripetal hidrodinamika fluida akibat massa fluida yang ikut terakselerasi.
 - $$\mathbf{D}(\boldsymbol{\nu}_r) \in \mathbb{R}^{6 \times 6}$$: Tensor redaman disipasi hidrodinamika fluida non-linier ($$\mathbf{D}(\boldsymbol{\nu}_r) = \mathbf{D}_L + \mathbf{D}_{NL}(\boldsymbol{\nu}_r)$$), yang memadukan efek gesekan kulit laminar viskos (*skin friction*) dan seretan bentuk kuadratik turbulen (*cross-flow drag*).
-- $$\mathbf{g}(\boldsymbol{\eta}) \in \mathbb{R}^6$$: Vektor gaya dan momen pemulih hidrostatis gabungan antara gaya gravitasi bumi ($$W = mg$$) dan gaya apung Archimedes ($$B = \rho g \nabla$$).
+- $$\mathbf{g}(\boldsymbol{\eta}) \in \mathbb{R}^6$$: Vektor *hydrostatic restoring forces and moments* gabungan antara gaya gravitasi bumi ($$W = mg$$) dan gaya apung Archimedes ($$B = \rho g \nabla$$).
 - $$\boldsymbol{\tau} \in \mathbb{R}^6$$: Vektor gaya dan momen kendali generalisasi 6-DOF yang dibangkitkan oleh konfigurasi aktuasi delapan motor pendorong wahana ($$\boldsymbol{\tau} = \mathbf{T}_{6 \times 8}\mathbf{f}$$).
 - $$\boldsymbol{\tau}_{\text{ext}} \in \mathbb{R}^6$$: Vektor gaya dan torsi gangguan lingkungan luar tak termodelkan (*environmental disturbances* seperti arus laut dan fluktuasi gelombang).
 - $$\boldsymbol{\nu} = [u, v, w, p, q, r]^T \in \mathbb{R}^6$$: Vektor kecepatan translasi dan rotasi wahana di dalam kerangka bodi $$\mathcal{F}^b$$.
@@ -291,13 +291,13 @@ $$\mathbf{f}_b = m \dot{\boldsymbol{\nu}}_1 - m \mathbf{S}(\mathbf{r}_g) \dot{\b
 #### 2. Persamaan Rotasi Sudut (Persamaan Momentum Angular Euler)
 Momentum sudut total wahana terhadap titik asal kerangka bodi $$O_b$$ dinyatakan oleh:
 $$\mathbf{h}_b = \mathbf{I}_g \boldsymbol{\nu}_2 + m (\mathbf{r}_g \times \boldsymbol{\nu}_1)$$
-di mana $$\mathbf{I}_g \in \mathbb{R}^{3 \times 3}$$ adalah tensor inersia benda tegar terhadap pusat massa CG [7]:
+di mana $$\mathbf{I}_g \in \mathbb{R}^{3 \times 3}$$ adalah *rigid-body inertia* terhadap pusat massa CG [7]:
 $$\mathbf{I}_g = \begin{bmatrix} I_{xx} & -I_{xy} & -I_{xz} \\ -I_{xy} & I_{yy} & -I_{yz} \\ -I_{xz} & -I_{yz} & I_{zz} \end{bmatrix}$$
 
 Turunan momentum sudut terhadap waktu pada kerangka bodi menghasilkan torsi total:
 $$\mathbf{m}_b = \dot{\mathbf{h}}_b + \boldsymbol{\nu}_2 \times \mathbf{h}_b = \mathbf{I}_g \dot{\boldsymbol{\nu}}_2 + \boldsymbol{\nu}_2 \times (\mathbf{I}_g \boldsymbol{\nu}_2) + m \mathbf{r}_g \times (\dot{\boldsymbol{\nu}}_1 + \boldsymbol{\nu}_2 \times \boldsymbol{\nu}_1)$$
 $$\mathbf{m}_b = m \mathbf{S}(\mathbf{r}_g) \dot{\boldsymbol{\nu}}_1 + \mathbf{I}_b \dot{\boldsymbol{\nu}}_2 + \mathbf{S}(\boldsymbol{\nu}_2)(\mathbf{I}_b \boldsymbol{\nu}_2) + m \mathbf{S}(\mathbf{r}_g)\mathbf{S}(\boldsymbol{\nu}_2)\boldsymbol{\nu}_1$$
-di mana tensor inersia benda tegar terhadap titik asal bodi $$O_b$$ memenuhi *parallel-axis theorem* (*parallel-axis theorem*) [7]:
+di mana *rigid-body inertia* terhadap titik asal bodi $$O_b$$ memenuhi *parallel-axis theorem* (*parallel-axis theorem*) [7]:
 $$\mathbf{I}_b = \mathbf{I}_g - m \mathbf{S}^2(\mathbf{r}_g)$$
 
 #### 3. Ekspansi Lengkap Enam Persamaan Diferensial Skalar Newton-Euler
@@ -322,7 +322,7 @@ Mengekspansikan persamaan vektor gaya $$\mathbf{f}_b = [X, Y, Z]^T$$ dan momen $
    $$I_{zz}\dot{r} + (I_{yy} - I_{xx})pq - I_{xz}(\dot{p} - qr) + m \left[ x_g(\dot{v} - wp + ur) - y_g(\dot{u} - vr + wq) \right] = \sum N$$
 
 #### 4. Pengelompokan ke dalam Bentuk Matriks Bodi Kaku Fossen
-Mengelompokkan suku-suku percepatan linier/sudut ke dalam satu matriks inersia dan suku-suku perkalian kecepatan ke dalam matriks Coriolis-sentripetal menghasilkan representasi ruang keadaan matriks standar [7]:
+Mengelompokkan suku-suku percepatan linier/sudut ke dalam satu matriks inersia dan suku-suku perkalian kecepatan ke dalam matriks Coriolis-sentripetal menghasilkan representasi *state-space* matriks standar [7]:
 $$\mathbf{M}_{RB}\dot{\boldsymbol{\nu}} + \mathbf{C}_{RB}(\boldsymbol{\nu})\boldsymbol{\nu} = \boldsymbol{\tau}_{RB}$$
 di mana:
 - $$\mathbf{M}_{RB} \in \mathbb{R}^{6 \times 6}$$ adalah *Matriks Massa Inersia Bodi Kaku*:
@@ -391,7 +391,7 @@ Konsekuensi fisis dari hubungan ini sangat fatal pada wahana yang tidak memiliki
 - Misalkan wahana melaju ke depan ($$u_r > 0$$) dan mengalami gangguan arus samping kecil dari arah kiri sehingga timbul kecepatan geser ke kanan ($$v_r > 0$$).
 - Karena $$(X_{\dot{u}} - Y_{\dot{v}}) > 0$$, maka momen Munk menghasilkan torsi *yaw* positif:
   $$N_{\text{Munk}} > 0$$
-- Torsi *yaw* positif ini memutar haluan wahana semakin ke kanan, memperbesar sudut hanyut (*drift angle*), yang pada gilirannya menaikkan nilai $$v_r$$, sehingga memicu momen destabilisasi yang semakin membesar secara eksponensial!
+- Torsi *yaw* positif ini memutar haluan wahana semakin ke kanan, memperbesar *drift angle*, yang pada gilirannya menaikkan nilai $$v_r$$, sehingga memicu momen destabilisasi yang semakin membesar secara eksponensial!
 
 Pada wahana *underactuated* 6-pendorong, fenomena kopling silang momen Munk ini menyebabkan wahana melenceng dari jalur dan tidak mampu mempertahankan orientasi garis lurus saat melaju pada kecepatan jelajah tinggi [7], [31]. Sebaliknya, pada wahana *over-actuated* 8-pendorong yang diteliti dalam tugas akhir ini, sistem kendali alokasi gaya dorong terpadu dapat menghitung torsi kompensasi balik secara *real-time* melalui umpan balik status dari penapis EKF, sehingga momen Munk dapat diredam secara aktif (*active dynamic suppression*) [21], [32].
 
@@ -400,7 +400,7 @@ Redaman hidrodinamika fluida pada wahana *open-frame* berkecepatan rendah dimode
 $$\mathbf{D}(\boldsymbol{\nu}_r) = \mathbf{D}_L + \mathbf{D}_{NL}(\boldsymbol{\nu}_r)$$
 
 1. *Matriks Redaman Linier Laminar $$\mathbf{D}_L$$*:
-   Dominan pada kecepatan sangat rendah ($$U < 0.1\text{ m/s}$$) di mana lapisan batas fluida bersifat laminar, dinyatakan dalam bentuk matriks diagonal simbolik [7]:
+   Dominan pada kecepatan sangat rendah ($$U < 0.1\text{ m/s}$$) di mana *boundary layer* fluida bersifat laminar, dinyatakan dalam bentuk matriks diagonal simbolik [7]:
    $$\mathbf{D}_L = -\text{diag}[X_u, Y_v, Z_w, K_p, M_q, N_r]$$
 
 2. *Matriks Redaman Kuadratik Turbulen $$\mathbf{D}_{NL}(\boldsymbol{\nu}_r)$$*:
@@ -440,7 +440,7 @@ Operasi otonom AUV di lingkungan laut menghadapi ketidakpastian lingkungan yang 
 
 ### 2.5.1 Dasar Teori Estimasi Keadaan Stokastik dan Kriteria MMSE
 
-Estimasi *stochastic state* bertujuan merekonstruksi vektor status internal suatu sistem dinamika wahana berdasarkan urutan data pengukuran sensor yang terdistorsi oleh derau acak [25]. Tinjau model ruang keadaan linier waktu diskrit berdimensi-$$n$$ dengan $$m$$ pengukuran sensor:
+Estimasi *stochastic state* bertujuan merekonstruksi vektor status internal suatu sistem dinamika wahana berdasarkan urutan data pengukuran sensor yang terdistorsi oleh derau acak [25]. Tinjau model *state-space* linier waktu diskrit berdimensi-$$n$$ dengan $$m$$ pengukuran sensor:
 $$\mathbf{x}_k = \mathbf{A}_{k-1}\mathbf{x}_{k-1} + \mathbf{B}_{k-1}\mathbf{u}_{k-1} + \mathbf{w}_{k-1}$$
 $$\mathbf{z}_k = \mathbf{H}_k\mathbf{x}_k + \mathbf{v}_k$$
 di mana:
@@ -452,7 +452,7 @@ di mana:
 Ketidakpastian dinamika dan ketidaksempurnaan sensor dimodelkan melalui dua vektor derau Gaussian putih (*zero-mean white Gaussian noise*):
 $$\mathbf{w}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{Q}_k), \qquad \mathbb{E}[\mathbf{w}_k \mathbf{w}_j^T] = \mathbf{Q}_k \delta_{kj}$$
 $$\mathbf{v}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{R}_k), \qquad \mathbb{E}[\mathbf{v}_k \mathbf{v}_j^T] = \mathbf{R}_k \delta_{kj}$$
-di mana $$\mathbf{Q}_k \succeq 0$$ adalah matriks kovariansi derau proses dan $$\mathbf{R}_k \succ 0$$ adalah matriks kovariansi derau pengukuran. Kedua derau diasumsikan saling bebas: $$\mathbb{E}[\mathbf{w}_k \mathbf{v}_j^T] = \mathbf{0}, \forall k, j$$.
+di mana $$\mathbf{Q}_k \succeq 0$$ adalah matriks kovariansi *process noise* dan $$\mathbf{R}_k \succ 0$$ adalah matriks kovariansi *measurement noise*. Kedua derau diasumsikan saling bebas: $$\mathbb{E}[\mathbf{w}_k \mathbf{v}_j^T] = \mathbf{0}, \forall k, j$$.
 
 Vektor keadaan $$\mathbf{x}_k$$ diperlakukan sebagai variabel acak dengan nilai ekspektasi (rata-rata estimasi) $$\hat{\mathbf{x}}_k = \mathbb{E}[\mathbf{x}_k]$$ dan matriks kovariansi galat estimasi $$\mathbf{P}_k \in \mathbb{R}^{n \times n}$$:
 $$\mathbf{P}_k = \text{Cov}(\mathbf{x}_k - \hat{\mathbf{x}}_k) = \mathbb{E}\left[ (\mathbf{x}_k - \hat{\mathbf{x}}_k)(\mathbf{x}_k - \hat{\mathbf{x}}_k)^T \right]$$
@@ -467,7 +467,7 @@ $$\hat{\mathbf{x}}_{\text{MMSE}} = \mathbb{E}[\mathbf{x}_k \mid \mathbf{Z}^k]$$
 Karakteristik invarian linearitas distribusi Gaussian menjamin bahwa distribusi posterior tetap berdistribusi Gaussian, sehingga estimasi keadaan optimal dapat diperbarui secara rekursif hanya dengan mempropagasi vektor rata-rata $$\hat{\mathbf{x}}_k$$ dan matriks kovariansi $$\mathbf{P}_k$$ tanpa perlu menyimpan seluruh riwayat data masa lalu [25].
 
 ### 2.5.2 Derivasi Lengkap Discrete Kalman Filter (DKF) dan Bentuk Kovariansi Joseph
-Model ruang keadaan linier waktu diskrit diformulasikan sebagai berikut [16], [25]:
+Model *state-space* linier waktu diskrit diformulasikan sebagai berikut [16], [25]:
 $$\mathbf{x}_k = \mathbf{A}_{k-1}\mathbf{x}_{k-1} + \mathbf{B}_{k-1}\mathbf{u}_{k-1} + \mathbf{w}_{k-1}$$
 $$\mathbf{z}_k = \mathbf{H}_k\mathbf{x}_k + \mathbf{v}_k$$
 di mana:
@@ -488,7 +488,7 @@ $$\mathbf{e}_k^- = \mathbf{x}_k - \hat{\mathbf{x}}_k^- = (\mathbf{A}_{k-1}\mathb
 
 Matriks kovariansi galat *prior* $$\mathbf{P}_k^-$$ adalah:
 $$\mathbf{P}_k^- = \mathbb{E}[ \mathbf{e}_k^- (\mathbf{e}_k^-)^T ] = \mathbb{E}[ (\mathbf{A}_{k-1}\mathbf{e}_{k-1}^+ + \mathbf{w}_{k-1}) (\mathbf{A}_{k-1}\mathbf{e}_{k-1}^+ + \mathbf{w}_{k-1})^T ]$$
-Karena derau proses $$\mathbf{w}_{k-1}$$ tidak berkorelasi dengan galat estimasi masa lalu $$\mathbf{e}_{k-1}^+$$, suku-suku perkalian silang bernilai nol:
+Karena *process noise* $$\mathbf{w}_{k-1}$$ tidak berkorelasi dengan galat estimasi masa lalu $$\mathbf{e}_{k-1}^+$$, suku-suku perkalian silang bernilai nol:
 $$\mathbf{P}_k^- = \mathbf{A}_{k-1} \mathbf{P}_{k-1}^+ \mathbf{A}_{k-1}^T + \mathbf{Q}_{k-1}$$
 
 #### 2. Tahap Pembaruan Pengukuran (*Measurement Update / Posterior Step*)
@@ -565,7 +565,7 @@ Gerakan target di bidang proyeksi citra dimodelkan sebagai proses kinematika ord
 $$\ddot{\mathbf{p}}(t) = \mathbf{w}(t), \qquad \mathbb{E}[\mathbf{w}(t)\mathbf{w}^T(\tau)] = \tilde{\mathbf{Q}} \delta(t - \tau)$$
 di mana $$\mathbf{p}(t) = [x, y, s, r]^T$$ dan $$\tilde{\mathbf{Q}} = \text{diag}[\sigma_x^2, \sigma_y^2, \sigma_s^2, \sigma_r^2]$$.
 
-Bentuk diferensial ruang keadaan kontinu dinyatakan oleh:
+Bentuk diferensial *state-space* kontinu dinyatakan oleh:
 $$\dot{\mathbf{x}}(t) = \mathbf{F}_c \mathbf{x}(t) + \mathbf{L}_c \mathbf{w}(t)$$
 $$\mathbf{F}_c = \begin{bmatrix} \mathbf{0}_{4 \times 4} & \mathbf{I}_{4 \times 4} \\ \mathbf{0}_{4 \times 4} & \mathbf{0}_{4 \times 4} \end{bmatrix} \in \mathbb{R}^{8 \times 8}, \qquad \mathbf{L}_c = \begin{bmatrix} \mathbf{0}_{4 \times 4} \\ \mathbf{I}_{4 \times 4} \end{bmatrix} \in \mathbb{R}^{8 \times 4}$$
 
@@ -576,7 +576,7 @@ Karena $$\mathbf{F}_c^2 = \mathbf{0}_{8 \times 8}$$ (bersifat nilpoten orde 2), 
 $$\mathbf{A}(\Delta t) = \begin{bmatrix} \mathbf{I}_{4 \times 4} & \Delta t \mathbf{I}_{4 \times 4} \\ \mathbf{0}_{4 \times 4} & \mathbf{I}_{4 \times 4} \end{bmatrix} = \begin{bmatrix} 1 & 0 & 0 & 0 & \Delta t & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 & 0 & \Delta t & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 & 0 & \Delta t & 0 \\ 0 & 0 & 0 & 1 & 0 & 0 & 0 & \Delta t \\ 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \end{bmatrix}$$
 
 #### 4. Diskritisasi Eksak Kovariansi Derau Proses
-Kovariansi derau proses diskrit dihitung secara eksak melalui integral konvolusi matriks eksponensial Van Loan [25]:
+Kovariansi *process noise* diskrit dihitung secara eksak melalui integral konvolusi matriks eksponensial Van Loan [25]:
 $$\mathbf{Q}(\Delta t) = \int_0^{\Delta t} e^{\mathbf{F}_c \tau} \mathbf{L}_c \tilde{\mathbf{Q}} \mathbf{L}_c^T e^{\mathbf{F}_c^T \tau} \, d\tau$$
 Substitusi $$e^{\mathbf{F}_c \tau} \mathbf{L}_c = \begin{bmatrix} \tau \mathbf{I}_4 \\ \mathbf{I}_4 \end{bmatrix}$$ menghasilkan:
 $$\mathbf{Q}(\Delta t) = \int_0^{\Delta t} \begin{bmatrix} \tau^2 \tilde{\mathbf{Q}} & \tau \tilde{\mathbf{Q}} \\ \tau \tilde{\mathbf{Q}} & \tilde{\mathbf{Q}} \end{bmatrix} d\tau = \begin{bmatrix} \frac{\Delta t^3}{3} \tilde{\mathbf{Q}} & \frac{\Delta t^2}{2} \tilde{\mathbf{Q}} \\ \frac{\Delta t^2}{2} \tilde{\mathbf{Q}} & \Delta t \tilde{\mathbf{Q}} \end{bmatrix}$$
@@ -596,13 +596,13 @@ di mana:
 
 Dinamika adaptif ini memberikan efek kendali estimasi yang sangat elegan:
 - Saat deteksi target sangat jelas dan tajam ($$\text{conf}_k \approx 0.95$$), suku penalti mendekati nol sehingga $$\mathbf{R}_k \approx \mathbf{R}_0$$. *Kalman gain* $$\mathbf{K}_k$$ membesar, mempercepat pembaruan estimasi keadaan terhadap pengukuran baru.
-- Saat deteksi target terdistorsi oleh gelembung air atau partikel keruh ($$\text{conf}_k \approx 0.3$$), nilai $$\mathbf{R}_k$$ melonjak secara kuadratik. Hal ini menyebabkan penguatan Kalman mengecil secara drastis ($$\mathbf{K}_k \to \mathbf{0}$$), sehingga filter secara otomatis menolak (*reject*) derau pengukuran yang tidak akurat dan lebih mempercayai prediksi model kinematika internalnya!
+- Saat deteksi target terdistorsi oleh gelembung air atau partikel keruh ($$\text{conf}_k \approx 0.3$$), nilai $$\mathbf{R}_k$$ melonjak secara kuadratik. Hal ini menyebabkan penguatan Kalman mengecil secara drastis ($$\mathbf{K}_k \to \mathbf{0}$$), sehingga filter secara otomatis menolak (*reject*) *measurement noise* yang tidak akurat dan lebih mempercayai prediksi model kinematika internalnya!
 
 #### 6. Outlier Innovation Gating Berbasis Jarak Mahalanobis
 Untuk mencegah penapis terganggu oleh *false positive clutter*, residu inovasi $$\tilde{\mathbf{y}}_k = \mathbf{z}_k - \mathbf{H}\hat{\mathbf{x}}_k^-$$ divalidasi menggunakan uji hipotesis kuadratik **Jarak Mahalanobis* (*Mahalanobis distance*) [25]:
 $$D_M^2 = \tilde{\mathbf{y}}_k^T \mathbf{S}_k^{-1} \tilde{\mathbf{y}}_k = \tilde{\mathbf{y}}_k^T \left( \mathbf{H}\mathbf{P}_k^-\mathbf{H}^T + \mathbf{R}_k \right)^{-1} \tilde{\mathbf{y}}_k$$
 
-Di bawah hipotesis nol (pengukuran target benar terdistribusi Gaussian), besaran skalar $$D_M^2$$ mengikuti distribusi Chi-kuadrat dengan derajat kebebasan sama dengan dimensi pengukuran ($$m = 4$$):
+Di bawah hipotesis nol (pengukuran target benar terdistribusi Gaussian), besaran skalar $$D_M^2$$ mengikuti distribusi Chi-kuadrat dengan *Degrees of Freedom* sama dengan dimensi pengukuran ($$m = 4$$):
 $$D_M^2 \sim \chi^2(4)$$
 
 Kriteria penerimaan pengukuran ditetapkan berdasarkan *gating threshold* pada tingkat signifikansi $$\alpha_{\text{gate}} = 0.05$$ (selang kepercayaan 95%):
