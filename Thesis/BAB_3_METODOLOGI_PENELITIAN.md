@@ -69,9 +69,9 @@ Tabel 3.1 Parameter Fisik dan Properti Benda Tegar Acuan Nominal Model Simulasi 
 | Volume Benaman Total | $$\nabla$$ | $$0.0132$$ | $$\text{m}^3$$ | Estimasi volume model CAD 3D [3] & hukum Archimedes |
 | Posisi Pusat Apung (CB) | $$\mathbf{r}_b = [x_b, y_b, z_b]^T$$ | $$[0.00, 0.00, 0.00]^T$$ | $$\text{m}$$ | Ditetapkan sebagai titik asal bodi ($$O_b$$) [7] |
 | Posisi Pusat Gravitasi (CG) | $$\mathbf{r}_g = [x_g, y_g, z_g]^T$$ | $$[0.00, 0.00, 0.02]^T$$ | $$\text{m}$$ | Estimasi distribusi massa ballast acuan [3], [31] |
-| Momen Inersia Roll Benda Tegar | $$I_{xx}$$ | $$0.160$$ | $$\text{kg}\cdot\text{m}^2$$ | Nilai acuan benchmark literatur [31] |
-| Momen Inersia Pitch Benda Tegar | $$I_{yy}$$ | $$0.240$$ | $$\text{kg}\cdot\text{m}^2$$ | Nilai acuan benchmark literatur [31] |
-| Momen Inersia Yaw Benda Tegar | $$I_{zz}$$ | $$0.280$$ | $$\text{kg}\cdot\text{m}^2$$ | Nilai acuan benchmark literatur [31] |
+| Momen Inersia *Roll* Benda Tegar | $$I_{xx}$$ | $$0.160$$ | $$\text{kg}\cdot\text{m}^2$$ | Nilai acuan benchmark literatur [31] |
+| Momen Inersia *Pitch* Benda Tegar | $$I_{yy}$$ | $$0.240$$ | $$\text{kg}\cdot\text{m}^2$$ | Nilai acuan benchmark literatur [31] |
+| Momen Inersia *Yaw* Benda Tegar | $$I_{zz}$$ | $$0.280$$ | $$\text{kg}\cdot\text{m}^2$$ | Nilai acuan benchmark literatur [31] |
 | Densitas Air Tawar Uji | $$\rho_{\text{fresh}}$$ | $$1000.0$$ | $$\text{kg/m}^3$$ | Standar kondisi fluida laboratorium |
 | Densitas Air Laut Nominal | $$\rho_{\text{salt}}$$ | $$1025.0$$ | $$\text{kg/m}^3$$ | Standar oseanografi subsea DNV (2021) [5] |
 | Percepatan Gravitasi Lokal | $$g$$ | $$9.80665$$ | $$\text{m/s}^2$$ | Standar gravitasi bumi internasional |
@@ -100,12 +100,12 @@ Nilai numerik massa tambah hidrodinamika dirangkum pada Tabel 3.2.
 Tabel 3.2 Koefisien Derivatif Massa Tambah Hidrodinamika Acuan Simulasi SITL [1], [31]
 | Derajat Kebebasan (DOF) | Koefisien Notasi SNAME | Nilai Numerik | Satuan SI | Interpretasi Fisis Fluida |
 |---|---|---|---|---|
-| Massa Tambah Surge | $$X_{\dot{u}}$$ | $$-5.50$$ | $$\text{kg}$$ | Fluida terakselerasi penampang frontal ramping |
-| Massa Tambah Sway | $$Y_{\dot{v}}$$ | $$-12.70$$ | $$\text{kg}$$ | Fluida terakselerasi penampang samping tabung ganda |
-| Massa Tambah Heave | $$Z_{\dot{w}}$$ | $$-14.60$$ | $$\text{kg}$$ | Fluida terakselerasi penampang datar atas/bawah |
-| Momen Tambah Roll | $$K_{\dot{p}}$$ | $$-0.12$$ | $$\text{kg}\cdot\text{m}^2$$ | Kelembaman rotasi fluida mengelilingi sumbu longitudinal |
-| Momen Tambah Pitch | $$M_{\dot{q}}$$ | $$-0.25$$ | $$\text{kg}\cdot\text{m}^2$$ | Kelembaman rotasi fluida mengelilingi sumbu transversal |
-| Momen Tambah Yaw | $$N_{\dot{r}}$$ | $$-0.27$$ | $$\text{kg}\cdot\text{m}^2$$ | Kelembaman rotasi fluida mengelilingi sumbu vertikal |
+| Massa Tambah *Surge* | $$X_{\dot{u}}$$ | $$-5.50$$ | $$\text{kg}$$ | Fluida terakselerasi penampang frontal ramping |
+| Massa Tambah *Sway* | $$Y_{\dot{v}}$$ | $$-12.70$$ | $$\text{kg}$$ | Fluida terakselerasi penampang samping tabung ganda |
+| Massa Tambah *Heave* | $$Z_{\dot{w}}$$ | $$-14.60$$ | $$\text{kg}$$ | Fluida terakselerasi penampang datar atas/bawah |
+| Momen Tambah *Roll* | $$K_{\dot{p}}$$ | $$-0.12$$ | $$\text{kg}\cdot\text{m}^2$$ | Kelembaman rotasi fluida mengelilingi sumbu longitudinal |
+| Momen Tambah *Pitch* | $$M_{\dot{q}}$$ | $$-0.25$$ | $$\text{kg}\cdot\text{m}^2$$ | Kelembaman rotasi fluida mengelilingi sumbu transversal |
+| Momen Tambah *Yaw* | $$N_{\dot{r}}$$ | $$-0.27$$ | $$\text{kg}\cdot\text{m}^2$$ | Kelembaman rotasi fluida mengelilingi sumbu vertikal |
 
 Dari Tabel 3.2, tampak bukti kuantitatif asimetri massa tambah transversal dan longitudinal:
 $$|Y_{\dot{v}}| = 12.70\text{ kg} > |X_{\dot{u}}| = 5.50\text{ kg}$$
@@ -224,8 +224,8 @@ Tabel 3.5 Spesifikasi Komponen Perangkat Keras Arsitektur HITL
 | Modul Sistem | Komponen Spesifik | Antarmuka / Protokol | Fungsi Utama dalam Sistem |
 |---|---|---|---|
 | Rangka & Lambung | Custom-made AUV Hull & Frame (Tabung Akrilik Silinder Kedap Air + Kerangka 8 Pendorong) | Mekanikal / Sealing O-Ring Ganda | Struktur fisik penahan tekanan hidrostatis dan dudukan geometris 8 pendorong bervektor |
-| Flight Controller | Pixhawk 2.4.8 (STM32F427 Cortex-M4, 168 MHz) | UART Serial (`/dev/ttyAMA0`, 921600 baud) | Eksekusi ArduSub `vectored_6dof`, akuisisi IMU internal, loop kendali sikap, alokasi 8 pendorong [14] |
-| Companion Computer | Raspberry Pi 4B (Quad-core Cortex-A72 @ 1.5 GHz, 4GB RAM) | Ethernet 10/100/1000 Mbps | Menjalankan sistem operasi BlueOS, kompresi video H.264, jembatan REST telemetri `mavlink2rest` |
+| *Flight Controller* | Pixhawk 2.4.8 (STM32F427 Cortex-M4, 168 MHz) | UART Serial (`/dev/ttyAMA0`, 921600 baud) | Eksekusi ArduSub `vectored_6dof`, akuisisi IMU internal, loop kendali sikap, alokasi 8 pendorong [14] |
+| *Companion Computer* | Raspberry Pi 4B (Quad-core Cortex-A72 @ 1.5 GHz, 4GB RAM) | Ethernet 10/100/1000 Mbps | Menjalankan sistem operasi BlueOS, kompresi video H.264, jembatan REST telemetri `mavlink2rest` |
 | Sensor Kedalaman | Sensor Tekanan & Kedalaman Digital Subsea MS5837-30BA | I2C Bus (Alamat `0x76`) | Pengukuran tekanan absolut fluida (0–30 bar) dan estimasi kedalaman dengan resolusi $$0.2\text{ mm}$$ |
 | Modul Kamera Utama | Raspberry Pi Camera Rev 1.3 (OmniVision OV5647 5MP) | MIPI CSI-2 Ribbon Cable | Akuisisi citra visual bawah air monokuler $$1280 \times 720$$ piksel @ 30 FPS untuk pelacakan target |
 | Kamera Sekunder | Logitech C922 Pro Stream Webcam | USB 2.0 (Protokol UVC / MJPG) | Kamera uji alternatif resolusi tinggi Full HD 1080p / 720p dengan lensa sudut lebar |
@@ -342,7 +342,7 @@ Skenario ini bertujuan menguji akurasi pelacakan visual penapis Kalman visual 8D
 - *Prosedur Pengujian*:
   1. Wahana AUV diposisikan mengapung di depan target visual referensi (misalnya pelampung bawah air underwater buoy atau penanda berstruktur) pada jarak observasi nominal $$1.5 - 3.0\text{ meter}$$.
   2. Target visual digerakkan secara dinamis mengikuti trajektori spasial acak pada bidang pandang kamera ($$xy$$) dan variasi jarak maju-mundur (perubahan skala area $$s$$).
-  3. *Injeksi Derau Pengukuran Sintetis*: Untuk menguji ketahanan filter terhadap turbiditas dan fluktuasi pencahayaan, sinyal deteksi kotak pembatas YOLO diinjeksikan derau acak Gaussian dengan variansi spasial terkontrol:
+  3. *Injeksi Derau Pengukuran Sintetis*: Untuk menguji ketahanan filter terhadap turbiditas dan fluktuasi pencahayaan, sinyal deteksi *bounding box* YOLO diinjeksikan derau acak Gaussian dengan variansi spasial terkontrol:
      $$\mathbf{z}_{\text{noisy}, k} = \mathbf{z}_k + \mathcal{N}(\mathbf{0}, \sigma_{\text{noise}}^2 \mathbf{I}_4)$$
      dengan variansi derau $$\sigma_{\text{noise}} \in [5, 25]\text{ piksel}$$.
   4. *Simulasi Oklusi Visual Temporer*: Selama interval waktu pelacakan detik ke-$$10$$ hingga detik ke-$$11.5$$ (sebanyak $$45$$ frame beruntun), aliran bounding box dari YOLO dihentikan secara artifisial ($$\text{conf}_k = 0$$) untuk merepresentasikan kondisi target terhalang total oleh awan gelembung atau partikel sedimen pekat.
@@ -353,7 +353,7 @@ Skenario ini dirancang untuk memvalidasi performa penapis non-linier EKF dinamik
 - *Prosedur Pengujian*:
   1. Wahana dioperasikan dalam lingkungan simulasi Gazebo Harmonic dan diarahkan menjalankan serangkaian manuver uji standar:
      - *Uji Akselerasi Lurus (Surge Acceleration)*: Wahana dipercepat dari diam hingga mencapai kecepatan jelajah $$u = 1.0\text{ m/s}$$.
-     - *Uji Belok Terkopling (Coupled Turning Circle)*: Wahana diberi perintah kecepatan sudut yaw $$r = 0.5\text{ rad/s}$$ secara simultan dengan kecepatan surge $$u = 0.8\text{ m/s}$$.
+     - *Uji Belok Terkopling (Coupled Turning Circle)*: Wahana diberi perintah kecepatan sudut *yaw* $$r = 0.5\text{ rad/s}$$ secara simultan dengan kecepatan surge $$u = 0.8\text{ m/s}$$.
      - **Uji Stabilitas Pitch Aktif** (*Active Pitch-Hold Tracking*): Wahana diarahkan mempertahankan sudut tukik tertentu ($$\theta = -15^\circ$$) untuk inspeksi dasar perairan sembari bermanuver melintang (*swaying*).
   2. **Injeksi Gangguan Arus Laut** (*Ocean Current Disturbance*): Pada detik ke-$$15$$, fluida virtual Gazebo diinjeksikan vektor arus laut konstan:
      $$\mathbf{V}_c^n = [0.30, 0.15, 0.00]^T\text{ m/s}$$

@@ -23,7 +23,7 @@ Tabel 2.1 Matriks Sintesis Literatur Terkini (2021–2025) Bidang Dinamika dan K
 | *von Benzon dkk. (2022)* [31] | BlueROV2 Standard | 4-DOF (Underactuated*) | Pembuatan simulator *benchmark open-source* berbasis Fossen dynamics untuk BlueROV2 di Gazebo/ROS. | Terbatas pada konfigurasi 6 pendorong (*standard frame*); mengabaikan aktuasi *pitch aktif serta tidak menyediakan modul penapis Kalman visual. |
 | *Ahmed dkk. (2023)* [1] | Berbagai Kelas AUV | Multi-DOF | Survei komprehensif teknik estimasi koefisien hidrodinamika tradisional vs. algoritma AI/neural network. | Merupakan artikel survei literatur; tidak merumuskan arsitektur kendali alokasi daya dorong atau implementasi software-in-the-loop terpadu. |
 | *Wang dkk. (2023)* [33] | Torpedo-Type AUV | 6-DOF | Pemodelan dinamis terintegrasi antara lambung (hull*), baling-baling (*propeller*), dan sirip kemudi (*rudder*). | Berlaku eksklusif untuk AUV kelas penjelajah (*cruising AUV*); tidak dapat diaplikasikan pada wahana *hovering* dengan matriks pendorong bervektor (*vectored thrusters). |
-| *Alinei-Poiană dkk. (2024)* [2] | BlueROV2 Platform | 4-DOF | Eksperimen pemetaan bawah air (underwater mapping*) menggunakan fusi sensor akustik dan visual. | Pemrosesan visi optik tidak dilengkapi penapis stokastik pelacakan dinamis adaptif terhadap *detection dropouts* dan *occlusion. |
+| *Alinei-Poiană dkk. (2024)* [2] | BlueROV2 Platform | 4-DOF | Eksperimen pemetaan bawah air (underwater mapping*) menggunakan *sensor fusion* akustik dan visual. | Pemrosesan visi optik tidak dilengkapi penapis stokastik pelacakan dinamis adaptif terhadap *detection dropouts* dan *occlusion. |
 | *Ng & Krieg (2024)* [21] | BlueROV2 Standard & Heavy | 4-DOF & 6-DOF | Modifikasi ArduSub SITL untuk meningkatkan akurasi simulasi dan perancangan autopilot hibrida. | Fokus utama pada modifikasi firmware ArduSub; tidak menurunkan secara analitis derivasi matematis matriks alokasi gaya dorong $$6 \times 8$$ maupun penapis Kalman visual. |
 | *Suárez dkk. (2024)* [27] | UUV 6-DOF | 6-DOF | Pemodelan dinamika dan kendali kokoh wahana bawah air memanfaatkan aljabar dual quaternions*. | Formulasi *dual quaternion* sangat abstrak secara aljabar dan sulit diintegrasikan ke dalam ekosistem *flight controller standar industri seperti Pixhawk/ArduSub. |
 | *Wei dkk. (2025)* [34] | AUV Multi-DOF | 6-DOF | Solusi identifikasi koefisien hidrodinamika memanfaatkan data gerak terkopling multi-derajat kebebasan. | Menitikberatkan pada uji identifikasi parameter offline*; tidak mengkaji penapis keadaan Kalman *real-time atau alokasi pendorong berlebih. |
@@ -297,7 +297,7 @@ $$\mathbf{I}_g = \begin{bmatrix} I_{xx} & -I_{xy} & -I_{xz} \\ -I_{xy} & I_{yy} 
 Turunan momentum sudut terhadap waktu pada kerangka bodi menghasilkan torsi total:
 $$\mathbf{m}_b = \dot{\mathbf{h}}_b + \boldsymbol{\nu}_2 \times \mathbf{h}_b = \mathbf{I}_g \dot{\boldsymbol{\nu}}_2 + \boldsymbol{\nu}_2 \times (\mathbf{I}_g \boldsymbol{\nu}_2) + m \mathbf{r}_g \times (\dot{\boldsymbol{\nu}}_1 + \boldsymbol{\nu}_2 \times \boldsymbol{\nu}_1)$$
 $$\mathbf{m}_b = m \mathbf{S}(\mathbf{r}_g) \dot{\boldsymbol{\nu}}_1 + \mathbf{I}_b \dot{\boldsymbol{\nu}}_2 + \mathbf{S}(\boldsymbol{\nu}_2)(\mathbf{I}_b \boldsymbol{\nu}_2) + m \mathbf{S}(\mathbf{r}_g)\mathbf{S}(\boldsymbol{\nu}_2)\boldsymbol{\nu}_1$$
-di mana tensor inersia benda tegar terhadap titik asal bodi $$O_b$$ memenuhi teorema sumbu sejajar (*parallel-axis theorem*) [7]:
+di mana tensor inersia benda tegar terhadap titik asal bodi $$O_b$$ memenuhi *parallel-axis theorem* (*parallel-axis theorem*) [7]:
 $$\mathbf{I}_b = \mathbf{I}_g - m \mathbf{S}^2(\mathbf{r}_g)$$
 
 #### 3. Ekspansi Lengkap Enam Persamaan Diferensial Skalar Newton-Euler
@@ -389,9 +389,9 @@ $$|Y_{\dot{v}}| > |X_{\dot{u}}| \iff -Y_{\dot{v}} > -X_{\dot{u}} \implies (X_{\d
 
 Konsekuensi fisis dari hubungan ini sangat fatal pada wahana yang tidak memiliki aktuasi kompensasi aktif [7], [34]:
 - Misalkan wahana melaju ke depan ($$u_r > 0$$) dan mengalami gangguan arus samping kecil dari arah kiri sehingga timbul kecepatan geser ke kanan ($$v_r > 0$$).
-- Karena $$(X_{\dot{u}} - Y_{\dot{v}}) > 0$$, maka momen Munk menghasilkan torsi yaw positif:
+- Karena $$(X_{\dot{u}} - Y_{\dot{v}}) > 0$$, maka momen Munk menghasilkan torsi *yaw* positif:
   $$N_{\text{Munk}} > 0$$
-- Torsi yaw positif ini memutar haluan wahana semakin ke kanan, memperbesar sudut hanyut (*drift angle*), yang pada gilirannya menaikkan nilai $$v_r$$, sehingga memicu momen destabilisasi yang semakin membesar secara eksponensial!
+- Torsi *yaw* positif ini memutar haluan wahana semakin ke kanan, memperbesar sudut hanyut (*drift angle*), yang pada gilirannya menaikkan nilai $$v_r$$, sehingga memicu momen destabilisasi yang semakin membesar secara eksponensial!
 
 Pada wahana *underactuated* 6-pendorong, fenomena kopling silang momen Munk ini menyebabkan wahana melenceng dari jalur dan tidak mampu mempertahankan orientasi garis lurus saat melaju pada kecepatan jelajah tinggi [7], [31]. Sebaliknya, pada wahana *over-actuated* 8-pendorong yang diteliti dalam tugas akhir ini, sistem kendali alokasi gaya dorong terpadu dapat menghitung torsi kompensasi balik secara *real-time* melalui umpan balik status dari penapis EKF, sehingga momen Munk dapat diredam secara aktif (*active dynamic suppression*) [21], [32].
 
@@ -436,11 +436,11 @@ Persamaan ini menunjukkan bahwa gaya apung netral menghilangkan gaya hidrostatis
 
 Operasi otonom AUV di lingkungan laut menghadapi ketidakpastian lingkungan yang tinggi (*environmental stochasticity*), derau sensor frekuensi tinggi, serta penurunan kualitas visual bawah air [2], [14], [16]. Untuk menjamin estimasi keadaan spasial dan pelacakan objek yang andal dan kokoh, penelitian ini merancang dan memformulasikan *Suite Optimal Kalman Filter* yang terdiri dari dua tingkatan terpadu [16], [17], [25], [29]:
 1. *Topside Visual Target Kalman Filter (Penapis Pelacak Target Visual 8D)*: Penapis Kalman linier diskrit 8-dimensi untuk melacak *bounding box* target visual deteksi YOLO monokuler pada laju 30 FPS.
-2. *Subsea Hydrodynamic Extended Kalman Filter (Penapis Estimasi Dinamika Hidrodinamika 6-DOF)*: Penapis Kalman non-linier terperluas (EKF) untuk melakukan fusi sensor IMU dan kedalaman berbasis persamaan dinamika Fossen 6-DOF serta mengestimasi gangguan arus laut pada laju 50 Hz.
+2. *Subsea Hydrodynamic Extended Kalman Filter (Penapis Estimasi Dinamika Hidrodinamika 6-DOF)*: Penapis Kalman non-linier terperluas (EKF) untuk melakukan *sensor fusion* IMU dan kedalaman berbasis persamaan dinamika Fossen 6-DOF serta mengestimasi gangguan arus laut pada laju 50 Hz.
 
 ### 2.5.1 Dasar Teori Estimasi Keadaan Stokastik dan Kriteria MMSE
 
-Estimasi keadaan stokastik bertujuan merekonstruksi vektor status internal suatu sistem dinamika wahana berdasarkan urutan data pengukuran sensor yang terdistorsi oleh derau acak [25]. Tinjau model ruang keadaan linier waktu diskrit berdimensi-$$n$$ dengan $$m$$ pengukuran sensor:
+Estimasi *stochastic state* bertujuan merekonstruksi vektor status internal suatu sistem dinamika wahana berdasarkan urutan data pengukuran sensor yang terdistorsi oleh derau acak [25]. Tinjau model ruang keadaan linier waktu diskrit berdimensi-$$n$$ dengan $$m$$ pengukuran sensor:
 $$\mathbf{x}_k = \mathbf{A}_{k-1}\mathbf{x}_{k-1} + \mathbf{B}_{k-1}\mathbf{u}_{k-1} + \mathbf{w}_{k-1}$$
 $$\mathbf{z}_k = \mathbf{H}_k\mathbf{x}_k + \mathbf{v}_k$$
 di mana:
@@ -587,15 +587,15 @@ Formulasi eksak ini secara simultan memodelkan ketidakpastian percepatan target 
 Model pengukuran sensor visual menghubungkan vektor keadaan 8D dengan 4 parameter observasi *bounding box* dari detektor YOLO:
 $$\mathbf{z}_k = \begin{bmatrix} z_x \\ z_y \\ z_s \\ z_r \end{bmatrix}_k = \mathbf{H} \mathbf{x}_k + \mathbf{v}_k, \qquad \mathbf{H} = \begin{bmatrix} \mathbf{I}_{4 \times 4} & \mathbf{0}_{4 \times 4} \end{bmatrix} \in \mathbb{R}^{4 \times 8}$$
 
-Setiap keluaran bounding box dari jaringan syaraf YOLO menyertakan *confidence score* $$\text{conf}_k \in [0, 1]$$. Pada kondisi air keruh, deteksi dengan nilai keyakinan rendah mengandung variansi derau spasial yang jauh lebih besar. Untuk mengakomodasi fenomena ini secara stokastik, dikembangkan formulasi *kovariansi pengukuran adaptif non-linier* [16], [17]:
+Setiap keluaran *bounding box* dari jaringan syaraf YOLO menyertakan *confidence score* $$\text{conf}_k \in [0, 1]$$. Pada kondisi air keruh, deteksi dengan nilai keyakinan rendah mengandung variansi derau spasial yang jauh lebih besar. Untuk mengakomodasi fenomena ini secara stokastik, dikembangkan formulasi *kovariansi pengukuran adaptif non-linier* [16], [17]:
 $$\mathbf{R}_k(\text{conf}_k) = \mathbf{R}_0 \cdot \left[ 1 + \alpha_{\text{conf}} \left( \frac{1 - \text{conf}_k}{\text{conf}_k + \epsilon} \right)^2 \right]$$
 di mana:
-- $$\mathbf{R}_0 = \text{diag}[\sigma_{z,x}^2, \sigma_{z,y}^2, \sigma_{z,s}^2, \sigma_{z,r}^2]$$ adalah kovariansi nominal saat deteksi sempurna ($$\text{conf}_k \to 1.0$$).
+- $$\mathbf{R}_0 = \text{diag}[\sigma_{z,x}^2, \sigma_{z,y}^2, \sigma_{z,s}^2, \sigma_{z,r}^2]$$ adalah *nominal covariance* saat deteksi sempurna ($$\text{conf}_k \to 1.0$$).
 - $$\alpha_{\text{conf}} \ge 1.0$$ adalah faktor skala penalti ketidakpastian deteksi visual.
 - $$\epsilon = 10^{-4}$$ adalah konstanta regularisasi untuk mencegah pembagian dengan nol.
 
 Dinamika adaptif ini memberikan efek kendali estimasi yang sangat elegan:
-- Saat deteksi target sangat jelas dan tajam ($$\text{conf}_k \approx 0.95$$), suku penalti mendekati nol sehingga $$\mathbf{R}_k \approx \mathbf{R}_0$$. Penguatan Kalman $$\mathbf{K}_k$$ membesar, mempercepat pembaruan estimasi keadaan terhadap pengukuran baru.
+- Saat deteksi target sangat jelas dan tajam ($$\text{conf}_k \approx 0.95$$), suku penalti mendekati nol sehingga $$\mathbf{R}_k \approx \mathbf{R}_0$$. *Kalman gain* $$\mathbf{K}_k$$ membesar, mempercepat pembaruan estimasi keadaan terhadap pengukuran baru.
 - Saat deteksi target terdistorsi oleh gelembung air atau partikel keruh ($$\text{conf}_k \approx 0.3$$), nilai $$\mathbf{R}_k$$ melonjak secara kuadratik. Hal ini menyebabkan penguatan Kalman mengecil secara drastis ($$\mathbf{K}_k \to \mathbf{0}$$), sehingga filter secara otomatis menolak (*reject*) derau pengukuran yang tidak akurat dan lebih mempercayai prediksi model kinematika internalnya!
 
 #### 6. Outlier Innovation Gating Berbasis Jarak Mahalanobis
@@ -622,7 +622,7 @@ Pada fase ini, estimasi kecepatan visual ($$\dot{x}, \dot{y}, \dot{s}$$) yang te
 
 ### 2.5.5 Formulasi Penapis Estimasi Dinamika Hidrodinamika 6-DOF (Subsea Hydrodynamic Extended Kalman Filter)
 
-Di sisi wahana bawah laut, estimasi status dinamika hidrodinamika 6-DOF dieksekusi secara *real-time* oleh *Subsea Hydrodynamic Extended Kalman Filter* yang berjalan pada komputer pendamping Raspberry Pi 4B berkomunikasi dengan Pixhawk 2.4.8 melalui protokol MAVLink pada frekuensi 50 Hz [14], [21], [29].
+Di sisi wahana bawah laut, estimasi status dinamika hidrodinamika 6-DOF dieksekusi secara *real-time* oleh *Subsea Hydrodynamic Extended Kalman Filter* yang berjalan pada *companion computer* Raspberry Pi 4B berkomunikasi dengan Pixhawk 2.4.8 melalui protokol MAVLink pada frekuensi 50 Hz [14], [21], [29].
 
 #### 1. Formulasi Model Ruang Keadaan Non-Linier Dinamika 6-DOF
 Berdasarkan persamaan gerak Fossen (2021) yang diturunkan pada Subbab 2.4, turunan percepatan relatif bodi wahana dinyatakan oleh sistem persamaan diferensial non-linier [7]:
