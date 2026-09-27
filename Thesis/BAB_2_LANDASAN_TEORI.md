@@ -250,7 +250,24 @@ $$\begin{bmatrix} \dot{x} \\ \dot{y} \\ \dot{z} \\ \dot{\phi} \\ \dot{\theta} \\
 
 ## 2.4 Penurunan Dinamika 6-DOF Wahana Bawah Air (Formulasi Newton-Euler dan Persamaan Fossen)
 
-Dinamika wahana laut mendeskripsikan hubungan kausal antara gaya dan torsi penyebab gerak dengan akselerasi yang dihasilkan pada wahana di dalam media fluida [7]. Formulasi dinamika wahana bawah air diturunkan secara analitis dari prinsip mekanika klasik Newton-Euler untuk benda tegar berdimensi enam (*6-DOF rigid-body dynamics*), yang kemudian diperluas dengan memasukkan gaya-gaya hidrodinamika fluida terakselerasi dan disipasi viskos sesuai kerangka standar Fossen (2021) [7].
+Dinamika wahana laut mendeskripsikan hubungan kausal antara gaya dan torsi penyebab gerak dengan percepatan yang dihasilkan pada wahana di dalam media fluida kental (*viscous fluid*) [7]. Formulasi komprehensif kinetika non-linier 6-DOF wahana bawah air mengacu pada persamaan gerak standar kelautan Fossen (2021) [7]:
+$$\mathbf{M}\dot{\boldsymbol{\nu}} + \mathbf{C}_{RB}(\boldsymbol{\nu})\boldsymbol{\nu} + \mathbf{C}_A(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r + \mathbf{D}(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r + \mathbf{g}(\boldsymbol{\eta}) = \boldsymbol{\tau} + \boldsymbol{\tau}_{\text{ext}}$$
+atau dalam representasi kecepatan relatif fluida (*relative velocity formulation*):
+$$\mathbf{M}_{RB}\dot{\boldsymbol{\nu}} + \mathbf{C}_{RB}(\boldsymbol{\nu})\boldsymbol{\nu} + \mathbf{M}_A\dot{\boldsymbol{\nu}}_r + \mathbf{C}_A(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r + \mathbf{D}(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r + \mathbf{g}(\boldsymbol{\eta}) = \boldsymbol{\tau} + \boldsymbol{\tau}_{\text{ext}}$$
+
+di mana setiap suku matriks dan vektor gaya didefinisikan secara fisis sebagai berikut [7]:
+- $$\mathbf{M} \in \mathbb{R}^{6 \times 6}$$: Tensor massa inersia total sistem, yaitu gabungan antara matriks massa inersia benda tegar $$\mathbf{M}_{RB}$$ dan matriks massa tambah hidrodinamika fluida $$\mathbf{M}_A$$ ($$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A$$).
+- $$\mathbf{C}_{RB}(\boldsymbol{\nu}) \in \mathbb{R}^{6 \times 6}$$: Matriks gaya inersia semu Coriolis dan sentripetal benda tegar (*rigid-body*).
+- $$\mathbf{C}_A(\boldsymbol{\nu}_r) \in \mathbb{R}^{6 \times 6}$$: Matriks percepatan Coriolis dan sentripetal hidrodinamika fluida akibat massa fluida yang ikut terakselerasi.
+- $$\mathbf{D}(\boldsymbol{\nu}_r) \in \mathbb{R}^{6 \times 6}$$: Tensor redaman disipasi hidrodinamika fluida non-linier ($$\mathbf{D}(\boldsymbol{\nu}_r) = \mathbf{D}_L + \mathbf{D}_{NL}(\boldsymbol{\nu}_r)$$), yang memadukan efek gesekan kulit laminar viskos (*skin friction*) dan seretan bentuk kuadratik turbulen (*cross-flow drag*).
+- $$\mathbf{g}(\boldsymbol{\eta}) \in \mathbb{R}^6$$: Vektor gaya dan momen pemulih hidrostatis gabungan antara gaya gravitasi bumi ($$W = mg$$) dan gaya apung Archimedes ($$B = \rho g \nabla$$).
+- $$\boldsymbol{\tau} \in \mathbb{R}^6$$: Vektor gaya dan momen kendali generalisasi 6-DOF yang dibangkitkan oleh konfigurasi aktuasi delapan motor pendorong wahana ($$\boldsymbol{\tau} = \mathbf{T}_{6 \times 8}\mathbf{f}$$).
+- $$\boldsymbol{\tau}_{\text{ext}} \in \mathbb{R}^6$$: Vektor gaya dan torsi gangguan lingkungan luar tak termodelkan (*environmental disturbances* seperti arus laut dan fluktuasi gelombang).
+- $$\boldsymbol{\nu} = [u, v, w, p, q, r]^T \in \mathbb{R}^6$$: Vektor kecepatan translasi dan rotasi wahana di dalam kerangka bodi $$\mathcal{F}^b$$.
+- $$\boldsymbol{\nu}_r = \boldsymbol{\nu} - \boldsymbol{\nu}_c \in \mathbb{R}^6$$: Vektor kecepatan relatif wahana terhadap kecepatan arus laut ambient $$\boldsymbol{\nu}_c = [u_c, v_c, w_c, 0, 0, 0]^T$$.
+- $$\boldsymbol{\eta} = [x, y, z, \phi, \theta, \psi]^T \in \mathbb{R}^6$$: Vektor posisi spasial dan sudut orientasi Euler wahana di dalam kerangka inersia bumi (NED).
+
+Persamaan gerak Fossen 6-DOF di atas diturunkan secara analitis dari prinsip pertama (*first principles*) melalui penggabungan mekanika benda tegar non-inersial Newton-Euler dengan interaksi gaya mekanika fluida hidrodinamika.
 
 ### 2.4.1 Penurunan Persamaan Gerak Bodi Kaku dari Hukum Newton-Euler
 
@@ -314,6 +331,22 @@ di mana:
 Untuk wahana yang dirancang dengan simetri bilateral transversal dan longitudinal ($$x_g \approx 0, y_g \approx 0$$) dan produk inersia silang yang sangat kecil ($$I_{xy} \approx I_{xz} \approx I_{yz} \approx 0$$), matriks inersia bodi kaku disederhanakan menjadi [7]:
 $$\mathbf{M}_{RB} = \begin{bmatrix} m & 0 & 0 & 0 & m z_g & 0 \\ 0 & m & 0 & -m z_g & 0 & 0 \\ 0 & 0 & m & 0 & 0 & 0 \\ 0 & -m z_g & 0 & I_{xx} + m z_g^2 & 0 & 0 \\ m z_g & 0 & 0 & 0 & I_{yy} + m z_g^2 & 0 \\ 0 & 0 & 0 & 0 & 0 & I_{zz} \end{bmatrix} \approx \text{diag}\left[ m, m, m, I_{xx} + m z_g^2, I_{yy} + m z_g^2, I_{zz} \right]$$
 
+#### 5. Penyatuan Gaya Luar Bodi Kaku Menghasilkan Persamaan Fossen Lengkap
+Gaya luar total $$\boldsymbol{\tau}_{RB}$$ yang bekerja pada bodi kaku merupakan resultan dari gaya-gaya reaksi hidrodinamika fluida $$\boldsymbol{\tau}_H$$, gaya dan torsi pemulih hidrostatis gravitasi dan daya apung $$\boldsymbol{\tau}_{HS}$$, gaya dorong aktuator pendorong $$\boldsymbol{\tau}$$, serta gangguan lingkungan tak termodelkan $$\boldsymbol{\tau}_{\text{ext}}$$ [7]:
+$$\boldsymbol{\tau}_{RB} = \boldsymbol{\tau}_H + \boldsymbol{\tau}_{HS} + \boldsymbol{\tau} + \boldsymbol{\tau}_{\text{ext}}$$
+
+Gaya reaksi hidrodinamika fluida terakselerasi dan disipasi viskos didefinisikan oleh kerangka Fossen sebagai:
+$$\boldsymbol{\tau}_H = -\mathbf{M}_A\dot{\boldsymbol{\nu}}_r - \mathbf{C}_A(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r - \mathbf{D}(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r$$
+sedangkan gaya pemulih hidrostatis didefinisikan sebagai suku potensial:
+$$\boldsymbol{\tau}_{HS} = -\mathbf{g}(\boldsymbol{\eta})$$
+
+Substitusikan ekspresi gaya luar $$\boldsymbol{\tau}_H$$ dan $$\boldsymbol{\tau}_{HS}$$ ke dalam persamaan gerak bodi kaku Newton-Euler:
+$$\mathbf{M}_{RB}\dot{\boldsymbol{\nu}} + \mathbf{C}_{RB}(\boldsymbol{\nu})\boldsymbol{\nu} = -\mathbf{M}_A\dot{\boldsymbol{\nu}}_r - \mathbf{C}_A(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r - \mathbf{D}(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r - \mathbf{g}(\boldsymbol{\eta}) + \boldsymbol{\tau} + \boldsymbol{\tau}_{\text{ext}}$$
+
+Dengan memindahkan seluruh suku hidrodinamika dan pemulih hidrostatis ke ruas kiri persamaan, diperoleh kembali formulasi analitis **Persamaan Gerak Hidrodinamika 6-DOF Fossen Penuh**:
+$$\mathbf{M}\dot{\boldsymbol{\nu}} + \mathbf{C}_{RB}(\boldsymbol{\nu})\boldsymbol{\nu} + \mathbf{C}_A(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r + \mathbf{D}(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r + \mathbf{g}(\boldsymbol{\eta}) = \boldsymbol{\tau} + \boldsymbol{\tau}_{\text{ext}}$$
+di mana $$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A$$ adalah tensor massa total sistem. Penjabaran analitis dari masing-masing matriks konstituen hidrodinamika fluida diuraikan secara sistematis pada sub-bab berikut.
+
 ### 2.4.2 Tensor Massa Tambah Hidrodinamika Fluida $$\mathbf{M}_A$$ dan Massa Total $$\mathbf{M}$$
 Ketika wahana berakselerasi di dalam fluida kental, fluida di sekitarnya ikut bergerak dan menghasilkan gaya reaksi inersia tambahan yang dimodelkan sebagai *massa tambah hidrodinamika* (*hydrodynamic added mass*) melalui turunan kestabilan SNAME [7]:
 $$\mathbf{M}_A = -\begin{bmatrix} X_{\dot{u}} & X_{\dot{v}} & X_{\dot{w}} & X_{\dot{p}} & X_{\dot{q}} & X_{\dot{r}} \\ Y_{\dot{u}} & Y_{\dot{v}} & Y_{\dot{w}} & Y_{\dot{p}} & Y_{\dot{q}} & Y_{\dot{r}} \\ Z_{\dot{u}} & Z_{\dot{v}} & Z_{\dot{w}} & Z_{\dot{p}} & Z_{\dot{q}} & Z_{\dot{r}} \\ K_{\dot{u}} & K_{\dot{v}} & K_{\dot{w}} & K_{\dot{p}} & K_{\dot{q}} & K_{\dot{r}} \\ M_{\dot{u}} & M_{\dot{v}} & M_{\dot{w}} & M_{\dot{p}} & M_{\dot{q}} & M_{\dot{r}} \\ N_{\dot{u}} & N_{\dot{v}} & N_{\dot{w}} & N_{\dot{p}} & N_{\dot{q}} & N_{\dot{r}} \end{bmatrix}$$
@@ -338,7 +371,7 @@ $$\mathbf{C}_A(\boldsymbol{\nu}_r) = \begin{bmatrix} \mathbf{0}_{3 \times 3} & -
 Dengan mengasumsikan matriks massa tambah diagonal:
 $$\mathbf{C}_A(\boldsymbol{\nu}_r) = \begin{bmatrix} 0 & 0 & 0 & 0 & -Z_{\dot{w}}w_r & Y_{\dot{v}}v_r \\ 0 & 0 & 0 & Z_{\dot{w}}w_r & 0 & -X_{\dot{u}}u_r \\ 0 & 0 & 0 & -Y_{\dot{v}}v_r & X_{\dot{u}}u_r & 0 \\ 0 & -Z_{\dot{w}}w_r & Y_{\dot{v}}v_r & 0 & -N_{\dot{r}}r & M_{\dot{q}}q \\ Z_{\dot{w}}w_r & 0 & -X_{\dot{u}}u_r & N_{\dot{r}}r & 0 & -K_{\dot{p}}p \\ -Y_{\dot{v}}v_r & X_{\dot{u}}u_r & 0 & -M_{\dot{q}}q & K_{\dot{p}}p & 0 \end{bmatrix}$$
 
-### 2.4.3 Analisis Destabilisasi Momen Munk Hidrodinamika (*Hydrodynamic Munk Moment*)
+### 2.4.4 Analisis Destabilisasi Momen Munk Hidrodinamika (*Hydrodynamic Munk Moment*)
 Fenomena hidrodinamika non-linier yang paling krusial dalam manuver wahana bawah air adalah *momen Munk hidrodinamika* [7], [34]. Momen ini timbul akibat perbedaan (*asymmetry*) antara massa tambah transversal ($$Y_{\dot{v}}$$) dan massa tambah longitudinal ($$X_{\dot{u}}$$).
 
 Bukti analitis keberadaan momen Munk diturunkan secara langsung dari evaluasi baris ke-6 (sumbu *Yaw* $$N$$) pada perkalian matriks Coriolis massa tambah dengan vektor kecepatan relatif $$\mathbf{C}_A(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r$$ [7]:
@@ -362,7 +395,7 @@ Konsekuensi fisis dari hubungan ini sangat fatal pada wahana yang tidak memiliki
 
 Pada wahana *underactuated* 6-pendorong, fenomena kopling silang momen Munk ini menyebabkan wahana melenceng dari jalur dan tidak mampu mempertahankan orientasi garis lurus saat melaju pada kecepatan jelajah tinggi [7], [31]. Sebaliknya, pada wahana *over-actuated* 8-pendorong yang diteliti dalam tugas akhir ini, sistem kendali alokasi gaya dorong terpadu dapat menghitung torsi kompensasi balik secara seketika melalui umpan balik status dari penapis EKF, sehingga momen Munk dapat diredam secara aktif (*active dynamic suppression*) [21], [32].
 
-### 2.4.4 Tensor Redaman Hidrodinamika Fluida $$\mathbf{D}(\boldsymbol{\nu}_r)$$
+### 2.4.5 Tensor Redaman Hidrodinamika Fluida $$\mathbf{D}(\boldsymbol{\nu}_r)$$
 Redaman hidrodinamika fluida pada wahana *open-frame* berkecepatan rendah dimodelkan sebagai gabungan linier antara disipasi gesekan kulit laminar viskos (*skin friction*) dan seretan bentuk kuadratik turbulen (*cross-flow drag*) sesuai formulasi Morison [7], [31]:
 $$\mathbf{D}(\boldsymbol{\nu}_r) = \mathbf{D}_L + \mathbf{D}_{NL}(\boldsymbol{\nu}_r)$$
 
@@ -377,7 +410,7 @@ $$\mathbf{D}(\boldsymbol{\nu}_r) = \mathbf{D}_L + \mathbf{D}_{NL}(\boldsymbol{\n
 Total gaya disipasi redaman hidrodinamika pada kerangka bodi dinyatakan oleh formulasi analitis analitis:
 $$\mathbf{D}(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r = \begin{bmatrix} -(X_u + X_{u|u|}|u_r|)u_r \\ -(Y_v + Y_{v|v|}|v_r|)v_r \\ -(Z_w + Z_{w|w|}|w_r|)w_r \\ -(K_p + K_{p|p|}|p|)p \\ -(M_q + M_{q|q|}|q|)q \\ -(N_r + N_{r|r|}|r|)r \end{bmatrix}$$
 
-### 2.4.5 Vektor Gaya dan Momen Pemulih Hidrostatis 6-DOF Penuh $$\mathbf{g}(\boldsymbol{\eta})$$
+### 2.4.6 Vektor Gaya dan Momen Pemulih Hidrostatis 6-DOF Penuh $$\mathbf{g}(\boldsymbol{\eta})$$
 Gaya hidrostatis terdiri dari gaya berat gravitasi $$W = mg$$ yang bekerja vertikal ke bawah pada Pusat Gravitasi $$\mathbf{r}_g = [x_g, y_g, z_g]^T$$, dan gaya apung Archimedes $$B = \rho g \nabla$$ yang bekerja vertikal ke atas pada Pusat Daya Apung $$\mathbf{r}_b = [x_b, y_b, z_b]^T$$ [7].
 
 Transformasi vektor gaya gravitasi dan gaya apung ke kerangka bodi $$\mathcal{F}^b$$ dinyatakan oleh:
