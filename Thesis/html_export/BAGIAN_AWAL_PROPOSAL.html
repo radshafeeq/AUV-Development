@@ -85,8 +85,7 @@ Seluruh bagian awal naskah proposal diberi nomor halaman dengan angka romawi kec
 
 <br><br>
 
-**MUH. RADHI SYAFIQ GHANIM. S**  
-**NIM. D021201006**
+**MUH. RADHI SYAFIQ GHANIM. S***NIM. D021201006**
 
 <br><br>
 
@@ -94,11 +93,7 @@ Seluruh bagian awal naskah proposal diberi nomor halaman dengan angka romawi kec
 
 <br><br>
 
-**DEPARTEMEN TEKNIK MESIN**  
-**FAKULTAS TEKNIK**  
-**UNIVERSITAS HASANUDDIN**  
-**MAKASSAR**  
-**2026**
+**DEPARTEMEN TEKNIK MESIN***FAKULTAS TEKNIK***UNIVERSITAS HASANUDDIN***MAKASSAR***2026**
 
 </div>
 
@@ -125,8 +120,7 @@ ANALYSIS OF KINEMATICS, DYNAMICS, AND OPTIMAL KALMAN FILTER STATE ESTIMATION FOR
 
 <br><br><br>
 
-**MUH. RADHI SYAFIQ GHANIM. S**  
-**NIM. D021201006**
+**MUH. RADHI SYAFIQ GHANIM. S***NIM. D021201006**
 
 <br><br><br>
 
@@ -134,11 +128,7 @@ ANALYSIS OF KINEMATICS, DYNAMICS, AND OPTIMAL KALMAN FILTER STATE ESTIMATION FOR
 
 <br><br><br>
 
-**DEPARTEMEN TEKNIK MESIN**  
-**FAKULTAS TEKNIK**  
-**UNIVERSITAS HASANUDDIN**  
-**MAKASSAR**  
-**2026**
+**DEPARTEMEN TEKNIK MESIN***FAKULTAS TEKNIK***UNIVERSITAS HASANUDDIN***MAKASSAR***2026**
 
 </div>
 
@@ -157,8 +147,7 @@ Halaman ii (Dihitung, tidak dicetak)
 
 <br><br>
 
-**MUH. RADHI SYAFIQ GHANIM. S**  
-**NIM. D021201006**
+**MUH. RADHI SYAFIQ GHANIM. S***NIM. D021201006**
 
 <br><br><br>
 
@@ -172,11 +161,7 @@ pada
 
 <br><br>
 
-**DEPARTEMEN TEKNIK MESIN**  
-**FAKULTAS TEKNIK**  
-**UNIVERSITAS HASANUDDIN**  
-**MAKASSAR**  
-**2026**
+**DEPARTEMEN TEKNIK MESIN***FAKULTAS TEKNIK***UNIVERSITAS HASANUDDIN***MAKASSAR***2026**
 
 </div>
 
@@ -203,8 +188,7 @@ Disusun dan diajukan oleh:
 
 <br>
 
-**MUH. RADHI SYAFIQ GHANIM. S**  
-**NIM. D021201006**
+**MUH. RADHI SYAFIQ GHANIM. S***NIM. D021201006**
 
 <br><br>
 
@@ -313,7 +297,7 @@ Fakultas Teknik, Universitas Hasanuddin.
 <li>Rekan-rekan mahasiswa dan asisten di Laboratorium Mekatronika dan Robotika atas diskusi teknis, kolaborasi ilmiah, dan kebersamaan dalam eksplorasi teknologi subsea robotics.</li>
 <li>Teristimewa kepada kedua orang tua tercinta, keluarga besar, dan sanak saudara, atas doa tulus yang tak pernah terputus, cinta kasih tanpa pamrih, pengorbanan, dan dorongan moral serta spiritual yang tak ternilai harganya.</li>
 </ol>
-<p>Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untuk penyempurnaan. Oleh karena itu, saran dan kritik konstruktif sangat diharapkan demi penyempurnaan penelitian ini hingga tahap akhir. Semoga penelitian ini dapat memberikan kontribusi nyata bagi perkembangan ilmu pengetahuan dan teknologi kelautan nasional, khususnya dalam rekayasa robotika bawah air (<em>underwater robotics</em>).</p>
+<p>Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untuk penyempurnaan. Oleh karena itu, saran dan kritik konstruktif sangat diharapkan demi penyempurnaan penelitian ini hingga tahap akhir. Semoga penelitian ini dapat memberikan kontribusi nyata bagi perkembangan ilmu pengetahuan dan teknologi kelautan nasional, khususnya dalam rekayasa robotika bawah air.</p>
 <p><br><br></p>
 <table style="width:100%; border:none;">
   <tr>
@@ -339,19 +323,16 @@ Fakultas Teknik, Universitas Hasanuddin.
 
 # ABSTRAK
 
+**Latar belakang.** Eksplorasi bawah air menuntut wahana otonom dengan fleksibilitas manuver tinggi. Sebagian besar wahana konvensional beroperasi secara *underactuated* tanpa *active control* pada sudut *pitch* serta rentan terhadap *hydrodynamic Munk destabilizing moment*. Wahana *over-actuated 8-thruster* mampu menyediakan *full control authority* pada *6-Degrees of Freedom* (6-DOF), namun menghadirkan tantangan dinamika *coupled nonlinear hydrodynamics* dan degradasi *underwater visual sensing*. **Tujuan.** Penelitian ini bertujuan menurunkan formulasi analitis komprehensif *kinematics* dan *dynamics* 6-DOF Fossen, merancang arsitektur *optimal Kalman Filter suite* untuk *visual target tracking* dan estimasi dinamika wahana, serta memvalidasi *system reliability* melalui integrasi simulasi *Software-In-The-Loop* (SITL) dan pengujian perangkat keras *Hardware-In-The-Loop* (HITL). **Metode.**6-DOF kinematics* diturunkan melalui *rotation group* SO(3), transformasi *Euler angles*, dan representasi *singularity-free unit quaternion*. Persamaan dinamika diturunkan berbasis *Fossen 6-DOF equations of motion*, mencakup *rigid-body inertia matrix*, *hydrodynamic added mass*, *Coriolis-centripetal acceleration matrix*, *nonlinear quadratic damping tensor*, serta *hydrostatic restoring forces and moments*. Estimasi *state* visual menggunakan *Discrete Kalman Filter* (DKF) 8-*state* berbasis model *Continuous White Noise Acceleration* (CWNA) dengan *Mahalanobis distance outlier gating*, sedangkan *vehicle motion dynamics reconstruction* dan *ocean current disturbance observer* menggunakan *Extended Kalman Filter* (EKF) pada *companion computer* Raspberry Pi 4B yang terhubung melalui protokol telemetri MAVLink (50 Hz) dengan *flight controller* Pixhawk 2.4.8 (firmware ArduSub *vectored_6dof*) dan lingkungan simulasi Gazebo Harmonic/ROS 2 Jazzy. **Hasil yang diharapkan.** Diperoleh model analitis 6-DOF Fossen terverifikasi serta algoritma *optimal Kalman Filter suite* yang mampu mereduksi *bounding box jitter* deteksi YOLO, merekonstruksi *body velocity dynamics* dan *ocean current velocity*, serta mempertahankan kestabilan *attitude* 6-DOF secara *real-time*. **Kesimpulan.** Integrasi *6-DOF dynamics modeling* dan *filter*an optimal Kalman memberikan landasan teoretis dan arsitektur *mechatronics* yang tangguh untuk *autonomous underwater inspection*.
+
 <br>
 
-*MUH. RADHI SYAFIQ GHANIM. S. Analisis Kinematika, Dinamika, dan Estimasi Keadaan Optimal *Kalman Filter* untuk *Vision-Based Tracking* pada Over-Actuated 8-Thruster 6-DOF Vectored AUV* (dibimbing oleh Andi Amijoyo Mochtar, S.T., M.Sc., Ph.D. dan [Nama Pembimbing Pendamping]).
+**Kata kunci:**Autonomous Underwater Vehicle* (AUV); *Fossen 6-DOF equations of motion*; *optimal Kalman Filter suite*; *sensor fusion*; *computer vision*; *Hardware-In-The-Loop* (HITL)
 
-</div>
-
-<p><br></p>
-<p><em>Latar belakang.</em> Eksplorasi dan pemantauan infrastruktur bawah air menuntut wahana otonom dengan manuver tinggi. Sebagian besar AUV mikro konvensional bekerja dalam kondisi <em>underactuated</em> (6 pendorong) yang tidak memiliki kendali aktif pada derajat kebebasan <em>pitch</em> dan rentan terhadap momen kopling hidrodinamika tidak stabil seperti <em>Munk moment</em>. Wahana <em>over-actuated</em> 8-pendorong mampu menyediakan kendali aktif 6 derajat kebebasan (6-DOF) penuh, namun menghadirkan kompleksitas non-linearitas hidrodinamika Navier-Stokes serta degradasi sensor visual akibat turbiditas air. <em>Tujuan.</em> Penelitian ini bertujuan memformulasikan model matematis lengkap kinematika dan dinamika 6-DOF, menyusun matriks alokasi gaya dorong $$6 \times 8$$ berbasis <em>pseudo-inverse</em> Moore-Penrose, merancang suite Kalman Filter optimal untuk pelacakan target visual dan estimasi dinamika wahana, serta memvalidasi performa sistem melalui integrasi <em>Software-In-The-Loop</em> (SITL) dan <em>Hardware-In-The-Loop</em> (HITL). <em>Metode.</em> Kinematika 6-DOF diturunkan melalui grup rotasi $$SO(3)$$ dan kuaternion unit bebas singularitas. Persamaan dinamika non-linear diturunkan berbasis model Fossen, mencakup tensor massa total ($$\mathbf{M}<em RB="RB">{RB} + \mathbf{M}_A$$), matriks Coriolis-sentripetal ($$\mathbf{C}</em> + \mathbf{C}_A$$), redaman kuadratik Morison, dan vektor pemulih hidrostatis. Redundansi aktuasi diselesaikan melalui alokasi daya dorong minimum. Estimasi keadaan visual menggunakan Kalman Filter diskrit 8D berbasis <em>Continuous White Noise Acceleration</em> (CWNA) dengan <em>Mahalanobis distance gating</em>, sedangkan estimasi dinamika menggunakan <em>Extended Kalman Filter</em> (EKF) pada <em>companion computer</em> Raspberry Pi 4B yang terhubung secara serial MAVLink (50 Hz) dengan <em>flight controller</em> Pixhawk 2.4.8 (ArduSub <code>vectored_6dof</code>) dan simulator Gazebo Harmonic/ROS 2. <em>Hasil yang diharapkan.</em> Penelitian ini menghasilkan formulasi matematis lengkap, matriks alokasi gaya dorong terverifikasi, serta algoritma penapis Kalman yang mampu mengeliminasi derau deteksi YOLO dan menjaga stabilitas orientasi 6-DOF (<em>pitch-holding</em>) secara <em>real-time</em>. <em>Kesimpulan.</em> Integrasi pemodelan dinamika 6-DOF <em>first-principles</em> dengan estimasi Kalman Filter optimal memberikan landasan teoretis dan arsitektur mekatronika yang kokoh untuk inspeksi otonom bawah air.</p>
-<p><br></p>
-<p><em>Kata kunci:</em> AUV <em>over-actuated</em>; dinamika 6-DOF; alokasi gaya dorong; <em>Extended Kalman Filter</em>; pelacakan visual YOLO; <em>Hardware-In-The-Loop</em></p>
 <div style="page-break-after: always;"></div>
 
-<hr />
+---
+
 <!-- ======================================================================= -->
 <!-- DAFTAR ISI (TABLE OF CONTENTS - HALAMAN vi)                             -->
 <!-- ======================================================================= -->
@@ -364,7 +345,8 @@ Fakultas Teknik, Universitas Hasanuddin.
 
 </div>
 
-<p><br></p>
+<br>
+
 <table style="width:100%; border:none; line-height:1.6;">
   <tr>
     <td style="border:none;"><strong>HALAMAN JUDUL</strong></td>
@@ -446,20 +428,16 @@ Fakultas Teknik, Universitas Hasanuddin.
     <td style="border:none; text-align:right;">11</td>
   </tr>
   <tr>
-    <td style="border:none; padding-left:20px;">2.3 Penurunan Kinematika 6-DOF dan Matriks Jacobian</td>
+    <td style="border:none; padding-left:20px;">2.3 Penurunan *6-DOF kinematics* dan Matriks Jacobian</td>
     <td style="border:none; text-align:right;">15</td>
   </tr>
   <tr>
-    <td style="border:none; padding-left:20px;">2.4 Penurunan Dinamika Hidrodinamika 6-DOF (Persamaan Fossen)</td>
+    <td style="border:none; padding-left:20px;">2.4 Penurunan Dinamika Hidro*6-DOF dynamics* (Persamaan Fossen)</td>
     <td style="border:none; text-align:right;">19</td>
   </tr>
   <tr>
-    <td style="border:none; padding-left:20px;">2.5 Alokasi Gaya Dorong Sistem *Over-Actuated* 8-Pendorong</td>
+    <td style="border:none; padding-left:20px;">2.5 Teori dan Formulasi Optimal *Kalman Filter* Suite</td>
     <td style="border:none; text-align:right;">26</td>
-  </tr>
-  <tr>
-    <td style="border:none; padding-left:20px;">2.6 Teori dan Formulasi Optimal *Kalman Filter* Suite</td>
-    <td style="border:none; text-align:right;">30</td>
   </tr>
 
   <tr>
@@ -505,7 +483,8 @@ Fakultas Teknik, Universitas Hasanuddin.
 
 <div style="page-break-after: always;"></div>
 
-<hr />
+---
+
 <!-- ======================================================================= -->
 <!-- DAFTAR TABEL & DAFTAR GAMBAR (HALAMAN vii & viii)                       -->
 <!-- ======================================================================= -->
@@ -518,7 +497,8 @@ Fakultas Teknik, Universitas Hasanuddin.
 
 </div>
 
-<p><br></p>
+<br>
+
 <table style="width:100%; border:none; line-height:1.6;">
   <tr>
     <td style="border:none; width:18%;"><strong>Nomor Urut</strong></td>
@@ -533,37 +513,32 @@ Fakultas Teknik, Universitas Hasanuddin.
   <tr>
     <td style="border:none;">Tabel 2.2</td>
     <td style="border:none;">Notasi dan Konvensi 6 Derajat Kebebasan SNAME (1950) & Fossen (2021)</td>
-    <td style="border:none; text-align:right;">12</td>
-  </tr>
-  <tr>
-    <td style="border:none;">Tabel 2.3</td>
-    <td style="border:none;">Koordinat Spasial dan Vektor Orientasi 8 Pendorong Wahana Over-Actuated</td>
-    <td style="border:none; text-align:right;">27</td>
+    <td style="border:none; text-align:right;">14</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 3.1</td>
-    <td style="border:none;">Parameter Fisik dan Properti Benda Tegar Wahana Over-Actuated 8-Pendorong</td>
-    <td style="border:none; text-align:right;">46</td>
+    <td style="border:none;">Parameter Fisik dan Properti Benda Tegar Acuan Nominal Model Simulasi SITL</td>
+    <td style="border:none; text-align:right;">43</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 3.2</td>
-    <td style="border:none;">Koefisien Derivatif Massa Tambah Hidrodinamika Wahana</td>
-    <td style="border:none; text-align:right;">47</td>
+    <td style="border:none;">Koefisien Derivatif *hydrodynamic added mass* Acuan Simulasi SITL</td>
+    <td style="border:none; text-align:right;">44</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 3.3</td>
-    <td style="border:none;">Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana</td>
-    <td style="border:none; text-align:right;">49</td>
+    <td style="border:none;">Koefisien Redaman Hidrodinamika Acuan Simulasi SITL</td>
+    <td style="border:none; text-align:right;">46</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 3.4</td>
-    <td style="border:none;">Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Bervektor</td>
-    <td style="border:none; text-align:right;">49</td>
+    <td style="border:none;">Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Acuan Geometri Kerangka</td>
+    <td style="border:none; text-align:right;">47</td>
   </tr>
   <tr>
     <td style="border:none;">Tabel 3.5</td>
     <td style="border:none;">Spesifikasi Komponen Perangkat Keras Arsitektur HITL</td>
-    <td style="border:none; text-align:right;">53</td>
+    <td style="border:none; text-align:right;">50</td>
   </tr>
 </table>
 
@@ -577,7 +552,8 @@ Fakultas Teknik, Universitas Hasanuddin.
 
 </div>
 
-<p><br></p>
+<br>
+
 <table style="width:100%; border:none; line-height:1.6;">
   <tr>
     <td style="border:none; width:18%;"><strong>Nomor Urut</strong></td>
@@ -586,7 +562,7 @@ Fakultas Teknik, Universitas Hasanuddin.
   </tr>
   <tr>
     <td style="border:none;">Gambar 2.1</td>
-    <td style="border:none;">Sistem Kerangka Acuan Inersia Bumi (Fn - NED) dan Kerangka Acuan Bergerak Bodi (Fb - FRD) Konvensi SNAME (1950) dan Fossen (2021)</td>
+    <td style="border:none;">Sistem *North-East-Down (NED) inertial frame* (Fn - NED) dan *body-fixed frame* (Fb - FRD) Konvensi SNAME (1950) dan Fossen (2021)</td>
     <td style="border:none; text-align:right;">11</td>
   </tr>
   <tr>
@@ -611,12 +587,12 @@ Fakultas Teknik, Universitas Hasanuddin.
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.5</td>
-    <td style="border:none;">Papan Pengendali Penerbangan (Flight Controller) Pixhawk 2.4.8</td>
+    <td style="border:none;">*flight controller* Pixhawk 2.4.8</td>
     <td style="border:none; text-align:right;">55</td>
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.6</td>
-    <td style="border:none;">Komputer Pendamping (Companion Computer) Raspberry Pi 4B</td>
+    <td style="border:none;">*companion computer* Raspberry Pi 4B</td>
     <td style="border:none; text-align:right;">56</td>
   </tr>
   <tr>
@@ -626,7 +602,7 @@ Fakultas Teknik, Universitas Hasanuddin.
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.8</td>
-    <td style="border:none;">Motor Pendorong Bawah Air (BLDC Underwater Thruster)</td>
+    <td style="border:none;">motor *BLDC underwater thruster*</td>
     <td style="border:none; text-align:right;">57</td>
   </tr>
   <tr>
@@ -643,7 +619,8 @@ Fakultas Teknik, Universitas Hasanuddin.
 
 <div style="page-break-after: always;"></div>
 
-<hr />
+---
+
 <!-- ======================================================================= -->
 <!-- DAFTAR SINGKATAN, ISTILAH, DAN LAMBANG (HALAMAN ix)                     -->
 <!-- ======================================================================= -->
@@ -656,258 +633,65 @@ Fakultas Teknik, Universitas Hasanuddin.
 
 </div>
 
-<p><br></p>
-<h3 id="1-daftar-singkatan">1. Daftar Singkatan</h3>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Singkatan</th>
-<th style="text-align: left;">Kepanjangan / Arti Teknis</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><em>AUV</em></td>
-<td style="text-align: left;"><em>Autonomous Underwater Vehicle</em> (Wahana Bawah Air Otonom)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>HAUV</em></td>
-<td style="text-align: left;"><em>Hovering Autonomous Underwater Vehicle</em> (AUV Mampu Melayang di Kolom Air)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>ROV</em></td>
-<td style="text-align: left;"><em>Remotely Operated Vehicle</em> (Wahana Bawah Air Kendali Jarak Jauh)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>DOF</em></td>
-<td style="text-align: left;"><em>Degrees of Freedom</em> (Derajat Kebebasan Spasial)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>SNAME</em></td>
-<td style="text-align: left;"><em>The Society of Naval Architects and Marine Engineers</em></td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>NED</em></td>
-<td style="text-align: left;"><em>North-East-Down</em> (Sistem Koordinat Inersia Bumi: Utara-Timur-Bawah)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>FRD</em></td>
-<td style="text-align: left;"><em>Forward-Right-Down</em> (Sistem Koordinat Bodi Wahana: Maju-Kanan-Bawah)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>CG</em></td>
-<td style="text-align: left;"><em>Center of Gravity</em> (Titik Pusat Massa/Gravitasi Wahana)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>CB</em></td>
-<td style="text-align: left;"><em>Center of Buoyancy</em> (Titik Pusat Gaya Apung Hidrostatis)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>CO</em></td>
-<td style="text-align: left;"><em>Center of Origin</em> (Pusat Titik Acuan Kerangka Bodi)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>CWNA</em></td>
-<td style="text-align: left;"><em>Continuous White Noise Acceleration</em> (Model Stokastik Penjejakan Kinematik)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>EKF</em></td>
-<td style="text-align: left;"><em>Extended Kalman Filter</em> (Penapis Kalman Non-Linier)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>UKF</em></td>
-<td style="text-align: left;"><em>Unscented Kalman Filter</em> (Penapis Kalman Tanpa Aroma)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>SITL</em></td>
-<td style="text-align: left;"><em>Software-In-The-Loop</em> (Simulasi Fisika Terintegrasi Perangkat Lunak)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>HITL</em></td>
-<td style="text-align: left;"><em>Hardware-In-The-Loop</em> (Pengujian Terintegrasi Perangkat Keras Riil)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>YOLO</em></td>
-<td style="text-align: left;"><em>You Only Look Once</em> (Arsitektur Jaringan Saraf Konvolusional Deteksi Objek)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>ROS</em></td>
-<td style="text-align: left;"><em>Robot Operating System</em> (<em>Middleware</em> Komunikasi Robotika)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>MAVLink</em></td>
-<td style="text-align: left;"><em>Micro Air Vehicle Link</em> (Protokol Telemetri Biner Serial Robotika Otonom)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>PWM</em></td>
-<td style="text-align: left;"><em>Pulse Width Modulation</em> (Sinyal Modulasi Lebar Pulsa Kendali Motor)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>ESC</em></td>
-<td style="text-align: left;"><em>Electronic Speed Controller</em> (Pengendali Kecepatan Motor <em>Brushless</em>)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>IMU</em></td>
-<td style="text-align: left;"><em>Inertial Measurement Unit</em> (Unit Pengukuran Inersia: Akselerometer &amp; Giroskop)</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>DVL</em></td>
-<td style="text-align: left;"><em>Doppler Velocity Log</em> (Sensor Akustik Pengukur Kecepatan Relatif Air)</td>
-</tr>
-</tbody>
-</table>
-<p><br></p>
-<h3 id="2-daftar-lambang-dan-simbol-matematika">2. Daftar Lambang dan Simbol Matematika</h3>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Simbol</th>
-<th style="text-align: center;">Dimensi / Satuan</th>
-<th style="text-align: left;">Definisi Matematis dan Fisik</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;">$$\mathcal{F}^n$$</td>
-<td style="text-align: center;">-</td>
-<td style="text-align: left;">Kerangka Acuan Inersia Bumi (<em>Earth-Fixed NED Frame</em>) $${O_n, x_n, y_n, z_n}$$</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathcal{F}^b$$</td>
-<td style="text-align: center;">-</td>
-<td style="text-align: left;">Kerangka Acuan Bergerak Bodi (<em>Body-Fixed Frame</em>) $${O_b, x_b, y_b, z_b}$$</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\boldsymbol{\eta}$$</td>
-<td style="text-align: center;">$$\mathbb{R}^6$$</td>
-<td style="text-align: left;">Vektor posisi dan orientasi spasial di $$\mathcal{F}^n$$: $$[x, y, z, \phi, \theta, \psi]^T$$</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\boldsymbol{\nu}$$</td>
-<td style="text-align: center;">$$\mathbb{R}^6$$</td>
-<td style="text-align: left;">Vektor kecepatan linier dan sudut di $$\mathcal{F}^b$$: $$[u, v, w, p, q, r]^T$$</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\boldsymbol{\tau}$$</td>
-<td style="text-align: center;">$$\mathbb{R}^6$$</td>
-<td style="text-align: left;">Vektor gaya dan momen generalisasi di $$\mathcal{F}^b$$: $$[X, Y, Z, K, M, N]^T$$</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\boldsymbol{\nu}_c$$</td>
-<td style="text-align: center;">$$\mathbb{R}^6$$</td>
-<td style="text-align: left;">Vektor kecepatan arus laut fluida pada kerangka bodi $$[u_c, v_c, w_c, 0, 0, 0]^T$$</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\boldsymbol{\nu}_r$$</td>
-<td style="text-align: center;">$$\mathbb{R}^6$$</td>
-<td style="text-align: left;">Vektor kecepatan relatif wahana terhadap fluida: $$\boldsymbol{\nu} - \boldsymbol{\nu}_c$$</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathbf{R}_b^n(\boldsymbol{\eta}_2)$$</td>
-<td style="text-align: center;">$$SO(3)$$</td>
-<td style="text-align: left;">Matriks transformasi rotasi ortogonal dari $$\mathcal{F}^b$$ ke $$\mathcal{F}^n$$</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathbf{T}_\Theta(\boldsymbol{\eta}_2)$$</td>
-<td style="text-align: center;">$$\mathbb{R}^{3 \times 3}$$</td>
-<td style="text-align: left;">Matriks transformasi kecepatan sudut Euler: $$\dot{\boldsymbol{\eta}}<em>2 = \mathbf{T}</em>\Theta \boldsymbol{\nu}_2$$</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathbf{J}(\boldsymbol{\eta}_2)$$</td>
-<td style="text-align: center;">$$\mathbb{R}^{6 \times 6}$$</td>
-<td style="text-align: left;">Matriks Jacobian kinematika gabungan: $$\text{diag}[\mathbf{R}<em>b^n, \mathbf{T}</em>\Theta]$$</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathbf{q}$$</td>
-<td style="text-align: center;">$$S^3$$</td>
-<td style="text-align: left;">Kuaternion unit orientasi empat-dimensi: $$[\eta, \epsilon_1, \epsilon_2, \epsilon_3]^T$$</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathbf{M}_{RB}$$</td>
-<td style="text-align: center;">$$\mathbb{R}^{6 \times 6}$$</td>
-<td style="text-align: left;">Tensor massa inersia bodi kaku (<em>rigid-body mass matrix</em>)</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathbf{M}_A$$</td>
-<td style="text-align: center;">$$\mathbb{R}^{6 \times 6}$$</td>
-<td style="text-align: left;">Tensor massa tambah hidrodinamika fluida (<em>hydrodynamic added mass</em>)</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathbf{M}$$</td>
-<td style="text-align: center;">$$\mathbb{R}^{6 \times 6}$$</td>
-<td style="text-align: left;">Tensor massa sistem total gabungan: $$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A$$</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathbf{C}_{RB}(\boldsymbol{\nu})$$</td>
-<td style="text-align: center;">$$\mathbb{R}^{6 \times 6}$$</td>
-<td style="text-align: left;">Matriks Coriolis dan sentripetal bodi kaku</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathbf{C}_A(\boldsymbol{\nu}_r)$$</td>
-<td style="text-align: center;">$$\mathbb{R}^{6 \times 6}$$</td>
-<td style="text-align: left;">Matriks Coriolis dan sentripetal massa tambah hidrodinamika</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathbf{D}(\boldsymbol{\nu}_r)$$</td>
-<td style="text-align: center;">$$\mathbb{R}^{6 \times 6}$$</td>
-<td style="text-align: left;">Tensor redaman hidrodinamika gabungan (linier laminar $$\mathbf{D}<em NL="NL">L$$ + kuadratik $$\mathbf{D}</em>$$)</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathbf{g}(\boldsymbol{\eta})$$</td>
-<td style="text-align: center;">$$\mathbb{R}^6$$</td>
-<td style="text-align: left;">Vektor gaya dan momen pemulih hidrostatis (gravitasi dan gaya apung)</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$GM_T$$</td>
-<td style="text-align: center;">$$\text{m}$$</td>
-<td style="text-align: left;">Tinggi metasentris transversal wahana: $$z_g - z_b$$</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathbf{T}_{6 \times 8}$$</td>
-<td style="text-align: center;">$$\mathbb{R}^{6 \times 8}$$</td>
-<td style="text-align: left;">Matriks konfigurasi dan alokasi gaya dorong 8 pendorong</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathbf{T}_{6 \times 8}^+$$</td>
-<td style="text-align: center;">$$\mathbb{R}^{8 \times 6}$$</td>
-<td style="text-align: left;">Matriks <em>pseudo-inverse</em> Moore-Penrose: $$\mathbf{T}^T(\mathbf{T}\mathbf{T}^T)^{-1}$$</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathbf{f}$$</td>
-<td style="text-align: center;">$$\mathbb{R}^8$$</td>
-<td style="text-align: left;">Vektor gaya dorong individual 8 motor pendorong $$[f_1, f_2, \dots, f_8]^T$$ ($$\text{N}$$)</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathbf{x}_{k}$$</td>
-<td style="text-align: center;">$$\mathbb{R}^8$$</td>
-<td style="text-align: left;">Vektor keadaan penjejakan visual: $$[x, y, s, r, \dot{x}, \dot{y}, \dot{s}, \dot{r}]^T$$</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathbf{P}_k$$</td>
-<td style="text-align: center;">$$\mathbb{R}^{8 \times 8}$$</td>
-<td style="text-align: left;">Matriks kovariansi kesalahan estimasi (<em>error covariance matrix</em>)</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathbf{K}_k$$</td>
-<td style="text-align: center;">-</td>
-<td style="text-align: left;">Matriks penguatan optimal Kalman (<em>optimal Kalman gain</em>)</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathbf{Q}$$</td>
-<td style="text-align: center;">-</td>
-<td style="text-align: left;">Matriks kovariansi derau proses (<em>process noise covariance matrix</em>)</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$\mathbf{R}$$</td>
-<td style="text-align: center;">-</td>
-<td style="text-align: left;">Matriks kovariansi derau pengukuran (<em>measurement noise covariance matrix</em>)</td>
-</tr>
-<tr>
-<td style="text-align: left;">$$D_M$$</td>
-<td style="text-align: center;">-</td>
-<td style="text-align: left;">Jarak kuadratis Mahalanobis untuk <em>outlier innovation gating</em></td>
-</tr>
-</tbody>
-</table>
+<br>
+
+### 1. Daftar Singkatan
+
+| Singkatan | Kepanjangan / Arti Teknis |
+| :--- | :--- |
+| *AUV* | *Autonomous Underwater Vehicle* (*Autonomous Underwater Vehicle*) |
+| *HAUV* | *Hovering Autonomous Underwater Vehicle* (*Hovering AUV*) |
+| *ROV* | *Remotely Operated Vehicle* (*Remotely Operated Vehicle*) |
+| *DOF* | *Degrees of Freedom* (*spatial degrees of freedom*) |
+| *SNAME* | *The Society of Naval Architects and Marine Engineers* |
+| *NED* | *North-East-Down* (*Earth-fixed inertial coordinate system*: Utara-Timur-Bawah) |
+| *FRD* | *Forward-Right-Down* (*body-fixed coordinate system*: Maju-Kanan-Bawah) |
+| *CG* | *Center of Gravity* (*Center of Gravity*) |
+| *CB* | *Center of Buoyancy* (*Center of Buoyancy*) |
+| *CO* | *Center of Origin* (Pusat Titik Acuan Kerangka Bodi) |
+| *CWNA* | *Continuous White Noise Acceleration* (Model Stokastik Penjejakan Kinematik) |
+| *EKF* | *Extended Kalman Filter* (*Non-Linear Kalman Filter*) |
+| *UKF* | *Unscented Kalman Filter* (*Unscented Kalman Filter*) |
+| *SITL* | *Software-In-The-Loop* (*Software-In-The-Loop simulation*) |
+| *HITL* | *Hardware-In-The-Loop* (*Hardware-In-The-Loop testing*) |
+| *YOLO* | *You Only Look Once* (*Object Detection Convolutional Neural Network Architecture*) |
+| *ROS* | *Robot Operating System* (*Middleware* Komunikasi Robotika) |
+| *MAVLink* | *Micro Air Vehicle Link* (Protokol Telemetri Biner Serial Robotika Otonom) |
+| *PWM* | *Pulse Width Modulation* (*Pulse Width Modulation signal for motor control*) |
+| *ESC* | *Electronic Speed Controller* (*Brushless Motor Speed Controller*) |
+| *IMU* | *Inertial Measurement Unit* (*Inertial Measurement Unit: Accelerometer & Gyroscope*) |
+| *DVL* | *Doppler Velocity Log* (*Acoustic Sensor for Water Relative Velocity*) |
+
+<br>
+
+### 2. Daftar Lambang dan Simbol Matematika
+
+| Simbol | Dimensi / Satuan | Definisi Matematis dan Fisik |
+| :--- | :---: | :--- |
+| $$\mathcal{F}^n$$ | - | *North-East-Down (NED) inertial frame* (*Earth-Fixed NED Frame*) $$\{O_n, x_n, y_n, z_n\}$$ |
+| $$\mathcal{F}^b$$ | - | *body-fixed frame* (*Body-Fixed Frame*) $$\{O_b, x_b, y_b, z_b\}$$ |
+| $$\boldsymbol{\eta}$$ | $$\mathbb{R}^6$$ | *spatial position and orientation vector* di $$\mathcal{F}^n$$: $$[x, y, z, \phi, \theta, \psi]^T$$ |
+| $$\boldsymbol{\nu}$$ | $$\mathbb{R}^6$$ | *linear and angular velocity vector* di $$\mathcal{F}^b$$: $$[u, v, w, p, q, r]^T$$ |
+| $$\boldsymbol{\tau}$$ | $$\mathbb{R}^6$$ | *generalized forces and moments vector* di $$\mathcal{F}^b$$: $$[X, Y, Z, K, M, N]^T$$ |
+| $$\boldsymbol{\nu}_c$$ | $$\mathbb{R}^6$$ | *ocean current velocity vector in body frame* $$[u_c, v_c, w_c, 0, 0, 0]^T$$ |
+| $$\boldsymbol{\nu}_r$$ | $$\mathbb{R}^6$$ | *relative velocity vector of the vehicle*: $$\boldsymbol{\nu} - \boldsymbol{\nu}_c$$ |
+| $$\mathbf{R}_b^n(\boldsymbol{\eta}_2)$$ | $$SO(3)$$ | *orthogonal rotation transformation matrix* dari $$\mathcal{F}^b$$ ke $$\mathcal{F}^n$$ |
+| $$\mathbf{T}_\Theta(\boldsymbol{\eta}_2)$$ | $$\mathbb{R}^{3 \times 3}$$ | *Euler angle rate transformation matrix*: $$\dot{\boldsymbol{\eta}}_2 = \mathbf{T}_\Theta \boldsymbol{\nu}_2$$ |
+| $$\mathbf{J}(\boldsymbol{\eta}_2)$$ | $$\mathbb{R}^{6 \times 6}$$ | *kinematic Jacobian matrix* gabungan: $$\text{diag}[\mathbf{R}_b^n, \mathbf{T}_\Theta]$$ |
+| $$\mathbf{q}$$ | $$S^3$$ | *four-dimensional unit quaternion orientation*: $$[\eta, \epsilon_1, \epsilon_2, \epsilon_3]^T$$ |
+| $$\mathbf{M}_{RB}$$ | $$\mathbb{R}^{6 \times 6}$$ | *rigid-body mass inertia tensor* (*rigid-body mass matrix*) |
+| $$\mathbf{M}_A$$ | $$\mathbb{R}^{6 \times 6}$$ | Tensor *hydrodynamic added mass* (*hydrodynamic added mass*) |
+| $$\mathbf{M}$$ | $$\mathbb{R}^{6 \times 6}$$ | Tensor massa sistem total gabungan: $$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A$$ |
+| $$\mathbf{C}_{RB}(\boldsymbol{\nu})$$ | $$\mathbb{R}^{6 \times 6}$$ | Matriks Coriolis and centripetal of rigid-body |
+| $$\mathbf{C}_A(\boldsymbol{\nu}_r)$$ | $$\mathbb{R}^{6 \times 6}$$ | Matriks Coriolis dan sentripetal *hydrodynamic added mass* |
+| $$\mathbf{D}(\boldsymbol{\nu}_r)$$ | $$\mathbb{R}^{6 \times 6}$$ | *combined hydrodynamic damping tensor* (linier laminar $$\mathbf{D}_L$$ + kuadratik $$\mathbf{D}_{NL}$$) |
+| $$\mathbf{g}(\boldsymbol{\eta})$$ | $$\mathbb{R}^6$$ | Vektor *hydrostatic restoring forces and moments* (gravitasi dan gaya apung) |
+| $$GM_T$$ | $$\text{m}$$ | *transverse metacentric height*: $$z_g - z_b$$ |
+| $$\mathbf{x}_{k}$$ | $$\mathbb{R}^8$$ | *visual tracking state vector*: $$[x, y, s, r, \dot{x}, \dot{y}, \dot{s}, \dot{r}]^T$$ |
+| $$\mathbf{P}_k$$ | $$\mathbb{R}^{8 \times 8}$$ | *estimation error covariance matrix* (*error covariance matrix*) |
+| $$\mathbf{K}_k$$ | - | Matriks *optimal Kalman gain* (*optimal Kalman gain*) |
+| $$\mathbf{Q}$$ | - | *covariance matrix*process noise* (*process noise covariance matrix*) |
+| $$\mathbf{R}$$ | - | *covariance matrix*measurement noise* (*measurement noise covariance matrix*) |
+| $$D_M$$ | - | *Mahalanobis squared distance* untuk *outlier innovation gating* |
 </body>
 </html>
