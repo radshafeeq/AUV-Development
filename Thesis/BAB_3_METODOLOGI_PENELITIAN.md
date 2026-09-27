@@ -50,26 +50,28 @@ Gambar 3.1 Diagram alir tahapan penelitian komprehensif
 
 ---
 
-## 3.3 Identifikasi Parameter Fisik dan Hidrodinamika Wahana
+## 3.3 Identifikasi Parameter Acuan Model dan Metodologi Penentuan Karakteristik Wahana
 
-Keberhasilan perancangan penapis estimasi dinamika hidrodinamika dan alokasi gaya dorong *over-actuated* bergantung mutlak pada akurasi parameter fisik dan koefisien hidrodinamika wahana. Subbab ini merangkum identifikasi numerik dari parameter benda tegar (*rigid-body*), massa tambah hidrodinamika (*added mass*), redaman fluida (*hydrodynamic damping*), gaya pemulih hidrostatis (*restoring forces*), serta geometri alokasi pendorong 8-motor BlueROV2 Heavy [1], [3], [7], [34].
+Keberhasilan perancangan penapis estimasi dinamika hidrodinamika dan alokasi gaya dorong *over-actuated* bergantung pada parameter fisik dan koefisien hidrodinamika wahana. Mengingat purwarupa fisik wahana saat ini masih berada dalam proses perakitan dan integrasi mekatronika (*under active fabrication and assembly*), nilai parameter massa total, dimensi fisik, inersia, dan koefisien hidrodinamika yang disajikan pada subbab ini merupakan **nilai acuan nominal (*benchmark baseline*)** yang diadopsi dari standar konfigurasi BlueROV2 Heavy dan literatur terkait [1], [3], [7], [31], [34]. Nilai acuan ini berfungsi sebagai parameter inisialisasi pada model *physics engine* simulator *Software-in-the-Loop* (SITL) Gazebo Harmonic. 
 
-### 3.3.1 Parameter Fisik dan Properti Benda Tegar (*Rigid-Body Properties*)
-Wahana yang digunakan mengadopsi arsitektur konfigurasi *retrofit* BlueROV2 Heavy berbahan dasar tabung akrilik tahan tekanan tinggi dengan rangka struktural *High-Density Polyethylene* (HDPE) [3]. Mengingat purwarupa fisik wahana saat ini masih berada dalam tahap perakitan dan integrasi mekanis (*under active fabrication and assembly*), nilai parameter massa total, dimensi fisik, dan posisi pusat massa/apung yang ditabulasikan pada Tabel 3.1 merupakan nilai estimasi referensi nominal berbasis model CAD 3D dan acuan standar BlueROV2 Heavy untuk keperluan simulasi awal *Software-in-the-Loop* (SITL). Identifikasi definitif terhadap parameter fisik riil (seperti massa akhir, volume benaman terdislokasi, posisi CG, serta koefisien massa tambah dan redaman hidrodinamika empiris) akan diukur secara langsung menggunakan timbangan digital, uji apung statis di tangki laboratorium, dan uji eksperimental pada tahap pengujian fisik penelitian tugas akhir ini.
+Pengukuran empiris definitif terhadap purwarupa fisik riil—mencakup penimbangan massa aktual menggunakan timbangan digital laboratorium, pengukuran dimensi akhir kerangka, penentuan eksperimental posisi titik berat (*Center of Gravity* / CG) dan titik apung (*Center of Buoyancy* / CB), serta uji apung statis di tangki air—merupakan bagian dari agenda pengujian yang akan dilaksanakan pada fase eksperimental dan hasilnya akan dilaporkan secara utuh pada Bab IV (Hasil dan Pembahasan).
 
-Tabel 3.1 Parameter Fisik dan Properti Benda Tegar Wahana Over-Actuated 8-Pendorong
-| Parameter Fisis | Simbol Matematis | Nilai Numerik | Satuan SI | Sumber / Metode Penentuan |
+### 3.3.1 Parameter Fisik dan Properti Benda Tegar Acuan Nominal (*Rigid-Body Properties*)
+Wahana yang dikembangkan mengadopsi arsitektur konfigurasi *retrofit* BlueROV2 Heavy berbahan dasar tabung akrilik tahan tekanan tinggi dengan rangka struktural *High-Density Polyethylene* (HDPE) [3]. Parameter benda tegar nominal yang digunakan sebagai acuan dasar simulasi SITL dirangkum pada Tabel 3.1.
+
+Tabel 3.1 Parameter Fisik dan Properti Benda Tegar Acuan Nominal Model Simulasi SITL
+| Parameter Fisis | Simbol Matematis | Nilai Acuan Nominal | Satuan SI | Sumber / Dasar Acuan |
 |---|---|---|---|---|
-| Massa Total Wahana | $$m$$ | $$13.00$$ | $$\text{kg}$$ | Pengukuran timbangan digital presisi [3] |
-| Panjang Total (*Length*) | $$L$$ | $$0.457$$ | $$\text{m}$$ | Pengukuran fisik geometri kerangka |
-| Lebar Total (*Beam/Width*) | $$W$$ | $$0.338$$ | $$\text{m}$$ | Pengukuran fisik geometri kerangka |
-| Tinggi Total (*Height*) | $$H$$ | $$0.254$$ | $$\text{m}$$ | Pengukuran fisik geometri kerangka |
-| Volume Benaman Total | $$\nabla$$ | $$0.0132$$ | $$\text{m}^3$$ | Analisis model CAD 3D & hukum Archimedes |
+| Massa Total Wahana (Nominal) | $$m$$ | $$13.00$$ | $$\text{kg}$$ | Nilai acuan standar BlueROV2 Heavy [3] (Divalidasi di Bab 4) |
+| Panjang Total (*Length*) | $$L$$ | $$0.457$$ | $$\text{m}$$ | Dimensi nominal desain kerangka BlueROV2 Heavy [3] |
+| Lebar Total (*Beam/Width*) | $$W$$ | $$0.338$$ | $$\text{m}$$ | Dimensi nominal desain kerangka BlueROV2 Heavy [3] |
+| Tinggi Total (*Height*) | $$H$$ | $$0.254$$ | $$\text{m}$$ | Dimensi nominal desain kerangka BlueROV2 Heavy [3] |
+| Volume Benaman Total | $$\nabla$$ | $$0.0132$$ | $$\text{m}^3$$ | Estimasi volume model CAD 3D [3] & hukum Archimedes |
 | Posisi Pusat Apung (CB) | $$\mathbf{r}_b = [x_b, y_b, z_b]^T$$ | $$[0.00, 0.00, 0.00]^T$$ | $$\text{m}$$ | Ditetapkan sebagai titik asal bodi ($$O_b$$) [7] |
-| Posisi Pusat Gravitasi (CG) | $$\mathbf{r}_g = [x_g, y_g, z_g]^T$$ | $$[0.00, 0.00, 0.02]^T$$ | $$\text{m}$$ | Analisis distribusi massa ballast bawah [3], [31] |
-| Momen Inersia Roll Benda Tegar | $$I_{xx}$$ | $$0.160$$ | $$\text{kg}\cdot\text{m}^2$$ | Analisis CAD & estimasi semi-empiris [31] |
-| Momen Inersia Pitch Benda Tegar | $$I_{yy}$$ | $$0.240$$ | $$\text{kg}\cdot\text{m}^2$$ | Analisis CAD & estimasi semi-empiris [31] |
-| Momen Inersia Yaw Benda Tegar | $$I_{zz}$$ | $$0.280$$ | $$\text{kg}\cdot\text{m}^2$$ | Analisis CAD & estimasi semi-empiris [31] |
+| Posisi Pusat Gravitasi (CG) | $$\mathbf{r}_g = [x_g, y_g, z_g]^T$$ | $$[0.00, 0.00, 0.02]^T$$ | $$\text{m}$$ | Estimasi distribusi massa ballast acuan [3], [31] |
+| Momen Inersia Roll Benda Tegar | $$I_{xx}$$ | $$0.160$$ | $$\text{kg}\cdot\text{m}^2$$ | Nilai acuan benchmark literatur [31] |
+| Momen Inersia Pitch Benda Tegar | $$I_{yy}$$ | $$0.240$$ | $$\text{kg}\cdot\text{m}^2$$ | Nilai acuan benchmark literatur [31] |
+| Momen Inersia Yaw Benda Tegar | $$I_{zz}$$ | $$0.280$$ | $$\text{kg}\cdot\text{m}^2$$ | Nilai acuan benchmark literatur [31] |
 | Densitas Air Tawar Uji | $$\rho_{\text{fresh}}$$ | $$1000.0$$ | $$\text{kg/m}^3$$ | Standar kondisi fluida laboratorium |
 | Densitas Air Laut Nominal | $$\rho_{\text{salt}}$$ | $$1025.0$$ | $$\text{kg/m}^3$$ | Standar oseanografi subsea DNV (2021) [5] |
 | Percepatan Gravitasi Lokal | $$g$$ | $$9.80665$$ | $$\text{m/s}^2$$ | Standar gravitasi bumi internasional |
@@ -95,7 +97,7 @@ $$\mathbf{M}_A = -\text{diag}\left( X_{\dot{u}}, Y_{\dot{v}}, Z_{\dot{w}}, K_{\d
 
 Nilai numerik massa tambah hidrodinamika dirangkum pada Tabel 3.2.
 
-Tabel 3.2 Koefisien Derivatif Massa Tambah Hidrodinamika Wahana
+Tabel 3.2 Koefisien Derivatif Massa Tambah Hidrodinamika Acuan Simulasi SITL [1], [31]
 | Derajat Kebebasan (DOF) | Koefisien Notasi SNAME | Nilai Numerik | Satuan SI | Interpretasi Fisis Fluida |
 |---|---|---|---|---|
 | Massa Tambah Surge | $$X_{\dot{u}}$$ | $$-5.50$$ | $$\text{kg}$$ | Fluida terakselerasi penampang frontal ramping |
@@ -119,7 +121,7 @@ Matriks massa total wahana $$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A$$ adala
 $$\mathbf{M} = \begin{bmatrix} 18.50 & 0 & 0 & 0 & 0.26 & 0 \\ 0 & 25.70 & 0 & -0.26 & 0 & 0 \\ 0 & 0 & 27.60 & 0 & 0 & 0 \\ 0 & -0.26 & 0 & 0.2852 & 0 & 0 \\ 0.26 & 0 & 0 & 0 & 0.4952 & 0 \\ 0 & 0 & 0 & 0 & 0 & 0.5500 \end{bmatrix}$$
 
 ### 3.3.3 Matriks Koefisien Redaman Hidrodinamika Fluida
-Gaya hambat hidrodinamika fluida dimodelkan sebagai superposisi antara redaman gesek linier Navier-Stokes ($$\mathbf{D}_L$$) untuk aliran laminer kecepatan rendah dan redaman bentuk kuadratik non-linier (quadratic form drag* $$\mathbf{D}_{NL}$$) akibat pusaran turbulen (*vortex shedding) di sekitar struktur kerangka terbuka [7], [31], [34]:
+Gaya hambat hidrodinamika fluida dimodelkan sebagai superposisi antara redaman gesek linier Navier-Stokes ($$\mathbf{D}_L$$) untuk aliran laminer kecepatan rendah dan redaman bentuk kuadratik non-linier (*quadratic form drag* $$\mathbf{D}_{NL}$$) akibat pusaran turbulen (*vortex shedding*) di sekitar struktur kerangka terbuka [7], [31], [34]:
 
 $$\mathbf{D}(\boldsymbol{\nu}_r) = \mathbf{D}_L + \mathbf{D}_{NL}(\boldsymbol{\nu}_r)$$
 
@@ -129,7 +131,7 @@ $$\mathbf{D}_{NL}(\boldsymbol{\nu}_r) = -\text{diag}\left( X_{u|u|}|u_r|, Y_{v|v
 
 Nilai-nilai koefisien redaman yang digunakan dalam penelitian ini disajikan pada Tabel 3.3 [31], [34].
 
-Tabel 3.3 Koefisien Redaman Hidrodinamika Linier dan Kuadratik Wahana
+Tabel 3.3 Koefisien Redaman Hidrodinamika Acuan Simulasi SITL [31], [34]
 | Sumbu Gerak | Koefisien Linier | Nilai ($$\text{SI}$$) | Koefisien Kuadratik | Nilai ($$\text{SI}$$) |
 |---|---|---|---|---|
 | Surge ($$u$$) | $$X_u$$ | $$-4.03\text{ N}\cdot\text{s/m}$$ | $$X_{u|u|}$$ | $$-18.18\text{ N}\cdot\text{s}^2/\text{m}^2$$ |
@@ -146,7 +148,7 @@ Konfigurasi pendorong pada BlueROV2 Heavy terdiri dari delapan motor pendorong B
 
 Koordinat posisi pendorong $$\mathbf{r}_i = [x_i, y_i, z_i]^T$$ relatif terhadap titik asal bodi ($$O_b$$) dan vektor arah dorong satuan $$\mathbf{d}_i$$ ditabulasikan pada Tabel 3.4.
 
-Tabel 3.4 Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Bervektor
+Tabel 3.4 Posisi Spasial dan Vektor Satuan Gaya Dorong 8-Pendorong Acuan Geometri Kerangka [3]
 | No. Pendorong | Posisi $$x_i\text{ (m)}$$ | Posisi $$y_i\text{ (m)}$$ | Posisi $$z_i\text{ (m)}$$ | Vektor Arah Gaya Dorong $$\mathbf{d}_i$$ | Aksi Sumbu Utama |
 |---|---|---|---|---|---|
 | Pendorong 1 (Depan-Kanan) | $$+0.156$$ | $$+0.111$$ | $$0.000$$ | $$[\cos 45^\circ, -\sin 45^\circ, 0]^T$$ | Surge (+), Sway (-), Yaw (-) |
