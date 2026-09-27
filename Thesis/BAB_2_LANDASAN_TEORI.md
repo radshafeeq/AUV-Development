@@ -267,7 +267,7 @@ di mana setiap suku matriks dan vektor gaya didefinisikan secara fisis sebagai b
 - $$\boldsymbol{\nu}_r = \boldsymbol{\nu} - \boldsymbol{\nu}_c \in \mathbb{R}^6$$: Vektor kecepatan relatif wahana terhadap kecepatan arus laut ambient $$\boldsymbol{\nu}_c = [u_c, v_c, w_c, 0, 0, 0]^T$$.
 - $$\boldsymbol{\eta} = [x, y, z, \phi, \theta, \psi]^T \in \mathbb{R}^6$$: Vektor posisi spasial dan sudut orientasi Euler wahana di dalam kerangka inersia bumi (NED).
 
-Persamaan gerak Fossen 6-DOF di atas diturunkan secara analitis dari prinsip pertama (*first principles*) melalui penggabungan mekanika benda tegar non-inersial Newton-Euler dengan interaksi gaya mekanika fluida hidrodinamika.
+Persamaan gerak Fossen 6-DOF di atas diturunkan secara analitis dari *first principles* melalui penggabungan mekanika benda tegar non-inersial Newton-Euler dengan interaksi gaya mekanika fluida hidrodinamika.
 
 ### 2.4.1 Penurunan Persamaan Gerak Bodi Kaku dari Hukum Newton-Euler
 
@@ -393,7 +393,7 @@ Konsekuensi fisis dari hubungan ini sangat fatal pada wahana yang tidak memiliki
   $$N_{\text{Munk}} > 0$$
 - Torsi yaw positif ini memutar haluan wahana semakin ke kanan, memperbesar sudut hanyut (*drift angle*), yang pada gilirannya menaikkan nilai $$v_r$$, sehingga memicu momen destabilisasi yang semakin membesar secara eksponensial!
 
-Pada wahana *underactuated* 6-pendorong, fenomena kopling silang momen Munk ini menyebabkan wahana melenceng dari jalur dan tidak mampu mempertahankan orientasi garis lurus saat melaju pada kecepatan jelajah tinggi [7], [31]. Sebaliknya, pada wahana *over-actuated* 8-pendorong yang diteliti dalam tugas akhir ini, sistem kendali alokasi gaya dorong terpadu dapat menghitung torsi kompensasi balik secara seketika melalui umpan balik status dari penapis EKF, sehingga momen Munk dapat diredam secara aktif (*active dynamic suppression*) [21], [32].
+Pada wahana *underactuated* 6-pendorong, fenomena kopling silang momen Munk ini menyebabkan wahana melenceng dari jalur dan tidak mampu mempertahankan orientasi garis lurus saat melaju pada kecepatan jelajah tinggi [7], [31]. Sebaliknya, pada wahana *over-actuated* 8-pendorong yang diteliti dalam tugas akhir ini, sistem kendali alokasi gaya dorong terpadu dapat menghitung torsi kompensasi balik secara *real-time* melalui umpan balik status dari penapis EKF, sehingga momen Munk dapat diredam secara aktif (*active dynamic suppression*) [21], [32].
 
 ### 2.4.5 Tensor Redaman Hidrodinamika Fluida $$\mathbf{D}(\boldsymbol{\nu}_r)$$
 Redaman hidrodinamika fluida pada wahana *open-frame* berkecepatan rendah dimodelkan sebagai gabungan linier antara disipasi gesekan kulit laminar viskos (*skin friction*) dan seretan bentuk kuadratik turbulen (*cross-flow drag*) sesuai formulasi Morison [7], [31]:
@@ -404,7 +404,7 @@ $$\mathbf{D}(\boldsymbol{\nu}_r) = \mathbf{D}_L + \mathbf{D}_{NL}(\boldsymbol{\n
    $$\mathbf{D}_L = -\text{diag}[X_u, Y_v, Z_w, K_p, M_q, N_r]$$
 
 2. *Matriks Redaman Kuadratik Turbulen $$\mathbf{D}_{NL}(\boldsymbol{\nu}_r)$$*:
-   Dominan pada kecepatan operasi normal ($$U \ge 0.2\text{ m/s}$$), di mana pelepasan pusaran (*vortex shedding*) di sekitar struktur rangka terbuka dan tabung silinder menimbulkan seretan kuadratik [7], [31]:
+   Dominan pada kecepatan operasi normal ($$U \ge 0.2\text{ m/s}$$), di mana *vortex shedding* di sekitar struktur rangka terbuka dan tabung silinder menimbulkan seretan kuadratik [7], [31]:
    $$\mathbf{D}_{NL}(\boldsymbol{\nu}_r) = -\text{diag}[X_{u|u|}|u_r|, Y_{v|v|}|v_r|, Z_{w|w|}|w_r|, K_{p|p|}|p|, M_{q|q|}|q|, N_{r|r|}|r|]$$
 
 Total gaya disipasi redaman hidrodinamika pada kerangka bodi dinyatakan oleh formulasi analitis analitis:
@@ -435,7 +435,7 @@ Persamaan ini menunjukkan bahwa gaya apung netral menghilangkan gaya hidrostatis
 ## 2.5 Teori dan Formulasi Optimal Kalman Filter Suite
 
 Operasi otonom AUV di lingkungan laut menghadapi ketidakpastian lingkungan yang tinggi (*environmental stochasticity*), derau sensor frekuensi tinggi, serta penurunan kualitas visual bawah air [2], [14], [16]. Untuk menjamin estimasi keadaan spasial dan pelacakan objek yang andal dan kokoh, penelitian ini merancang dan memformulasikan *Suite Optimal Kalman Filter* yang terdiri dari dua tingkatan terpadu [16], [17], [25], [29]:
-1. *Topside Visual Target Kalman Filter (Penapis Pelacak Target Visual 8D)*: Penapis Kalman linier diskrit 8-dimensi untuk melacak kotak pembatas (*bounding box*) target visual deteksi YOLO monokuler pada laju 30 FPS.
+1. *Topside Visual Target Kalman Filter (Penapis Pelacak Target Visual 8D)*: Penapis Kalman linier diskrit 8-dimensi untuk melacak *bounding box* target visual deteksi YOLO monokuler pada laju 30 FPS.
 2. *Subsea Hydrodynamic Extended Kalman Filter (Penapis Estimasi Dinamika Hidrodinamika 6-DOF)*: Penapis Kalman non-linier terperluas (EKF) untuk melakukan fusi sensor IMU dan kedalaman berbasis persamaan dinamika Fossen 6-DOF serta mengestimasi gangguan arus laut pada laju 50 Hz.
 
 ### 2.5.1 Dasar Teori Estimasi Keadaan Stokastik dan Kriteria MMSE
@@ -471,11 +471,11 @@ Model ruang keadaan linier waktu diskrit diformulasikan sebagai berikut [16], [2
 $$\mathbf{x}_k = \mathbf{A}_{k-1}\mathbf{x}_{k-1} + \mathbf{B}_{k-1}\mathbf{u}_{k-1} + \mathbf{w}_{k-1}$$
 $$\mathbf{z}_k = \mathbf{H}_k\mathbf{x}_k + \mathbf{v}_k$$
 di mana:
-- $$\mathbf{A}_{k-1} \in \mathbb{R}^{n \times n}$$: Matriks transisi keadaan (*state transition matrix*).
+- $$\mathbf{A}_{k-1} \in \mathbb{R}^{n \times n}$$: *state transition matrix*.
 - $$\mathbf{B}_{k-1} \in \mathbb{R}^{n \times p}$$: Matriks input kendali.
 - $$\mathbf{H}_k \in \mathbb{R}^{m \times n}$$: Matriks model pengukuran sensor.
-- $$\mathbf{w}_{k-1} \sim \mathcal{N}(\mathbf{0}, \mathbf{Q}_{k-1})$$: Derau proses (*process noise*) putih Gaussian dengan kovariansi $$\mathbf{Q}_{k-1} \succeq 0$$.
-- $$\mathbf{v}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{R}_k)$$: Derau pengukuran (*measurement noise*) putih Gaussian dengan kovariansi $$\mathbf{R}_k \succ 0$$.
+- $$\mathbf{w}_{k-1} \sim \mathcal{N}(\mathbf{0}, \mathbf{Q}_{k-1})$$: *process noise* putih Gaussian dengan kovariansi $$\mathbf{Q}_{k-1} \succeq 0$$.
+- $$\mathbf{v}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{R}_k)$$: *measurement noise* putih Gaussian dengan kovariansi $$\mathbf{R}_k \succ 0$$.
 - Kedua derau diasumsikan saling bebas: $$\mathbb{E}[\mathbf{w}_i \mathbf{v}_j^T] = \mathbf{0}, \forall i, j$$.
 
 Siklus rekursif Kalman Filter terdiri dari dua langkah utama [25]:
@@ -492,7 +492,7 @@ Karena derau proses $$\mathbf{w}_{k-1}$$ tidak berkorelasi dengan galat estimasi
 $$\mathbf{P}_k^- = \mathbf{A}_{k-1} \mathbf{P}_{k-1}^+ \mathbf{A}_{k-1}^T + \mathbf{Q}_{k-1}$$
 
 #### 2. Tahap Pembaruan Pengukuran (*Measurement Update / Posterior Step*)
-Ketika pengukuran baru $$\mathbf{z}_k$$ diterima, residu inovasi (*innovation residual*) didefinisikan sebagai selisih antara pengukuran aktual dan estimasi pengukuran *prior* [25]:
+Ketika pengukuran baru $$\mathbf{z}_k$$ diterima, *innovation residual* didefinisikan sebagai selisih antara pengukuran aktual dan estimasi pengukuran *prior* [25]:
 $$\tilde{\mathbf{y}}_k = \mathbf{z}_k - \mathbf{H}_k \hat{\mathbf{x}}_k^-$$
 Kovariansi inovasi $$\mathbf{S}_k$$ dihitung sebagai:
 $$\mathbf{S}_k = \mathbb{E}[\tilde{\mathbf{y}}_k \tilde{\mathbf{y}}_k^T] = \mathbb{E}[ (\mathbf{H}_k \mathbf{e}_k^- + \mathbf{v}_k)(\mathbf{H}_k \mathbf{e}_k^- + \mathbf{v}_k)^T ] = \mathbf{H}_k \mathbf{P}_k^- \mathbf{H}_k^T + \mathbf{R}_k$$
@@ -547,7 +547,7 @@ Struktur persamaan rekursif EKF diskrit dinyatakan oleh [25], [29]:
 
 ### 2.5.4 Formulasi Penapis Pelacak Target Visual 8D (Topside Visual Target Kalman Filter)
 
-Persepsi visual bawah air yang diperoleh dari kamera monokuler rentan terhadap distorsi optik, turbiditas air, hamburan cahaya, partikel tersuspensi (*marine snow*), serta bayangan dinamis [2], [14]. Arsitektur *deep learning* YOLO yang dijalankan pada stasiun permukaan memprediksi koordinat kotak pembatas (*bounding box*) target secara *frame-by-frame*. Namun, deteksi visual mentah ini menghasilkan sentroid yang bergetar (*centroid jitter*), fluktuasi skala, deteksi palsu (*false positives*), dan kehilangan deteksi sesaat saat target terhalang (*temporary visual occlusion*) [2], [16], [17].
+Persepsi visual bawah air yang diperoleh dari kamera monokuler rentan terhadap distorsi optik, turbiditas air, hamburan cahaya, partikel tersuspensi (*marine snow*), serta bayangan dinamis [2], [14]. Arsitektur *deep learning* YOLO yang dijalankan pada stasiun permukaan memprediksi koordinat *bounding box* target secara *frame-by-frame*. Namun, deteksi visual mentah ini menghasilkan *centroid jitter*, fluktuasi skala, *false positives*, dan kehilangan deteksi sesaat saat terjadi *temporary visual occlusion* [2], [16], [17].
 
 Untuk mengatasi degradasi optik ini, dirancang modul *Topside Visual Target Kalman Filter* berbasis model kinematika stokastik *Continuous White Noise Acceleration* (CWNA) [16], [25].
 
@@ -555,9 +555,9 @@ Untuk mengatasi degradasi optik ini, dirancang modul *Topside Visual Target Kalm
 Vektor keadaan penjejakan visual diformulasikan dalam ruang koordinat citra piksel berdimensi delapan:
 $$\mathbf{x}_k = \begin{bmatrix} x_k \\ y_k \\ s_k \\ r_k \\ \dot{x}_k \\ \dot{y}_k \\ \dot{s}_k \\ \dot{r}_k \end{bmatrix} \in \mathbb{R}^8$$
 di mana:
-- $$x_k, y_k$$: Koordinat piksel horizontal dan vertikal dari titik pusat sentroid kotak pembatas (*bounding box center*).
-- $$s_k$$: Skala luasan area kotak pembatas ($$s = w \times h$$ dalam piksel kuadrat), yang berbanding terbalik dengan kuadrat jarak relatif wahana ke target ($$s \propto 1/d^2$$).
-- $$r_k$$: Rasio aspek dimensi kotak pembatas ($$r = w/h$$).
+- $$x_k, y_k$$: Koordinat piksel horizontal dan vertikal dari titik pusat (*center*) *bounding box*.
+- $$s_k$$: skala luasan area *bounding box* ($$s = w \times h$$ dalam piksel kuadrat), yang berbanding terbalik dengan kuadrat jarak relatif wahana ke target ($$s \propto 1/d^2$$).
+- $$r_k$$: rasio aspek dimensi *bounding box* ($$r = w/h$$).
 - $$\dot{x}_k, \dot{y}_k, \dot{s}_k, \dot{r}_k$$: Laju kecepatan perubahan temporal (*first time-derivatives*) dari masing-masing parameter geometris citra.
 
 #### 2. Model Stokastik Continuous White Noise Acceleration (CWNA)
@@ -584,10 +584,10 @@ $$\mathbf{Q}(\Delta t) = \int_0^{\Delta t} \begin{bmatrix} \tau^2 \tilde{\mathbf
 Formulasi eksak ini secara simultan memodelkan ketidakpastian percepatan target dan korelasi silang temporal antara posisi dan kecepatan visual [16], [25].
 
 #### 5. Kovariansi Pengukuran Adaptif Berbobot Konfidensi YOLO
-Model pengukuran sensor visual menghubungkan vektor keadaan 8D dengan 4 parameter observasi kotak pembatas dari detektor YOLO:
+Model pengukuran sensor visual menghubungkan vektor keadaan 8D dengan 4 parameter observasi *bounding box* dari detektor YOLO:
 $$\mathbf{z}_k = \begin{bmatrix} z_x \\ z_y \\ z_s \\ z_r \end{bmatrix}_k = \mathbf{H} \mathbf{x}_k + \mathbf{v}_k, \qquad \mathbf{H} = \begin{bmatrix} \mathbf{I}_{4 \times 4} & \mathbf{0}_{4 \times 4} \end{bmatrix} \in \mathbb{R}^{4 \times 8}$$
 
-Setiap keluaran bounding box dari jaringan syaraf YOLO menyertakan skor keyakinan (*confidence score*) $$\text{conf}_k \in [0, 1]$$. Pada kondisi air keruh, deteksi dengan nilai keyakinan rendah mengandung variansi derau spasial yang jauh lebih besar. Untuk mengakomodasi fenomena ini secara stokastik, dikembangkan formulasi *kovariansi pengukuran adaptif non-linier* [16], [17]:
+Setiap keluaran bounding box dari jaringan syaraf YOLO menyertakan *confidence score* $$\text{conf}_k \in [0, 1]$$. Pada kondisi air keruh, deteksi dengan nilai keyakinan rendah mengandung variansi derau spasial yang jauh lebih besar. Untuk mengakomodasi fenomena ini secara stokastik, dikembangkan formulasi *kovariansi pengukuran adaptif non-linier* [16], [17]:
 $$\mathbf{R}_k(\text{conf}_k) = \mathbf{R}_0 \cdot \left[ 1 + \alpha_{\text{conf}} \left( \frac{1 - \text{conf}_k}{\text{conf}_k + \epsilon} \right)^2 \right]$$
 di mana:
 - $$\mathbf{R}_0 = \text{diag}[\sigma_{z,x}^2, \sigma_{z,y}^2, \sigma_{z,s}^2, \sigma_{z,r}^2]$$ adalah kovariansi nominal saat deteksi sempurna ($$\text{conf}_k \to 1.0$$).
@@ -599,20 +599,20 @@ Dinamika adaptif ini memberikan efek kendali estimasi yang sangat elegan:
 - Saat deteksi target terdistorsi oleh gelembung air atau partikel keruh ($$\text{conf}_k \approx 0.3$$), nilai $$\mathbf{R}_k$$ melonjak secara kuadratik. Hal ini menyebabkan penguatan Kalman mengecil secara drastis ($$\mathbf{K}_k \to \mathbf{0}$$), sehingga filter secara otomatis menolak (*reject*) derau pengukuran yang tidak akurat dan lebih mempercayai prediksi model kinematika internalnya!
 
 #### 6. Outlier Innovation Gating Berbasis Jarak Mahalanobis
-Untuk mencegah penapis terganggu oleh deteksi salah (*false positive clutter*), residu inovasi $$\tilde{\mathbf{y}}_k = \mathbf{z}_k - \mathbf{H}\hat{\mathbf{x}}_k^-$$ divalidasi menggunakan uji hipotesis kuadratik **Jarak Mahalanobis* (*Mahalanobis distance*) [25]:
+Untuk mencegah penapis terganggu oleh *false positive clutter*, residu inovasi $$\tilde{\mathbf{y}}_k = \mathbf{z}_k - \mathbf{H}\hat{\mathbf{x}}_k^-$$ divalidasi menggunakan uji hipotesis kuadratik **Jarak Mahalanobis* (*Mahalanobis distance*) [25]:
 $$D_M^2 = \tilde{\mathbf{y}}_k^T \mathbf{S}_k^{-1} \tilde{\mathbf{y}}_k = \tilde{\mathbf{y}}_k^T \left( \mathbf{H}\mathbf{P}_k^-\mathbf{H}^T + \mathbf{R}_k \right)^{-1} \tilde{\mathbf{y}}_k$$
 
 Di bawah hipotesis nol (pengukuran target benar terdistribusi Gaussian), besaran skalar $$D_M^2$$ mengikuti distribusi Chi-kuadrat dengan derajat kebebasan sama dengan dimensi pengukuran ($$m = 4$$):
 $$D_M^2 \sim \chi^2(4)$$
 
-Kriteria penerimaan pengukuran ditetapkan berdasarkan ambang batas gerbang (*gating threshold*) pada tingkat signifikansi $$\alpha_{\text{gate}} = 0.05$$ (selang kepercayaan 95%):
+Kriteria penerimaan pengukuran ditetapkan berdasarkan *gating threshold* pada tingkat signifikansi $$\alpha_{\text{gate}} = 0.05$$ (selang kepercayaan 95%):
 $$\gamma_{\text{gate}} = \chi_{0.95}^2(4) \approx 9.488$$
 
 Aturan keputusan validasi deteksi visual dirumuskan sebagai:
 $$\begin{cases} \text{Diterima (Valid)}: & D_M^2 \le \gamma_{\text{gate}} \implies \text{Lakukan pembaruan Kalman (Update Posterior)} \\ \text{Ditolak (Outlier)}: & D_M^2 > \gamma_{\text{gate}} \implies \text{Abaikan pengukuran, lakukan propagasi dead-reckoning} \end{cases}$$
 
 #### 7. Penanganan Oklusi Visual dan Propagasi Dead-Reckoning
-Ketika target visual terhalang total oleh struktur bawah air atau keluar dari medan pandang kamera (*field of view*) selama beberapa detik ($$\mathbf{z}_k = \emptyset$$), modul penapis Kalman beralih ke mode *dead-reckoning murni* [16], [25]:
+Ketika target visual terhalang total oleh struktur bawah air atau keluar dari *field of view* (FOV) selama beberapa detik ($$\mathbf{z}_k = \emptyset$$), modul penapis Kalman beralih ke mode *dead-reckoning murni* [16], [25]:
 $$\hat{\mathbf{x}}_k^+ = \hat{\mathbf{x}}_k^- = \mathbf{A}(\Delta t)\hat{\mathbf{x}}_{k-1}^+$$
 $$\mathbf{P}_k^+ = \mathbf{P}_k^- = \mathbf{A}(\Delta t)\mathbf{P}_{k-1}^+\mathbf{A}^T(\Delta t) + \mathbf{Q}(\Delta t)$$
 

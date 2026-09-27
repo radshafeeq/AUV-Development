@@ -279,7 +279,7 @@ Penyelesaian naskah proposal tugas akhir ini tidak lepas dari bimbingan, arahan,
 8. Rekan-rekan mahasiswa dan asisten di Laboratorium Mekatronika dan Robotika atas diskusi teknis, kolaborasi ilmiah, dan kebersamaan dalam eksplorasi teknologi subsea robotics.
 9. Teristimewa kepada kedua orang tua tercinta, keluarga besar, dan sanak saudara, atas doa tulus yang tak pernah terputus, cinta kasih tanpa pamrih, pengorbanan, dan dorongan moral serta spiritual yang tak ternilai harganya.
 
-Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untuk penyempurnaan. Oleh karena itu, saran dan kritik konstruktif sangat diharapkan demi penyempurnaan penelitian ini hingga tahap akhir. Semoga penelitian ini dapat memberikan kontribusi nyata bagi perkembangan ilmu pengetahuan dan teknologi kelautan nasional, khususnya dalam rekayasa robotika bawah air (*underwater robotics*).
+Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untuk penyempurnaan. Oleh karena itu, saran dan kritik konstruktif sangat diharapkan demi penyempurnaan penelitian ini hingga tahap akhir. Semoga penelitian ini dapat memberikan kontribusi nyata bagi perkembangan ilmu pengetahuan dan teknologi kelautan nasional, khususnya dalam rekayasa robotika bawah air.
 
 <br><br>
 
@@ -314,7 +314,7 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
 
 <br>
 
-**Latar belakang.** Eksplorasi bawah air menuntut wahana otonom dengan fleksibilitas manuver tinggi. Sebagian besar wahana konvensional beroperasi secara *underactuated* tanpa kendali aktif pada sudut *pitch* serta rentan terhadap momen destabilisasi Munk hidrodinamika. Wahana *over-actuated* berpendorong delapan mampu menyediakan otoritas kendali enam derajat kebebasan (6-DOF) penuh, namun menghadirkan tantangan dinamika hidrodinamika non-linier terkopling dan degradasi penginderaan visual di dalam air. **Tujuan.** Penelitian ini bertujuan menurunkan formulasi matematis lengkap kinematika dan dinamika 6-DOF Fossen, merancang *suite* Kalman Filter optimal untuk pelacakan target visual dan estimasi dinamika wahana, serta memvalidasi sistem melalui integrasi *Software-In-The-Loop* (SITL) dan *Hardware-In-The-Loop* (HITL). **Metode.** Kinematika 6-DOF diturunkan melalui grup rotasi $$SO(3)$$, transformasi Euler, dan kuaternion unit bebas singularitas. Persamaan dinamika diturunkan berbasis model Fossen, mencakup tensor inersia bodi kaku, massa tambah hidrodinamika, Coriolis-sentripetal, redaman disipasi kuadratik, serta gaya pemulih hidrostatis. Estimasi keadaan visual menggunakan Discrete Kalman Filter 8D berbasis *Continuous White Noise Acceleration* (CWNA) dengan *Mahalanobis distance gating*, sedangkan rekonstruksi dinamika gerak dan pengamatan gangguan arus laut menggunakan *Extended Kalman Filter* (EKF) pada komputer pendamping Raspberry Pi 4B yang terhubung secara MAVLink (50 Hz) dengan Pixhawk 2.4.8 (ArduSub `vectored_6dof`) dan simulator Gazebo Harmonic/ROS 2. **Hasil yang diharapkan.** Diperoleh model analitis 6-DOF terverifikasi dan algoritma penapis Kalman yang mampu mereduksi derau deteksi YOLO, merekonstruksi dinamika gerak dan kecepatan arus, serta mempertahankan kestabilan sikap 6-DOF secara waktu nyata. **Kesimpulan.** Integrasi pemodelan dinamika 6-DOF dan penapisan optimal Kalman memberikan landasan teoretis dan arsitektur mekatronika yang tangguh untuk inspeksi bawah air otonom.
+**Latar belakang.** Eksplorasi bawah air menuntut wahana otonom dengan fleksibilitas manuver tinggi. Sebagian besar wahana konvensional beroperasi secara *underactuated* tanpa kendali aktif pada sudut *pitch* serta rentan terhadap momen destabilisasi Munk hidrodinamika. Wahana *over-actuated* berpendorong delapan mampu menyediakan otoritas kendali enam derajat kebebasan (6-DOF) penuh, namun menghadirkan tantangan dinamika hidrodinamika non-linier terkopling dan degradasi penginderaan visual di dalam air. **Tujuan.** Penelitian ini bertujuan menurunkan formulasi matematis lengkap kinematika dan dinamika 6-DOF Fossen, merancang *suite* Kalman Filter optimal untuk pelacakan target visual dan estimasi dinamika wahana, serta memvalidasi sistem melalui integrasi *Software-In-The-Loop* (SITL) dan *Hardware-In-The-Loop* (HITL). **Metode.** Kinematika 6-DOF diturunkan melalui grup rotasi $$SO(3)$$, transformasi Euler, dan kuaternion unit bebas singularitas. Persamaan dinamika diturunkan berbasis model Fossen, mencakup tensor inersia bodi kaku, massa tambah hidrodinamika, Coriolis-sentripetal, redaman disipasi kuadratik, serta gaya pemulih hidrostatis. Estimasi keadaan visual menggunakan Discrete Kalman Filter 8D berbasis *Continuous White Noise Acceleration* (CWNA) dengan *Mahalanobis distance gating*, sedangkan rekonstruksi dinamika gerak dan pengamatan gangguan arus laut menggunakan *Extended Kalman Filter* (EKF) pada komputer pendamping Raspberry Pi 4B yang terhubung secara MAVLink (50 Hz) dengan Pixhawk 2.4.8 (ArduSub `vectored_6dof`) dan simulator Gazebo Harmonic/ROS 2. **Hasil yang diharapkan.** Diperoleh model analitis 6-DOF terverifikasi dan algoritma penapis Kalman yang mampu mereduksi derau deteksi YOLO, merekonstruksi dinamika gerak dan kecepatan arus, serta mempertahankan kestabilan sikap 6-DOF secara *real-time*. **Kesimpulan.** Integrasi pemodelan dinamika 6-DOF dan penapisan optimal Kalman memberikan landasan teoretis dan arsitektur mekatronika yang tangguh untuk inspeksi bawah air otonom.
 
 <br>
 
@@ -578,12 +578,12 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.5</td>
-    <td style="border:none;">Papan Pengendali Penerbangan (Flight Controller) Pixhawk 2.4.8</td>
+    <td style="border:none;">*flight controller* Pixhawk 2.4.8</td>
     <td style="border:none; text-align:right;">55</td>
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.6</td>
-    <td style="border:none;">Komputer Pendamping (Companion Computer) Raspberry Pi 4B</td>
+    <td style="border:none;">*companion computer* Raspberry Pi 4B</td>
     <td style="border:none; text-align:right;">56</td>
   </tr>
   <tr>
@@ -593,7 +593,7 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
   </tr>
   <tr>
     <td style="border:none;">Gambar 3.8</td>
-    <td style="border:none;">Motor Pendorong Bawah Air (BLDC Underwater Thruster)</td>
+    <td style="border:none;">motor *BLDC underwater thruster*</td>
     <td style="border:none; text-align:right;">57</td>
   </tr>
   <tr>
