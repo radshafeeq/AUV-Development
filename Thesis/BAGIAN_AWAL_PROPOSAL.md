@@ -637,28 +637,28 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
 
 | Simbol | Dimensi / Satuan | Definisi Matematis dan Fisik |
 | :--- | :---: | :--- |
-| $$\mathcal{F}^n$$ | - | *North-East-Down (NED) inertial frame* (*Earth-Fixed NED Frame*) $$\{O_n, x_n, y_n, z_n\}$$ |
-| $$\mathcal{F}^b$$ | - | *body-fixed frame* (*Body-Fixed Frame*) $$\{O_b, x_b, y_b, z_b\}$$ |
-| $$\boldsymbol{\eta}$$ | $$\mathbb{R}^6$$ | *spatial position and orientation vector* di $$\mathcal{F}^n$$: $$[x, y, z, \phi, \theta, \psi]^T$$ |
-| $$\boldsymbol{\nu}$$ | $$\mathbb{R}^6$$ | *linear and angular velocity vector* di $$\mathcal{F}^b$$: $$[u, v, w, p, q, r]^T$$ |
-| $$\boldsymbol{\tau}$$ | $$\mathbb{R}^6$$ | *generalized forces and moments vector* di $$\mathcal{F}^b$$: $$[X, Y, Z, K, M, N]^T$$ |
-| $$\boldsymbol{\nu}_c$$ | $$\mathbb{R}^6$$ | *ocean current velocity vector in body frame* $$[u_c, v_c, w_c, 0, 0, 0]^T$$ |
-| $$\boldsymbol{\nu}_r$$ | $$\mathbb{R}^6$$ | *relative velocity vector of the vehicle*: $$\boldsymbol{\nu} - \boldsymbol{\nu}_c$$ |
-| $$\mathbf{R}_b^n(\boldsymbol{\eta}_2)$$ | $$SO(3)$$ | *orthogonal rotation transformation matrix* dari $$\mathcal{F}^b$$ ke $$\mathcal{F}^n$$ |
-| $$\mathbf{T}_\Theta(\boldsymbol{\eta}_2)$$ | $$\mathbb{R}^{3 \times 3}$$ | *Euler angle rate transformation matrix*: $$\dot{\boldsymbol{\eta}}_2 = \mathbf{T}_\Theta \boldsymbol{\nu}_2$$ |
-| $$\mathbf{J}(\boldsymbol{\eta}_2)$$ | $$\mathbb{R}^{6 \times 6}$$ | *kinematic Jacobian matrix* gabungan: $$\text{diag}[\mathbf{R}_b^n, \mathbf{T}_\Theta]$$ |
-| $$\mathbf{q}$$ | $$S^3$$ | *four-dimensional unit quaternion orientation*: $$[\eta, \epsilon_1, \epsilon_2, \epsilon_3]^T$$ |
-| $$\mathbf{M}_{RB}$$ | $$\mathbb{R}^{6 \times 6}$$ | *rigid-body mass inertia tensor* (*rigid-body mass matrix*) |
-| $$\mathbf{M}_A$$ | $$\mathbb{R}^{6 \times 6}$$ | Tensor *hydrodynamic added mass* (*hydrodynamic added mass*) |
-| $$\mathbf{M}$$ | $$\mathbb{R}^{6 \times 6}$$ | Tensor massa sistem total gabungan: $$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A$$ |
-| $$\mathbf{C}_{RB}(\boldsymbol{\nu})$$ | $$\mathbb{R}^{6 \times 6}$$ | Matriks Coriolis and centripetal of rigid-body |
-| $$\mathbf{C}_A(\boldsymbol{\nu}_r)$$ | $$\mathbb{R}^{6 \times 6}$$ | Matriks Coriolis dan sentripetal *hydrodynamic added mass* |
-| $$\mathbf{D}(\boldsymbol{\nu}_r)$$ | $$\mathbb{R}^{6 \times 6}$$ | *combined hydrodynamic damping tensor* (linier laminar $$\mathbf{D}_L$$ + kuadratik $$\mathbf{D}_{NL}$$) |
-| $$\mathbf{g}(\boldsymbol{\eta})$$ | $$\mathbb{R}^6$$ | Vektor *hydrostatic restoring forces and moments* (gravitasi dan gaya apung) |
-| $$GM_T$$ | $$\text{m}$$ | *transverse metacentric height*: $$z_g - z_b$$ |
-| $$\mathbf{x}_{k}$$ | $$\mathbb{R}^8$$ | *visual tracking state vector*: $$[x, y, s, r, \dot{x}, \dot{y}, \dot{s}, \dot{r}]^T$$ |
-| $$\mathbf{P}_k$$ | $$\mathbb{R}^{8 \times 8}$$ | *estimation error covariance matrix* (*error covariance matrix*) |
-| $$\mathbf{K}_k$$ | - | Matriks *optimal Kalman gain* (*optimal Kalman gain*) |
-| $$\mathbf{Q}$$ | - | *covariance matrix*process noise* (*process noise covariance matrix*) |
-| $$\mathbf{R}$$ | - | *covariance matrix*measurement noise* (*measurement noise covariance matrix*) |
-| $$D_M$$ | - | *Mahalanobis squared distance* untuk *outlier innovation gating* |
+| $$\mathcal{F}^n$$ | - | *North-East-Down (NED) inertial reference frame* $$\{O_n, x_n, y_n, z_n\}$$ |
+| $$\mathcal{F}^b$$ | - | *Body-fixed reference frame (Forward-Right-Down / FRD)* $$\{O_b, x_b, y_b, z_b\}$$ |
+| $$\boldsymbol{\eta}$$ | $$\mathbb{R}^6$$ | *6-DOF position and Euler orientation vector in* $$\mathcal{F}^n$$: $$[x, y, z, \phi, \theta, \psi]^T$$ |
+| $$\boldsymbol{\nu}$$ | $$\mathbb{R}^6$$ | *Linear and angular velocity vector in body-fixed frame* $$\mathcal{F}^b$$: $$[u, v, w, p, q, r]^T$$ |
+| $$\boldsymbol{\tau}$$ | $$\mathbb{R}^6$$ | *6-DOF generalized control forces and propulsion moments vector in* $$\mathcal{F}^b$$: $$[X, Y, Z, K, M, N]^T$$ |
+| $$\boldsymbol{\nu}_c$$ | $$\mathbb{R}^6$$ | *Ocean current velocity vector in body frame* $$[u_c, v_c, w_c, 0, 0, 0]^T$$ |
+| $$\boldsymbol{\nu}_r$$ | $$\mathbb{R}^6$$ | *Relative velocity vector of the vehicle*: $$\boldsymbol{\nu} - \boldsymbol{\nu}_c$$ |
+| $$\mathbf{R}_b^n(\boldsymbol{\eta}_2)$$ | $$SO(3)$$ | *Orthogonal linear rotation transformation matrix from* $$\mathcal{F}^b$$ *to* $$\mathcal{F}^n$$ |
+| $$\mathbf{T}_\Theta(\boldsymbol{\eta}_2)$$ | $$\mathbb{R}^{3 \times 3}$$ | *Kinematic transformation matrix relating body angular rates to Euler angle rates*: $$\dot{\boldsymbol{\eta}}_2 = \mathbf{T}_\Theta \boldsymbol{\nu}_2$$ |
+| $$\mathbf{J}(\boldsymbol{\eta}_2)$$ | $$\mathbb{R}^{6 \times 6}$$ | *Full 6-DOF kinematic Jacobian transformation matrix*: $$\text{diag}[\mathbf{R}_b^n, \mathbf{T}_\Theta]$$ |
+| $$\mathbf{q}$$ | $$S^3$$ | *Four-dimensional unit quaternion orientation*: $$[\eta, \epsilon_1, \epsilon_2, \epsilon_3]^T$$ |
+| $$\mathbf{M}_{RB}$$ | $$\mathbb{R}^{6 \times 6}$$ | *Rigid-body mass and inertia tensor matrix* |
+| $$\mathbf{M}_A$$ | $$\mathbb{R}^{6 \times 6}$$ | *Hydrodynamic added mass tensor matrix* |
+| $$\mathbf{M}$$ | $$\mathbb{R}^{6 \times 6}$$ | *Total system mass matrix*: $$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A$$ |
+| $$\mathbf{C}_{RB}(\boldsymbol{\nu})$$ | $$\mathbb{R}^{6 \times 6}$$ | *Rigid-body Coriolis and centripetal matrix* |
+| $$\mathbf{C}_A(\boldsymbol{\nu}_r)$$ | $$\mathbb{R}^{6 \times 6}$$ | *Hydrodynamic added mass Coriolis and centripetal matrix* |
+| $$\mathbf{D}(\boldsymbol{\nu}_r)$$ | $$\mathbb{R}^{6 \times 6}$$ | *Hydrodynamic fluid damping matrix (linear laminar* $$\mathbf{D}_L$$ *and quadratic* $$\mathbf{D}_{NL}$$*)* |
+| $$\mathbf{g}(\boldsymbol{\eta})$$ | $$\mathbb{R}^6$$ | *Hydrostatic gravitational and buoyant restoring forces and moments vector* |
+| $$GM_T$$ | $$\text{m}$$ | *Transverse metacentric height*: $$z_g - z_b$$ |
+| $$\mathbf{x}_{k}$$ | $$\mathbb{R}^8$$ | *Visual tracking state vector*: $$[x, y, s, r, \dot{x}, \dot{y}, \dot{s}, \dot{r}]^T$$ |
+| $$\mathbf{P}_k$$ | $$\mathbb{R}^{8 \times 8}$$ | *Filter estimation error covariance matrix* |
+| $$\mathbf{K}_k$$ | - | *Optimal Kalman gain matrix* |
+| $$\mathbf{Q}$$ | - | *Process noise covariance matrix* |
+| $$\mathbf{R}$$ | - | *Measurement noise covariance matrix* |
+| $$D_M$$ | - | *Squared Mahalanobis distance for innovation validation and outlier gating* |
