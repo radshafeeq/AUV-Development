@@ -608,28 +608,24 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
 
 | Singkatan | Kepanjangan / Arti Teknis |
 | :--- | :--- |
-| *AUV* | *Autonomous Underwater Vehicle* (*Autonomous Underwater Vehicle*) |
-| *HAUV* | *Hovering Autonomous Underwater Vehicle* (*Hovering AUV*) |
-| *ROV* | *Remotely Operated Vehicle* (*Remotely Operated Vehicle*) |
-| *DOF* | *Degrees of Freedom* (*spatial degrees of freedom*) |
+| *AUV* | *Autonomous Underwater Vehicle* (Wahana Bawah Air Otonom) |
+| *ROV* | *Remotely Operated Vehicle* (Wahana Bawah Air Kendali Jarak Jauh) |
+| *DOF* | *Degrees of Freedom* (Derajat Kebebasan Gerak Spasial) |
+| *EKF* | *Extended Kalman Filter* (Kalman Filter Diperluas) |
+| *UKF* | *Unscented Kalman Filter* (Kalman Filter Tanpa Aroma) |
+| *CWNA* | *Continuous White Noise Acceleration* (Akselerasi Derau Putih Kontinu) |
+| *YOLO* | *You Only Look Once* (Jaringan Syaraf Deteksi Objek Real-Time) |
+| *SITL* | *Software-In-The-Loop* (Simulasi Perangkat Lunak Tertutup) |
+| *HITL* | *Hardware-In-The-Loop* (Simulasi Berbantuan Perangkat Keras Riil) |
+| *NED* | *North-East-Down* (Sistem Sumbu Koordinat Bumi: Utara-Timur-Bawah) |
+| *FRD* | *Forward-Right-Down* (Sistem Sumbu Koordinat Bodi: Depan-Kanan-Bawah) |
 | *SNAME* | *The Society of Naval Architects and Marine Engineers* |
-| *NED* | *North-East-Down* (*Earth-fixed inertial coordinate system*: Utara-Timur-Bawah) |
-| *FRD* | *Forward-Right-Down* (*body-fixed coordinate system*: Maju-Kanan-Bawah) |
-| *CG* | *Center of Gravity* (*Center of Gravity*) |
-| *CB* | *Center of Buoyancy* (*Center of Buoyancy*) |
-| *CO* | *Center of Origin* (Pusat Titik Acuan Kerangka Bodi) |
-| *CWNA* | *Continuous White Noise Acceleration* (Model Stokastik Penjejakan Kinematik) |
-| *EKF* | *Extended Kalman Filter* (*Non-Linear Kalman Filter*) |
-| *UKF* | *Unscented Kalman Filter* (*Unscented Kalman Filter*) |
-| *SITL* | *Software-In-The-Loop* (*Software-In-The-Loop simulation*) |
-| *HITL* | *Hardware-In-The-Loop* (*Hardware-In-The-Loop testing*) |
-| *YOLO* | *You Only Look Once* (*Object Detection Convolutional Neural Network Architecture*) |
-| *ROS* | *Robot Operating System* (*Middleware* Komunikasi Robotika) |
-| *MAVLink* | *Micro Air Vehicle Link* (Protokol Telemetri Biner Serial Robotika Otonom) |
-| *PWM* | *Pulse Width Modulation* (*Pulse Width Modulation signal for motor control*) |
-| *ESC* | *Electronic Speed Controller* (*Brushless Motor Speed Controller*) |
-| *IMU* | *Inertial Measurement Unit* (*Inertial Measurement Unit: Accelerometer & Gyroscope*) |
-| *DVL* | *Doppler Velocity Log* (*Acoustic Sensor for Water Relative Velocity*) |
+| *ROS* | *Robot Operating System* (Middleware Komunikasi Robotika) |
+| *CLAHE* | *Contrast Limited Adaptive Histogram Equalization* |
+| *MAVLink* | *Micro Air Vehicle Link* (Protokol Serial Telemetri Robotika) |
+| *PWM* | *Pulse Width Modulation* (Modulasi Lebar Pulsa Kontrol ESC) |
+| *ESC* | *Electronic Speed Controller* (Speed Controller Motor Brushless) |
+| *IMU* | *Inertial Measurement Unit* (Sensor Akselerometer dan Giroskop Inersial) |
 
 <br>
 
@@ -637,28 +633,28 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
 
 | Simbol | Dimensi / Satuan | Definisi Matematis dan Fisik |
 | :--- | :---: | :--- |
-| $$\mathcal{F}^n$$ | - | *North-East-Down (NED) inertial reference frame* $$\{O_n, x_n, y_n, z_n\}$$ |
-| $$\mathcal{F}^b$$ | - | *Body-fixed reference frame (Forward-Right-Down / FRD)* $$\{O_b, x_b, y_b, z_b\}$$ |
-| $$\boldsymbol{\eta}$$ | $$\mathbb{R}^6$$ | *6-DOF position and Euler orientation vector in* $$\mathcal{F}^n$$: $$[x, y, z, \phi, \theta, \psi]^T$$ |
-| $$\boldsymbol{\nu}$$ | $$\mathbb{R}^6$$ | *Linear and angular velocity vector in body-fixed frame* $$\mathcal{F}^b$$: $$[u, v, w, p, q, r]^T$$ |
-| $$\boldsymbol{\tau}$$ | $$\mathbb{R}^6$$ | *6-DOF generalized control forces and propulsion moments vector in* $$\mathcal{F}^b$$: $$[X, Y, Z, K, M, N]^T$$ |
-| $$\boldsymbol{\nu}_c$$ | $$\mathbb{R}^6$$ | *Ocean current velocity vector in body frame* $$[u_c, v_c, w_c, 0, 0, 0]^T$$ |
-| $$\boldsymbol{\nu}_r$$ | $$\mathbb{R}^6$$ | *Relative velocity vector of the vehicle*: $$\boldsymbol{\nu} - \boldsymbol{\nu}_c$$ |
-| $$\mathbf{R}_b^n(\boldsymbol{\eta}_2)$$ | $$SO(3)$$ | *Orthogonal linear rotation transformation matrix from* $$\mathcal{F}^b$$ *to* $$\mathcal{F}^n$$ |
-| $$\mathbf{T}_\Theta(\boldsymbol{\eta}_2)$$ | $$\mathbb{R}^{3 \times 3}$$ | *Kinematic transformation matrix relating body angular rates to Euler angle rates*: $$\dot{\boldsymbol{\eta}}_2 = \mathbf{T}_\Theta \boldsymbol{\nu}_2$$ |
-| $$\mathbf{J}(\boldsymbol{\eta}_2)$$ | $$\mathbb{R}^{6 \times 6}$$ | *Full 6-DOF kinematic Jacobian transformation matrix*: $$\text{diag}[\mathbf{R}_b^n, \mathbf{T}_\Theta]$$ |
-| $$\mathbf{q}$$ | $$S^3$$ | *Four-dimensional unit quaternion orientation*: $$[\eta, \epsilon_1, \epsilon_2, \epsilon_3]^T$$ |
-| $$\mathbf{M}_{RB}$$ | $$\mathbb{R}^{6 \times 6}$$ | *Rigid-body mass and inertia tensor matrix* |
-| $$\mathbf{M}_A$$ | $$\mathbb{R}^{6 \times 6}$$ | *Hydrodynamic added mass tensor matrix* |
-| $$\mathbf{M}$$ | $$\mathbb{R}^{6 \times 6}$$ | *Total system mass matrix*: $$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A$$ |
-| $$\mathbf{C}_{RB}(\boldsymbol{\nu})$$ | $$\mathbb{R}^{6 \times 6}$$ | *Rigid-body Coriolis and centripetal matrix* |
-| $$\mathbf{C}_A(\boldsymbol{\nu}_r)$$ | $$\mathbb{R}^{6 \times 6}$$ | *Hydrodynamic added mass Coriolis and centripetal matrix* |
-| $$\mathbf{D}(\boldsymbol{\nu}_r)$$ | $$\mathbb{R}^{6 \times 6}$$ | *Hydrodynamic fluid damping matrix (linear laminar* $$\mathbf{D}_L$$ *and quadratic* $$\mathbf{D}_{NL}$$*)* |
-| $$\mathbf{g}(\boldsymbol{\eta})$$ | $$\mathbb{R}^6$$ | *Hydrostatic gravitational and buoyant restoring forces and moments vector* |
-| $$GM_T$$ | $$\text{m}$$ | *Transverse metacentric height*: $$z_g - z_b$$ |
-| $$\mathbf{x}_{k}$$ | $$\mathbb{R}^8$$ | *Visual tracking state vector*: $$[x, y, s, r, \dot{x}, \dot{y}, \dot{s}, \dot{r}]^T$$ |
-| $$\mathbf{P}_k$$ | $$\mathbb{R}^{8 \times 8}$$ | *Filter estimation error covariance matrix* |
-| $$\mathbf{K}_k$$ | - | *Optimal Kalman gain matrix* |
-| $$\mathbf{Q}$$ | - | *Process noise covariance matrix* |
-| $$\mathbf{R}$$ | - | *Measurement noise covariance matrix* |
-| $$D_M$$ | - | *Squared Mahalanobis distance for innovation validation and outlier gating* |
+| $$\mathcal{F}^n$$ | - | *North-East-Down (NED) Inertial Reference Frame* (Sistem Kerangka Acuan Inersial Bumi: Utara-Timur-Bawah) |
+| $$\mathcal{F}^b$$ | - | *Body-Fixed Reference Frame* (Sistem Kerangka Acuan Bodi: Depan-Kanan-Bawah) |
+| $$\boldsymbol{\eta}$$ | $$\mathbb{R}^6$$ | *6-DOF Position and Euler Orientation Vector in* $$\mathcal{F}^n$$ ($$\boldsymbol{\eta} = [\mathbf{p}^n, \boldsymbol{\Theta}]^T$$) (Vektor Posisi Spasial dan Sudut Orientasi Euler 6-DOF) |
+| $$\boldsymbol{\nu}$$ | $$\mathbb{R}^6$$ | *Linear and Angular Velocity Vector in Body-Fixed Frame* $$\mathcal{F}^b$$ ($$\boldsymbol{\nu} = [\mathbf{v}_o^b, \boldsymbol{\omega}_{b/n}^b]^T$$) (Vektor Kecepatan Linier dan Kecepatan Sudut Bodi Wahana) |
+| $$\boldsymbol{\tau}$$ | $$\mathbb{R}^6$$ | *6-DOF Generalized Control Forces and Moments Vector* ($$\boldsymbol{\tau} = [X, Y, Z, K, M, N]^T$$) (Vektor Gaya Kendali dan Momen Propulsi 6-DOF Wahana) |
+| $$\boldsymbol{\nu}_c$$ | $$\mathbb{R}^6$$ | *Ocean Current Velocity Vector in Body Frame* ($$[u_c, v_c, w_c, 0, 0, 0]^T$$) (Vektor Kecepatan Arus Laut dalam Kerangka Bodi) |
+| $$\boldsymbol{\nu}_r$$ | $$\mathbb{R}^6$$ | *Relative Velocity Vector of the Vehicle* ($$\boldsymbol{\nu} - \boldsymbol{\nu}_c$$) (Vektor Kecepatan Relatif Wahana terhadap Fluida) |
+| $$\mathbf{R}_b^n(\boldsymbol{\eta}_2)$$ | $$SO(3)$$ | *Orthogonal Rotation Transformation Matrix from* $$\mathcal{F}^b$$ *to* $$\mathcal{F}^n$$ (Matriks Transformasi Rotasi Ortogonal dari Kerangka Bodi ke Kerangka Inersial) |
+| $$\mathbf{T}_\Theta(\boldsymbol{\eta}_2)$$ | $$\mathbb{R}^{3 \times 3}$$ | *Euler Angle Rate Transformation Matrix* ($$\dot{\boldsymbol{\eta}}_2 = \mathbf{T}_\Theta \boldsymbol{\nu}_2$$) (Matriks Transformasi Kecepatan Sudut Bodi terhadap Laju Perubahan Sudut Euler) |
+| $$\mathbf{J}(\boldsymbol{\eta}_2)$$ | $$\mathbb{R}^{6 \times 6}$$ | *Full 6-DOF Kinematic Jacobian Matrix* ($$\text{diag}[\mathbf{R}_b^n, \mathbf{T}_\Theta]$$) (Matriks Transformasi Jacobian Kinematika 6-DOF Lengkap Wahana) |
+| $$\mathbf{q}$$ | $$S^3$$ | *Four-Dimensional Unit Quaternion Orientation* ($$[\eta, \epsilon_1, \epsilon_2, \epsilon_3]^T$$) (Orientasi Kuaternion Satuan Empat Dimensi) |
+| $$\mathbf{M}_{RB}$$ | $$\mathbb{R}^{6 \times 6}$$ | *Rigid-Body Mass and Inertia Matrix* (Matriks Massa dan Inersia Benda Tegar Wahana) |
+| $$\mathbf{M}_A$$ | $$\mathbb{R}^{6 \times 6}$$ | *Hydrodynamic Added Mass Matrix* (Matriks Massa Tambah Hidrodinamika Fluida) |
+| $$\mathbf{M}$$ | $$\mathbb{R}^{6 \times 6}$$ | *Total System Mass Matrix* ($$\mathbf{M} = \mathbf{M}_{RB} + \mathbf{M}_A$$) (Matriks Massa Total Sistem Gabungan) |
+| $$\mathbf{C}_{RB}(\boldsymbol{\nu})$$ | $$\mathbb{R}^{6 \times 6}$$ | *Rigid-Body Coriolis and Centripetal Matrix* (Matriks Gaya Coriolis dan Sentripetal Benda Tegar) |
+| $$\mathbf{C}_A(\boldsymbol{\nu}_r)$$ | $$\mathbb{R}^{6 \times 6}$$ | *Hydrodynamic Added Mass Coriolis and Centripetal Matrix* (Matriks Coriolis dan Sentripetal Massa Tambah Hidrodinamika) |
+| $$\mathbf{D}(\boldsymbol{\nu}_r)$$ | $$\mathbb{R}^{6 \times 6}$$ | *Hydrodynamic Fluid Damping Matrix* (Matriks Redaman Fluida Hidrodinamika Linier dan Kuadratik) |
+| $$\mathbf{g}(\boldsymbol{\eta})$$ | $$\mathbb{R}^6$$ | *Hydrostatic Restoring Forces and Moments Vector* (Vektor Gaya dan Momen Pemulih Gravitasi serta Daya Apung Hidrostatis) |
+| $$GM_T$$ | $$\text{m}$$ | *Transverse Metacentric Height* ($$z_g - z_b$$) (Tinggi Metasentrik Transversal Kestabilan Pasif) |
+| $$\mathbf{x}_{k}$$ | $$\mathbb{R}^8$$ | *Visual Tracking State Vector* ($$[x, y, s, r, \dot{x}, \dot{y}, \dot{s}, \dot{r}]^T$$) (Vektor Status Pelacakan Visual Target) |
+| $$\mathbf{P}_k$$ | $$\mathbb{R}^{8 \times 8}$$ | *Filter Estimation Error Covariance Matrix* (Matriks Kovariansi Kesalahan Estimasi Filter) |
+| $$\mathbf{K}_k$$ | - | *Optimal Kalman Gain Matrix* (Matriks Penguatan Kalman Optimal) |
+| $$\mathbf{Q}$$ | - | *Process Noise Covariance Matrix* (Matriks Kovariansi Derau Proses) |
+| $$\mathbf{R}$$ | - | *Measurement Noise Covariance Matrix* (Matriks Kovariansi Derau Pengukuran Sensor) |
+| $$D_M$$ | - | *Squared Mahalanobis Distance for Innovation Outlier Gating* (Jarak Kuadratis Mahalanobis untuk Validasi Inovasi dan Penolakan Data Pencilan) |
