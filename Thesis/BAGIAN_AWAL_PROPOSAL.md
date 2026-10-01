@@ -343,15 +343,15 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
   </tr>
   <tr>
     <td style="border:none;"><strong>DAFTAR TABEL</strong></td>
-    <td style="border:none; text-align:right;"><strong>vii</strong></td>
+    <td style="border:none; text-align:right;"><strong>ix</strong></td>
   </tr>
   <tr>
     <td style="border:none;"><strong>DAFTAR GAMBAR</strong></td>
-    <td style="border:none; text-align:right;"><strong>viii</strong></td>
+    <td style="border:none; text-align:right;"><strong>x</strong></td>
   </tr>
   <tr>
     <td style="border:none;"><strong>DAFTAR SINGKATAN, ISTILAH, DAN LAMBANG</strong></td>
-    <td style="border:none; text-align:right;"><strong>ix</strong></td>
+    <td style="border:none; text-align:right;"><strong>xi</strong></td>
   </tr>
   <tr>
     <td colspan="2" style="border:none;"><hr style="border-top:1px solid #000;"></td>
@@ -455,12 +455,12 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
 ---
 
 <!-- ======================================================================= -->
-<!-- DAFTAR TABEL & DAFTAR GAMBAR (HALAMAN vii & viii)                       -->
+<!-- DAFTAR TABEL & DAFTAR GAMBAR (HALAMAN ix & x)                           -->
 <!-- ======================================================================= -->
 
 <div align="center">
 
-*Halaman vii*
+*Halaman ix*
 
 # DAFTAR TABEL
 
@@ -515,7 +515,7 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
 
 <div align="center">
 
-*Halaman viii*
+*Halaman x*
 
 # DAFTAR GAMBAR
 
@@ -591,12 +591,12 @@ Penulis menyadari sepenuhnya bahwa naskah proposal ini masih memiliki ruang untu
 ---
 
 <!-- ======================================================================= -->
-<!-- DAFTAR SINGKATAN, ISTILAH, DAN LAMBANG (HALAMAN ix)                     -->
+<!-- DAFTAR SINGKATAN, ISTILAH, DAN LAMBANG (HALAMAN xi & xii)               -->
 <!-- ======================================================================= -->
 
 <div align="center">
 
-*Halaman ix*
+*Halaman xi*
 
 # DAFTAR SINGKATAN, ISTILAH, DAN LAMBANG
 
