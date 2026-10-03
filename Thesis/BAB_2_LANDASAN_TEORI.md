@@ -434,118 +434,79 @@ Persamaan ini menunjukkan bahwa gaya apung netral menghilangkan gaya hidrostatis
 
 ## 2.5 Teori dan Formulasi Optimal Kalman Filter Suite
 
-Operasi otonom AUV di lingkungan laut menghadapi ketidakpastian lingkungan yang tinggi (*environmental stochasticity*), derau sensor frekuensi tinggi, serta penurunan kualitas visual bawah air [2], [14], [16]. Untuk menjamin estimasi keadaan spasial dan pelacakan objek yang andal dan kokoh, penelitian ini merancang dan memformulasikan *Suite Optimal Kalman Filter* yang terdiri dari dua tingkatan terpadu [16], [17], [25], [29]:
-1. *Topside Visual Target Kalman Filter (*8D Visual Target Tracking Filter*)*: *filter* Kalman linier diskrit 8-dimensi untuk melacak *bounding box* target visual deteksi YOLO monokuler pada laju 30 FPS.
-2. *Subsea Hydrodynamic Extended Kalman Filter (*6-DOF Hydrodynamic Dynamics Estimation Filter*)*: *Non-Linear Kalman Filter* terperluas (EKF) untuk melakukan *sensor fusion* IMU dan kedalaman berbasis persamaan dinamika Fossen 6-DOF serta melakukan *ocean current disturbance estimation* pada laju 50 Hz.
+Operasi otonom AUV di lingkungan laut menghadapi ketidakpastian lingkungan yang tinggi (*environmental stochasticity*), derau sensor inersia frekuensi tinggi, serta penurunan kualitas visual bawah air akibat turbiditas dan hamburan cahaya [2], [14], [16]. Untuk menjamin estimasi keadaan spasial dan pelacakan objek yang andal, akurat, dan kokoh (*robust*), penelitian ini merancang dan mengimplementasikan *Dual-Tier Distributed Kalman Filter Suite* yang terdiri dari dua tingkatan penapis terpadu [16], [17], [25], [29]:
+1. *Topside Visual Target Kalman Filter* (*8D Visual Target Tracking Filter*): Penapis linier diskrit 8-dimensi (`AUVVisualKalmanFilter`) yang dieksekusi pada stasiun permukaan (Topside) untuk melacak posisi dan dimensi *bounding box* target visual deteksi YOLO monokuler pada frekuensi 30 FPS.
+2. *Subsea Hydrodynamic Extended Kalman Filter* (*6-DOF Hydrodynamic Dynamics Estimation Filter*): Penapis non-linier terperluas 8-dimensi (`AUVDynamicsKalmanFilter`) yang dieksekusi secara *real-time* pada *companion computer* Raspberry Pi 4B (Subsea) pada frekuensi 50 Hz, mempropagasi persamaan hidrodinamika Fossen 6-DOF untuk mengestimasi kecepatan relatif wahana serta mengamati gaya gangguan arus laut eksternal (*ocean current disturbance observer*).
 
-### 2.5.1 Dasar Teori Estimasi Keadaan Stokastik dan Kriteria MMSE
+### 2.5.1 Konsep Dasar dan Siklus Rekursif Discrete Kalman Filter (DKF)
 
-Estimasi *stochastic state* bertujuan merekonstruksi vektor status internal suatu sistem dinamika wahana berdasarkan urutan data pengukuran sensor yang terdistorsi oleh derau acak [25]. Tinjau model *state-space* linier waktu diskrit berdimensi-$$n$$ dengan $$m$$ pengukuran sensor:
+*Kalman Filter* linier diskrit merupakan penapis rekursif optimal berbasis statistik kuadrat terkecil (*Minimum Mean-Square Error*) untuk merekonstruksi vektor status internal suatu sistem dinamika wahana berdasarkan urutan data pengukuran sensor yang terdistorsi oleh derau acak [25]. Tinjau model ruang keadaan linier waktu diskrit berdimensi-$$n$$ dengan $$m$$ variabel pengukuran sensor [16], [25]:
 $$\mathbf{x}_k = \mathbf{A}_{k-1}\mathbf{x}_{k-1} + \mathbf{B}_{k-1}\mathbf{u}_{k-1} + \mathbf{w}_{k-1}$$
 $$\mathbf{z}_k = \mathbf{H}_k\mathbf{x}_k + \mathbf{v}_k$$
 di mana:
-- $$\mathbf{x}_k \in \mathbb{R}^n$$ adalah vektor keadaan sistem pada langkah waktu ke-$$k$$.
-- $$\mathbf{u}_{k-1} \in \mathbb{R}^p$$ adalah vektor masukan kendali deterministik.
-- $$\mathbf{z}_k \in \mathbb{R}^m$$ adalah vektor pengukuran dari instrumen sensor.
-- $$\mathbf{A}_{k-1} \in \mathbb{R}^{n \times n}$$ dan $$\mathbf{H}_k \in \mathbb{R}^{m \times n}$$ adalah matriks transisi keadaan dan matriks model pengukuran.
+- $$\mathbf{x}_k \in \mathbb{R}^n$$ adalah vektor keadaan sistem (*system state vector*) pada langkah waktu ke-$$k$$.
+- $$\mathbf{u}_{k-1} \in \mathbb{R}^p$$ adalah vektor masukan kendali deterministik (*control input*).
+- $$\mathbf{z}_k \in \mathbb{R}^m$$ adalah vektor pengukuran dari instrumen sensor (*measurement vector*).
+- $$\mathbf{A}_{k-1} \in \mathbb{R}^{n \times n}$$ adalah matriks transisi keadaan (*state transition matrix*) yang memodelkan kinematika sistem.
+- $$\mathbf{B}_{k-1} \in \mathbb{R}^{n \times p}$$ adalah matriks masukan kendali (*control input matrix*).
+- $$\mathbf{H}_k \in \mathbb{R}^{m \times n}$$ adalah matriks model pengukuran (*measurement matrix*) yang memetakan ruang keadaan ke ruang pengukuran sensor.
 
-Ketidakpastian dinamika dan ketidaksempurnaan sensor dimodelkan melalui dua vektor derau Gaussian putih (*zero-mean white Gaussian noise*):
-$$\mathbf{w}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{Q}_k), \qquad \mathbb{E}[\mathbf{w}_k \mathbf{w}_j^T] = \mathbf{Q}_k \delta_{kj}$$
-$$\mathbf{v}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{R}_k), \qquad \mathbb{E}[\mathbf{v}_k \mathbf{v}_j^T] = \mathbf{R}_k \delta_{kj}$$
-di mana $$\mathbf{Q}_k \succeq 0$$ adalah *covariance matrix*process noise* dan $$\mathbf{R}_k \succ 0$$ adalah *covariance matrix*measurement noise*. Kedua derau diasumsikan saling bebas: $$\mathbb{E}[\mathbf{w}_k \mathbf{v}_j^T] = \mathbf{0}, \forall k, j$$.
+Ketidakpastian pemodelan dan derau instrumen sensor dimodelkan melalui dua vektor derau Gaussian putih (*zero-mean white Gaussian noise*) yang saling bebas [25]:
+$$\mathbf{w}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{Q}_k), \qquad \mathbf{v}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{R}_k)$$
+di mana $$\mathbf{Q}_k \in \mathbb{R}^{n \times n}$$ ($$\mathbf{Q}_k \succeq 0$$) merepresentasikan kovariansi derau proses (*process noise covariance*), dan $$\mathbf{R}_k \in \mathbb{R}^{m \times m}$$ ($$\mathbf{R}_k \succ 0$$) merepresentasikan kovariansi derau pengukuran sensor (*measurement noise covariance*). Kedua derau diasumsikan tidak saling berkorelasi: $$\mathbb{E}[\mathbf{w}_i \mathbf{v}_j^T] = \mathbf{0}, \forall i, j$$.
 
-Vektor keadaan $$\mathbf{x}_k$$ diperlakukan sebagai variabel acak dengan nilai ekspektasi (rata-rata estimasi) $$\hat{\mathbf{x}}_k = \mathbb{E}[\mathbf{x}_k]$$ dan *covariance matrix* galat estimasi $$\mathbf{P}_k \in \mathbb{R}^{n \times n}$$:
-$$\mathbf{P}_k = \text{Cov}(\mathbf{x}_k - \hat{\mathbf{x}}_k) = \mathbb{E}\left[ (\mathbf{x}_k - \hat{\mathbf{x}}_k)(\mathbf{x}_k - \hat{\mathbf{x}}_k)^T \right]$$
+#### Siklus Rekursif Predict-Update Kalman Filter
+Siklus komputasi *Kalman Filter* bekerja secara rekursif melalui dua tahapan utama yang dieksekusi pada setiap selang cuplik waktu $$\Delta t$$ [25]:
 
-#### Kriteria Minimum Mean-Square Error (MMSE)
-*filter* Kalman dirancang berdasarkan kriteria *Minimum Mean-Square Error* (MMSE), yaitu mencari penaksir keadaan optimal $$\hat{\mathbf{x}}_k$$ yang meminimalkan ekspektasi nilai galat kuadratik total [25]:
-$$J = \mathbb{E}\left[ \|\mathbf{x}_k - \hat{\mathbf{x}}_k\|^2 \mid \mathbf{Z}^k \right] = \text{Tr}(\mathbf{P}_k)$$
-di mana $$\mathbf{Z}^k = \{\mathbf{z}_1, \mathbf{z}_2, \dots, \mathbf{z}_k\}$$ merepresentasikan riwayat seluruh pengukuran sensor hingga langkah waktu ke-$$k$$. 
+1. **Tahap Prediksi (*Time Update / Prior Step*)**:
+   Pada tahap ini, penapis memproyeksikan status keadaan dan ketidakpastian kovariansi ke langkah waktu berikutnya berdasarkan model fisik sistem sebelum pengukuran sensor baru diterima:
+   - *Prediksi Keadaan Prior*:
+     $$\hat{\mathbf{x}}_k^- = \mathbf{A}_{k-1}\hat{\mathbf{x}}_{k-1}^+ + \mathbf{B}_{k-1}\mathbf{u}_{k-1}$$
+   - *Prediksi Kovariansi Galat Prior*:
+     $$\mathbf{P}_k^- = \mathbf{A}_{k-1}\mathbf{P}_{k-1}^+\mathbf{A}_{k-1}^T + \mathbf{Q}_{k-1}$$
+   di mana superskrip minus ($$^-$) menyatakan nilai estimasi *prior* (sebelum pembaruan sensor), dan plus ($$^+$$) menyatakan nilai *posterior* (setelah pembaruan sensor).
 
-Untuk sistem dinamika linier berderau Gaussian, penaksir yang meminimalkan kriteria penalti kuadratik MMSE ini identik secara eksak dengan nilai ekspektasi bersyarat keadaan terhadap pengukuran (*conditional expectation*) [25]:
-$$\hat{\mathbf{x}}_{\text{MMSE}} = \mathbb{E}[\mathbf{x}_k \mid \mathbf{Z}^k]$$
-Karakteristik invarian linearitas distribusi Gaussian menjamin bahwa distribusi posterior tetap berdistribusi Gaussian, sehingga estimasi keadaan optimal dapat diperbarui secara rekursif hanya dengan mempropagasi vektor rata-rata $$\hat{\mathbf{x}}_k$$ dan *covariance matrix* $$\mathbf{P}_k$$ tanpa perlu menyimpan seluruh riwayat data masa lalu [25].
+2. **Tahap Pembaruan Pengukuran (*Measurement Update / Posterior Step*)**:
+   Ketika pengukuran sensor baru $$\mathbf{z}_k$$ diterima, selisih antara pengukuran aktual dan estimasi pengukuran model didefinisikan sebagai residu inovasi (*innovation residual*):
+   $$\tilde{\mathbf{y}}_k = \mathbf{z}_k - \mathbf{H}_k\hat{\mathbf{x}}_k^-$$
+   Penapis kemudian menghitung matriks penguatan Kalman optimal (*Optimal Kalman Gain*) $$\mathbf{K}_k$$ dan memperbarui estimasi keadaan serta kovariansi galat [16], [25]:
+   - *Matriks Penguatan Kalman Optimal*:
+     $$\mathbf{K}_k = \mathbf{P}_k^-\mathbf{H}_k^T \left( \mathbf{H}_k\mathbf{P}_k^-\mathbf{H}_k^T + \mathbf{R}_k \right)^{-1}$$
+   - *Pembaruan Keadaan Posterior*:
+     $$\hat{\mathbf{x}}_k^+ = \hat{\mathbf{x}}_k^- + \mathbf{K}_k \tilde{\mathbf{y}}_k = \hat{\mathbf{x}}_k^- + \mathbf{K}_k \left( \mathbf{z}_k - \mathbf{H}_k\hat{\mathbf{x}}_k^- \right)$$
+   - *Pembaruan Kovariansi Galat Posterior*:
+     $$\mathbf{P}_k^+ = (\mathbf{I} - \mathbf{K}_k\mathbf{H}_k)\mathbf{P}_k^-$$
 
-### 2.5.2 Derivasi Lengkap Discrete Kalman Filter (DKF) dan Bentuk Kovariansi Joseph
-Model *state-space* linier waktu diskrit diformulasikan sebagai berikut [16], [25]:
-$$\mathbf{x}_k = \mathbf{A}_{k-1}\mathbf{x}_{k-1} + \mathbf{B}_{k-1}\mathbf{u}_{k-1} + \mathbf{w}_{k-1}$$
-$$\mathbf{z}_k = \mathbf{H}_k\mathbf{x}_k + \mathbf{v}_k$$
-di mana:
-- $$\mathbf{A}_{k-1} \in \mathbb{R}^{n \times n}$$: *state transition matrix*.
-- $$\mathbf{B}_{k-1} \in \mathbb{R}^{n \times p}$$: Matriks input kendali.
-- $$\mathbf{H}_k \in \mathbb{R}^{m \times n}$$: Matriks model pengukuran sensor.
-- $$\mathbf{w}_{k-1} \sim \mathcal{N}(\mathbf{0}, \mathbf{Q}_{k-1})$$: *process noise* putih Gaussian dengan kovariansi $$\mathbf{Q}_{k-1} \succeq 0$$.
-- $$\mathbf{v}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{R}_k)$$: *measurement noise* putih Gaussian dengan kovariansi $$\mathbf{R}_k \succ 0$$.
-- Kedua derau diasumsikan saling bebas: $$\mathbb{E}[\mathbf{w}_i \mathbf{v}_j^T] = \mathbf{0}, \forall i, j$$.
+#### Interpretasi Fisik dan Logika Rekayasa Penapis
+Struktur matematis penguatan Kalman $$\mathbf{K}_k$$ memberikan interpretasi rekayasa mekatronika yang sangat intuitif:
+- Matriks penguatan $$\mathbf{K}_k$$ berperan sebagai faktor pembobot optimal dinamis antara kepercayaan terhadap model fisika wahana dan kepercayaan terhadap instrumen sensor fisik.
+- Bila pengukuran sensor mengandung derau yang sangat tinggi akibat turbiditas atau fluktuasi optik perairan ($\mathbf{R}_k \to \infty$), suku invers dalam persamaan penguatan membesar sehingga matriks penguatan mengecil mendekati nol ($\mathbf{K}_k \to \mathbf{0}$). Akibatnya, pembaruan keadaan $\hat{\mathbf{x}}_k^+ \approx \hat{\mathbf{x}}_k^-$, yang berarti penapis secara adaptif menolak derau sensor dan sepenuhnya mempercayai propagasi model kinematika internalnya (*dead-reckoning*).
+- Sebaliknya, bila instrumen sensor memiliki presisi sangat tinggi ($\mathbf{R}_k \to \mathbf{0}$) sementara model fisik wahana dipengaruhi oleh turbulensi fluida acak yang besar ($\mathbf{Q}$ membesar sehingga $\mathbf{P}_k^-$ membesar), maka penguatan Kalman membesar ($\mathbf{K}_k \to \mathbf{H}_k^{-1}$). Dalam kondisi ini, penapis secara cepat mengoreksi proyeksi keadaannya mengikuti data pengukuran sensor aktual.
 
-Siklus rekursif Kalman Filter terdiri dari dua langkah utama [25]:
+### 2.5.2 Extended Kalman Filter (EKF) untuk Sistem Dinamika Non-Linier
 
-#### 1. Tahap Prediksi (*Time Update / Prior Step*)
-Prediksi keadaan *prior* $$\hat{\mathbf{x}}_k^-$$ dihitung dengan mengambil ekspektasi bersyarat:
-$$\hat{\mathbf{x}}_k^- = \mathbb{E}[\mathbf{x}_k \mid \mathbf{Z}^{k-1}] = \mathbf{A}_{k-1}\hat{\mathbf{x}}_{k-1}^+ + \mathbf{B}_{k-1}\mathbf{u}_{k-1}$$
-Galat estimasi *prior* dinyatakan sebagai:
-$$\mathbf{e}_k^- = \mathbf{x}_k - \hat{\mathbf{x}}_k^- = (\mathbf{A}_{k-1}\mathbf{x}_{k-1} + \mathbf{B}_{k-1}\mathbf{u}_{k-1} + \mathbf{w}_{k-1}) - (\mathbf{A}_{k-1}\hat{\mathbf{x}}_{k-1}^+ + \mathbf{B}_{k-1}\mathbf{u}_{k-1}) = \mathbf{A}_{k-1}\mathbf{e}_{k-1}^+ + \mathbf{w}_{k-1}$$
-
-*covariance matrix* galat *prior* $$\mathbf{P}_k^-$$ adalah:
-$$\mathbf{P}_k^- = \mathbb{E}[ \mathbf{e}_k^- (\mathbf{e}_k^-)^T ] = \mathbb{E}[ (\mathbf{A}_{k-1}\mathbf{e}_{k-1}^+ + \mathbf{w}_{k-1}) (\mathbf{A}_{k-1}\mathbf{e}_{k-1}^+ + \mathbf{w}_{k-1})^T ]$$
-Karena *process noise* $$\mathbf{w}_{k-1}$$ tidak berkorelasi dengan galat estimasi masa lalu $$\mathbf{e}_{k-1}^+$$, suku-suku perkalian silang bernilai nol:
-$$\mathbf{P}_k^- = \mathbf{A}_{k-1} \mathbf{P}_{k-1}^+ \mathbf{A}_{k-1}^T + \mathbf{Q}_{k-1}$$
-
-#### 2. Tahap Pembaruan Pengukuran (*Measurement Update / Posterior Step*)
-Ketika pengukuran baru $$\mathbf{z}_k$$ diterima, *innovation residual* didefinisikan sebagai selisih antara pengukuran aktual dan estimasi pengukuran *prior* [25]:
-$$\tilde{\mathbf{y}}_k = \mathbf{z}_k - \mathbf{H}_k \hat{\mathbf{x}}_k^-$$
-Kovariansi inovasi $$\mathbf{S}_k$$ dihitung sebagai:
-$$\mathbf{S}_k = \mathbb{E}[\tilde{\mathbf{y}}_k \tilde{\mathbf{y}}_k^T] = \mathbb{E}[ (\mathbf{H}_k \mathbf{e}_k^- + \mathbf{v}_k)(\mathbf{H}_k \mathbf{e}_k^- + \mathbf{v}_k)^T ] = \mathbf{H}_k \mathbf{P}_k^- \mathbf{H}_k^T + \mathbf{R}_k$$
-
-Estimasi keadaan *posterior* $$\hat{\mathbf{x}}_k^+$$ dikoreksi secara linier menggunakan matriks penguatan (*gain matrix*) $$\mathbf{K}_k$$:
-$$\hat{\mathbf{x}}_k^+ = \hat{\mathbf{x}}_k^- + \mathbf{K}_k \tilde{\mathbf{y}}_k = \hat{\mathbf{x}}_k^- + \mathbf{K}_k (\mathbf{z}_k - \mathbf{H}_k \hat{\mathbf{x}}_k^-)$$
-
-Galat estimasi *posterior* adalah:
-$$\mathbf{e}_k^+ = \mathbf{x}_k - \hat{\mathbf{x}}_k^+ = \mathbf{x}_k - (\hat{\mathbf{x}}_k^- + \mathbf{K}_k (\mathbf{H}_k \mathbf{x}_k + \mathbf{v}_k - \mathbf{H}_k \hat{\mathbf{x}}_k^-)) = (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k)\mathbf{e}_k^- - \mathbf{K}_k \mathbf{v}_k$$
-
-*covariance matrix* galat *posterior* $$\mathbf{P}_k^+$$ dievaluasi untuk sebarang gain $$\mathbf{K}_k$$:
-$$\mathbf{P}_k^+ = \mathbb{E}[ \mathbf{e}_k^+ (\mathbf{e}_k^+)^T ] = \mathbb{E}[ ((\mathbf{I} - \mathbf{K}_k \mathbf{H}_k)\mathbf{e}_k^- - \mathbf{K}_k \mathbf{v}_k) ((\mathbf{I} - \mathbf{K}_k \mathbf{H}_k)\mathbf{e}_k^- - \mathbf{K}_k \mathbf{v}_k)^T ]$$
-Karena derau sensor $$\mathbf{v}_k$$ saling bebas terhadap galat *prior* $$\mathbf{e}_k^-$$, maka diperoleh *Bentuk Kovariansi Joseph* (*Joseph Form Covariance*) [25]:
-$$\mathbf{P}_k^+ = (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k) \mathbf{P}_k^- (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k)^T + \mathbf{K}_k \mathbf{R}_k \mathbf{K}_k^T$$
-Bentuk Joseph ini secara komputasional menjamin bahwa *covariance matrix* $$\mathbf{P}_k^+$$ selalu simetris dan definit positif, bahkan di bawah galat pembulatan aritmatika komputer berpresisi terbatas (*numerical round-off errors*).
-
-#### 3. Penurunan *optimal Kalman gain* (*Optimal Kalman Gain*)
-Untuk meminimalkan jejak *covariance matrix* galat *posterior* $$J = \text{Tr}(\mathbf{P}_k^+)$$, lakukan diferensiasi matriks terhadap $$\mathbf{K}_k$$:
-Ekspansi bentuk Joseph:
-$$\mathbf{P}_k^+ = \mathbf{P}_k^- - \mathbf{K}_k \mathbf{H}_k \mathbf{P}_k^- - \mathbf{P}_k^- \mathbf{H}_k^T \mathbf{K}_k^T + \mathbf{K}_k (\mathbf{H}_k \mathbf{P}_k^- \mathbf{H}_k^T + \mathbf{R}_k) \mathbf{K}_k^T$$
-Mengambil turunan trace parsial $$\frac{\partial \text{Tr}(\mathbf{P}_k^+)}{\partial \mathbf{K}_k} = \mathbf{0}$$:
-$$\frac{\partial \text{Tr}(\mathbf{P}_k^+)}{\partial \mathbf{K}_k} = -2 (\mathbf{P}_k^- \mathbf{H}_k^T)^T + 2 \mathbf{K}_k (\mathbf{H}_k \mathbf{P}_k^- \mathbf{H}_k^T + \mathbf{R}_k) = \mathbf{0}$$
-$$\mathbf{K}_k (\mathbf{H}_k \mathbf{P}_k^- \mathbf{H}_k^T + \mathbf{R}_k) = \mathbf{P}_k^- \mathbf{H}_k^T$$
-Karena $$\mathbf{S}_k = (\mathbf{H}_k \mathbf{P}_k^- \mathbf{H}_k^T + \mathbf{R}_k)$$ bernilai definit positif (dijamin oleh $$\mathbf{R}_k \succ 0$$), maka inversnya selalu ada, menghasilkan *Optimal Kalman Gain* [16], [25]:
-$$\mathbf{K}_k = \mathbf{P}_k^- \mathbf{H}_k^T \left( \mathbf{H}_k \mathbf{P}_k^- \mathbf{H}_k^T + \mathbf{R}_k \right)^{-1} = \mathbf{P}_k^- \mathbf{H}_k^T \mathbf{S}_k^{-1}$$
-
-Jika penguatan optimal $$\mathbf{K}_k$$ disubstitusikan ke dalam bentuk Joseph, persamaan kovariansi posterior tereduksi menjadi bentuk kanonikal:
-$$\mathbf{P}_k^+ = (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k) \mathbf{P}_k^-$$
-
-### 2.5.3 Derivasi Extended Kalman Filter (EKF) untuk Sistem Dinamika Non-Linier
-Pada kenyataannya, dinamika wahana laut Fossen dan proyeksi optik kamera bersifat sangat non-linier [7], [25]:
-$$\mathbf{x}_k = \mathbf{f}(\mathbf{x}_{k-1}, \mathbf{u}_{k-1}) + \mathbf{w}_{k-1}$$
+Pada wahana bawah air, dinamika hidrodinamika Fossen 6-DOF bersifat sangat non-linier akibat suku gaya hidrodinamika redaman kuadratik kuadratis ($$\mathbf{D}(\boldsymbol{\nu})\boldsymbol{\nu}$$), suku Coriolis-sentripetal ($$\mathbf{C}(\boldsymbol{\nu})\boldsymbol{\nu}$$), serta suku momen pemulih hidrostatis trigonometri ($$\mathbf{g}(\boldsymbol{\eta})$$) [7], [25]. Model ruang keadaan non-linier dirumuskan sebagai:
+$$\dot{\mathbf{x}}(t) = \mathbf{f}(\mathbf{x}(t), \mathbf{u}(t)) + \mathbf{w}(t)$$
 $$\mathbf{z}_k = \mathbf{h}(\mathbf{x}_k) + \mathbf{v}_k$$
-di mana $$\mathbf{f}: \mathbb{R}^n \times \mathbb{R}^p \to \mathbb{R}^n$$ dan $$\mathbf{h}: \mathbb{R}^n \to \mathbb{R}^m$$ adalah fungsi-fungsi non-linier yang terdiferensialkan mulus (*smooth* $$C^1$$ *mappings*).
+di mana $$\mathbf{f}(\cdot)$$ merepresentasikan fungsi dinamika vektor non-linier wahana, dan $$\mathbf{h}(\cdot)$$ adalah fungsi pengukuran sensor non-linier.
 
-Dalam sistem non-linier, transformasi fungsi non-linier merusak sifat Gaussianitas distribusi probabilitas (*breakdown of Gaussianity*). EKF menyelesaikan masalah ini dengan melakukan *linearisasi deret Taylor orde pertama* secara adaptif di sekitar titik operasi estimasi terbaik saat ini [25]:
-$$\mathbf{f}(\mathbf{x}_{k-1}) \approx \mathbf{f}(\hat{\mathbf{x}}_{k-1}^+) + \mathbf{F}_{k-1} (\mathbf{x}_{k-1} - \hat{\mathbf{x}}_{k-1}^+)$$
-$$\mathbf{h}(\mathbf{x}_k) \approx \mathbf{h}(\hat{\mathbf{x}}_k^-) + \mathbf{H}_k (\mathbf{x}_k - \hat{\mathbf{x}}_k^-)$$
-di mana matriks Jacobian sistem dinamis $$\mathbf{F}_{k-1}$$ dan Jacobian pengukuran $$\mathbf{H}_k$$ dievaluasi melalui turunan parsial multivariabel:
+Karena transformasi non-linier tidak mempertahankan bentuk distribusi Gaussian, *Extended Kalman Filter* (EKF) melakukan linearisasi lokal menggunakan ekspansi deret Taylor orde pertama di sekitar titik estimasi keadaan operasional terbaik saat ini ($$\hat{\mathbf{x}}$$):
+$$\mathbf{f}(\mathbf{x}) \approx \mathbf{f}(\hat{\mathbf{x}}) + \mathbf{F}(\mathbf{x} - \hat{\mathbf{x}})$$
+$$\mathbf{h}(\mathbf{x}) \approx \mathbf{h}(\hat{\mathbf{x}}^-) + \mathbf{H}(\mathbf{x} - \hat{\mathbf{x}}^-)$$
+di mana matriks Jacobian transisi sistem dinamis $$\mathbf{F}_{k-1}$$ dan Jacobian pengukuran $$\mathbf{H}_k$$ dievaluasi melalui turunan parsial multivariabel:
 $$\mathbf{F}_{k-1} = \left. \frac{\partial \mathbf{f}}{\partial \mathbf{x}} \right|_{\hat{\mathbf{x}}_{k-1}^+, \mathbf{u}_{k-1}} \in \mathbb{R}^{n \times n}, \qquad \mathbf{H}_k = \left. \frac{\partial \mathbf{h}}{\partial \mathbf{x}} \right|_{\hat{\mathbf{x}}_k^-} \in \mathbb{R}^{m \times n}$$
 
-Struktur persamaan rekursif EKF diskrit dinyatakan oleh [25], [29]:
+Siklus rekursif EKF diskrit dieksekusi melalui persamaan berikut [25], [29]:
 1. *Prediksi Keadaan*: $$\hat{\mathbf{x}}_k^- = \mathbf{f}(\hat{\mathbf{x}}_{k-1}^+, \mathbf{u}_{k-1})$$
-2. *Prediksi Kovariansi*: $$\mathbf{P}_k^- = \mathbf{F}_{k-1} \mathbf{P}_{k-1}^+ \mathbf{F}_{k-1}^T + \mathbf{Q}_{k-1}$$
+2. *Prediksi Kovariansi*: $$\mathbf{P}_k^- = \mathbf{F}_{k-1}\mathbf{P}_{k-1}^+\mathbf{F}_{k-1}^T + \mathbf{Q}_{k-1}$$
 3. *Residu Inovasi*: $$\tilde{\mathbf{y}}_k = \mathbf{z}_k - \mathbf{h}(\hat{\mathbf{x}}_k^-)$$
-4. *Kovariansi Inovasi*: $$\mathbf{S}_k = \mathbf{H}_k \mathbf{P}_k^- \mathbf{H}_k^T + \mathbf{R}_k$$
-5. *Optimal Kalman Gain*: $$\mathbf{K}_k = \mathbf{P}_k^- \mathbf{H}_k^T \mathbf{S}_k^{-1}$$
-6. *Pembaruan Keadaan*: $$\hat{\mathbf{x}}_k^+ = \hat{\mathbf{x}}_k^- + \mathbf{K}_k \tilde{\mathbf{y}}_k$$
-7. *Pembaruan Kovariansi*: $$\mathbf{P}_k^+ = (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k) \mathbf{P}_k^- (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k)^T + \mathbf{K}_k \mathbf{R}_k \mathbf{K}_k^T$$
+4. *Matriks Penguatan Kalman Optimal*: $$\mathbf{K}_k = \mathbf{P}_k^-\mathbf{H}_k^T \left( \mathbf{H}_k\mathbf{P}_k^-\mathbf{H}_k^T + \mathbf{R}_k \right)^{-1}$$
+5. *Pembaruan Keadaan Posterior*: $$\hat{\mathbf{x}}_k^+ = \hat{\mathbf{x}}_k^- + \mathbf{K}_k \tilde{\mathbf{y}}_k$$
+6. *Pembaruan Kovariansi Galat*: $$\mathbf{P}_k^+ = (\mathbf{I} - \mathbf{K}_k\mathbf{H}_k)\mathbf{P}_k^-$$
 
 ---
 
-### 2.5.4 Formulasi *8D Visual Target Tracking Filter* (Topside Visual Target Kalman Filter)
+### 2.5.3 Formulasi *8D Visual Target Tracking Filter* (Topside Visual Target Kalman Filter)
 
 Persepsi visual bawah air yang diperoleh dari kamera monokuler rentan terhadap distorsi optik, turbiditas air, hamburan cahaya, partikel tersuspensi (*marine snow*), serta bayangan dinamis [2], [14]. Arsitektur *deep learning* YOLO yang dijalankan pada stasiun permukaan memprediksi koordinat *bounding box* target secara *frame-by-frame*. Namun, deteksi visual mentah ini menghasilkan *centroid jitter*, fluktuasi skala, *false positives*, dan kehilangan deteksi sesaat saat terjadi *temporary visual occlusion* [2], [16], [17].
 
@@ -620,22 +581,31 @@ Pada fase ini, estimasi kecepatan visual ($$\dot{x}, \dot{y}, \dot{s}$$) yang te
 
 ---
 
-### 2.5.5 Formulasi *6-DOF Hydrodynamic Dynamics Estimation Filter* (Subsea Hydrodynamic Extended Kalman Filter)
+### 2.5.4 Formulasi *6-DOF Hydrodynamic Dynamics Estimation Filter* (Subsea Hydrodynamic Extended Kalman Filter)
 
-Di sisi wahana bawah laut, estimasi status dinamika hidro*6-DOF dynamics* dieksekusi secara *real-time* oleh *Subsea Hydrodynamic Extended Kalman Filter* yang berjalan pada *companion computer* Raspberry Pi 4B berkomunikasi dengan Pixhawk 2.4.8 melalui protokol MAVLink pada frekuensi 50 Hz [14], [21], [29].
+Di sisi wahana bawah laut, estimasi status dinamika hidrodinamika 6-DOF dieksekusi secara *real-time* oleh *Subsea Hydrodynamic Extended Kalman Filter* (`AUVDynamicsKalmanFilter`) yang berjalan pada *companion computer* Raspberry Pi 4B berkomunikasi dengan Pixhawk 2.4.8 melalui protokol MAVLink pada frekuensi 50 Hz [14], [21], [29].
 
-#### 1. Formulasi Model Ruang Keadaan Non-Linier *6-DOF dynamics*
-Berdasarkan persamaan gerak Fossen (2021) yang diturunkan pada Subbab 2.4, turunan percepatan relatif bodi wahana dinyatakan oleh sistem persamaan diferensial non-linier [7]:
-$$\dot{\boldsymbol{\nu}}_r = \mathbf{M}^{-1} \left[ \boldsymbol{\tau} - \mathbf{C}_{RB}(\boldsymbol{\nu})\boldsymbol{\nu} - \mathbf{C}_A(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r - \mathbf{D}(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r - \mathbf{g}(\boldsymbol{\eta}) \right] = \mathbf{f}_d(\boldsymbol{\nu}_r, \boldsymbol{\eta}, \boldsymbol{\tau})$$
+#### 1. Formulasi Model Ruang Keadaan Non-Linier Dinamika 6-DOF
+Berdasarkan persamaan gerak Fossen (2021) yang diturunkan pada Subbab 2.4, turunan percepatan bodi wahana dipengaruhi oleh gaya dorong pendorong 8-motor ($$\boldsymbol{\tau}$$), redaman hidrodinamika kuadratik ($$\mathbf{D}(\boldsymbol{\nu})\boldsymbol{\nu}$$), momen pemulih metasentris hidrostatis ($$\mathbf{g}(\boldsymbol{\eta})$$), serta gaya gangguan arus laut lingkungan eksternal ($$\mathbf{d}$$) [7]:
+$$\dot{\boldsymbol{\nu}} = \mathbf{M}^{-1} \left[ \boldsymbol{\tau} - \mathbf{D}(\boldsymbol{\nu})\boldsymbol{\nu} - \mathbf{g}(\boldsymbol{\eta}) + \boldsymbol{\tau}_{\text{dist}} \right]$$
 
-Vektor keadaan kontinu *filter* dinamika mencakup kecepatan bodi dan estimasi *ocean current velocity* pada kerangka bodi:
-$$\mathbf{x}_{\text{dyn}} = \begin{bmatrix} \boldsymbol{\nu}_r \\ \boldsymbol{\nu}_c \end{bmatrix} \in \mathbb{R}^{12}$$
-Arus laut dimodelkan sebagai proses acak Markov orde pertama yang bervariasi sangat lambat (*slowly varying random walk*) [7], [29]:
-$$\dot{\boldsymbol{\nu}}_c = -\mathbf{S}(\boldsymbol{\nu}_2)\boldsymbol{\nu}_c + \mathbf{w}_c$$
+Vektor ruang keadaan 8-dimensi penapis dinamika mencakup kecepatan 6-DOF bodi wahana dan estimasi gaya gangguan arus laut eksternal pada sumbu *surge* dan *sway* [7], [29]:
+$$\mathbf{x}_{\text{dyn}} = \begin{bmatrix} u \\ v \\ w \\ p \\ q \\ r \\ d_u \\ d_v \end{bmatrix} \in \mathbb{R}^8$$
+di mana:
+- $$u, v, w$$: Kecepatan translasi linier bodi (*surge*, *sway*, *heave*) dalam satuan m/s.
+- $$p, q, r$$: Kecepatan sudut rotasi bodi (*roll*, *pitch*, *yaw rate*) dalam satuan rad/s.
+- $$d_u, d_v$$: Estimasi gaya gangguan arus laut eksternal pada sumbu *surge* dan *sway* dalam satuan Newton (N).
 
-#### 2. Penurunan Analitis Matriks Jacobian Kontinu 6x6
-Untuk mengeksekusi EKF, matriks Jacobian transisi kontinu $$\mathbf{F}(t)$$ diturunkan melalui diferensiasi analitis parsial terhadap vektor kecepatan relatif $$\boldsymbol{\nu}_r$$ [7], [25]:
-$$\mathbf{F}(t) = \left. \frac{\partial \mathbf{f}_d}{\partial \boldsymbol{\nu}_r} \right|_{\hat{\boldsymbol{\nu}}_r} = -\mathbf{M}^{-1} \left[ \left. \frac{\partial (\mathbf{C}_A(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r)}{\partial \boldsymbol{\nu}_r} \right|_{\hat{\boldsymbol{\nu}}_r} + \left. \frac{\partial (\mathbf{D}(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r)}{\partial \boldsymbol{\nu}_r} \right|_{\hat{\boldsymbol{\nu}}_r} \right]$$
+Gaya gangguan arus laut dimodelkan sebagai proses acak Markov orde pertama yang bervariasi sangat lambat (*slowly varying random walk*) [7], [29]:
+$$\dot{d}_u = w_{d,u}, \qquad \dot{d}_v = w_{d,v}$$
+
+#### 2. Penurunan Analitis Matriks Jacobian Kontinu 8x8
+Untuk mengeksekusi EKF, matriks Jacobian transisi kontinu $$\mathbf{F} \in \mathbb{R}^{8 \times 8}$$ diturunkan melalui diferensiasi analitis parsial terhadap vektor status $$\mathbf{x}_{\text{dyn}}$$ [7], [25]:
+Elemen diagonal matriks Jacobian yang berasal dari suku redaman kuadratik non-linier dievaluasi secara analitis:
+$$F_{ii} = \left. \frac{\partial \dot{\nu}_i}{\partial \nu_i} \right|_{\hat{\boldsymbol{\nu}}} = -\frac{D_{\text{lin},i} + 2 D_{\text{quad},i} |\nu_i|}{M_i}, \qquad i = 0, \dots, 5$$
+
+Kopling dinamis terhadap gaya gangguan arus laut eksternal dinyatakan oleh:
+$$F_{0,6} = \frac{1}{M_0} = \frac{1}{m - X_{\dot{u}}}, \qquad F_{1,7} = \frac{1}{M_1} = \frac{1}{m - Y_{\dot{v}}}$$
 
 Matriks Jacobian dari suku redaman hidrodinamika non-linier $$\mathbf{D}(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r$$ dievaluasi sebagai berikut [7]:
 Karena $$\mathbf{D}(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r = \mathbf{D}_L \boldsymbol{\nu}_r + \mathbf{D}_{NL}(\boldsymbol{\nu}_r)\boldsymbol{\nu}_r$$, di mana setiap komponen ke-$$j$$ adalah $$-(X_j + X_{j|j|}|v_{r,j}|)v_{r,j}$$, maka turunan parsialnya menghasilkan:
