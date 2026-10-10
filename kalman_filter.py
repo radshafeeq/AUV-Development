@@ -107,19 +107,27 @@ class AUVVisualKalmanFilter:
             self.kf.measurementMatrix = H
 
             # Discretized Process Noise Covariance Q (CWNA Model)
+            # Centroid states use nominal qs; bounding box dimensions use higher qs to track rapid looming
             Q = np.zeros((8, 8), dtype=np.float32)
-            Q[0:4, 0:4] = np.eye(4, dtype=np.float32) * (self.qs * dt3)
-            Q[0:4, 4:8] = np.eye(4, dtype=np.float32) * (self.qs * dt2)
-            Q[4:8, 0:4] = np.eye(4, dtype=np.float32) * (self.qs * dt2)
-            Q[4:8, 4:8] = np.eye(4, dtype=np.float32) * (self.qs * self.dt)
+            qs_pos = self.qs
+            qs_size = self.qs * 16.0
+            qs_vec = np.array([qs_pos, qs_pos, qs_size, qs_size], dtype=np.float32)
+            for i in range(4):
+                q_i = qs_vec[i]
+                Q[i, i] = q_i * dt3
+                Q[i, i + 4] = q_i * dt2
+                Q[i + 4, i] = q_i * dt2
+                Q[i + 4, i + 4] = q_i * self.dt
             self.kf.processNoiseCov = Q
 
-            # Measurement Noise Covariance R (position variance + scaled bbox dimension variance)
-            r_size = self.r_var * 2.5
+            # Measurement Noise Covariance R (position variance + tuned bbox dimension variance)
+            r_size = self.r_var * 1.0
             self._R_base = np.diag([self.r_var, self.r_var, r_size, r_size]).astype(np.float32)
             self.kf.measurementNoiseCov = self._R_base.copy()
-            self.kf.errorCovPost = np.eye(8, dtype=np.float32)
-            self.kf.errorCovPre = np.eye(8, dtype=np.float32)
+            P_init = np.eye(8, dtype=np.float32)
+            P_init[4:8, 4:8] *= 25.0  # Allow velocity states to rapidly lock on initial dynamics
+            self.kf.errorCovPost = P_init
+            self.kf.errorCovPre = P_init.copy()
 
         # Preallocated measurement buffers (Zero-allocation during inference loop)
         self._z4 = np.empty((4, 1), dtype=np.float32)
@@ -144,8 +152,10 @@ class AUVVisualKalmanFilter:
             ], dtype=np.float32)
             self.kf.statePost = st
             self.kf.statePre = st.copy()
-            self.kf.errorCovPost = np.eye(8, dtype=np.float32)
-            self.kf.errorCovPre = np.eye(8, dtype=np.float32)
+            P_init = np.eye(8, dtype=np.float32)
+            P_init[4:8, 4:8] *= 25.0
+            self.kf.errorCovPost = P_init
+            self.kf.errorCovPre = P_init.copy()
 
         self.initialized = True
         self.missed_frames = 0
@@ -325,6 +335,57 @@ class AUVVisualKalmanFilter:
             px, py = self.handle_missing_frame()
             return px, py, (px is not None)
 
+    def update_with_egomotion(self, bbox_centroid, w=None, h=None, conf=None, u_auv=0.0, v_auv=0.0, target_dist=1.0, focal_length=1400.0):
+        """
+        3D Ego-Motion Compensated Target Tracker:
+        Fuses the AUV's linear velocity [u_auv, v_auv] from the downward DVL with the
+        front camera's 3D relative visual tracking (optical looming + lateral shift)
+        to compute the True Absolute World Velocity of the target.
+        """
+        if not self.initialized:
+            self.init(bbox_centroid[0], bbox_centroid[1], w=w, h=h)
+            return float(bbox_centroid[0]), float(bbox_centroid[1]), 0.0, 0.0, 0.0, True
+
+        ex, ey = self.update(bbox_centroid[0], bbox_centroid[1], w=w, h=h, conf=conf)
+        dist = max(0.20, float(target_dist))
+        fl = float(focal_length)
+
+        if self.mode == "8D":
+            # State vector: [x, y, w, h, vx, vy, vw, vh]
+            curr_w = max(4.0, float(self.kf.statePost[2, 0]))
+            curr_vx = float(self.kf.statePost[4, 0])
+            curr_vy = float(self.kf.statePost[5, 0])
+            curr_vw = float(self.kf.statePost[6, 0]) # d(width)/dt [px/s]
+
+            # 1. Forward approach rate via optical looming (width expansion):
+            # w = (f * W_real) / Z => dw/dt = - (w / Z) * dZ/dt => dZ_rel/dt = - (Z / w) * dw/dt
+            v_rel_surge = - (dist / curr_w) * curr_vw
+
+            # 2. Lateral & vertical relative velocities:
+            v_rel_sway = (curr_vx * dist) / fl
+            v_rel_heave = (curr_vy * dist) / fl
+        else:
+            # 4D fallback (centroid only)
+            curr_vx = float(self.kf.statePost[2, 0])
+            curr_vy = float(self.kf.statePost[3, 0])
+            v_rel_surge = 0.0
+            v_rel_sway = (curr_vx * dist) / fl
+            v_rel_heave = (curr_vy * dist) / fl
+
+        # 3. 3D Ego-Motion Compensation: Add AUV vehicle motion
+        # Target Forward Velocity in World: v_surge_world = v_rel_surge + u_auv
+        # Target Lateral Velocity in World: v_sway_world = v_rel_sway + v_auv
+        v_target_world_surge = v_rel_surge + float(u_auv)
+        v_target_world_sway = v_rel_sway + float(v_auv)
+        v_target_world_heave = v_rel_heave
+
+        world_speed = math.sqrt(v_target_world_surge**2 + v_target_world_sway**2 + v_target_world_heave**2)
+        is_stationary = (world_speed < 0.12)
+
+        return ex, ey, v_target_world_surge, v_target_world_sway, world_speed, is_stationary
+
+
+
 
 # ==============================================================================
 # 2. HYDRODYNAMIC DYNAMICS KALMAN FILTER (SUBSEA / RASPBERRY PI 4B)
@@ -443,10 +504,11 @@ class AUVDynamicsKalmanFilter:
         self.P = F @ self.P @ F.T + self.Q
         return self.x[:6].copy()
 
-    def update(self, z_meas):
+    def update(self, z_meas, R_adaptive=None):
         """
         Correction step using vehicle sensor observations z_meas = [u_m, v_m, w_m, p_m, q_m, r_m].
-        Supports measurements from IMU gyro (p, q, r), depth rate (w), and linear observers (u, v).
+        Supports measurements from IMU gyro (p, q, r), depth rate (w), and optical DVL (u, v).
+        Allows optional R_adaptive to de-weight DVL when optical feature quality is low.
         """
         z_arr = np.asarray(z_meas, dtype=np.float32).reshape(-1)
         if len(z_arr) == 4:
@@ -456,13 +518,15 @@ class AUVDynamicsKalmanFilter:
             z = z_arr[:6]
 
         y = z - self._H @ self.x  # Innovation (6x1)
+        R_mat = self.R if R_adaptive is None else np.asarray(R_adaptive, dtype=np.float32)
 
-        S = self._H @ self.P @ self._H.T + self.R
+        S = self._H @ self.P @ self._H.T + R_mat
         K = self.P @ self._H.T @ np.linalg.inv(S)  # Optimal Kalman Gain (8x6)
 
         self.x += K @ y
         self.P = (self._eye8 - K @ self._H) @ self.P
         return self.x[:6].copy()
+
 
     def get_velocities(self):
         """Returns filtered 6-DOF body-frame velocities: (u, v, w, p, q, r)."""
@@ -484,8 +548,68 @@ AUV8DKalmanFilter = lambda **kwargs: AUVVisualKalmanFilter(mode="8D", **kwargs)
 
 
 # ==============================================================================
-# 4. BENCHMARK & REGRESSION TEST
+# 4. COMPARATIVE EXPERIMENTAL BASELINE (WITHOUT KALMAN FILTER)
 # ==============================================================================
+
+class AUVComparativeBaseline:
+    """
+    Baseline Dynamic Estimator (WITHOUT Kalman Filter):
+    Implements un-filtered raw sensor dead-reckoning and direct numerical integration
+    to provide the baseline comparative benchmark for the undergraduate thesis:
+    'Analyzing AUV Kinematics and Dynamics With vs. Without Kalman Filter'.
+    """
+    def __init__(self, dt=0.02):
+        self.dt = float(dt)
+        self.v_raw = np.zeros(6, dtype=np.float32)  # [u, v, w, p, q, r]
+        self.pos_raw = np.zeros(3, dtype=np.float32) # [x, y, z]
+        self.last_depth = None
+        self.drift_accumulated = 0.0
+
+    def step(self, raw_accel, raw_gyro, raw_depth=None, raw_dvl=None):
+        """
+        Step raw sensor baseline without filter:
+        - Accel: specific force [ax, ay, az] (accumulates bias and quadratic drift)
+        - Depth: raw finite-difference derivative (suffers from quantization spikes)
+        - DVL: raw un-derotated optical flow (suffers from tilt-induced jitter)
+        """
+        ax, ay, az = float(raw_accel[0]), float(raw_accel[1]), float(raw_accel[2])
+        p, q, r = float(raw_gyro[0]), float(raw_gyro[1]), float(raw_gyro[2])
+
+        # If raw DVL optical velocity is directly provided without filter
+        if raw_dvl is not None:
+            self.v_raw[0] = float(raw_dvl[0])
+            self.v_raw[1] = float(raw_dvl[1])
+        else:
+            # Pure inertial dead reckoning: v += a * dt (diverges rapidly)
+            self.v_raw[0] += ax * self.dt
+            self.v_raw[1] += ay * self.dt
+
+        # Depth derivative: w_raw = dz / dt
+        if raw_depth is not None and self.last_depth is not None:
+            self.v_raw[2] = (float(raw_depth) - self.last_depth) / self.dt
+            self.last_depth = float(raw_depth)
+        else:
+            self.v_raw[2] += az * self.dt
+            if raw_depth is not None:
+                self.last_depth = float(raw_depth)
+
+        self.v_raw[3] = p
+        self.v_raw[4] = q
+        self.v_raw[5] = r
+
+        # Position dead-reckoning integration (quadratic divergence)
+        self.pos_raw[0] += self.v_raw[0] * self.dt
+        self.pos_raw[1] += self.v_raw[1] * self.dt
+        self.pos_raw[2] += self.v_raw[2] * self.dt
+        self.drift_accumulated = float(np.linalg.norm(self.pos_raw[:2]))
+
+        return self.v_raw.copy(), self.drift_accumulated
+
+
+# ==============================================================================
+# 5. BENCHMARK & REGRESSION TEST
+# ==============================================================================
+
 
 if __name__ == "__main__":
     print("=" * 70)
@@ -535,10 +659,11 @@ if __name__ == "__main__":
         dkf.update(meas)
     dt_dyn = (time.perf_counter() - t0) / N_dyn * 1e6
 
-    u, v, w, r = dkf.get_velocities()
+    u, v, w, p, q, r = dkf.get_velocities()
     du, dv = dkf.get_disturbance_forces()
     print(f"  Execution speed  : {dt_dyn:.2f} microseconds per cycle (~{1e6/dt_dyn:,.0f} Hz capacity)")
-    print(f"  Estimated States : Surge u={u:.3f} m/s, Sway v={v:.3f} m/s, Heave w={w:.3f} m/s, Yaw r={r:.3f} rad/s")
+    print(f"  Estimated States : Surge u={u:.3f} m/s, Sway v={v:.3f} m/s, Heave w={w:.3f} m/s")
+    print(f"                     Roll p={p:.3f} rad/s, Pitch q={q:.3f} rad/s, Yaw r={r:.3f} rad/s")
     print(f"  Disturbance Est. : Surge Force du={du:+.2f} N, Sway Force dv={dv:+.2f} N")
 
     print("\n" + "=" * 70)
